@@ -141,6 +141,8 @@ button { font: inherit; color: inherit; }
 .o-title .o-note { margin-top: 2px; }
 
 .o-items, .o-kids { position: relative; }
+/* skip layout/paint of off-screen rows: keeps huge documents fast */
+.o-node { content-visibility: auto; contain-intrinsic-size: auto 30px; }
 .o-kids { margin-left: 9px; padding-left: 20px; border-left: 1px solid var(--guide); }
 .o-node.o-collapsed > .o-kids { display: none; }
 

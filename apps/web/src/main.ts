@@ -10,6 +10,7 @@ import { Workspace } from './store/workspace.ts';
 import { h, icon, toast } from './ui/dom.ts';
 import { finder, modal } from './ui/overlay.ts';
 import { Sidebar } from './ui/sidebar.ts';
+import './platform.ts';
 
 interface Route {
   doc: string | null;

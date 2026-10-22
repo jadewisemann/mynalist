@@ -27,6 +27,27 @@ export interface EditorHost {
   /** clicked a link in rendered text */
   openLink(url: string): void;
   onTagClick(tag: string, alt: boolean): void;
+  /** after every text input while editing (autocomplete triggers) */
+  onTextInput?(ctx: TextContext): void;
+  /** clicked a rendered date chip; [s, e) is the token's source range */
+  onDateClick?(id: NodeId, s: number, e: number, anchor: HTMLElement): void;
+  /** right-click / long-press on a bullet, or the item menu */
+  onItemMenu?(id: NodeId, x: number, y: number): void;
+}
+
+export interface TextContext {
+  id: NodeId;
+  f: 'c' | 'n';
+  el: HTMLElement;
+  text: string;
+  /** caret offset (collapsed selection) or null when a range is selected */
+  caret: number | null;
+}
+
+/** A popup (autocomplete, date picker) that wants first look at keys. */
+export interface KeyInterceptor {
+  /** return true if the key was consumed */
+  onKey(e: KeyboardEvent): boolean;
 }
 
 export interface EditorPrefs {
@@ -47,6 +68,9 @@ interface Row {
   kids: HTMLElement;
   c: string | null;
   n: string | null;
+  /** children/collapse/numbering signature at last reconcile */
+  kidsKey: string;
+  num: number;
 }
 
 interface Editing {
@@ -83,6 +107,8 @@ export class Editor {
   private goalX: number | null = null;
   private clip: { text: string; items: Portable[] } | null = null;
   keymap = new Keymap();
+  /** set by an open popup; gets keys before the editor */
+  interceptor: KeyInterceptor | null = null;
   prefs: EditorPrefs = { bulletZoom: false, showNotes: 'show', showChecked: true, unindentInPlace: false };
   readOnly = false;
 
@@ -106,6 +132,14 @@ export class Editor {
     this.el.addEventListener('copy', (e) => this.onCopy(e, false));
     this.el.addEventListener('cut', (e) => this.onCopy(e, true));
     this.el.addEventListener('paste', (e) => this.onPaste(e));
+    this.el.addEventListener('contextmenu', (e) => {
+      const b = (e.target as HTMLElement).closest('.o-bullet, .o-title > .o-row');
+      const r = this.rowFromEvent(e);
+      if (!b || !r || !this.host.onItemMenu || (e.target as HTMLElement).closest('.o-editing')) return;
+      e.preventDefault();
+      if (!this.block?.ids.includes(r.id) && r.id !== this.view.zoom) this.applySel({ k: 'block', ids: [r.id], anchor: r.id, focus: r.id });
+      this.host.onItemMenu(r.id, e.clientX, e.clientY);
+    });
     document.addEventListener('selectionchange', () => this.trackSel());
   }
 
@@ -185,7 +219,7 @@ export class Editor {
     el.append(row);
     if (!isTitle) el.append(kids);
     el.dataset.id = id;
-    return { id, el, row, bullet, check, content, note, kids, c: null, n: null };
+    return { id, el, row, bullet, check, content, note, kids, c: null, n: null, kidsKey: '', num: -1 };
   }
 
   /** Full render (reuses existing rows). */
@@ -221,29 +255,41 @@ export class Editor {
     try {
       const t = this.tree;
       const parents = new Set<NodeId>();
+      let removed = false;
       for (const id of touched) {
         const n = t.get(id);
         if (!n) continue;
         const r = this.rows.get(id);
         if (r) {
-          this.updateRow(r, this.numberOf(id));
-          parents.add(id);
+          // children list may have changed (collapse, check filter, moves)
+          if (r.kidsKey !== kidsKey(n.children, n.collapsed, n.props.num)) parents.add(id);
+          else this.updateRow(r, this.numberOf(id));
         }
-        if (n.parent) parents.add(n.parent);
+        const p = n.parent;
+        if (p) {
+          const pr = this.rows.get(p);
+          if (!pr || !r || r.el.parentElement !== (p === this.view.zoom ? this.items : pr.kids) || pr.kidsKey !== kidsKey(t.get(p)!.children, t.get(p)!.collapsed, t.get(p)!.props.num)) {
+            parents.add(p);
+          }
+          // checked state affects visibility in the parent when hiding checked items
+          if (!this.view.showChecked) parents.add(p);
+        } else if (r) {
+          removed = true;
+        }
       }
-      // a moved/removed node's old parent is in `touched` too
       for (const p of parents) {
         const r = this.rows.get(p);
         if (!r) continue;
         this.reconcile(p, p === this.view.zoom ? this.items : r.kids, false);
         this.updateRow(r, this.numberOf(p));
+        removed = true;
       }
-      for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
-      if (touched.has(this.view.zoom) || [...touched].some((id) => this.crumbs.querySelector(`[data-id="${CSS.escape(id)}"]`))) {
+      if (removed) for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
+      if (touched.has(this.view.zoom) || (this.view.zoom !== ROOT && [...touched].some((id) => t.ancestors(this.view.zoom).includes(id)))) {
         this.renderCrumbs();
       }
       this.el.classList.toggle('o-empty', visibleChildren(t, this.view.zoom, this.view).length === 0);
-      this.paintBlock();
+      if (this.block) this.paintBlock();
     } finally {
       this.mutating--;
     }
@@ -259,7 +305,10 @@ export class Editor {
   private reconcile(parent: NodeId, container: HTMLElement, deep: boolean) {
     const t = this.tree;
     const want = visibleChildren(t, parent, this.view);
-    const numbered = !!t.get(parent)?.props.num;
+    const pn = t.get(parent);
+    const numbered = !!pn?.props.num;
+    const pr = this.rows.get(parent);
+    if (pr && pn) pr.kidsKey = kidsKey(pn.children, pn.collapsed, pn.props.num);
     // index-based: recursing may pull rows out of this container (e.g. after zoom out)
     want.forEach((id, i) => {
       let r = this.rows.get(id);
@@ -270,7 +319,9 @@ export class Editor {
       }
       const at = container.children[i] ?? null;
       if (r!.el !== at) container.insertBefore(r!.el, at);
-      this.updateRow(r!, numbered ? i + 1 : 0);
+      const num = numbered ? i + 1 : 0;
+      // touched rows are updated by patch(); others only when their number moved
+      if (fresh || deep || r!.num !== num) this.updateRow(r!, num);
       if (fresh || deep) this.reconcile(id, r!.kids, deep);
     });
     while (container.children.length > want.length) container.lastElementChild!.remove();
@@ -280,6 +331,7 @@ export class Editor {
     const t = this.tree;
     const n = t.get(r.id);
     if (!n) return;
+    r.num = num;
     const p = n.props;
     const isTitle = r === this.title;
     const kids = n.children.length > 0;
@@ -407,10 +459,19 @@ export class Editor {
     }
   }
 
+  private painted: HTMLElement[] = [];
+
   private paintBlock() {
-    for (const el of this.el.querySelectorAll('.o-selected')) el.classList.remove('o-selected');
+    for (const el of this.painted) el.classList.remove('o-selected');
+    this.painted = [];
     if (!this.block) return;
-    for (const id of this.block.ids) this.rows.get(id)?.el.classList.add('o-selected');
+    for (const id of this.block.ids) {
+      const el = this.rows.get(id)?.el;
+      if (el) {
+        el.classList.add('o-selected');
+        this.painted.push(el);
+      }
+    }
   }
 
   // ---- editing -----------------------------------------------------------------
@@ -478,6 +539,31 @@ export class Editor {
     this.session.commit(tx, { before, after });
     this.lastSel = after;
     if (ed.id === ROOT && ed.f === 'c') this.host.onTitleEdit(text);
+    this.host.onTextInput?.({ id: ed.id, f: ed.f, el: ed.el, text, caret: s && s.s === s.e ? s.s : null });
+  }
+
+  /** Current edit context (for popups). */
+  textContext(): TextContext | null {
+    const ed = this.editing;
+    if (!ed) return null;
+    const s = getSel(ed.el);
+    return { id: ed.id, f: ed.f, el: ed.el, text: getText(ed.el), caret: s && s.s === s.e ? s.s : null };
+  }
+
+  /**
+   * Replace [s, e) of a node's field with `text` as one undo step and put the
+   * caret at `caretAt` (selection [caretAt, caretEnd]). Used by autocomplete
+   * and the date picker; works whether or not the item is being edited.
+   */
+  replaceRange(id: NodeId, f: 'c' | 'n', s: number, e: number, text: string, caretAt?: number, caretEnd?: number) {
+    const ed = this.editing;
+    const cur = ed && ed.id === id && ed.f === f ? getText(ed.el) : ((this.tree.get(id)?.props[f] as string | undefined) ?? '');
+    const next = cur.slice(0, s) + text + cur.slice(e);
+    const at = caretAt ?? s + text.length;
+    this.run((tx) => {
+      tx.set(id, { [f]: next });
+      return { sel: { k: 'text', id, f, s: at, e: caretEnd ?? at } };
+    });
   }
 
   // ---- command execution -------------------------------------------------------
@@ -766,6 +852,11 @@ export class Editor {
 
   private onKeyDown(e: KeyboardEvent) {
     if (e.isComposing || e.keyCode === 229) return;
+    if (this.interceptor?.onKey(e)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     const combo = comboOf(e);
     if (!['Up', 'Down', 'Shift+Up', 'Shift+Down'].includes(combo)) this.goalX = null;
 
@@ -1078,6 +1169,13 @@ export class Editor {
       this.run((tx) => toggleChecked(tx, this.view, [r.id], this.currentSel()));
       return;
     }
+    const date = target.closest<HTMLElement>('.o-date');
+    if (date && !target.closest('.o-editing') && this.host.onDateClick) {
+      e.preventDefault();
+      const field = date.closest('.o-note') ? 'n' : 'c';
+      if (field === 'c') this.host.onDateClick(r.id, Number(date.dataset.s), Number(date.dataset.e), date);
+      return;
+    }
     const tag = target.closest<HTMLElement>('.o-tag');
     if (tag && !target.closest('.o-editing')) {
       e.preventDefault();
@@ -1152,6 +1250,10 @@ export class Editor {
 function parentIfNotZoom(t: DocSession['live'], id: NodeId, v: View): NodeId | null {
   const p = t.get(id)?.parent;
   return p && p !== v.zoom ? p : null;
+}
+
+function kidsKey(children: NodeId[], collapsed: boolean, num: unknown): string {
+  return `${collapsed ? 1 : 0}${num ? 1 : 0}${children.join(',')}`;
 }
 
 function div(cls: string): HTMLDivElement {
