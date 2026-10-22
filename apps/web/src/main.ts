@@ -567,7 +567,7 @@ class App {
       return h('div', {}, h('div.field', {}, `Sync server: ${c.server}`),
         h('button.btn', { onclick: () => void this.sync.disconnect().then(() => toast('Disconnected')) }, 'Disconnect'));
     }
-    const url = h('input', { placeholder: 'https://outliner.example.com', value: location.protocol.startsWith('http') && location.port !== '5173' ? location.origin : '' });
+    const url = h('input', { placeholder: 'http://100.x.y.z:8080', value: location.protocol.startsWith('http') && location.hostname !== 'localhost' && location.port !== '5173' ? location.origin : '' });
     const pw = h('input', { type: 'password', placeholder: 'Password' });
     const status = h('div', { style: 'font-size:13px;color:var(--muted)' });
     return h('div', {},
