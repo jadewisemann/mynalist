@@ -32,6 +32,7 @@ export interface SyncResponse {
 
 const UNDO_TTL = 48 * 3600 * 1000;
 const MERGE_WINDOW = 1000;
+const PURGE_AFTER = 30 * 24 * 3600 * 1000;
 
 export type ChangeKind = 'local' | 'remote' | 'undo';
 export type Listener = (kind: ChangeKind, touched: Set<NodeId> | null) => void;
@@ -51,8 +52,9 @@ export class DocSession {
   private redoStack: Txn[] = [];
   private listeners = new Set<Listener>();
 
-  constructor(snap?: DocSnapshot, rootProps = {}) {
-    this.confirmed = snap ? Tree.fromJSON(snap.confirmed) : new Tree(rootProps, Date.now());
+  /** New docs always start from an empty tree; content (incl. title) arrives as ops. */
+  constructor(snap?: DocSnapshot) {
+    this.confirmed = snap ? Tree.fromJSON(snap.confirmed) : new Tree();
     this.version = snap?.version ?? 0;
     this.pending = snap ? [...snap.pending] : [];
     this.live = this.confirmed.clone();
@@ -211,8 +213,13 @@ export class DocSession {
     this.emit('remote', null);
   }
 
+  /**
+   * Drop long-deleted nodes from the confirmed tree. Uses the server's horizon
+   * (not the 48 h undo TTL) so a late op from another client can't reference a
+   * node we already forgot.
+   */
   purge(now = Date.now()) {
-    this.confirmed.purgeDetached(now - UNDO_TTL);
+    this.confirmed.purgeDetached(now - PURGE_AFTER);
   }
 }
 

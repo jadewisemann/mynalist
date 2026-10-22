@@ -19,6 +19,8 @@ export interface TNode {
   collapsed: boolean;
   created: number;
   edited: number;
+  /** last attach/detach time (purging deleted nodes goes by this) */
+  moved?: number;
 }
 
 /**
@@ -168,7 +170,7 @@ export class Tree {
         if (!p) return null;
         const n: TNode = {
           id: op.id, parent: op.parent, children: [], props: cleanProps(op.props),
-          collapsed: false, created: op.ts, edited: op.ts,
+          collapsed: false, created: op.ts, edited: op.ts, moved: op.ts,
         };
         this.nodes.set(op.id, n);
         this.insert(p, op.id, op.after);
@@ -213,6 +215,7 @@ export class Tree {
           n.parent = op.parent;
           this.insert(p, op.id, op.after);
         }
+        n.moved = op.ts;
         return { t: 'move', id: op.id, parent: before.parent, after: before.after, ts: op.ts };
       }
       case 'collapse': {
@@ -224,10 +227,10 @@ export class Tree {
     }
   }
 
-  /** Drop detached subtrees whose top was last touched before `cutoff`. */
+  /** Drop detached subtrees whose top was last edited/moved before `cutoff`. */
   purgeDetached(cutoff: number) {
     for (const n of [...this.nodes.values()]) {
-      if (n.id !== ROOT && n.parent === null && n.edited < cutoff && this.nodes.has(n.id)) {
+      if (n.id !== ROOT && n.parent === null && Math.max(n.edited, n.moved ?? 0) < cutoff && this.nodes.has(n.id)) {
         const stack = [n.id];
         while (stack.length) {
           const id = stack.pop()!;
