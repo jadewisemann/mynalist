@@ -284,3 +284,68 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .o-row:hover > .o-menu-btn { display: flex; }
 .o-menu-btn:hover { color: var(--fg); background: var(--hover); }
 @media (pointer: coarse) { .o-menu-btn { display: none !important; } }
+
+/* ---- in-editor popups: autocomplete + date picker ---- */
+.ac-popup, .dp {
+  position: fixed; z-index: 65; background: var(--bg); color: var(--fg); border: 1px solid var(--chip-border);
+  border-radius: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.18); font-size: 14px; overflow: auto;
+}
+.ac-popup { min-width: 200px; max-width: min(440px, calc(100vw - 8px)); padding: 4px 0; }
+.ac-item { padding: 5px 12px; cursor: pointer; }
+.ac-item.active { background: var(--sel); }
+.ac-main { display: flex; gap: 12px; align-items: baseline; }
+.ac-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ac-label b { font-weight: 650; color: var(--accent); }
+.ac-aside { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.ac-sub { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.dp { width: min(292px, calc(100vw - 8px)); padding: 10px 12px; outline: none; user-select: none; }
+.dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.dp-title { font-weight: 600; }
+.dp-nav { border: 0; background: none; width: 30px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 18px; color: var(--muted); }
+.dp-nav:hover { background: var(--hover); color: var(--fg); }
+.dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-wd { text-align: center; font-size: 11px; color: var(--muted); padding: 2px 0; }
+.dp-day {
+  border: 0; background: none; height: 32px; border-radius: 50%; cursor: pointer; font-size: 13px;
+  font-variant-numeric: tabular-nums; padding: 0; aspect-ratio: auto;
+}
+.dp-day:hover { background: var(--hover); }
+.dp-day.other { color: var(--faint); }
+.dp-day.today { color: var(--accent); font-weight: 650; }
+.dp-day.in-range { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 4px; }
+.dp-day.sel { background: var(--accent); color: #fff; font-weight: 600; }
+.dp-summary { font-size: 12px; color: var(--muted); text-align: center; margin: 6px 0 2px; }
+.dp-fields { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.dp-row { display: flex; align-items: center; gap: 8px; }
+.dp-row > span:first-child { width: 78px; flex: none; color: var(--muted); font-size: 13px; }
+.dp-row input, .dp-row select, .dp-every input, .dp-every select {
+  flex: 1; min-width: 0; font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid var(--chip-border);
+  border-radius: 6px; background: var(--bg); color: var(--fg);
+}
+.dp-row input:focus, .dp-row select:focus { outline: none; border-color: var(--accent); }
+.dp-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.dp-check input:disabled + span { color: var(--faint); }
+.dp-help {
+  display: inline-flex; width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--faint); color: var(--muted);
+  font-size: 10px; align-items: center; justify-content: center; cursor: help;
+}
+.dp-err { color: #d9534f; font-size: 12px; }
+.dp-foot { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.dp-foot .spacer { flex: 1; }
+.dp-foot .btn { padding: 4px 10px; font-size: 13px; }
+.dp-delete { color: #d9534f; }
+.dp-custom .dp-row { margin-bottom: 10px; }
+.dp-custom .dp-row > span:first-child { width: 96px; }
+.dp-every { display: flex; gap: 6px; flex: 1; }
+.dp-every input { max-width: 72px; }
+.dp-weekdays { display: flex; gap: 4px; flex-wrap: wrap; }
+.dp-wd-toggle {
+  width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--chip-border); background: var(--bg);
+  cursor: pointer; font-size: 12px; padding: 0;
+}
+.dp-wd-toggle.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (max-width: 760px) {
+  .dp-day { height: 36px; }
+  .ac-item { padding: 8px 12px; }
+}

@@ -13,6 +13,7 @@ import { finder, modal } from './ui/overlay.ts';
 import { Sidebar } from './ui/sidebar.ts';
 import { installDrag } from './editor/drag.ts';
 import { itemMenu } from './ui/itemmenu.ts';
+import { Popups } from './ui/popups.ts';
 import './platform.ts';
 
 interface Route {
@@ -29,6 +30,7 @@ class App {
   ws!: Workspace;
   editor!: Editor;
   sidebar!: Sidebar;
+  popups!: Popups;
   route: Route = { doc: null, zoom: ROOT, q: '' };
   private root = document.getElementById('app')!;
   private docArea = h('div.doc-wrap');
@@ -51,6 +53,8 @@ class App {
       onAppCommand: (id) => this.appCommand(id),
       openLink: (url) => this.openLink(url),
       onTagClick: (tag) => this.toggleSearchTerm(tag),
+      onTextInput: (ctx) => this.popups.onTextInput(ctx),
+      onDateClick: (id, s, e, el) => this.popups.openDateChip(id, s, e, el),
       onItemMenu: (id, x, y) => itemMenu(this.editor, id, x, y, {
         bookmark: () => {
           const doc = this.route.doc;
@@ -63,6 +67,14 @@ class App {
           toast('Inbox set');
         },
       }),
+    });
+    this.popups = new Popups(this.editor, {
+      tags: (global) => this.tagCounts()[global ? 'all' : 'doc'],
+      globalTags: () => this.ws.pref('global_tag_autocomplete', false),
+      linkCandidates: () => this.linkCandidates(),
+      itemUrl: (doc, id) => formatHash({ doc, zoom: id, q: '' }),
+      startDay: () => ({ sat: 6, sun: 0, mon: 1 } as Record<string, number>)[String(this.ws.pref('start_day', 'sun'))] ?? 0,
+      hour12: () => this.ws.pref('time_format', '12h') === '12h',
     });
     installDrag(this.editor, { insideAtTop: () => this.ws.pref<string>('move_item_sent_to_position', 'bottom') === 'top' });
     this.sidebar = new Sidebar(this.ws, {
@@ -152,7 +164,7 @@ class App {
     return h('nav.mobile-bar', {},
       b('⇤', 'unindent'), b('⇥', 'indent'), b('↑', 'swap-up'), b('↓', 'swap-down'),
       b('☑', 'toggle-checked'), b('✎', 'goto-note'), b('▸', 'collapse'), b('↶', 'undo'), b('↷', 'redo'),
-      b('#', 'insert-hash'), b('⌕', 'search'));
+      b('#', 'insert-hash'), b('◷', 'add-date'), b('⌕', 'search'));
   }
 
   private toggleSidebar(force?: boolean) {
@@ -300,6 +312,24 @@ class App {
     this.editor.applySel({ k: 'text', id, f: 'c', s: 0, e: 0 });
   }
 
+  /** Items of all documents for `[[` links (current document first). */
+  private linkCandidates() {
+    const docs = [...this.ws.allDocs()];
+    const cur = this.route.doc;
+    docs.sort((a, b) => Number(b.id === cur) - Number(a.id === cur));
+    const out: { doc: string; id: NodeId; text: string; path: string }[] = [];
+    for (const d of docs) {
+      const t = this.sync.doc(d.id).live;
+      for (const n of t.nodes.values()) {
+        const text = String(n.props.c ?? '');
+        if (n.id === ROOT || !text.trim() || !t.isAttached(n.id)) continue;
+        const crumb = breadcrumb(t, n.id);
+        out.push({ doc: d.id, id: n.id, text, path: crumb ? `${d.title} › ${crumb}` : d.title });
+      }
+    }
+    return out;
+  }
+
   private tagCounts() {
     const count = (trees: Tree[]) => {
       const m = new Map<string, [string, number]>();
@@ -393,6 +423,8 @@ class App {
         }
         return true;
       }
+      case 'add-date':
+        return this.popups.addDate();
       case 'insert-hash':
         document.execCommand('insertText', false, '#');
         return true;
@@ -527,6 +559,7 @@ class App {
       showNotes: p('show_notes', 'show'),
       showChecked,
     });
+    this.editor.checkOptions = { recurring: p<string>('recurrence_check_behavior', 'new_instance') === 'update' ? 'update' : 'new_instance' };
     if (before.showChecked !== showChecked || this.searchInput.value) this.runSearch(false);
   }
 
@@ -550,6 +583,9 @@ class App {
       row('Font size', sel('font_size', 'medium', [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']])),
       row('Notes', sel('show_notes', 'show', [['show', 'Show'], ['teaser', 'First line'], ['hide', 'Hide']])),
       row('Time format', sel('time_format', '12h', [['12h', '12-hour'], ['24h', '24-hour']])),
+      row('First day of week', sel('start_day', 'sun', [['sat', 'Saturday'], ['sun', 'Sunday'], ['mon', 'Monday']])),
+      row('Recurring date', sel('recurrence_check_behavior', 'new_instance', [['new_instance', 'Next date appears in new item'], ['update', 'Existing date gets updated']])),
+      row('Auto-complete tags from all docs', chk('global_tag_autocomplete', false)),
       row('Show checked items', chk('show_checked', true)),
       row('Narrow document layout', chk('center_doc', true)),
       row('Use bullet to zoom in', chk('use_bullet_to_zoom', false)),
