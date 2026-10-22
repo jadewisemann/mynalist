@@ -87,19 +87,41 @@ export class DocSession {
   transact(ops: Op[], sel: { before: Selection; after: Selection }, opts: { undoable?: boolean } = {}): Op[] {
     const applied: Op[] = [];
     const inverse: Op[] = [];
-    const touched = new Set<NodeId>();
     for (const op of ops) {
       const inv = this.live.apply(op);
       if (!inv) continue;
       applied.push(op);
-      this.pending.push(op);
-      touchOp(this.live, op, inv, touched);
-      if (op.t !== 'collapse') inverse.unshift(inv);
+      inverse.unshift(inv);
     }
-    if (applied.length === 0) return applied;
+    this.commit({ ops: applied, inverse }, sel, opts);
+    return applied;
+  }
+
+  /**
+   * Record ops that were already applied to `live` (e.g. by a command Tx),
+   * with their inverses in undo order.
+   */
+  commit(
+    tx: { ops: readonly Op[]; inverse: readonly Op[] },
+    sel: { before: Selection; after: Selection },
+    opts: { undoable?: boolean } = {},
+  ) {
+    if (tx.ops.length === 0) return;
+    const touched = new Set<NodeId>();
+    for (const op of tx.ops) {
+      this.pending.push(op);
+      touched.add(op.id);
+      if (op.t === 'create' || op.t === 'move') {
+        const parent = this.live.get(op.id)?.parent;
+        if (parent) touched.add(parent);
+        if (op.t === 'move' && op.parent) touched.add(op.parent);
+      }
+    }
+    for (const inv of tx.inverse) if (inv.t === 'move' && inv.parent) touched.add(inv.parent);
+    const inverse = tx.inverse.filter((op) => op.t !== 'collapse');
     if (opts.undoable !== false && inverse.length) {
       const now = Date.now();
-      const merge = mergeInfo(applied, inverse);
+      const merge = mergeInfo(tx.ops, inverse);
       const top = this.undoStack[this.undoStack.length - 1];
       if (
         merge && top?.merge && now - top.ts < MERGE_WINDOW &&
@@ -114,7 +136,6 @@ export class DocSession {
       this.redoStack = [];
     }
     this.emit('local', touched);
-    return applied;
   }
 
   /** Undo the last transaction; returns the selection to restore, or undefined. */
@@ -201,7 +222,7 @@ function touchOp(t: Tree, op: Op, inv: Op, touched: Set<NodeId>) {
 }
 
 /** Single-character edit of one text field → candidate for typing coalescing. */
-function mergeInfo(applied: Op[], inverse: Op[]): Txn['merge'] {
+function mergeInfo(applied: readonly Op[], inverse: readonly Op[]): Txn['merge'] {
   if (applied.length !== 1 || inverse.length !== 1) return undefined;
   const op = applied[0]!;
   const inv = inverse[0]!;
