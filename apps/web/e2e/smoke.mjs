@@ -1,0 +1,30 @@
+import { chromium } from 'playwright-core';
+const exe = `${process.env.HOME}/.cache/ms-playwright/chromium-1228/chrome-linux/chrome`;
+const browser = await chromium.launch({ executablePath: exe });
+const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(String(e)));
+page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+await page.goto(process.env.URL ?? 'http://localhost:5173/');
+await page.waitForSelector('.o-editor');
+await page.waitForTimeout(500);
+// click end of last item, add items
+await page.click('.o-items > .o-node:last-child .o-content');
+await page.keyboard.press('End');
+await page.keyboard.press('Enter');
+await page.keyboard.type('First new item');
+await page.keyboard.press('Enter');
+await page.keyboard.type('Child item with **bold** and #tag');
+await page.keyboard.press('Tab');
+await page.keyboard.press('Enter');
+await page.keyboard.type('Second child !(2026-10-23)');
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+const outline = await page.evaluate(() => {
+  const walk = (el, d) => [...el.children].map((n) => '  '.repeat(d) + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
+  return walk(document.querySelector('.o-items'), 0);
+});
+console.log(outline);
+await page.screenshot({ path: '/tmp/shot1.png' });
+console.log('errors:', errors);
+await browser.close();

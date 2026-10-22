@@ -1,0 +1,16 @@
+{
+  "name": "@outliner/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@outliner/core": "*"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  }
+}
