@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import {
   ROOT, Tx, compileQuery, extractTags, fuzzyFilter, searchTree, type NodeId, type Tree,
 } from '@outliner/core';
@@ -697,3 +698,9 @@ function insertItems(tx: Tx, parent: NodeId, after: NodeId | null, items: Item[]
 }
 
 void new App().start();
+
+// offline app shell for the browser build (needs a secure context: https or localhost;
+// Capacitor bundles its assets itself)
+if ('serviceWorker' in navigator && import.meta.env.PROD && !Capacitor.isNativePlatform()) {
+  void navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
