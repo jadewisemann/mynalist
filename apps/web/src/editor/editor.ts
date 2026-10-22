@@ -260,7 +260,7 @@ export class Editor {
     const t = this.tree;
     const want = visibleChildren(t, parent, this.view);
     const numbered = !!t.get(parent)?.props.num;
-    let cursor = container.firstElementChild as HTMLElement | null;
+    // index-based: recursing may pull rows out of this container (e.g. after zoom out)
     want.forEach((id, i) => {
       let r = this.rows.get(id);
       const fresh = !r || r === this.title;
@@ -268,16 +268,12 @@ export class Editor {
         r = this.makeRow(id);
         this.rows.set(id, r);
       }
-      if (r!.el !== cursor) container.insertBefore(r!.el, cursor);
-      else cursor = cursor.nextElementSibling as HTMLElement | null;
+      const at = container.children[i] ?? null;
+      if (r!.el !== at) container.insertBefore(r!.el, at);
       this.updateRow(r!, numbered ? i + 1 : 0);
       if (fresh || deep) this.reconcile(id, r!.kids, deep);
     });
-    while (cursor) {
-      const next = cursor.nextElementSibling as HTMLElement | null;
-      cursor.remove();
-      cursor = next;
-    }
+    while (container.children.length > want.length) container.lastElementChild!.remove();
   }
 
   private updateRow(r: Row, num: number) {

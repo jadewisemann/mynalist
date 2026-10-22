@@ -18,6 +18,7 @@ interface Route {
 }
 
 const LAST_DOC = 'outliner:lastDoc';
+const WELCOME = 'outliner:welcome';
 
 class App {
   sync = new SyncClient();
@@ -559,6 +560,7 @@ class App {
       h('button.btn.primary', {
         onclick: () => {
           status.textContent = 'Connecting…';
+          this.dropUntouchedWelcome();
           this.sync.connect(url.value.trim(), pw.value).then(
             () => {
               status.textContent = 'Connected.';
@@ -620,6 +622,17 @@ class App {
     add(fmt, 'Tags like #idea and dates like !(2026-12-31)');
     add(ROOT, 'Press Ctrl+/ for all shortcuts');
     s.commit(tx, { before: null, after: null }, { undoable: false });
+    localStorage.setItem(WELCOME, JSON.stringify({ id, canonical: s.live.canonical() }));
+  }
+
+  /** Before joining a server, drop the local sample doc if the user never touched it. */
+  dropUntouchedWelcome() {
+    const raw = localStorage.getItem(WELCOME);
+    if (!raw) return;
+    localStorage.removeItem(WELCOME);
+    const { id, canonical } = JSON.parse(raw) as { id: string; canonical: string };
+    const s = this.sync.sessions.get(id);
+    if (s && s.live.canonical() === canonical && this.ws.get(id)) this.ws.remove(id);
   }
 }
 

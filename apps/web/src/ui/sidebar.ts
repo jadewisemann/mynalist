@@ -20,6 +20,8 @@ export class Sidebar {
   private tabs: Record<PaneName, HTMLButtonElement>;
   active: PaneName = 'files';
   private renaming: string | null = null;
+  /** the live rename input, reused across re-renders so typing isn't lost */
+  private renameEl: { id: string; el: HTMLInputElement } | null = null;
   private dragId: string | null = null;
   private ws: Workspace;
   private host: SidebarHost;
@@ -153,12 +155,19 @@ export class Sidebar {
   }
 
   private renameInput(e: FileEntry): HTMLElement {
+    if (this.renameEl?.id === e.id) {
+      const el = this.renameEl.el;
+      queueMicrotask(() => el.isConnected && document.activeElement !== el && el.focus());
+      return el;
+    }
     const input = h('input', { value: e.title });
+    this.renameEl = { id: e.id, el: input };
     let done = false;
     const commit = (save: boolean) => {
       if (done) return;
       done = true;
       this.renaming = null;
+      this.renameEl = null;
       if (save && input.value.trim() && input.value !== e.title) this.ws.rename(e.id, input.value.trim());
       else this.render();
     };
@@ -168,9 +177,12 @@ export class Sidebar {
       if (ev.key === 'Escape') commit(false);
       ev.stopPropagation();
     });
-    input.addEventListener('blur', () => commit(true));
+    input.addEventListener('blur', () => setTimeout(() => {
+      // blur caused by a re-render moving the element: keep editing
+      if (!input.isConnected || document.activeElement !== input) commit(true);
+    }));
     input.addEventListener('click', (ev) => ev.stopPropagation());
-    setTimeout(() => {
+    queueMicrotask(() => {
       input.focus();
       input.select();
     });
