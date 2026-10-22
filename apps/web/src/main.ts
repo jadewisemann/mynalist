@@ -10,6 +10,8 @@ import { Workspace } from './store/workspace.ts';
 import { h, icon, toast } from './ui/dom.ts';
 import { finder, modal } from './ui/overlay.ts';
 import { Sidebar } from './ui/sidebar.ts';
+import { installDrag } from './editor/drag.ts';
+import { itemMenu } from './ui/itemmenu.ts';
 import './platform.ts';
 
 interface Route {
@@ -48,7 +50,20 @@ class App {
       onAppCommand: (id) => this.appCommand(id),
       openLink: (url) => this.openLink(url),
       onTagClick: (tag) => this.toggleSearchTerm(tag),
+      onItemMenu: (id, x, y) => itemMenu(this.editor, id, x, y, {
+        bookmark: () => {
+          const doc = this.route.doc;
+          if (doc) this.ws.addBookmark({ title: String(this.editor.tree.get(id)?.props.c ?? '') || 'Untitled', doc, zoom: id });
+          toast('Bookmarked');
+        },
+        exportItem: () => this.route.doc && exportDialog(this.editor.tree, id, String(this.editor.tree.get(id)?.props.c ?? '') || this.ws.title(this.route.doc)),
+        setInbox: () => {
+          if (this.route.doc) this.ws.setPref('inbox_location', `${this.route.doc}/${id}`);
+          toast('Inbox set');
+        },
+      }),
     });
+    installDrag(this.editor, { insideAtTop: () => this.ws.pref<string>('move_item_sent_to_position', 'bottom') === 'top' });
     this.sidebar = new Sidebar(this.ws, {
       currentDoc: () => this.route.doc,
       openDoc: (doc, zoom, q) => this.go({ doc, zoom: zoom ?? ROOT, q: q ?? '' }),

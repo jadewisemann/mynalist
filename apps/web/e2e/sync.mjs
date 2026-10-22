@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 const exe = `${process.env.HOME}/.cache/ms-playwright/chromium-1228/chrome-linux/chrome`;
-const URL = process.env.URL ?? 'http://localhost:5173/';
+const URL = process.env.URL ?? process.env.URL ?? 'http://localhost:5174/';
 const browser = await chromium.launch({ executablePath: exe });
 const errors = [];
 

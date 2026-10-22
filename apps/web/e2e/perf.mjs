@@ -4,7 +4,7 @@ const N = Number(process.env.N ?? 10000);
 const browser = await chromium.launch({ executablePath: exe });
 const page = await (await browser.newContext({ viewport: { width: 1200, height: 800 } })).newPage();
 page.on('pageerror', (e) => console.log('pageerror', String(e)));
-await page.goto('http://localhost:5173/');
+await page.goto(process.env.URL ?? 'http://localhost:5174/');
 await page.waitForSelector('.o-editor');
 await page.click('.pane-head button'); await page.click('text=New document');
 await page.keyboard.type('Perf'); await page.keyboard.press('Enter');

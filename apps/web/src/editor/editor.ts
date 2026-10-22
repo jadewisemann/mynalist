@@ -5,7 +5,7 @@
 // the model is updated from it on every input event).
 
 import {
-  type CmdResult, type DocSession, type NodeId, type Portable, ROOT, type Sel, Tx, type View,
+  type CheckOptions, type CmdResult, type DocSession, type NodeId, type Portable, ROOT, type Sel, Tx, type View,
   backspaceAtStart, caret, cycleLevel, defaultView, deleteAtEnd, deleteItems, duplicate, enter,
   expandToLevel, flatten, indent, insertPortable, moveDown, moveUp, nextVisible, nextVisibleNonDescendant,
   nextVisibleSibling, normalizeBlock, outdent, pasteItems, prevVisible, prevVisibleSibling, replaceWithEmpty,
@@ -109,6 +109,8 @@ export class Editor {
   keymap = new Keymap();
   /** set by an open popup; gets keys before the editor */
   interceptor: KeyInterceptor | null = null;
+  /** recurring-date behavior for toggle-checked (set by the app from prefs) */
+  checkOptions: CheckOptions = {};
   prefs: EditorPrefs = { bulletZoom: false, showNotes: 'show', showChecked: true, unindentInPlace: false };
   readOnly = false;
 
@@ -215,7 +217,9 @@ export class Editor {
     const note = div('o-note');
     const kids = div('o-kids');
     body.append(content, note);
-    row.append(bullet, check, body);
+    const menuBtn = div('o-menu-btn');
+    menuBtn.textContent = '⋮';
+    row.append(menuBtn, bullet, check, body);
     el.append(row);
     if (!isTitle) el.append(kids);
     el.dataset.id = id;
@@ -594,6 +598,11 @@ export class Editor {
     }
   }
 
+  /** current block selection ids, if any */
+  blockIds(): NodeId[] | null {
+    return this.block ? [...this.block.ids] : null;
+  }
+
   /** ids targeted by item commands: block selection or the item being edited. */
   targets(): NodeId[] {
     if (this.block) return normalizeBlock(this.tree, this.block.ids);
@@ -667,10 +676,17 @@ export class Editor {
       case 'delete-left':
       case 'delete-right':
         return notTitle.length > 0 && this.run((tx) => deleteItems(tx, v, notTitle, id === 'delete-left' ? 'left' : 'right'));
+      case 'goto-note-of': {
+        const target = ids[0];
+        if (!target) return false;
+        const len = ((this.tree.get(target)?.props.n as string) ?? '').length;
+        this.applySel(caret(target, len, 'n'));
+        return true;
+      }
       case 'goto-note':
         return this.gotoNote();
       case 'toggle-checked':
-        return notTitle.length > 0 && this.run((tx) => toggleChecked(tx, v, notTitle, sel));
+        return notTitle.length > 0 && this.run((tx) => toggleChecked(tx, v, notTitle, sel, this.checkOptions));
       case 'uncheck-children':
         return has && this.run((tx) => uncheckDescendants(tx, ids, sel));
       case 'toggle-checkbox':
@@ -1092,7 +1108,7 @@ export class Editor {
       }
       return;
     }
-    if (target.closest('.o-bullet, .o-check, a[href], .o-tag, .o-crumb')) return;
+    if (target.closest('.o-bullet, .o-check, .o-menu-btn, a[href], [data-atomic], .o-crumb')) return;
     const fieldEl = target.closest<HTMLElement>('.o-content, .o-note');
     const f: 'c' | 'n' = fieldEl?.classList.contains('o-note') ? 'n' : 'c';
 
@@ -1154,6 +1170,13 @@ export class Editor {
       return;
     }
     if (!r) return;
+    if (target.closest('.o-menu-btn')) {
+      e.preventDefault();
+      if (r.id !== this.view.zoom && !this.block?.ids.includes(r.id)) this.applySel({ k: 'block', ids: [r.id], anchor: r.id, focus: r.id });
+      const b = target.getBoundingClientRect();
+      this.host.onItemMenu?.(r.id, b.left, b.bottom + 4);
+      return;
+    }
     if (target.closest('.o-bullet')) {
       e.preventDefault();
       const kids = (this.tree.get(r.id)?.children.length ?? 0) > 0;
@@ -1166,7 +1189,7 @@ export class Editor {
     }
     if (target.closest('.o-check')) {
       e.preventDefault();
-      this.run((tx) => toggleChecked(tx, this.view, [r.id], this.currentSel()));
+      this.run((tx) => toggleChecked(tx, this.view, [r.id], this.currentSel(), this.checkOptions));
       return;
     }
     const date = target.closest<HTMLElement>('.o-date');

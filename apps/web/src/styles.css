@@ -143,6 +143,8 @@ button { font: inherit; color: inherit; }
 .o-items, .o-kids { position: relative; }
 /* skip layout/paint of off-screen rows: keeps huge documents fast */
 .o-node { content-visibility: auto; contain-intrinsic-size: auto 30px; }
+/* content-visibility clips overflow: extend each node's box over the bullet/menu gutter */
+.o-node { margin-left: -50px; padding-left: 50px; }
 .o-kids { margin-left: 9px; padding-left: 20px; border-left: 1px solid var(--guide); }
 .o-node.o-collapsed > .o-kids { display: none; }
 
@@ -270,3 +272,15 @@ button { font: inherit; color: inherit; }
   body { overflow: visible; }
   .doc-scroll { overflow: visible; }
 }
+
+/* ---- drag & drop ---- */
+.o-drop-line { position: fixed; height: 2px; background: var(--accent); border-radius: 1px; pointer-events: none; z-index: 80; }
+.o-drop-line::before { content: ''; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); }
+.o-drag-label { position: fixed; left: 0; top: 0; background: var(--fg); color: var(--bg); font-size: 12px; padding: 3px 8px; border-radius: 4px; pointer-events: none; z-index: 81; }
+body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: none; }
+
+/* ---- hover icons ---- */
+.o-menu-btn { position: absolute; left: -44px; top: 0; height: 1.5em; width: 22px; display: none; align-items: center; justify-content: center; color: var(--faint); cursor: pointer; border-radius: 4px; font-size: 14px; }
+.o-row:hover > .o-menu-btn { display: flex; }
+.o-menu-btn:hover { color: var(--fg); background: var(--hover); }
+@media (pointer: coarse) { .o-menu-btn { display: none !important; } }

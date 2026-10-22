@@ -5,7 +5,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-await page.goto(process.env.URL ?? 'http://localhost:5173/');
+await page.goto(process.env.URL ?? process.env.URL ?? 'http://localhost:5174/');
 await page.waitForSelector('.o-editor');
 await page.waitForTimeout(500);
 // click end of last item, add items

@@ -5,7 +5,7 @@ const ctx = await browser.newContext({ viewport: { width: 1100, height: 760 } })
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
-await page.goto('http://localhost:5173/');
+await page.goto(process.env.URL ?? 'http://localhost:5174/');
 await page.waitForSelector('.o-editor');
 const K = (k) => page.keyboard.press(k);
 const T = (t) => page.keyboard.type(t);
