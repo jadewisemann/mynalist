@@ -202,8 +202,12 @@ export class DocSession {
   reset(confirmed: SerializedTree, version: number) {
     this.confirmed = Tree.fromJSON(confirmed);
     this.version = version;
+    // The server did not apply the inflight batch: it becomes pending again and
+    // is re-sent against the new base (otherwise beginSync() would stay blocked).
+    this.pending = [...(this.inflight ?? []), ...this.pending];
+    this.inflight = null;
     this.live = this.confirmed.clone();
-    for (const op of [...(this.inflight ?? []), ...this.pending]) this.live.apply(op);
+    for (const op of this.pending) this.live.apply(op);
     this.emit('remote', null);
   }
 
