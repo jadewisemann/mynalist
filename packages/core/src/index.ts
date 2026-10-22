@@ -4,3 +4,8 @@ export * from './item.ts';
 export * from './session.ts';
 export * from './view.ts';
 export * from './commands.ts';
+export * from './dates.ts';
+export * from './inline.ts';
+export * from './search.ts';
+export * from './paste.ts';
+export * from './export.ts';
