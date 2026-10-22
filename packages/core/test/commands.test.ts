@@ -105,6 +105,42 @@ describe('structure', () => {
   });
 });
 
+describe('toggleChecked with recurring dates', () => {
+  const now = new Date(2026, 9, 22, 12).getTime();
+  const rec = (c: string) => {
+    const t = new Tree();
+    t.apply({ t: 'create', id: 'a', parent: ROOT, after: null, props: { c }, ts: 1 } as Op);
+    t.apply({ t: 'create', id: 'b', parent: ROOT, after: 'a', props: { c: 'b' }, ts: 1 } as Op);
+    return t;
+  };
+  it('new_instance: checked copy above, original advanced and unchecked', () => {
+    const t = rec('pay !(2026-10-01 | 1m)');
+    const r = toggleChecked(new Tx(t), v, ['a'], { k: 'text', id: 'a', f: 'c', s: 3, e: 3 }, { recurring: 'new_instance', now })!;
+    const kids = t.get(ROOT)!.children;
+    expect(kids.length).toBe(3);
+    expect(kids[1]).toBe('a');
+    expect(t.get(kids[0]!)!.props).toMatchObject({ c: 'pay !(2026-10-01 | 1m)', ck: true });
+    expect(t.get('a')!.props.c).toBe('pay !(2026-11-01 | 1m)');
+    expect(t.get('a')!.props.ck).toBeUndefined();
+    expect(r.sel).toMatchObject({ id: 'a', s: 3 });
+  });
+  it('update: only advances (from completion uses now)', () => {
+    const t = rec('x !(2026-01-05 | ~1w)');
+    toggleChecked(new Tx(t), v, ['a'], sel, { recurring: 'update', now });
+    expect(t.get(ROOT)!.children.length).toBe(2);
+    expect(t.get('a')!.props.c).toBe('x !(2026-10-29 | ~1w)');
+    expect(t.get('a')!.props.ck).toBeUndefined();
+  });
+  it('non-recurring dates and no options check normally', () => {
+    const t = rec('x !(2026-01-05)');
+    toggleChecked(new Tx(t), v, ['a'], sel, { recurring: 'new_instance', now });
+    expect(t.get('a')!.props.ck).toBe(true);
+    const t2 = rec('x !(2026-01-05 | 1d)');
+    toggleChecked(new Tx(t2), v, ['a'], sel);
+    expect(t2.get('a')!.props).toMatchObject({ c: 'x !(2026-01-05 | 1d)', ck: true });
+  });
+});
+
 describe('paste', () => {
   it('splices first line and appends tail to last', () => {
     const t = build('ab');

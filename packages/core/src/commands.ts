@@ -2,6 +2,7 @@
 // tree immediately, recorded for sync + undo) and returns the selection to
 // show afterwards, or null when it does nothing.
 
+import { advanceRecurrence } from './dates.ts';
 import { newId } from './ids.ts';
 import { metaOf } from './item.ts';
 import { ROOT, type NodeId, type Op, type Props, type Tree } from './tree.ts';
@@ -278,15 +279,43 @@ export function replaceWithEmpty(tx: Tx, v: View, ids: NodeId[]): CmdResult | nu
 
 // ---- item-level toggles ----------------------------------------------------
 
-export function toggleChecked(tx: Tx, v: View, ids: NodeId[], sel: Sel): CmdResult | null {
+export interface CheckOptions {
+  /**
+   * Checking an item whose first date recurs: `new_instance` inserts a checked
+   * copy above and advances the date in the (still unchecked) original;
+   * `update` only advances the date. Omitted: recurrence is ignored.
+   */
+  recurring?: 'new_instance' | 'update';
+  /** completion time for "from completion" recurrences (default: tx time) */
+  now?: number;
+}
+
+export function toggleChecked(tx: Tx, v: View, ids: NodeId[], sel: Sel, opts: CheckOptions = {}): CmdResult | null {
   const t = tx.tree;
   const targets = ids.filter((id) => id !== ROOT);
   if (!targets.length) return null;
   const all = targets.every((id) => t.get(id)?.props.ck);
-  for (const id of targets) tx.set(id, { ck: all ? null : true });
-  if (sel.k === 'text' && !all) {
+  let advanced = 0;
+  for (const id of targets) {
+    const n = t.get(id);
+    if (!all && opts.recurring && n && !n.props.ck && n.parent) {
+      const adv = advanceRecurrence(text(t, id), opts.now ?? tx.ts);
+      if (adv) {
+        if (opts.recurring === 'new_instance') tx.create(n.parent, t.prevSibling(id), { ...n.props, ck: true });
+        tx.set(id, { c: adv.text });
+        advanced++;
+        continue;
+      }
+    }
+    tx.set(id, { ck: all ? null : true });
+  }
+  if (sel.k === 'text' && !all && advanced < targets.length) {
     const next = nextVisibleNonDescendant(t, targets[targets.length - 1]!, v);
     if (next) return { sel: caret(next, sel.s === 0 ? 0 : text(t, next).length) };
+  }
+  if (sel.k === 'text' && advanced) {
+    const len = text(t, sel.id).length;
+    return { sel: { ...sel, s: Math.min(sel.s, len), e: Math.min(sel.e, len) } };
   }
   return { sel };
 }
