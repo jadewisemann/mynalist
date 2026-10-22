@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The sync server is self-hosted and entered by the user (LAN / Tailscale / VPN), so it may be
+  plain http:// or https:// with a private CA. Allow cleartext everywhere and trust user-installed
+  CAs in addition to the system store.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
