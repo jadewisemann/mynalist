@@ -8,7 +8,7 @@ build step); storage is `node:sqlite`; the only runtime dependency is `ws`. Prot
 
 ```sh
 npm install                      # from the repo root
-OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=secret npm start -w apps/server
+OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=<your-password> npm start -w apps/server
 ```
 
 ## Environment

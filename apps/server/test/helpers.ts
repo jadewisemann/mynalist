@@ -1,11 +1,13 @@
+import { randomBytes } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DocSession, ROOT, type Op, type SerializedTree } from '@outliner/core';
 import { startServer, type RunningServer, type ServerConfig } from '../src/server.ts';
 
-export const TOKEN = 'test-token-0123456789';
-export const PASSWORD = 'correct horse battery staple';
+// generated per run: no credential-looking literals in the repo
+export const TOKEN = randomBytes(16).toString('hex');
+export const PASSWORD = randomBytes(12).toString('base64url');
 
 export interface TestServer extends RunningServer {
   url: string;

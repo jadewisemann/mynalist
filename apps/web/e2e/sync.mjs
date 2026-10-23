@@ -1,3 +1,4 @@
+// Needs a dev server started with the same OUTLINER_PASSWORD in the environment.
 import { chromium } from 'playwright-core';
 const exe = `${process.env.HOME}/.cache/ms-playwright/chromium-1228/chrome-linux/chrome`;
 const URL = process.env.URL ?? process.env.URL ?? 'http://localhost:5174/';
@@ -13,7 +14,7 @@ async function client(name) {
   // connect via settings
   await page.click('button[title=Settings]');
   await page.fill('input[placeholder^="https://"]', URL.replace(/\/$/, ''));
-  await page.fill('input[type=password]', 'devpass');
+  await page.fill('input[type=password]', process.env.OUTLINER_PASSWORD ?? '');
   await page.click('text=Connect');
   await page.waitForSelector('text=Connected.', { timeout: 10000 });
   await page.keyboard.press('Escape');

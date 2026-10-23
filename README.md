@@ -17,7 +17,7 @@ deploy/         systemd user service + install script
 
 ```sh
 npm install
-OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=pick-one PORT=8787 npm start -w apps/server
+OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=<your-password> PORT=8787 npm start -w apps/server
 npm run dev -w apps/web          # http://localhost:5173 (proxies /api → :8787)
 ```
 Open Settings → Sync server → URL `http://localhost:5173`, password → Connect. Without a server the app
@@ -26,7 +26,7 @@ works fully offline ("Local only").
 ## Deploy (this machine, over Tailscale)
 
 ```sh
-OUTLINER_PASSWORD=pick-one deploy/install.sh     # builds web, installs + starts outliner.service on :8080
+OUTLINER_PASSWORD=<your-password> deploy/install.sh     # builds web, installs + starts outliner.service on :8080
 ```
 Then browse to `http://<tailscale-ip>:8080` and connect to the same URL. For PWA offline support the page
 must be served over HTTPS (e.g. `tailscale serve --bg 8080`).
