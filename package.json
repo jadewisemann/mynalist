@@ -7,6 +7,8 @@
     "apps/*"
   ],
   "scripts": {
+    "prestart": "test -f apps/web/dist/index.html || npm run build -w @outliner/web",
+    "start": "OUTLINER_STATIC=${OUTLINER_STATIC:-apps/web/dist} node apps/server/src/main.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

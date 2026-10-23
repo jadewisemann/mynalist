@@ -24,7 +24,7 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
   if (token.length < 16) console.warn('[outliner] warning: OUTLINER_TOKEN is shorter than 16 characters');
   const origins = (env.OUTLINER_CORS_ORIGINS ?? '*').trim();
   return {
-    port: num(env, 'PORT', num(env, 'OUTLINER_PORT', 8080)),
+    port: num(env, 'SERVER_PORT', num(env, 'PORT', num(env, 'OUTLINER_PORT', 8080))),
     host: env.OUTLINER_HOST || '0.0.0.0',
     config: {
       token,

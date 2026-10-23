@@ -17,7 +17,7 @@ OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=<your-password> npm sta
 |---|---|---|
 | `OUTLINER_TOKEN` | — (required) | bearer token for every API call and the WebSocket |
 | `OUTLINER_PASSWORD` | unset | password for `POST /api/login` (returns the token); login disabled if unset |
-| `PORT` / `OUTLINER_PORT` | `8080` | listen port |
+| `SERVER_PORT` / `PORT` / `OUTLINER_PORT` | `8080` | listen port |
 | `OUTLINER_HOST` | `0.0.0.0` | listen address |
 | `OUTLINER_DB` | `outliner.db` | sqlite file (WAL mode; back up the `-wal` file too, or use `sqlite3 .backup`) |
 | `OUTLINER_STATIC` | unset | directory to serve at `/` (the web build, e.g. `apps/web/dist`), with SPA fallback |
