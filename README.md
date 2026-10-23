@@ -23,13 +23,14 @@ npm run dev -w apps/web          # http://localhost:5173 (proxies /api → :8787
 Open Settings → Sync server → URL `http://localhost:5173`, password → Connect. Without a server the app
 works fully offline ("Local only").
 
-## Deploy (this machine, over Tailscale)
+## Deploy (this machine, public HTTPS via Tailscale Funnel)
 
 ```sh
-OUTLINER_PASSWORD=<your-password> deploy/install.sh     # builds web, installs + starts outliner.service on :8080
+OUTLINER_PASSWORD=<your-password> deploy/install.sh     # builds web, installs + starts outliner.service on 127.0.0.1:8080
+sudo tailscale funnel --bg 8080                          # https://<machine>.<tailnet>.ts.net (public)
 ```
-Then browse to `http://<tailscale-ip>:8080` and connect to the same URL. For PWA offline support the page
-must be served over HTTPS (e.g. `tailscale serve --bg 8080`).
+Open that URL on any device and connect to the same URL in Settings → Sync server. Secrets live only in
+`~/.config/outliner/env`; the database in `~/.local/share/outliner/outliner.db`.
 
 ## Android
 

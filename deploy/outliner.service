@@ -1,4 +1,5 @@
-# systemd --user unit: serves the API + web build on the tailnet.
+# systemd --user unit: serves the API + web build on localhost:8080;
+# expose it with `sudo tailscale funnel --bg 8080` (public HTTPS, WebSocket ok).
 # Install: deploy/install.sh   (creates ~/.config/outliner/env with secrets)
 [Unit]
 Description=Outliner sync server

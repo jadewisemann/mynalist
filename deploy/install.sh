@@ -11,15 +11,18 @@ if [ ! -f ~/.config/outliner/env ]; then
 OUTLINER_TOKEN=$(openssl rand -hex 24)
 OUTLINER_PASSWORD=$PASS
 OUTLINER_PORT=${OUTLINER_PORT:-8080}
-OUTLINER_HOST=${OUTLINER_HOST:-0.0.0.0}
+OUTLINER_HOST=${OUTLINER_HOST:-127.0.0.1}
 OUTLINER_DB=$HOME/.local/share/outliner/outliner.db
 OUTLINER_STATIC=$ROOT/apps/web/dist
 ENV
   chmod 600 ~/.config/outliner/env
   echo "Generated password: $PASS (stored in ~/.config/outliner/env)"
 fi
-sed "s#%h/code/outliner#$ROOT#" deploy/outliner.service > ~/.config/systemd/user/outliner.service
+# systemd's PATH lacks version-manager shims: pin the node binary
+NODE=$(mise which node 2>/dev/null || command -v node)
+sed -e "s#%h/code/outliner#$ROOT#" -e "s#/usr/bin/env node#$NODE#" deploy/outliner.service > ~/.config/systemd/user/outliner.service
 systemctl --user daemon-reload
-systemctl --user enable --now outliner.service
+systemctl --user enable outliner.service
+systemctl --user restart outliner.service
 loginctl enable-linger "$USER" 2>/dev/null || true
 systemctl --user --no-pager status outliner.service | head -5
