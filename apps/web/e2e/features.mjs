@@ -222,6 +222,73 @@ await page.mouse.move(5, 790);
 await page.waitForTimeout(400);
 check('hover toolbar hides on leave', !(await page.isVisible('.hover-bar')));
 
+// collapse/expand animation: state changes at once, only the height animates, nothing is left behind
+await page.click('.o-content >> text=cherry');
+await K('End');
+await K('Enter');
+await T('anim parent');
+await K('Enter');
+await K('Tab');
+await T('k1');
+await K('Enter');
+await T('k2');
+await page.click('.o-content >> text=anim parent');
+await K('End');
+const animState = () => page.evaluate(() => {
+  const qa = window.__qa();
+  const p = [...document.querySelectorAll('.o-node')].find((n) => n.querySelector(':scope > .o-row .o-content').textContent === 'anim parent');
+  const kids = p.querySelector(':scope > .o-kids');
+  const ghost = p.querySelector(':scope > .o-kids-ghost');
+  const leftovers = [kids, ...kids.querySelectorAll('*')].filter((e) => e.getAttribute('style') || e.classList.contains('o-kids-anim')).length;
+  return {
+    col: qa.items.find((x) => x.c === 'anim parent').col,
+    kids: kids.children.length,
+    visible: kids.offsetHeight > 0,
+    ghost: !!ghost,
+    ghostAddressable: ghost ? ghost.querySelectorAll('.o-node, [data-id], [contenteditable]').length : 0,
+    running: document.getAnimations().filter((a) => a.effect?.target?.classList?.contains('o-kids')).length,
+    leftovers,
+    focus: qa.focus && qa.items[qa.focus.i]?.c,
+  };
+});
+await K('Control+Period');
+let st = await animState();
+check('collapse: state at once', st.col && st.kids === 0 && !st.visible && st.focus === 'anim parent', JSON.stringify(st));
+check('collapse: animates an inert copy', st.ghost && st.running === 1 && st.ghostAddressable === 0, JSON.stringify(st));
+await page.waitForTimeout(350);
+st = await animState();
+check('collapse: end state clean', st.col && st.kids === 0 && !st.ghost && st.running === 0 && st.leftovers === 0, JSON.stringify(st));
+await K('Control+Period');
+st = await animState();
+check('expand: state at once', !st.col && st.kids === 2 && !st.ghost && st.running === 1 && st.focus === 'anim parent', JSON.stringify(st));
+await page.waitForTimeout(350);
+st = await animState();
+check('expand: end state clean', !st.col && st.kids === 2 && st.visible && st.running === 0 && st.leftovers === 0, JSON.stringify(st));
+// a key during the animation ends it (Up/Down hit-test the final layout)
+await K('Control+Period');
+await K('Control+Period');
+st = await animState();
+check('toggle twice: settles to expanded', !st.col && st.kids === 2 && !st.ghost && st.running === 1, JSON.stringify(st));
+await K('ArrowDown');
+st = await animState();
+check('key ends the animation', st.running === 0 && st.leftovers === 0 && st.focus === 'k1', JSON.stringify(st));
+// bullet click animates too; reduced motion does not (caret out of the children, or it would re-expand them)
+await page.click('.o-content >> text=anim parent');
+const animBullet = await page.evaluate(() => {
+  const id = window.__qa().items.find((x) => x.c === 'anim parent').id;
+  const r = document.querySelector(`.o-node[data-id="${id}"] > .o-row > .o-bullet`).getBoundingClientRect();
+  return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+});
+await page.mouse.click(animBullet.x, animBullet.y);
+st = await animState();
+check('bullet click: collapses with animation', st.col && st.kids === 0 && st.ghost && st.running === 1, JSON.stringify(st));
+await page.waitForTimeout(350);
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.mouse.click(animBullet.x, animBullet.y);
+st = await animState();
+check('reduced motion: no animation', !st.col && st.kids === 2 && !st.ghost && st.running === 0 && st.leftovers === 0, JSON.stringify(st));
+await page.emulateMedia({ reducedMotion: 'no-preference' });
+
 check('no page errors', errors.length === 0, errors.join('\n'));
 await browser.close();
 console.log(fails ? `${fails} FAILED` : 'all ok');
