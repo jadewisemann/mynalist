@@ -1,12 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceRecurrence, currentDateToken, dateRange, describeRecurrence, findDates, formatDateBody, formatDateLabel,
-  formatPattern, formatTime, isOverdue, nextOccurrence, parseDateBody, parseDateToken, parseRecurrence,
+  formatPattern, formatTime, fromNow, isOverdue, nextOccurrence, parseDateBody, parseDateToken, parseRecurrence,
   relativeDayLabel, type DateSpec,
 } from '../src/dates.ts';
 
 const at = (y: number, m: number, d: number, h = 0, mi = 0) => new Date(y, m - 1, d, h, mi).getTime();
 const NOW = at(2026, 10, 22, 12, 0); // Thursday
+
+describe('fromNow', () => {
+  it('uses moment.js thresholds', () => {
+    const m = 60000, h = 60 * m;
+    expect(fromNow(30 * 1000)).toBe('in a few seconds');
+    expect(fromNow(-60 * 1000)).toBe('a minute ago');
+    expect(fromNow(29 * m)).toBe('in 29 minutes');
+    expect(fromNow(-31 * m)).toBe('31 minutes ago');
+    expect(fromNow(59 * m)).toBe('in an hour');
+    expect(fromNow(89 * m)).toBe('in an hour');
+    expect(fromNow(5 * h)).toBe('in 5 hours');
+    expect(fromNow(21 * h)).toBe('in 21 hours');
+    expect(fromNow(22 * h)).toBe('in a day');
+    expect(fromNow(-3 * 24 * h)).toBe('3 days ago');
+  });
+});
 
 describe('parse / format', () => {
   it('parses all-day, timed, ranges and recurrence', () => {
@@ -80,14 +96,16 @@ describe('labels', () => {
     expect(formatTime(12, 0)).toBe('12 pm');
     expect(formatTime(15, 30, false)).toBe('15:30');
     expect(formatTime(9, 5, false)).toBe('09:05');
-    expect(lbl('2026-10-22 15:30')).toBe('Today 3:30 pm');
-    expect(lbl('2026-10-22 15:30', { hour12: false })).toBe('Today 15:30');
+    // a timed date today reads relative to now (moment fromNow), other days keep the clock time
+    expect(lbl('2026-10-22 15:30')).toBe('in 4 hours');
+    expect(lbl('2026-10-23 15:30')).toBe('Tomorrow, 3:30 pm');
+    expect(lbl('2026-10-23 15:30', { hour12: false })).toBe('Tomorrow, 15:30');
   });
 
   it('ranges', () => {
-    expect(lbl('2026-10-22 15:00 - 2026-10-22 17:00')).toBe('Today 3 pm - 5 pm');
+    expect(lbl('2026-10-22 15:00 - 2026-10-22 17:00')).toBe('Today, 3 pm - 5 pm');
     expect(lbl('2026-10-22 - 2026-10-25')).toBe('Today - In 3 days');
-    expect(lbl('2026-10-22 15:00 - 2026-10-23 09:00')).toBe('Today 3 pm - Tomorrow 9 am');
+    expect(lbl('2026-10-22 15:00 - 2026-10-23 09:00')).toBe('Today, 3 pm - Tomorrow, 9 am');
   });
 
   it('custom formats', () => {

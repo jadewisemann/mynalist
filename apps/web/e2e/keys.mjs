@@ -65,6 +65,9 @@ await K('Tab');
 await expect('block noop tab (first child)', 'a\n  x\n  y\nbc\n');
 await K('Control+Enter');
 await expect('block check', 'a\n  [x]x\n  [x]y\nbc\n');
+// checking moves the caret past the items (Dynalist), so select them again to copy
+await page.click('.o-content >> text=x');
+await K('Shift+ArrowDown'); await K('Shift+ArrowDown');
 await K('Control+c');
 await K('Escape');
 await page.click('.o-content >> text=bc');

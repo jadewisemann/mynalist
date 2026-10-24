@@ -125,10 +125,11 @@ function parseSeq(ctx: Ctx, from: number, end: number, closers: string[]): SeqRe
       // cheap pre-check: no later delimiter → can't close
       const again = src.indexOf(two, i + 2);
       const r = again >= 0 && again + 2 <= end ? parseSeq(ctx, i + 2, end, [...closers, two]) : null;
-      if (r && r.closedBy === two && r.pos > i + 2) {
+      if (r && r.closedBy === two) {
+        // an empty pair ("****") is still a span: it renders as nothing, like Dynalist
         emit({ t: kind, children: r.tokens, start: i, end: r.pos + 2, innerStart: i + 2, innerEnd: r.pos });
       } else {
-        i += 2; // unclosed or empty: literal delimiter, resume after it
+        i += 2; // unclosed: literal delimiter, resume after it
       }
       continue;
     }
@@ -153,7 +154,6 @@ function inlineCode(src: string, i: number, end: number): CodeToken | null {
       continue;
     }
     if (src[j] === '`') {
-      if (j === i + 1) return null; // empty
       if (j > segStart) children.push(textTok(src, segStart, j));
       text += src.slice(segStart, j);
       return { t: 'code', text, children, start: i, end: j + 1, innerStart: i + 1, innerEnd: j };
@@ -235,7 +235,8 @@ function linkParts(ctx: Ctx, lb: number, end: number) {
 function link(ctx: Ctx, i: number, end: number): LinkToken | null {
   const p = linkParts(ctx, i, end);
   if (!p) return null;
-  const children = parseSeq({ ...ctx, rich: false }, i + 1, p.rb, []).tokens;
+  // link text is shown as written: Dynalist doesn't format inside it
+  const children: InlineToken[] = p.rb > i + 1 ? [textTok(ctx.src, i + 1, p.rb)] : [];
   return {
     t: 'link', text: ctx.src.slice(i + 1, p.rb), url: ctx.src.slice(p.rb + 2, p.rp).trim(),
     urlStart: p.rb + 2, urlEnd: p.rp, children, start: i, end: p.rp + 1, innerStart: i + 1, innerEnd: p.rb,

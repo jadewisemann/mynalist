@@ -7,7 +7,7 @@
 import {
   type CheckOptions, type CmdResult, type DocSession, type NodeId, type Portable, ROOT, type Sel, Tx, type View,
   backspaceAtStart, caret, cycleLevel, defaultView, deleteAtEnd, deleteItems, duplicate, enter,
-  expandToLevel, flatten, indent, insertPortable, moveDown, moveUp, nextVisible, nextVisibleNonDescendant,
+  expandToLevel, flatten, indent, insertPortable, lastVisibleDescendant, moveDown, moveUp, nextVisible, nextVisibleNonDescendant,
   nextVisibleSibling, normalizeBlock, outdent, pasteItems, prevVisible, prevVisibleSibling, replaceWithEmpty,
   selectBetween, setChildrenCheckbox, setLevel, toPortable, toggleChecked, toggleCollapse, toggleProp,
   toggleSiblings, toggleWrap, toggleWrapItems, uncheckDescendants, visibleChildren, wrapLink,
@@ -101,10 +101,14 @@ export class Editor {
   private editing: Editing | null = null;
   private block: { ids: NodeId[]; anchor: NodeId; focus: NodeId } | null = null;
   private lastSel: Sel = { k: 'none' };
+  /**
+   * Shift+Up/Down in the title: Dynalist block-selects the title invisibly while the caret stays in it.
+   * Until Escape (or the caret leaves the title), Left/Right act on that selection and deletions are swallowed.
+   */
+  private titleBlock = false;
   /** suppress blur handling while the DOM is being rearranged */
   private mutating = 0;
   /** horizontal caret position kept across vertical moves */
-  private goalX: number | null = null;
   private clip: { text: string; items: Portable[] } | null = null;
   keymap = new Keymap();
   /** set by an open popup; gets keys before the editor */
@@ -165,6 +169,7 @@ export class Editor {
     });
     this.block = null;
     this.editing = null;
+    this.titleSeen = (session.live.get(ROOT)?.props.c as string | undefined) ?? '';
     this.view = { ...this.view, zoom: session.live.get(zoom) && session.live.isAttached(zoom) ? zoom : ROOT };
     this.render();
   }
@@ -507,6 +512,7 @@ export class Editor {
     const ed = this.editing;
     if (!ed) return;
     this.editing = null;
+    this.titleBlock = false;
     ed.el.removeAttribute('contenteditable');
     ed.el.classList.remove('o-editing');
     const r = this.rows.get(ed.id);
@@ -542,7 +548,10 @@ export class Editor {
     tx.set(ed.id, { [ed.f]: text });
     this.session.commit(tx, { before, after });
     this.lastSel = after;
-    if (ed.id === ROOT && ed.f === 'c') this.host.onTitleEdit(text);
+    if (ed.id === ROOT && ed.f === 'c') {
+      this.titleSeen = text;
+      this.host.onTitleEdit(text);
+    }
     this.host.onTextInput?.({ id: ed.id, f: ed.f, el: ed.el, text, caret: s && s.s === s.e ? s.s : null });
   }
 
@@ -589,7 +598,8 @@ export class Editor {
         }
         return false;
       }
-      this.session.commit(tx, { before, after: r.sel });
+      if (tx.ops.length) this.session.commit(tx, { before, after: r.sel });
+      this.syncTitle();
       if (r.zoom !== undefined) this.setZoom(r.zoom);
       this.applySel(r.sel);
       return true;
@@ -613,8 +623,23 @@ export class Editor {
   undo() {
     this.mutating++;
     try {
-      const sel = this.session.undo();
-      this.applySel(sel as Sel | undefined);
+      const shape = () => flatten(this.tree, this.view).join();
+      const texts = () => new Map([this.view.zoom, ...flatten(this.tree, this.view)].map((id) => [id, this.tree.get(id)?.props.c as string | undefined]));
+      const before = shape();
+      const was = texts();
+      let sel = this.session.undo() as Sel | undefined;
+      // a pure text undo (no items added/removed/moved), as Dynalist: undoing typing restores the caret from
+      // before the typing (the default); undoing deletions puts it where it was right after the first one
+      const first = this.session.undoneFirst as Sel | undefined;
+      if (sel?.k === 'text' && sel.f === 'c' && first?.k === 'text' && first.id === sel.id && first.f === 'c' && shape() === before) {
+        const now = (this.tree.get(sel.id)?.props.c as string | undefined) ?? '';
+        if (now.length > (was.get(sel.id) ?? '').length) {
+          const at = Math.min(first.s, now.length);
+          sel = { ...sel, s: at, e: at };
+        }
+      }
+      this.applySel(sel);
+      this.syncTitle();
     } finally {
       this.mutating--;
     }
@@ -625,10 +650,19 @@ export class Editor {
     try {
       const sel = this.session.redo();
       this.applySel(sel as Sel | undefined);
+      this.syncTitle();
     } finally {
       this.mutating--;
     }
   }
+
+  /** Tell the host when a command (not typing) changed the document title. */
+  private syncTitle() {
+    const c = (this.tree.get(ROOT)?.props.c as string | undefined) ?? '';
+    if (c !== this.titleSeen) this.host.onTitleEdit(c);
+    this.titleSeen = c;
+  }
+  private titleSeen = '';
 
   exec(id: string): boolean {
     const v = this.view;
@@ -642,7 +676,7 @@ export class Editor {
       case 'unindent':
         return has && this.run((tx) => outdent(tx, v, notTitle, sel));
       case 'collapse':
-        return has && this.run((tx) => toggleCollapse(tx, v, ids, false));
+        return notTitle.length > 0 && this.run((tx) => toggleCollapse(tx, v, notTitle, false));
       case 'collapse-all':
         return has && this.run((tx) => toggleCollapse(tx, v, ids, true));
       case 'toggle-siblings':
@@ -656,14 +690,15 @@ export class Editor {
         const target = ids[0];
         if (!target) return false;
         const len = ((this.tree.get(target)?.props.c as string) ?? '').length;
-        this.setZoom(target, caret(target, len));
+        this.setZoom(target, caret(target, sel.k === 'text' && sel.id === target && sel.f === 'c' ? sel.s : len));
         return true;
       }
       case 'zoom-out': {
         const z = this.view.zoom;
         const p = this.tree.get(z)?.parent;
         if (!p) return true;
-        this.setZoom(p, caret(z, ((this.tree.get(z)?.props.c as string) ?? '').length));
+        const len = ((this.tree.get(z)?.props.c as string) ?? '').length;
+        this.setZoom(p, caret(z, sel.k === 'text' && sel.id === z && sel.f === 'c' ? sel.s : len));
         return true;
       }
       case 'zoom-prev-sibling':
@@ -848,7 +883,14 @@ export class Editor {
     const v = this.view;
     if (!this.block) {
       const ed = this.editing;
-      if (!ed || ed.id === v.zoom) return false;
+      if (!ed) return false;
+      if (ed.id === v.zoom) {
+        // the title can't join a visible block selection; Dynalist drops the caret to its start (see titleBlock)
+        setSel(ed.el, 0);
+        this.trackSel();
+        this.titleBlock = true;
+        return true;
+      }
       const s = getSel(ed.el);
       const len = getText(ed.el).length;
       const atEdge = dir < 0 ? onFirstLine(ed.el) || s?.s === 0 : onLastLine(ed.el) || s?.e === len;
@@ -874,14 +916,15 @@ export class Editor {
       return;
     }
     const combo = comboOf(e);
-    if (!['Up', 'Down', 'Shift+Up', 'Shift+Down'].includes(combo)) this.goalX = null;
 
     if (this.handleHardKey(combo, e)) {
       e.preventDefault();
       return;
     }
     const cmd = this.keymap.resolve(combo);
-    if (cmd && this.exec(cmd)) {
+    if (!cmd) return;
+    // bound keys never fall through to the browser, even as no-ops (Tab would move focus to a bullet link)
+    if (this.exec(cmd) || !NATIVE_FALLBACK.has(cmd)) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -896,12 +939,15 @@ export class Editor {
     if (blk) {
       const ids = this.targets();
       switch (combo) {
-        case 'Escape':
+        case 'Escape': {
+          const top = ids[0]!;
           this.applySel({ k: 'none' });
+          this.lastSel = caret(top, 0); // a second Escape resumes at the start of the selection (Dynalist)
           return true;
+        }
         case 'Backspace':
         case 'Delete':
-          return this.run((tx) => deleteItems(tx, v, ids, combo === 'Backspace' ? 'left' : 'right')) || true;
+          return this.run((tx) => deleteItems(tx, v, ids, combo === 'Delete' ? 'right' : 'left')) || true;
         case 'Enter':
           return this.run((tx) => replaceWithEmpty(tx, v, ids)) || true;
         case 'Up': {
@@ -911,14 +957,14 @@ export class Editor {
         }
         case 'Down': {
           const n = nextVisibleNonDescendant(t, ids[ids.length - 1]!, v);
-          if (n) this.applySel(caret(n, 0));
+          this.applySel(caret(n ?? ids[ids.length - 1]!, 0));
           return true;
         }
         case 'Left':
           this.applySel(caret(ids[0]!, 0));
           return true;
         case 'Right': {
-          const last = ids[ids.length - 1]!;
+          const last = lastVisibleDescendant(t, ids[ids.length - 1]!, v);
           this.applySel(caret(last, ((t.get(last)?.props.c as string) ?? '').length));
           return true;
         }
@@ -943,6 +989,31 @@ export class Editor {
     if (!s) return false;
     const text = getText(el);
     const isTitle = ed.id === v.zoom;
+
+    if (this.titleBlock && isTitle) {
+      switch (combo) {
+        case 'Escape':
+          this.titleBlock = false;
+          return true;
+        case 'Right': {
+          const last = lastVisibleDescendant(t, v.zoom, v);
+          this.applySel(caret(last, ((t.get(last)?.props.c as string) ?? '').length));
+          return true;
+        }
+        case 'Left':
+          this.titleBlock = false;
+          this.applySel(caret(v.zoom, 0));
+          return true;
+        case 'Up':
+          this.titleBlock = false;
+          break;
+        case 'Backspace':
+        case 'Delete':
+        case 'Enter':
+        case 'Down':
+          return true;
+      }
+    }
 
     switch (combo) {
       case 'Enter':
@@ -991,9 +1062,14 @@ export class Editor {
         }
         return true;
       case 'Escape':
+        if (isTitle && ed.f === 'c') {
+          setSel(el, 0);
+          this.trackSel();
+          return true;
+        }
         this.lastSel = { k: 'text', id: ed.id, f: ed.f, s: s.s, e: s.e };
         this.stopEdit();
-        (document.activeElement as HTMLElement | null)?.blur();
+        this.el.focus({ preventScroll: true });
         return true;
       case 'Mod+A':
         if (s.s === 0 && s.e === text.length && !isTitle) {
@@ -1029,30 +1105,19 @@ export class Editor {
     const el = ed.el;
     if (dir < 0 ? !onFirstLine(el) : !onLastLine(el)) return false;
     const s = getSel(el)!;
-    const x = this.goalX ?? (s.s === 0 && dir > 0 ? -1 : caretRect(el).left);
-    this.goalX = x;
+    const x = s.s === 0 && s.e === 0 ? -1 : caretRect(el).left; // from the line start, land on the line start
     let target: NodeId | null;
-    let f: 'c' | 'n' = 'c';
+    const f: 'c' | 'n' = 'c';
     if (dir < 0) {
       if (ed.f === 'n') target = ed.id;
       else {
         if (ed.id === v.zoom) return true;
         target = prevVisible(t, ed.id, v);
-        if (target && this.noteVisible(target)) f = 'n';
       }
     } else {
-      if (ed.f === 'c' && ed.id !== v.zoom && this.noteVisible(ed.id) && (t.get(ed.id)?.props.n as string)) {
-        target = ed.id;
-        f = 'n';
-      } else {
-        target = ed.id === v.zoom ? visibleChildren(t, v.zoom, v)[0] ?? null : nextVisible(t, ed.id, v);
-      }
+      target = ed.id === v.zoom ? visibleChildren(t, v.zoom, v)[0] ?? null : nextVisible(t, ed.id, v);
     }
-    if (!target) {
-      // first/last line with nowhere to go: jump to text start/end like code editors
-      setSel(el, dir < 0 ? 0 : getText(el).length);
-      return true;
-    }
+    if (!target) return true; // first/last item: the caret stays put (Dynalist)
     this.startEdit(target, f, 0);
     const tel = this.editing!.el;
     if (x < 0) setSel(tel, 0);
@@ -1226,7 +1291,19 @@ export class Editor {
   // ---- clipboard -----------------------------------------------------------------
 
   private onCopy(e: ClipboardEvent, cut: boolean) {
-    if (!this.block || !e.clipboardData) return;
+    if (!e.clipboardData) return;
+    const ed = this.editing;
+    if (!this.block && ed) {
+      const s = getSel(ed.el);
+      if (!s || s.s === s.e) return;
+      e.preventDefault();
+      const text = getText(ed.el).slice(s.s, s.e);
+      e.clipboardData.setData('text/plain', text);
+      e.clipboardData.setData('text/html', escapeHtml(text));
+      if (cut) this.editText((t, a, b) => ({ text: t.slice(0, a) + t.slice(b), s: a, e: a }));
+      return;
+    }
+    if (!this.block) return;
     e.preventDefault();
     const ids = this.targets();
     const items = ids.map((id) => toPortable(this.tree, id, this.view));
@@ -1263,12 +1340,21 @@ export class Editor {
       return;
     }
     if (!ed) return;
-    if (items.length === 1 && !items[0]!.children.length && !text.includes('\n')) return; // native single-line paste
     e.preventDefault();
+    if (items.length === 1 && !items[0]!.children.length && !text.includes('\n')) {
+      const one = (items[0]!.props.c as string | undefined) ?? '';
+      this.editText((t, s, en) => ({ text: t.slice(0, s) + one + t.slice(en), s: s + one.length, e: s + one.length }));
+      return;
+    }
     const s = getSel(ed.el) ?? { s: 0, e: 0 };
     this.run((tx) => pasteItems(tx, this.view, ed.id, s.s, s.e, items));
   }
 }
+
+/** Commands whose no-op result should let the browser handle the key (native text selection). */
+const NATIVE_FALLBACK = new Set(['select-up', 'select-down']);
+
+const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 function parentIfNotZoom(t: DocSession['live'], id: NodeId, v: View): NodeId | null {
   const p = t.get(id)?.parent;

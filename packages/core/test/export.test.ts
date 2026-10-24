@@ -76,7 +76,7 @@ describe('plain text', () => {
   });
 
   it('round-trips through the plain-text paste parser', () => {
-    const text = exportText(tree, top, { indent: 'dashes', includeNotes: false });
+    const text = exportText(tree, top, { indent: 'spaces', includeNotes: false });
     const back = parsePlainText(text);
     expect(back.map((i) => i.props.c)).toEqual(['Alpha **bold**', 'Done', 'Head <x> & "q"']);
     expect(back[0]!.children[0]!.children.map((i) => i.props.c)).toEqual(['1. first', '2. second']);

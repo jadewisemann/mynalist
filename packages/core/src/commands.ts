@@ -116,13 +116,20 @@ export function enter(tx: Tx, v: View, id: NodeId, s: number, e: number): CmdRes
  * neither has, `a` does; if both have, refuse. Returns the survivor and the
  * caret offset at the join.
  */
-export function merge(tx: Tx, a: NodeId, b: NodeId): { id: NodeId; at: number } | null {
+/**
+ * Join b's text onto a's. The item with children survives (in its place); when neither has any, `keep` decides:
+ * Backspace keeps a (the merged item stays where the caret was), Delete keeps b (Dynalist).
+ */
+export function merge(tx: Tx, a: NodeId, b: NodeId, keep: 'a' | 'b' = 'a'): { id: NodeId; at: number } | null {
   const t = tx.tree;
   const na = t.get(a)!;
   const nb = t.get(b)!;
   const aKids = na.children.some((c) => c !== b);
   const bKids = nb.children.length > 0;
   if (aKids && bKids) return null;
+  // b is a's first child and has children of its own: b can't survive (it would go down with a), and a
+  // can't take b's children without reordering them, so nothing happens (Dynalist)
+  if (bKids && nb.parent === a) return null;
   const ta = text(t, a);
   const tb = text(t, b);
   const ma = metaOf(na.props);
@@ -130,7 +137,7 @@ export function merge(tx: Tx, a: NodeId, b: NodeId): { id: NodeId; at: number } 
   const meta = ta && !tb ? ma : tb && !ta ? mb : { ...ma, ...mb };
   const noteA = (na.props.n as string | undefined) ?? '';
   const noteB = (nb.props.n as string | undefined) ?? '';
-  const survivor = bKids ? b : a;
+  const survivor = nb.parent === a || aKids ? a : bKids || keep === 'b' ? b : a;
   const victim = survivor === a ? b : a;
   tx.move(victim, null, null);
   tx.set(survivor, { c: ta + tb, n: survivor === a ? noteA || noteB : noteB || noteA });
@@ -143,7 +150,15 @@ export function backspaceAtStart(tx: Tx, v: View, id: NodeId): CmdResult | null 
   const n = t.get(id);
   if (!n || id === v.zoom || n.parent === null) return null;
   const prev = prevVisible(t, id, v);
-  if (n.children.length === 0 && prev && prev !== v.zoom) {
+  if (prev === v.zoom) {
+    // a childless, note-less first item merges into the title (Dynalist); the title keeps its own props
+    if (n.children.length || n.props.n) return null;
+    const at = text(t, prev).length;
+    tx.move(id, null, null);
+    tx.set(prev, { c: text(t, prev) + text(t, id) });
+    return { sel: caret(prev, at) };
+  }
+  if (n.children.length === 0 && prev) {
     const r = merge(tx, prev, id);
     return r && { sel: caret(r.id, r.at) };
   }
@@ -156,9 +171,16 @@ export function backspaceAtStart(tx: Tx, v: View, id: NodeId): CmdResult | null 
 }
 
 export function deleteAtEnd(tx: Tx, v: View, id: NodeId): CmdResult | null {
-  const next = nextVisible(tx.tree, id, v);
+  const t = tx.tree;
+  const next = nextVisible(t, id, v);
   if (!next) return null;
-  const r = merge(tx, id, next);
+  const n = t.get(id)!;
+  if (id !== v.zoom && !text(t, id) && !n.children.length) {
+    // an empty item goes away instead of pulling the next one in (which keeps its own place, as Dynalist)
+    tx.move(id, null, null);
+    return { sel: caret(next, 0) };
+  }
+  const r = merge(tx, id, next, 'b');
   return r && { sel: caret(r.id, r.at) };
 }
 
@@ -206,7 +228,8 @@ export function moveUp(tx: Tx, v: View, ids: NodeId[], sel: Sel): CmdResult | nu
     const pp = prevVisibleSibling(t, parent, v);
     const gp = t.get(parent)!.parent;
     if (!gp) return null;
-    if (pp && visibleChildren(t, pp, v).length > 0) {
+    // into the parent's previous sibling (also a childless one), unless it's collapsed (Dynalist)
+    if (pp && (visibleChildren(t, pp, v).length > 0 || t.get(pp)!.children.length === 0)) {
       target = pp;
       const kids = t.get(pp)!.children;
       after = kids[kids.length - 1] ?? null;
@@ -238,7 +261,7 @@ export function moveDown(tx: Tx, v: View, ids: NodeId[], sel: Sel): CmdResult | 
     const pn = nextVisibleSibling(t, parent, v);
     const gp = t.get(parent)!.parent;
     if (!gp) return null;
-    if (pn && visibleChildren(t, pn, v).length > 0) {
+    if (pn && (visibleChildren(t, pn, v).length > 0 || t.get(pn)!.children.length === 0)) {
       target = pn;
       after = null;
     } else {
@@ -258,11 +281,11 @@ export function deleteItems(tx: Tx, v: View, ids: NodeId[], dir: 'left' | 'right
   if (ids.some((id) => id === v.zoom || id === ROOT)) return null;
   const first = ids[0]!;
   const last = ids[ids.length - 1]!;
-  const before = prevVisible(t, first, v);
+  const prev = prevVisible(t, first, v);
+  const before = prev !== v.zoom ? prev : null; // the title never takes the caret here
   const after = nextVisibleNonDescendant(t, last, v);
   for (const id of ids) tx.move(id, null, null);
-  const toPrev = before && (dir === 'left' || !after) ? before : null;
-  if (toPrev) return { sel: caret(toPrev, text(t, toPrev).length) };
+  if (before && (dir === 'left' || !after)) return { sel: caret(before, text(t, before).length) };
   if (after) return { sel: caret(after, 0) };
   return { sel: { k: 'none' } };
 }
@@ -309,9 +332,10 @@ export function toggleChecked(tx: Tx, v: View, ids: NodeId[], sel: Sel, opts: Ch
     }
     tx.set(id, { ck: all ? null : true });
   }
-  if (sel.k === 'text' && !all && advanced < targets.length) {
+  if ((sel.k === 'text' || sel.k === 'block') && advanced < targets.length) {
+    // checking or unchecking moves on to the start of the next item (Dynalist)
     const next = nextVisibleNonDescendant(t, targets[targets.length - 1]!, v);
-    if (next) return { sel: caret(next, sel.s === 0 ? 0 : text(t, next).length) };
+    if (next) return { sel: caret(next, 0) };
   }
   if (sel.k === 'text' && advanced) {
     const len = text(t, sel.id).length;

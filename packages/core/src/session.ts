@@ -8,6 +8,8 @@ interface Txn {
   undo: Op[];
   selBefore: Selection;
   selAfter: Selection;
+  /** selection right after the entry's first edit (kept when later keystrokes coalesce into it) */
+  selFirst?: Selection;
   ts: number;
   merge?: { id: NodeId; field: string; dir: 1 | -1 };
 }
@@ -50,6 +52,8 @@ export class DocSession {
   private inflight: Op[] | null = null;
   private undoStack: Txn[] = [];
   private redoStack: Txn[] = [];
+  /** `selFirst` of the entry the last undo() replayed */
+  undoneFirst: Selection | undefined;
   private listeners = new Set<Listener>();
 
   /** New docs always start from an empty tree; content (incl. title) arrives as ops. */
@@ -133,7 +137,7 @@ export class DocSession {
         top.ts = now;
         top.selAfter = sel.after;
       } else {
-        this.undoStack.push({ undo: inverse, selBefore: sel.before, selAfter: sel.after, ts: now, merge });
+        this.undoStack.push({ undo: inverse, selBefore: sel.before, selAfter: sel.after, selFirst: sel.after, ts: now, merge });
       }
       this.redoStack = [];
     }
@@ -153,6 +157,7 @@ export class DocSession {
     const now = Date.now();
     while (from.length && now - from[from.length - 1]!.ts > UNDO_TTL) from.length = 0;
     const txn = from.pop();
+    this.undoneFirst = restore === 'before' ? txn?.selFirst : undefined;
     if (!txn) return undefined;
     const inverse: Op[] = [];
     const touched = new Set<NodeId>();

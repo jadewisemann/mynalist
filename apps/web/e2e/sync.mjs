@@ -13,7 +13,7 @@ async function client(name) {
   await page.waitForSelector('.o-editor');
   // connect via settings
   await page.click('button[title=Settings]');
-  await page.fill('input[placeholder^="https://"]', URL.replace(/\/$/, ''));
+  await page.fill('label.field:has-text("Sync server URL") input', URL.replace(/\/$/, ''));
   await page.fill('input[type=password]', process.env.OUTLINER_PASSWORD ?? '');
   await page.click('text=Connect');
   await page.waitForSelector('text=Connected.', { timeout: 10000 });

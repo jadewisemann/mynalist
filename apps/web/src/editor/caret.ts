@@ -3,18 +3,24 @@
 /** Raw text of an editable element (text nodes + <br> as newline). */
 export function getText(el: HTMLElement): string {
   let out = '';
+  let trailingBr = false;
   const walk = (n: Node) => {
     for (let c = n.firstChild; c; c = c.nextSibling) {
-      if (c.nodeType === Node.TEXT_NODE) out += c.nodeValue ?? '';
-      else if (c.nodeName === 'BR') out += '\n';
-      else {
+      if (c.nodeType === Node.TEXT_NODE) {
+        out += c.nodeValue ?? '';
+        if (c.nodeValue) trailingBr = false;
+      } else if (c.nodeName === 'BR') {
+        out += '\n';
+        trailingBr = true;
+      } else {
         if (c.nodeName === 'DIV' && out && !out.endsWith('\n')) out += '\n';
         walk(c);
       }
     }
   };
   walk(el);
-  return out;
+  // a final <br> is the browser's placeholder for an emptied line (e.g. after Ctrl+Backspace), not text
+  return trailingBr ? out.slice(0, -1) : out;
 }
 
 /** Replace contents with a single text node (keeps a trailing newline visible). */

@@ -57,7 +57,7 @@ describe('parseInline: emphasis', () => {
   it('treats unclosed delimiters as literal text', () => {
     expect(p('a ** b')).toEqual([['text', 'a ** b']]);
     expect(p('**a __b** c__')).toEqual([['bold', [['text', 'a __b']]], ['text', ' c__']]);
-    expect(p('****')).toEqual([['text', '****']]);
+    expect(p('****')).toEqual([['bold', []]]); // empty pair: a span that renders as nothing (Dynalist)
     expect(p('~~')).toEqual([['text', '~~']]);
   });
 
@@ -118,10 +118,10 @@ describe('parseInline: links and images', () => {
     expect(l).toMatchObject({ start: 2, end: 12, innerStart: 3, innerEnd: 6, urlStart: 8, urlEnd: 11 });
   });
 
-  it('link text may be formatted but not contain links or tags', () => {
+  it('link text is literal (Dynalist does not format inside it)', () => {
     const [l] = parseInline('[**b** #t](u)');
     expect(l!.t).toBe('link');
-    expect(shape((l as { children: InlineToken[] }).children)).toEqual([['bold', [['text', 'b']]], ['text', ' #t']]);
+    expect(shape((l as { children: InlineToken[] }).children)).toEqual([['text', '**b** #t']]);
   });
 
   it('images', () => {
@@ -295,8 +295,8 @@ describe('renderInline', () => {
     const rec = renderInline('!(2026-10-23 15:00 | 1w)', { now });
     expect(rec).toContain('o-recurring');
     expect(rec).toContain('title="every week"');
-    expect(rec).toContain('>Tomorrow 3 pm<');
-    expect(renderInline('!(2026-10-23 15:00)', { now, hour12: false })).toContain('>Tomorrow 15:00<');
+    expect(rec).toContain('>Tomorrow, 3 pm, every week<');
+    expect(renderInline('!(2026-10-23 15:00)', { now, hour12: false })).toContain('>Tomorrow, 15:00<');
   });
 
   it('highlights search terms inside text', () => {

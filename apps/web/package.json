@@ -8,9 +8,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@outliner/core": "*",
+    "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.5.3",
-    "@capacitor/app": "^8.1.2"
+    "@fontsource/fira-mono": "^5.3.0",
+    "@fontsource/fira-sans": "^5.3.0",
+    "@outliner/core": "*"
   },
   "devDependencies": {
     "vite": "^8.3.5"

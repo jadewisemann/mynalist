@@ -13,7 +13,6 @@ export interface PortableItem {
 
 // ---- plain text ------------------------------------------------------------------
 
-const BULLET_RE = /^[-*+•◦▪‣·]\s+/;
 
 /** CRLF/CR → LF. */
 export function normalizeNewlines(s: string): string {
@@ -34,12 +33,9 @@ export function parsePlainText(text: string): PortableItem[] {
   const lines = normalizeNewlines(text).replace(/\t/g, '    ').split('\n');
   const nonBlank = lines.filter((l) => l.trim() !== '');
   const min = nonBlank.length ? Math.min(...nonBlank.map(leadingSpaces)) : 0;
-  const strip = nonBlank.length > 1;
-  const clean = (l: string) => {
-    const body = l.slice(Math.min(min, leadingSpaces(l)));
-    const t = body.replace(/^ +/, '');
-    return strip ? t.replace(BULLET_RE, '') : body.trim() === '' ? '' : t;
-  };
+  // Like Dynalist, list markers ("- ", "* ", "1. ") stay part of the text and blank lines become
+  // empty items; only indentation carries structure.
+  const clean = (l: string) => (l.trim() === '' ? '' : l.replace(/^ +/, ''));
   const mk = (c: string): PortableItem => ({ props: c ? { c } : {}, collapsed: false, children: [] });
 
   const first = mk(clean(lines[0]!));
@@ -49,9 +45,8 @@ export function parsePlainText(text: string): PortableItem[] {
   let stack: Entry[] = [{ item: first, indent: lines[0]!.trim() === '' ? 0 : leadingSpaces(lines[0]!) - min, list: roots }];
   for (let k = 1; k < lines.length; k++) {
     const line = lines[k]!;
-    const isLast = k === lines.length - 1;
-    if (line.trim() === '' && !isLast) continue;
-    const indent = line.trim() === '' ? 0 : leadingSpaces(line) - min;
+    const top0 = stack[stack.length - 1]!;
+    const indent = line.trim() === '' ? top0.indent : leadingSpaces(line) - min;
     const item = mk(clean(line));
     const top = stack[stack.length - 1]!;
     if (indent > top.indent) {

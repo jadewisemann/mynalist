@@ -257,8 +257,10 @@ export class Popups {
   private acKey(e: KeyboardEvent): boolean {
     if (!this.ac) return false;
     if (e.key === 'Escape') {
+      // with no suggestions showing, Escape also leaves the item (Dynalist)
+      const shown = this.list.visible;
       this.closeAc();
-      return true;
+      return shown;
     }
     if (!this.list.visible || e.ctrlKey || e.metaKey || e.altKey) return false;
     switch (e.key) {

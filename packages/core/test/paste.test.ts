@@ -35,14 +35,14 @@ describe('parsePlainText', () => {
     expect(view(parsePlainText('    a\nb\n    c'))).toEqual(['a', ['b', 'c']]);
   });
 
-  it('skips blank lines except the last', () => {
-    expect(view(parsePlainText('a\n\n\nb'))).toEqual(['a', 'b']);
+  it('keeps blank lines as empty items (Dynalist)', () => {
+    expect(view(parsePlainText('a\n\n\nb'))).toEqual(['a', '', '', 'b']);
     expect(view(parsePlainText('a\nb\n'))).toEqual(['a', 'b', '']);
     expect(view(parsePlainText('a\n'))).toEqual(['a', '']);
   });
 
-  it('strips leading bullets in multi-line text', () => {
-    expect(view(parsePlainText('- a\n    * b\n    • c\n+ d'))).toEqual([['a', 'b', 'c'], 'd']);
+  it('keeps list markers as text (Dynalist)', () => {
+    expect(view(parsePlainText('- a\n    * b\n    • c\n+ d'))).toEqual([['- a', '* b', '• c'], '+ d']);
     expect(view(parsePlainText('**bold**\n*not bullet'))).toEqual(['**bold**', '*not bullet']);
   });
 

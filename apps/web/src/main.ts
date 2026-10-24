@@ -14,7 +14,13 @@ import { Sidebar } from './ui/sidebar.ts';
 import { installDrag } from './editor/drag.ts';
 import { itemMenu } from './ui/itemmenu.ts';
 import { Popups } from './ui/popups.ts';
+import '@fontsource/fira-sans/400.css';
+import '@fontsource/fira-sans/400-italic.css';
+import '@fontsource/fira-sans/700.css';
+import '@fontsource/fira-sans/700-italic.css';
+import '@fontsource/fira-mono/400.css';
 import './platform.ts';
+import { qaSnapshot } from './qa.ts';
 
 interface Route {
   doc: string | null;
@@ -46,6 +52,7 @@ class App {
     this.ws.ensureStructure();
     this.sync.onState = (s) => this.paintSync(s);
     this.sync.onRemoteDoc = () => this.sidebar?.render();
+    (window as unknown as { __qa: () => unknown }).__qa = () => qaSnapshot(this.editor);
 
     this.editor = new Editor({
       onZoom: (zoom) => this.go({ ...this.route, zoom }, true, false),

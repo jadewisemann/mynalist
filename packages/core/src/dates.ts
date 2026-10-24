@@ -296,13 +296,46 @@ function endpointLabel(dt: DateTime, o: DateFormatOptions, showDay = true): stri
   const time = timed ? formatTime(local.hour!, local.minute ?? 0, o.hour12 !== false) : '';
   if (!showDay) return time;
   const day = relativeDayLabel(local, o.now);
-  return time ? `${day} ${time}` : day;
+  return time ? `${day}, ${time}` : day;
 }
 
 const sameDay = (a: DateTime, b: DateTime) => a.year === b.year && a.month === b.month && a.day === b.day;
 
-/** Human label for a date chip ("Today 3 pm", "Tomorrow - In 3 days", "Today 3 pm - 5 pm"). */
+/**
+ * Human label for a date chip, as Dynalist shows it: "Today, 3 pm", "Tomorrow - In 3 days",
+ * "Today, 3 pm - 5 pm", "Tue, January 2nd 2024, every week".
+ */
 export function formatDateLabel(spec: DateSpec, o: DateFormatOptions): string {
+  const local = localView(spec.start);
+  const relative = !o.format || o.format === 'relative';
+  // a single timed date on today's calendar day reads "in 3 hours" / "20 minutes ago" (Dynalist)
+  const label =
+    !spec.end && relative && local.hour !== undefined && dayDiff(o.now, new Date(local.year, local.month - 1, local.day)) === 0
+      ? fromNow(toDate(local).getTime() - toMs(o.now))
+      : rangeLabel(spec, o);
+  return spec.recur ? `${label}, ${describeRecurrence(spec.recur)}` : label;
+}
+
+/** moment.js `fromNow()` wording and thresholds (what Dynalist displays). */
+export function fromNow(deltaMs: number): string {
+  const r = (unit: number) => Math.round(Math.abs(deltaMs) / unit);
+  const sec = r(1000), min = r(60000), hr = r(3600000), day = r(86400000), mon = r(2629800000), yr = r(31557600000);
+  const phrase =
+    sec <= 44 ? 'a few seconds'
+    : min <= 1 ? 'a minute'
+    : min < 45 ? `${min} minutes`
+    : hr <= 1 ? 'an hour'
+    : hr < 22 ? `${hr} hours`
+    : day <= 1 ? 'a day'
+    : day < 26 ? `${day} days`
+    : mon <= 1 ? 'a month'
+    : mon < 11 ? `${mon} months`
+    : yr <= 1 ? 'a year'
+    : `${yr} years`;
+  return deltaMs >= 0 ? `in ${phrase}` : `${phrase} ago`;
+}
+
+function rangeLabel(spec: DateSpec, o: DateFormatOptions): string {
   const start = endpointLabel(spec.start, o);
   if (!spec.end) return start;
   const a = localView(spec.start);

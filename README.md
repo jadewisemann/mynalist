@@ -46,6 +46,17 @@ apps/web/e2e/snapshot.sh             # serve a build on :5174, then:
 node apps/web/e2e/keys.mjs           # editor keyboard behavior (also drag, mobile, sync, perf, popups)
 ```
 
+### Dynalist parity
+
+`qa/` runs the same scenarios on the public Dynalist demo and on this build and compares the results side
+by side. It covers about 340 editing scenarios, a random-key fuzzer, inline rendering and layout metrics.
+Results go to `qa/out/<suite>/report.html`. See [qa/PLAN.md](qa/PLAN.md) for the method, tolerances and
+known differences.
+
+```sh
+apps/web/e2e/snapshot.sh && node qa/run.mjs editing    # also: fuzz, render; node qa/layout.mjs
+```
+
 ## Sync model
 
 Every replica applies the same deterministic ops (`create/set/move/collapse`) with `Tree.apply`. The server
