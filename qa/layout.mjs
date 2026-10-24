@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APPS } from './lib/apps.mjs';
 import { GOLDEN_DIR } from './lib/golden.mjs';
-import { closeBrowser, getBrowser, newPage, QA_NOW, step } from './lib/runner.mjs';
+import { closeBrowser, getBrowser, newPage, PHONE, QA_NOW, step } from './lib/runner.mjs';
 
 const FX = [
   'plain item',
@@ -120,10 +120,8 @@ function cmp(a, b, key) {
 
 // --mobile: a phone (390×844, touch, mobile user agent); Dynalist switches to its mobile layout there
 const MOBILE = process.argv.includes('--mobile');
-const VIEWPORT = MOBILE ? { width: 390, height: 844 } : { width: 1280, height: 900 };
-const DEVICE = MOBILE
-  ? { isMobile: true, hasTouch: true, deviceScaleFactor: 2, userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36' }
-  : {};
+const VIEWPORT = MOBILE ? PHONE.viewport : { width: 1280, height: 900 };
+const DEVICE = MOBILE ? PHONE.device : {};
 const suiteName = MOBILE ? 'layout-mobile' : 'layout';
 const outDir = join(dirname(fileURLToPath(import.meta.url)), 'out', suiteName);
 mkdirSync(outDir, { recursive: true });

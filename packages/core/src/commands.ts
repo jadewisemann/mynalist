@@ -327,6 +327,8 @@ export interface CheckOptions {
   recurring?: 'new_instance' | 'update';
   /** completion time for "from completion" recurrences (default: tx time) */
   now?: number;
+  /** keep the selection on the item instead of moving on to the next one (Dynalist's mobile toolbar) */
+  stay?: boolean;
 }
 
 export function toggleChecked(tx: Tx, v: View, ids: NodeId[], sel: Sel, opts: CheckOptions = {}): CmdResult | null {
@@ -348,7 +350,7 @@ export function toggleChecked(tx: Tx, v: View, ids: NodeId[], sel: Sel, opts: Ch
     }
     tx.set(id, { ck: all ? null : true });
   }
-  if ((sel.k === 'text' || sel.k === 'block') && advanced < targets.length) {
+  if (!opts.stay && (sel.k === 'text' || sel.k === 'block') && advanced < targets.length) {
     // checking or unchecking moves on to the start of the next item (Dynalist)
     const next = nextVisibleNonDescendant(t, targets[targets.length - 1]!, v);
     if (next) return { sel: caret(next, 0) };

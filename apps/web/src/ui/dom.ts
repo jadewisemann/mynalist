@@ -40,6 +40,25 @@ const PATHS: Record<string, string> = {
   fold: 'M7 4l5 5 5-5M7 20l5-5 5 5',
   zoomin: 'M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 3v3M12 18v3M3 12h3M18 12h3',
   eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  undo: 'M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-4',
+  redo: 'M15 14l5-5-5-5M20 9H9a5 5 0 0 0 0 10h4',
+  select: 'M4 4h10v10H4zM18 8v12H8M6.5 9l2 2 3.5-4',
+  lock: 'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v2',
+  // mobile toolbar
+  unindent: 'M11 6h10M11 12h10M11 18h10M7 9l-3 3 3 3',
+  indent: 'M11 6h10M11 12h10M11 18h10M3 9l3 3-3 3',
+  zoom: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5M11 8v6M8 11h6',
+  trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6',
+  check: 'M5 12l5 5 9-10',
+  note: 'M5 4h14v16H5zM8 9h8M8 13h8M8 17h5',
+  date: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  up: 'M12 19V5M6 11l6-6 6 6',
+  down: 'M12 5v14M6 13l6 6 6-6',
+  send: 'M21 3L3 11l7 3 3 7zM10 14L21 3',
+  checkbox: 'M4 4h16v16H4zM8 12l3 3 5-6',
+  color: 'M12 3l6 7a6 6 0 1 1-12 0z',
+  heading: 'M6 4v16M18 4v16M6 12h12',
+  link: 'M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1',
 };
 
 export function icon(name: keyof typeof PATHS | string): SVGSVGElement {

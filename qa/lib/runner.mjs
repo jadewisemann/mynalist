@@ -10,6 +10,12 @@ import { APPS, EXE } from './apps.mjs';
 export const QA_NOW = Date.UTC(2026, 9, 21, 9, 0, 0);
 export const QA_TZ = 'UTC';
 
+/** A phone (Pixel-sized, touch, Android Chrome user agent): Dynalist switches to its mobile UI. */
+export const PHONE = {
+  viewport: { width: 390, height: 844 },
+  device: { isMobile: true, hasTouch: true, deviceScaleFactor: 2, userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36' },
+};
+
 /** A context + page set up like every scenario's (viewport, timezone, clock). */
 export async function newPage(b, viewport = { width: 1280, height: 900 }, extra = {}) {
   const ctx = await b.newContext({ viewport, timezoneId: QA_TZ, ...extra });

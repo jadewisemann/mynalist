@@ -11,6 +11,7 @@ const runs = [
   ['layout.mjs', ...mode],
   ['layout.mjs', '--mobile', ...mode],
   ['menus.mjs', ...mode],
+  ['mobile.mjs', ...mode],
 ];
 let failed = [];
 for (const [script, ...rest] of runs) {

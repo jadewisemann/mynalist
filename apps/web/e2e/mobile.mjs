@@ -14,7 +14,7 @@ await page.tap('.o-content >> text=Press Ctrl+/');
 await page.keyboard.press('End');
 await page.keyboard.press('Enter');
 await page.keyboard.type('typed on phone');
-await page.tap('.mobile-bar button:nth-child(2)'); // indent
+await page.tap('.mobile-bar button[data-cmd="indent"]');
 await page.waitForTimeout(200);
 const depth = await page.evaluate(() => {
   const n = [...document.querySelectorAll('.o-node')].find((n) => n.querySelector(':scope > .o-row .o-content').textContent === 'typed on phone');
