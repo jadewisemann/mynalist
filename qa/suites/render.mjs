@@ -1,6 +1,8 @@
 // Inline syntax rendering: each input is pasted as one item, then the rendered (non-editing) form is
 // compared as styled text runs (bold/italic/…/link href/tag/date label/latex source).
 
+import { QA_NOW } from '../lib/runner.mjs';
+
 const INPUTS = [
   // emphasis
   ['bold', '**bold** text'],
@@ -94,17 +96,14 @@ const INPUTS = [
   ['hr', '---'],
 ];
 
-// relative labels depend on today: generate dates around it (both apps run on this machine's clock)
-const day = (n) => {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// relative labels depend on "now": every scenario runs at QA_NOW in UTC (see runner.mjs), so generate around it
+const p2 = (x) => String(x).padStart(2, '0');
+const ymd = (d) => `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}`;
+const day = (n) => ymd(new Date(QA_NOW + n * 86400000));
 for (const n of [-8, -6, -2, -1, 0, 1, 2, 5, 6, 7, 8, 30, 400]) INPUTS.push([`date-rel${n}`, `!(${day(n)})`]);
 const at = (mins) => {
-  const d = new Date(Date.now() + mins * 60000);
-  const p = (x) => String(x).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  const d = new Date(QA_NOW + mins * 60000);
+  return `${ymd(d)} ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}`;
 };
 for (const m of [-1500, -300, -90, -61, -30, -5, 3, 30, 59, 61, 90, 300, 700, 1300, 1500, 2900, 4400]) INPUTS.push([`date-in${m}m`, `!(${at(m)})`]);
 INPUTS.push(['date-rel0-time', `!(${day(0)} 15:00)`], ['date-rel1-range', `!(${day(1)} - ${day(3)})`], ['date-rel0-range-time', `!(${day(0)} 09:00 - ${day(0)} 17:00)`]);

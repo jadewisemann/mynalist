@@ -3,6 +3,22 @@
 import { chromium } from 'playwright-core';
 import { APPS, EXE } from './apps.mjs';
 
+/**
+ * Every scenario runs at this instant (UTC, clock flowing from there), so date labels like "in 3 hours" or
+ * "Tomorrow" come out the same whenever and wherever the suites run: recordings stay valid.
+ */
+export const QA_NOW = Date.UTC(2026, 9, 21, 9, 0, 0);
+export const QA_TZ = 'UTC';
+
+/** A context + page set up like every scenario's (viewport, timezone, clock). */
+export async function newPage(b, viewport = { width: 1280, height: 900 }) {
+  const ctx = await b.newContext({ viewport, timezoneId: QA_TZ });
+  const page = await ctx.newPage();
+  await page.clock.install({ time: QA_NOW });
+  await page.clock.resume();
+  return { ctx, page };
+}
+
 export const KEY_DELAY = 60; // Dynalist handles some keys asynchronously; fast sequences reorder
 
 let browser;
@@ -98,8 +114,7 @@ const SETUP = {
 export async function runScenario(appName, sc, { shot } = {}) {
   const app = APPS[appName];
   const b = await getBrowser();
-  const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await ctx.newPage();
+  const { ctx, page } = await newPage(b);
   page.setDefaultTimeout(8000);
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e.message ?? e)));

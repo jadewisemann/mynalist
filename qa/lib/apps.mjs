@@ -2,7 +2,11 @@
 // Each adapter: fresh(page) → empty doc with an empty first item focused; item(page, i) → locator of
 // the i-th visible item's text (-1 = title); state(page) → normalized state (see state.mjs).
 
-export const EXE = `${process.env.HOME}/.cache/ms-playwright/chromium-1228/chrome-linux/chrome`;
+import { existsSync } from 'node:fs';
+
+const LOCAL_CHROME = `${process.env.HOME}/.cache/ms-playwright/chromium-1228/chrome-linux/chrome`;
+/** Chromium to drive: $CHROMIUM_PATH, this machine's copy, or playwright-core's own (`npx playwright-core install chromium`). */
+export const EXE = process.env.CHROMIUM_PATH || (existsSync(LOCAL_CHROME) ? LOCAL_CHROME : undefined);
 export const OURS_URL = process.env.OURS_URL ?? 'http://localhost:5174/';
 export const DYN_URL = 'https://dynalist.io/demo';
 

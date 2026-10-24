@@ -1,12 +1,14 @@
 // Visual/layout parity: same fixture in both apps, measure computed styles and geometry of the same
 // elements, compare with tolerances; writes qa/out/layout/report.html with full screenshots.
-// node qa/layout.mjs
+// node qa/layout.mjs [--record | --replay]   (--record saves Dynalist's metrics to qa/golden/layout.json;
+// --replay measures only our build against them and exits 1 if a metric is out of tolerance)
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APPS } from './lib/apps.mjs';
-import { closeBrowser, getBrowser, step } from './lib/runner.mjs';
+import { GOLDEN_DIR } from './lib/golden.mjs';
+import { closeBrowser, getBrowser, newPage, QA_NOW, step } from './lib/runner.mjs';
 
 const FX = [
   'plain item',
@@ -118,12 +120,17 @@ function cmp(a, b, key) {
 
 const outDir = join(dirname(fileURLToPath(import.meta.url)), 'out', 'layout');
 mkdirSync(outDir, { recursive: true });
+const mode = process.argv.includes('--replay') ? 'replay' : process.argv.includes('--record') ? 'record' : 'live';
+const goldenFile = join(GOLDEN_DIR, 'layout.json');
 const b = await getBrowser();
 const res = {};
-for (const name of ['dynalist', 'ours']) {
+if (mode === 'replay') {
+  if (!existsSync(goldenFile)) throw new Error(`no recording: run node qa/layout.mjs --record first`);
+  res.dynalist = JSON.parse(readFileSync(goldenFile, 'utf8')).dynalist;
+}
+for (const name of mode === 'replay' ? ['ours'] : ['dynalist', 'ours']) {
   const app = APPS[name];
-  const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await ctx.newPage();
+  const { ctx, page } = await newPage(b);
   page.setDefaultTimeout(10000);
   const out = {};
   await app.fresh(page);
@@ -150,6 +157,11 @@ for (const name of ['dynalist', 'ours']) {
   await ctx.close();
 }
 await closeBrowser();
+if (mode === 'record') {
+  mkdirSync(GOLDEN_DIR, { recursive: true });
+  const meta = { source: 'https://dynalist.io/demo', recorded: new Date().toISOString(), now: new Date(QA_NOW).toISOString() };
+  writeFileSync(goldenFile, JSON.stringify({ meta, dynalist: res.dynalist }, null, 1) + '\n');
+}
 
 const rows = [];
 for (const group of Object.keys(res.dynalist)) {
@@ -175,8 +187,8 @@ writeFileSync(
   join(outDir, 'report.html'),
   `<!doctype html><meta charset="utf-8"><title>layout parity</title><style>body{font:14px system-ui;margin:24px}td{padding:2px 10px;font-family:ui-monospace,monospace;font-size:12px}tr.bad{background:#ffe3e3}.sbs{display:grid;grid-template-columns:1fr 1fr;gap:10px}img{max-width:100%;border:1px solid #ddd}</style>
 <h1>Layout parity: ${rows.length - bad.length}/${rows.length} within tolerance</h1>
-<div class="sbs"><div><h3>Dynalist</h3><img src="dynalist.png"></div><div><h3>Ours</h3><img src="ours.png"></div></div>
+<div class="sbs"><div><h3>Dynalist</h3><img src="dynalist.png" onerror="this.replaceWith('(no screenshot in a replay)')"></div><div><h3>Ours</h3><img src="ours.png"></div></div>
 <table><tr><th>metric</th><th>Dynalist</th><th>ours</th></tr>${rows.map((r) => `<tr class="${r.ok ? '' : 'bad'}"><td>${esc(r.m)}</td><td>${esc(fmt(r.a))}</td><td>${esc(fmt(r.b))}</td></tr>`).join('')}</table>`,
 );
 console.log(`report: ${join(outDir, 'report.html')}`);
-process.exit(0);
+process.exit(mode === 'replay' && bad.length ? 1 : 0);

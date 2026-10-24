@@ -6,17 +6,48 @@ build, side by side in headless Chromium, and the two results are compared. It i
 no Dynalist code, fonts or assets are used, only what the demo does in a browser.
 
 ```
-apps/web/e2e/snapshot.sh             # build + serve ours on :5174 (vite preview)
-node qa/run.mjs editing [--workers=3] [--only=undo/,nav/] [--stability] [--no-confirm] [--verbose]
-FUZZ_N=400 FUZZ_STEPS=10 [FUZZ_FROM=1001] node qa/run.mjs fuzz
-node qa/run.mjs render
-node qa/layout.mjs
-node qa/show.mjs <suite> [id-substring]   # side-by-side diffs in the terminal, with trace context
+npm run qa:serve        # build + serve ours on :5174 (vite preview)
+npm run qa              # replay: ours vs the recorded Dynalist results; offline, exits 1 on regression
+npm run qa:live         # live: both apps side by side (needs dynalist.io)
+npm run qa:record       # live, and re-record qa/golden/ from Dynalist
+
+node qa/run.mjs <editing|fuzz|render> [--replay|--record] [--only=undo/,nav/] [--workers=N] [--verbose]
+    live-only: [--stability] [--no-confirm]; replay-only: [--accept]
+FUZZ_N=200 FUZZ_FROM=1001 node qa/run.mjs fuzz     # explore new seeds (the recording covers 1–400 × 10)
+node qa/layout.mjs [--replay|--record]
+node qa/show.mjs <suite> [id-substring]           # side-by-side diffs in the terminal, with trace context
 ```
 
 Each run writes `qa/out/<suite>/report.html`: a bar per group, then every scenario with both outlines next
 to each other (differing lines highlighted), clipboard contents and screenshots. A "hide matches" toggle
 is on by default. `results.json` next to it holds the raw states.
+
+## Live, record, replay
+
+The live demo is the source of truth, but it is slow, needs the network and has its own timing noise.
+So its results are **recorded** once into `qa/golden/` and **replayed**: a replay runs only our build and
+compares it with the recording, using exactly the same verdict logic (`qa/lib/compare.mjs`). That makes the
+parity suites an ordinary regression test. CI runs it (`.github/workflows/ci.yml`) and uploads the HTML
+reports as an artifact.
+
+- **Determinism:** every scenario runs at a fixed instant (`QA_NOW` in `qa/lib/runner.mjs`, clock still
+  flowing) in UTC. Date labels such as "Tomorrow" or "in 3 hours" therefore come out the same on any day,
+  on any machine.
+- **What is stored:** per scenario, Dynalist's normalized states: before, after, and after every step for
+  fuzz, plus the clipboard. Also a fingerprint of the scenario definition, and whether our build matched at
+  recording time. Flaky scenarios store the result of the lone re-run. Screenshots are not stored. Neither is Dynalist's own demo content: a scenario where undo
+  brings it back (`demo-reset-in-undo`) keeps only its verdict and is skipped in replays.
+- **Ratchet:** a replay fails on a **regression** (a scenario that matched when recorded no longer does), or
+  on an **unrecorded** scenario (new, or its steps changed, so its fingerprint differs). A scenario that never
+  matched is reported as a **known diff** and does not fail. One that starts matching is reported as **fixed**.
+  `--accept` writes the current verdicts into the baseline.
+- **When to re-record:** after adding or changing scenarios (`--record --only=…` merges just those), or
+  to pick up changes in Dynalist itself. A live run against the old recording shows what moved.
+
+To add a scenario: append an `add(group, id, fixture, steps, setup?, extra?)` line to `qa/suites/editing.mjs`
+(steps: key names, `{type}`, `{paste}`, `{at:[item, offset, field]}`, `{copy}`, `{cut}`, `{wait}`). Then run
+`node qa/run.mjs editing --record --only=<id>`. To compare against another app, write an adapter with
+the same five functions as the two in `qa/lib/apps.mjs`.
 
 ## Layers
 

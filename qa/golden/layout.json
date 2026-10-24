@@ -1,0 +1,174 @@
+{
+ "meta": {
+  "source": "https://dynalist.io/demo",
+  "recorded": "2026-10-24T04:05:13.807Z",
+  "now": "2026-10-21T09:00:00.000Z"
+ },
+ "dynalist": {
+  "title": {
+   "size": 28,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 34,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none",
+   "height": 34
+  },
+  "base": {
+   "size": 18,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 22,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none"
+  },
+  "indent": {
+   "level1": 31,
+   "level2": 31
+  },
+  "pitch": {
+   "item→child": 30,
+   "child→grandchild": 30
+  },
+  "titleGap": {
+   "title bottom→first item text": 16,
+   "title text left − item text left": -26
+  },
+  "bullet": {
+   "dot": null,
+   "center x → text left": 15,
+   "center y − text line center": 1
+  },
+  "h1": {
+   "size": 24,
+   "weight": 700,
+   "family": "Whitney",
+   "lineHeight": 28,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none"
+  },
+  "h2": {
+   "size": 22,
+   "weight": 700,
+   "family": "Whitney",
+   "lineHeight": 26,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none"
+  },
+  "h3": {
+   "size": 20,
+   "weight": 700,
+   "family": "Whitney",
+   "lineHeight": 24,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none"
+  },
+  "checked": {
+   "size": 18,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 22,
+   "color": "rgb(167, 167, 167)",
+   "style": "normal",
+   "decoration": "line-through",
+   "opacity": 1
+  },
+  "note": {
+   "size": 15,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 18,
+   "color": "rgb(78, 78, 78)",
+   "style": "normal",
+   "decoration": "none",
+   "gap below content": 0
+  },
+  "checkbox": {
+   "size": 16,
+   "box right → text left": 4
+  },
+  "bold": {
+   "size": 18,
+   "weight": 700,
+   "family": "Whitney",
+   "lineHeight": 22,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none",
+   "background": "rgba(0, 0, 0, 0)",
+   "padding": "0px",
+   "radius": "0px",
+   "border": "0px rgb(34, 34, 34)"
+  },
+  "italic": {
+   "size": 18,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 22,
+   "color": "rgb(34, 34, 34)",
+   "style": "italic",
+   "decoration": "none",
+   "background": "rgba(0, 0, 0, 0)",
+   "padding": "0px",
+   "radius": "0px",
+   "border": "0px rgb(34, 34, 34)"
+  },
+  "code": {
+   "size": 16,
+   "weight": 400,
+   "family": "Consolas",
+   "lineHeight": 19,
+   "color": "rgb(199, 37, 78)",
+   "style": "normal",
+   "decoration": "none",
+   "background": "rgb(245, 245, 245)",
+   "padding": "0px 5px",
+   "radius": "4px",
+   "border": "0px rgb(199, 37, 78)"
+  },
+  "link": {
+   "size": 18,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 22,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "underline",
+   "background": "rgba(0, 0, 0, 0)",
+   "padding": "0px",
+   "radius": "0px",
+   "border": "0px rgb(34, 34, 34)"
+  },
+  "tag": {
+   "size": 18,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 22,
+   "color": "rgb(122, 122, 122)",
+   "style": "normal",
+   "decoration": "underline",
+   "background": "rgba(0, 0, 0, 0)",
+   "padding": "0px",
+   "radius": "0px",
+   "border": "0px rgb(122, 122, 122)"
+  },
+  "date": {
+   "size": 16,
+   "weight": 400,
+   "family": "Whitney",
+   "lineHeight": 19,
+   "color": "rgb(34, 34, 34)",
+   "style": "normal",
+   "decoration": "none",
+   "background": "rgb(245, 245, 245)",
+   "padding": "0px 2px",
+   "radius": "4px",
+   "border": "1px rgb(204, 204, 204)"
+  }
+ }
+}

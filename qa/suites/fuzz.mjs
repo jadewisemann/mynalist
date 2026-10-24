@@ -27,8 +27,8 @@ function rng(seed) {
   };
 }
 
-const N = +(process.env.FUZZ_N ?? 60);
-const STEPS = +(process.env.FUZZ_STEPS ?? 8);
+const N = +(process.env.FUZZ_N ?? 400); // the recorded golden covers the defaults
+const STEPS = +(process.env.FUZZ_STEPS ?? 10);
 const FROM = +(process.env.FUZZ_FROM ?? 1); // first seed: run a fresh range without re-checking old ones
 const S = [];
 for (let seed = FROM; seed < FROM + N; seed++) {

@@ -10,7 +10,11 @@
     "prestart": "test -f apps/web/dist/index.html || npm run build -w @outliner/web",
     "start": "OUTLINER_STATIC=${OUTLINER_STATIC:-apps/web/dist} node apps/server/src/main.ts",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "qa:serve": "sh apps/web/e2e/snapshot.sh",
+    "qa": "node qa/all.mjs --replay",
+    "qa:live": "node qa/all.mjs",
+    "qa:record": "node qa/all.mjs --record"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

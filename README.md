@@ -50,12 +50,17 @@ node apps/web/e2e/keys.mjs           # editor keyboard behavior (also drag, mobi
 
 `qa/` runs the same scenarios on the public Dynalist demo and on this build and compares the results side
 by side. It covers about 340 editing scenarios, a random-key fuzzer, inline rendering and layout metrics.
-Results go to `qa/out/<suite>/report.html`. See [qa/PLAN.md](qa/PLAN.md) for the method, tolerances and
-known differences.
+Dynalist's results are recorded in `qa/golden/`, so the default run is offline and works as a
+regression test (CI runs it):
 
 ```sh
-apps/web/e2e/snapshot.sh && node qa/run.mjs editing    # also: fuzz, render; node qa/layout.mjs
+npm run qa:serve && npm run qa       # replay against the recording; exits 1 on a regression
+npm run qa:live                      # both apps live, side by side (needs dynalist.io)
+npm run qa:record                    # refresh the recording from Dynalist
 ```
+
+Reports are written to `qa/out/<suite>/report.html`. See [qa/PLAN.md](qa/PLAN.md) for the method,
+tolerances and known differences.
 
 ## Sync model
 
