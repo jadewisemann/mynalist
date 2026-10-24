@@ -8,3 +8,4 @@ qa/out
 *.jks
 *.keystore
 android-signing.properties
+.claude/
