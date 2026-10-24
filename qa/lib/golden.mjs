@@ -16,9 +16,9 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 export const GOLDEN_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'golden');
 const GZIP_OVER = 1 << 20;
 
-/** Everything that determines what a scenario does (not its id or group). */
+/** Everything that determines what Dynalist does in a scenario (not its id, group or comparison tolerances). */
 export function fingerprint(sc) {
-  const def = { fx: sc.fx, steps: sc.steps, setup: sc.setup, render: sc.render, trace: sc.trace, caretTol: sc.caretTol };
+  const def = { fx: sc.fx, steps: sc.steps, setup: sc.setup, render: sc.render, trace: sc.trace };
   return createHash('sha1').update(JSON.stringify(def)).digest('hex').slice(0, 12);
 }
 

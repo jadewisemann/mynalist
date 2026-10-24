@@ -11,6 +11,9 @@ const S = [];
 const add = (group, id, fx, steps, setup, extra) => S.push({ group, id: `${group}/${id}`, fx, steps, setup, ...extra });
 // pixel-x caret mapping between different fonts (Whitney vs Fira Sans): allow one character
 const GEOM = { caretTol: 1 };
+// title <-> item: the title is 28px and starts 26px further left, and that pixel mapping also shifts by one
+// character between Chromium builds (sub-pixel rendering), so recordings replayed elsewhere need one more
+const GEOM_TITLE = { caretTol: 2 };
 
 // --- Enter --------------------------------------------------------------------------------
 add('enter', 'end', F1, [at(0), 'Enter', T('x')]);
@@ -100,9 +103,9 @@ add('move', 'zoom-next-sibling', F2, [at(0), 'Control+Shift+BracketRight']);
 add('nav', 'down', F1, [at(0, 2), 'ArrowDown', T('x')]);
 add('nav', 'down-shorter', F1, [at(2, 4), 'ArrowUp', T('x')]);
 add('nav', 'up', F1, [at(1, 1), 'ArrowUp', T('x')]);
-add('nav', 'up-first-to-title', F1, [at(0, 1), 'ArrowUp', T('x')], undefined, GEOM);
+add('nav', 'up-first-to-title', F1, [at(0, 1), 'ArrowUp', T('x')], undefined, GEOM_TITLE);
 add('nav', 'down-last', F1, [at(2, 1), 'ArrowDown', T('x')]);
-add('nav', 'down-title', F1, [at(-1, 2), 'ArrowDown', T('x')], undefined, GEOM);
+add('nav', 'down-title', F1, [at(-1, 2), 'ArrowDown', T('x')], undefined, GEOM_TITLE);
 add('nav', 'left-at-start', F1, [at(1, 'start'), 'ArrowLeft', T('x')]);
 add('nav', 'right-at-end', F1, [at(1), 'ArrowRight', T('x')]);
 add('nav', 'down-into-note', F1, [at(0, 1), 'ArrowDown', T('x')], [['note', 0, 'nn']]);
@@ -286,10 +289,10 @@ add('select', 'child-then-delete', F2, [at(2, 1), 'Shift+ArrowUp', 'Shift+ArrowU
 add('nav', 'escape-twice', F1, [at(1, 1), 'Escape', 'Escape', T('x')]);
 add('nav', 'escape-arrow', F1, [at(1, 1), 'Escape', 'ArrowDown', T('x')]);
 add('enter', 'title-start', F1, [at(-1, 'start'), 'Enter', T('x')]);
-add('nav', 'up-to-title-end', 'single', [at(0), 'ArrowUp', T('x')], undefined, GEOM);
-add('nav', 'up-to-title-mid', 'singlelonger', [at(0, 4), 'ArrowUp', T('x')], undefined, GEOM);
-add('nav', 'down-from-title-end', 'one\ntwo', [at(-1), 'ArrowDown', T('x')], undefined, GEOM);
-add('nav', 'down-from-title-6', 'abcdefghijkl\ntwo', [at(-1, 6), 'ArrowDown', T('x')], undefined, GEOM);
+add('nav', 'up-to-title-end', 'single', [at(0), 'ArrowUp', T('x')], undefined, GEOM_TITLE);
+add('nav', 'up-to-title-mid', 'singlelonger', [at(0, 4), 'ArrowUp', T('x')], undefined, GEOM_TITLE);
+add('nav', 'down-from-title-end', 'one\ntwo', [at(-1), 'ArrowDown', T('x')], undefined, GEOM_TITLE);
+add('nav', 'down-from-title-6', 'abcdefghijkl\ntwo', [at(-1, 6), 'ArrowDown', T('x')], undefined, GEOM_TITLE);
 
 add('move', 'down-last-child-into-leaf', 'p\n  c\nq', [at(1, 1), 'Control+ArrowDown', T('x')]);
 add('move', 'up-first-child-into-leaf', 'p\nq\n  c', [at(2, 1), 'Control+ArrowUp', T('x')]);

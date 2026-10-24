@@ -100,6 +100,8 @@ selection, `¶` note), so a diff can be read directly.
 - **Caret ±1 character** on vertical moves between rows at different x offsets, and between title and items.
   Dynalist maps the caret by pixel x, and our font (Fira Sans) is ~4% wider than Dynalist's Whitney, so the
   same pixel can fall on a neighbouring character. These scenarios are marked `GEOM` in the suite.
+  Title ↔ item moves get ±2 (`GEOM_TITLE`): the title is larger and offset, and different Chromium builds
+  (e.g. CI) shift that mapping by one more character.
 - **Layout:** numbers within max(1.5px, 8%), colours within RGB distance 40, font family not compared.
 - **Render:** Dynalist's highlight.js spans inside code blocks are ignored, so only the text is compared.
 
