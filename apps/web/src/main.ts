@@ -24,6 +24,7 @@ import { backupZip, downloadBlob } from './ui/backup.ts';
 import { settingsDialog } from './ui/settings.ts';
 import { HelpPanel } from './ui/help.ts';
 import { MobileBar } from './ui/mobilebar.ts';
+import { HoverBar } from './ui/hoverbar.ts';
 import { MindMap } from './ui/mindmap.ts';
 import { tutorial, whatsNew } from './ui/tour.ts';
 import '@fontsource/fira-sans/400.css';
@@ -61,6 +62,7 @@ class App {
   results!: ResultsView;
   help!: HelpPanel;
   mobile!: MobileBar;
+  hoverBar!: HoverBar;
   mindmap = new MindMap();
   route: Route = { doc: null, zoom: ROOT, q: '' };
   private root = document.getElementById('app')!;
@@ -159,6 +161,7 @@ class App {
     });
     this.help = new HelpPanel(() => this.editor.keymap);
     this.mobile = new MobileBar(this.ws, (cmd) => this.editor.exec(cmd));
+    this.hoverBar = new HoverBar(this.editor, this.ws);
     this.ws.onChange(() => {
       this.applyPrefs();
       if (this.route.doc && !this.ws.get(this.route.doc)) this.go({ doc: null, zoom: ROOT, q: '' }, false);
@@ -1194,6 +1197,7 @@ class App {
       else this.editor.refreshText();
     }
     this.mobile.render();
+    if (!p('item_toolbar_hover', false)) this.hoverBar.hide();
     if (!this.help.el.hidden) this.help.render();
     this.paintBacklinks();
     this.paintStatus();

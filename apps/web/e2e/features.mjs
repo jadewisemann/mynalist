@@ -1,4 +1,4 @@
-// New feature checks (search views, replace, sort, inbox, settings, help, backup, code/latex rendering).
+// New feature checks (search views, replace, sort, inbox, settings, help, backup, code/latex rendering, hover toolbar).
 //   apps/web/e2e/snapshot.sh && node apps/web/e2e/features.mjs
 import { chromium } from 'playwright-core';
 import { existsSync, readFileSync } from 'node:fs';
@@ -177,6 +177,50 @@ const pasted = await page.evaluate(() => {
   return i < 0 ? null : items.slice(i, i + 3).map((x) => `${x.d}:${x.c}`);
 });
 check('html paste keeps nesting and bold', JSON.stringify(pasted?.map((x) => x.replace(/^\d+/, (d) => d - Number(pasted[0].split(':')[0])))) === JSON.stringify(['0:h1', '1:h2', '0:**bold** x']), JSON.stringify(pasted));
+
+// desktop hover toolbar: off by default; on via Settings → Preferences
+const qaItem = (c) => page.evaluate((c) => window.__qa().items.find((x) => x.c === c), c);
+await K('Escape');
+await page.hover('.o-content >> text=apple');
+await page.waitForTimeout(150);
+check('hover toolbar off by default', !(await page.isVisible('.hover-bar')));
+await K('Control+Comma');
+await page.waitForSelector('.settings');
+await page.check('label:has-text("Show item toolbar on hover (desktop)") input');
+await page.click('.modal button:has-text("Done")');
+await page.hover('.o-content >> text=cherry');
+await page.hover('.o-content >> text=apple');
+await page.waitForSelector('.hover-bar:not([hidden])');
+check('hover toolbar shows above the row', await page.evaluate(() => {
+  const bar = document.querySelector('.hover-bar').getBoundingClientRect();
+  const row = [...document.querySelectorAll('.o-items .o-row')].find((r) => r.querySelector('.o-content').textContent === 'apple').getBoundingClientRect();
+  return bar.bottom <= row.top + 1 && bar.right <= row.right + 1;
+}));
+await page.click('.hover-bar button[title="Toggle checkbox"]');
+await page.waitForTimeout(100);
+check('hover toolbar: toggle checkbox', (await qaItem('apple'))?.cb === true, JSON.stringify(await qaItem('apple')));
+// edit cherry, then act on apple from the bar: the caret stays in cherry
+await page.click('.o-content >> text=cherry');
+await K('End');
+await page.hover('.o-content >> text=apple');
+await page.waitForSelector('.hover-bar:not([hidden])');
+await page.click('.hover-bar button[title="Set color label"]');
+await page.click('.menu .sw.o-cl2');
+await page.waitForTimeout(100);
+check('hover toolbar: color label', await page.evaluate(() => [...document.querySelectorAll('.o-content.o-cl2')].some((e) => e.textContent === 'apple')));
+check('hover toolbar keeps the caret', await page.evaluate(() => document.activeElement?.textContent === 'cherry' && getSelection().focusOffset === 6));
+await page.hover('.o-content >> text=banana');
+await page.waitForSelector('.hover-bar:not([hidden])');
+await page.click('.hover-bar button[title="Indent"]');
+await page.waitForTimeout(100);
+check('hover toolbar: indent', (await qaItem('banana #yellow'))?.d === (await qaItem('apple')).d + 1, JSON.stringify(await qaItem('banana #yellow')));
+check('hover toolbar follows the row', await page.isVisible('.hover-bar'));
+await page.click('.hover-bar button[title="Unindent"]');
+await page.waitForTimeout(100);
+check('hover toolbar: unindent', (await qaItem('banana #yellow'))?.d === (await qaItem('apple')).d);
+await page.mouse.move(5, 790);
+await page.waitForTimeout(400);
+check('hover toolbar hides on leave', !(await page.isVisible('.hover-bar')));
 
 check('no page errors', errors.length === 0, errors.join('\n'));
 await browser.close();
