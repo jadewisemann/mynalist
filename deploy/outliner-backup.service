@@ -1,0 +1,9 @@
+# Daily database backup (VACUUM INTO ~/.local/share/outliner/backups, newest 14 kept); run by the timer.
+[Unit]
+Description=Outliner database backup
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/code/outliner
+EnvironmentFile=%h/.config/outliner/env
+ExecStart=/usr/bin/env node apps/server/src/backup.ts

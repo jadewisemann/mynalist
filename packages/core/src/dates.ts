@@ -139,6 +139,20 @@ export function formatDateToken(spec: DateSpec): string {
   return `!(${formatDateBody(spec)})`;
 }
 
+/** The UTC offset of a local time as `+HH:MM` (for "Encode timezone in new dates"). */
+export function localTz(d: Date): string {
+  const off = -d.getTimezoneOffset();
+  const a = Math.abs(off);
+  return `${off < 0 ? '-' : '+'}${pad2(Math.floor(a / 60))}:${pad2(a % 60)}`;
+}
+
+/** Give timed endpoints without an offset the local offset of that moment. */
+export function withLocalTz(spec: DateSpec): DateSpec {
+  const fix = (dt: DateTime): DateTime =>
+    dt.hour === undefined || dt.tz ? dt : { ...dt, tz: localTz(new Date(dt.year, dt.month - 1, dt.day, dt.hour, dt.minute ?? 0)) };
+  return { ...spec, start: fix(spec.start), ...(spec.end ? { end: fix(spec.end) } : {}) };
+}
+
 /** `!(YYYY-MM-DD)` for today, or `!(YYYY-MM-DD HH:mm)` with the current time. */
 export function currentDateToken(now: TimeInput, withTime = false): string {
   return formatDateToken({ start: fromDate(new Date(toMs(now)), withTime) });

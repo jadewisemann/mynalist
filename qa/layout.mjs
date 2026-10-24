@@ -118,19 +118,26 @@ function cmp(a, b, key) {
   return a === b;
 }
 
-const outDir = join(dirname(fileURLToPath(import.meta.url)), 'out', 'layout');
+// --mobile: a phone (390×844, touch, mobile user agent); Dynalist switches to its mobile layout there
+const MOBILE = process.argv.includes('--mobile');
+const VIEWPORT = MOBILE ? { width: 390, height: 844 } : { width: 1280, height: 900 };
+const DEVICE = MOBILE
+  ? { isMobile: true, hasTouch: true, deviceScaleFactor: 2, userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36' }
+  : {};
+const suiteName = MOBILE ? 'layout-mobile' : 'layout';
+const outDir = join(dirname(fileURLToPath(import.meta.url)), 'out', suiteName);
 mkdirSync(outDir, { recursive: true });
 const mode = process.argv.includes('--replay') ? 'replay' : process.argv.includes('--record') ? 'record' : 'live';
-const goldenFile = join(GOLDEN_DIR, 'layout.json');
+const goldenFile = join(GOLDEN_DIR, `${suiteName}.json`);
 const b = await getBrowser();
 const res = {};
 if (mode === 'replay') {
-  if (!existsSync(goldenFile)) throw new Error(`no recording: run node qa/layout.mjs --record first`);
+  if (!existsSync(goldenFile)) throw new Error(`no recording: run node qa/layout.mjs --record${MOBILE ? ' --mobile' : ''} first`);
   res.dynalist = JSON.parse(readFileSync(goldenFile, 'utf8')).dynalist;
 }
 for (const name of mode === 'replay' ? ['ours'] : ['dynalist', 'ours']) {
   const app = APPS[name];
-  const { ctx, page } = await newPage(b);
+  const { ctx, page } = await newPage(b, VIEWPORT, DEVICE);
   page.setDefaultTimeout(10000);
   const out = {};
   await app.fresh(page);
@@ -150,7 +157,7 @@ for (const name of mode === 'replay' ? ['ours'] : ['dynalist', 'ours']) {
   await press(page, 'Escape');
   await press(page, 'Escape');
   await page.evaluate(() => document.activeElement?.blur());
-  await page.mouse.move(1270, 890);
+  await page.mouse.move(VIEWPORT.width - 10, VIEWPORT.height - 10);
   await page.waitForTimeout(400);
   res[name] = await page.evaluate(measure, SEL[name]);
   writeFileSync(join(outDir, `${name}.png`), await page.screenshot());
@@ -179,7 +186,7 @@ for (const group of Object.keys(res.dynalist)) {
 }
 const fmt = (v) => (typeof v === 'number' ? +v.toFixed(2) : v ?? '—');
 const bad = rows.filter((r) => !r.ok);
-console.log(`layout: ${rows.length - bad.length}/${rows.length} metrics within tolerance`);
+console.log(`${suiteName}: ${rows.length - bad.length}/${rows.length} metrics within tolerance`);
 for (const r of bad) console.log(`  ✗ ${r.m.padEnd(40)} dyn=${fmt(r.a)}  ours=${fmt(r.b)}`);
 writeFileSync(join(outDir, 'results.json'), JSON.stringify({ res, rows }, null, 1));
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);

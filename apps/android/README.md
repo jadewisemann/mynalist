@@ -15,6 +15,11 @@ npm run build -w @outliner/android   # web build + cap sync + ./gradlew assemble
 
 Output: `apps/android/android/app/build/outputs/apk/debug/app-debug.apk` (debug-signed).
 
+Release build: `scripts/make-keystore.sh` once (keystore + `android-signing.properties` with random passwords in
+`~/.config/outliner`, never in the repo; back them up, updates need the same key), then
+`npm run build:release -w @outliner/android` → `app/build/outputs/apk/release/app-release.apk`.
+`OUTLINER_ANDROID_SIGNING` points to another properties file. Without one the release APK is unsigned.
+
 Other scripts: `sync` (web build + `cap sync android`), `icons` (regenerate launcher icon/splash via
 `scripts/gen-icons.py`, stdlib Python only), `open` (Android Studio).
 

@@ -10,6 +10,7 @@ import { gzip as gzipCb } from 'node:zlib';
 import { WebSocketServer, WebSocket } from 'ws';
 import { Store, type DocVersion, type StoreOptions } from './store.ts';
 import { BadRequest, isDocId, parseSyncBody } from './validate.ts';
+import { Extras, calendarFeed, calendarKey, isKey, sharePage } from './extras.ts';
 
 const gzip = promisify(gzipCb);
 
@@ -24,6 +25,12 @@ export interface ServerConfig {
   staticDir?: string;
   /** max request body in bytes */
   maxBody: number;
+  /** where uploaded files are stored; uploads disabled when unset */
+  filesDir?: string;
+  /** max upload size in bytes */
+  maxUpload?: number;
+  /** public origin for links in the calendar feed (default: from the request's Host header) */
+  publicUrl?: string;
   /** how often to prune the op log (ms); 0 = only at startup */
   pruneIntervalMs: number;
   /** WS heartbeat interval (ms) */
@@ -77,6 +84,8 @@ const MIME: Record<string, string> = {
 
 export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1'): Promise<RunningServer> {
   const store = new Store(cfg.store);
+  const extras = new Extras(store.db, cfg.filesDir);
+  const calKey = calendarKey(cfg.token);
   const staticRoot = cfg.staticDir ? resolve(cfg.staticDir) : undefined;
 
   // ---- auth ---------------------------------------------------------------
@@ -111,6 +120,7 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
     let data: Buffer = Buffer.from(JSON.stringify(body));
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     if (data.length > 1024 && /\bgzip\b/.test(String(req.headers['accept-encoding'] ?? ''))) {
       data = await gzip(data);
       res.setHeader('Content-Encoding', 'gzip');
@@ -230,6 +240,8 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
       rel.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache',
     );
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
     res.writeHead(200);
     if (req.method === 'HEAD') res.end();
     else createReadStream(file).on('error', () => res.destroy()).pipe(res);
@@ -238,12 +250,31 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
 
   // ---- routes -------------------------------------------------------------
 
+  const sendPage = (res: http.ServerResponse, body: string, type: string, csp?: string) => {
+    const data = Buffer.from(body);
+    res.setHeader('Content-Type', type);
+    res.setHeader('Content-Length', data.length);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    if (csp) res.setHeader('Content-Security-Policy', csp);
+    res.writeHead(200);
+    res.end(data);
+  };
+
+  const origin = (req: http.IncomingMessage) => {
+    if (cfg.publicUrl) return cfg.publicUrl.replace(/\/+$/, '');
+    const proto = String(req.headers['x-forwarded-proto'] ?? '').split(',')[0]!.trim() || 'http';
+    const host = String(req.headers['x-forwarded-host'] ?? req.headers.host ?? 'localhost').split(',')[0]!.trim();
+    return `${/^https?$/.test(proto) ? proto : 'http'}://${host.replace(/[^\w.:[\]-]/g, '')}`;
+  };
+
   const handle = async (req: http.IncomingMessage, res: http.ServerResponse) => {
     const url = new URL(req.url ?? '/', 'http://x');
     const path = url.pathname;
     cors(req, res);
     if (req.method === 'OPTIONS') {
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
       res.setHeader('Access-Control-Max-Age', '86400');
       res.writeHead(204);
@@ -252,6 +283,27 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
     }
 
     if (!path.startsWith('/api/')) {
+      if (req.method === 'GET' || req.method === 'HEAD') {
+        // capability URLs: no bearer token, the random key is the secret
+        const f = /^\/files\/([^/]+)(?:\/[^/]*)?$/.exec(path);
+        if (f) {
+          if (extras.serveFile(req, res, f[1]!)) return;
+          throw new HttpError(404, 'not found');
+        }
+        const s = /^\/s\/([^/]+)$/.exec(path);
+        if (s) {
+          const share = extras.getShare(s[1]!);
+          const html = share && sharePage(store, share, { collapsed: url.searchParams.has('collapsed') });
+          if (!html) throw new HttpError(404, 'not found');
+          return sendPage(res, html, 'text/html; charset=utf-8',
+            "default-src 'none'; style-src 'unsafe-inline'; img-src * data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+        }
+        const c = /^\/cal\/([^/]+)\.ics$/.exec(path);
+        if (c) {
+          if (!safeEqual(c[1]!, calKey)) throw new HttpError(404, 'not found');
+          return sendPage(res, calendarFeed(store, origin(req)), 'text/calendar; charset=utf-8');
+        }
+      }
       if (serveStatic(req, res, path)) return;
       throw new HttpError(404, 'not found');
     }
@@ -299,7 +351,71 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
       return sendJson(req, res, 200, store.listDocs());
     }
 
-    const m = /^\/api\/doc\/([^/]+)$/.exec(path);
+    if (path === '/api/backup') {
+      if (req.method !== 'GET') throw new HttpError(405, 'method not allowed');
+      const docs: Record<string, unknown> = {};
+      for (const d of store.listDocs()) docs[d.doc] = store.getDoc(d.doc);
+      res.setHeader('Content-Disposition', `attachment; filename="outliner-backup-${new Date().toISOString().slice(0, 10)}.json"`);
+      return sendJson(req, res, 200, { format: 'outliner-backup', version: 1, created: Date.now(), docs });
+    }
+
+    if (path === '/api/upload') {
+      if (req.method !== 'POST') throw new HttpError(405, 'method not allowed');
+      if (!cfg.filesDir) throw new HttpError(403, 'uploads disabled');
+      const max = cfg.maxUpload ?? 50 * 1024 * 1024;
+      if (Number(req.headers['content-length'] ?? 0) > max) {
+        req.resume();
+        throw new HttpError(413, 'file too large');
+      }
+      try {
+        const up = await extras.receive(req, url.searchParams.get('name') ?? 'file', max);
+        return sendJson(req, res, 200, { ...up, url: `/files/${up.key}/${encodeURIComponent(up.name)}` });
+      } catch (e) {
+        if ((e as Error).message === 'too large') throw new HttpError(413, 'file too large');
+        throw e;
+      }
+    }
+
+    if (path === '/api/uploads') {
+      if (req.method !== 'GET') throw new HttpError(405, 'method not allowed');
+      return sendJson(req, res, 200, {
+        enabled: !!cfg.filesDir,
+        max: cfg.maxUpload ?? 50 * 1024 * 1024,
+        uploads: extras.uploads().map((u) => ({ ...u, url: `/files/${u.key}/${encodeURIComponent(u.name)}` })),
+      });
+    }
+
+    const del = /^\/api\/(upload|share)\/([^/]+)$/.exec(path);
+    if (del) {
+      if (req.method !== 'DELETE') throw new HttpError(405, 'method not allowed');
+      if (!isKey(del[2]!)) throw new HttpError(400, 'invalid key');
+      const ok = del[1] === 'upload' ? extras.deleteUpload(del[2]!) : extras.deleteShare(del[2]!);
+      if (!ok) throw new HttpError(404, 'not found');
+      return sendJson(req, res, 200, { ok: true });
+    }
+
+    if (path === '/api/share') {
+      if (req.method !== 'POST') throw new HttpError(405, 'method not allowed');
+      const body = (await readJson(req)) as { doc?: unknown; zoom?: unknown } | null;
+      const doc = body?.doc;
+      const zoom = body?.zoom ?? null;
+      if (typeof doc !== 'string' || !isDocId(doc) || doc === 'workspace') throw new HttpError(400, 'expected {doc, zoom?}');
+      if (zoom !== null && (typeof zoom !== 'string' || zoom.length > 64)) throw new HttpError(400, 'invalid zoom');
+      const s = extras.share(doc, zoom as string | null);
+      return sendJson(req, res, 200, { ...s, url: `/s/${s.token}` });
+    }
+
+    if (path === '/api/shares') {
+      if (req.method !== 'GET') throw new HttpError(405, 'method not allowed');
+      return sendJson(req, res, 200, { shares: extras.shares().map((s) => ({ ...s, url: `/s/${s.token}` })) });
+    }
+
+    if (path === '/api/calendar') {
+      if (req.method !== 'GET') throw new HttpError(405, 'method not allowed');
+      return sendJson(req, res, 200, { url: `/cal/${calKey}.ics` });
+    }
+
+    const m = /^\/api\/doc\/([^/]+)(?:\/(history)|\/at\/(\d+))?$/.exec(path);
     if (m) {
       if (req.method !== 'GET') throw new HttpError(405, 'method not allowed');
       let id: string;
@@ -309,6 +425,12 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
         throw new HttpError(400, 'invalid doc id');
       }
       if (!isDocId(id)) throw new HttpError(400, 'invalid doc id');
+      if (m[2]) return sendJson(req, res, 200, { points: store.history(id) });
+      if (m[3]) {
+        const tree = store.treeAt(id, Number(m[3]));
+        if (!tree) throw new HttpError(404, 'version not retained');
+        return sendJson(req, res, 200, { version: Number(m[3]), tree });
+      }
       return sendJson(req, res, 200, store.getDoc(id));
     }
 

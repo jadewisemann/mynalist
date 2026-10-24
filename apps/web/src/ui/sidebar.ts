@@ -1,17 +1,33 @@
-import type { FileEntry, Workspace } from '../store/workspace.ts';
+import type { NodeId } from '@outliner/core';
+import type { ExternalDrop } from '../editor/drag.ts';
+import type { Bookmark, FileEntry, Workspace } from '../store/workspace.ts';
 import { h, icon } from './dom.ts';
-import { modal, showMenu } from './overlay.ts';
+import { modal, showMenu, type MenuItem } from './overlay.ts';
 
 export type PaneName = 'files' | 'bookmarks' | 'tags';
 
+/** dataTransfer type of a document dragged from the file pane (dropped onto an item: becomes that item) */
+export const DOC_DRAG_TYPE = 'application/x-outliner-doc';
+
 export interface SidebarHost {
   currentDoc(): string | null;
-  openDoc(id: string, zoom?: string, q?: string): void;
+  openDoc(id: string): void;
+  openBookmark(b: Bookmark): void;
   exportDoc(id: string): void;
   importOpml(parent: string | null): void;
   tags(): { doc: [string, number][]; all: [string, number][] };
   searchTag(tag: string, global: boolean): void;
+  /** rename a tag in every document; `to` null deletes it */
+  renameTag(tag: string, to: string | null): void;
   bookmarkCurrent(): void;
+  findFile(): void;
+  gotoInbox(): void;
+  copyDoc(id: string): void;
+  versionHistory(id: string): void;
+  share(id: string): void;
+  cleanNewlines(id: string): void;
+  /** items dragged from the editor onto a document (or onto empty pane space: doc null = new documents) */
+  dropItems(doc: string | null, ids: NodeId[], copy: boolean): void;
 }
 
 export class Sidebar {
@@ -23,6 +39,8 @@ export class Sidebar {
   /** the live rename input, reused across re-renders so typing isn't lost */
   private renameEl: { id: string; el: HTMLInputElement } | null = null;
   private dragId: string | null = null;
+  private dragBookmark: string | null = null;
+  private tagCollapsed = new Set<string>();
   private ws: Workspace;
   private host: SidebarHost;
 
@@ -35,11 +53,7 @@ export class Sidebar {
     this.pane.addEventListener('contextmenu', (e) => {
       if (this.active !== 'files' || (e.target as HTMLElement).closest('.file-row')) return;
       e.preventDefault();
-      showMenu(e.clientX, e.clientY, [
-        { label: 'New document', run: () => this.newFile('doc', null) },
-        { label: 'New folder', run: () => this.newFile('folder', null) },
-        { label: 'Import OPML…', run: () => this.host.importOpml(null) },
-      ]);
+      showMenu(e.clientX, e.clientY, this.newMenu(null));
     });
     this.el = h('aside.sidebar', {}, h('div.tabs', {}, this.tabs.files, this.tabs.bookmarks, this.tabs.tags), this.pane);
     ws.onChange(() => this.render());
@@ -60,6 +74,20 @@ export class Sidebar {
     else this.renderTags();
   }
 
+  /** Drop target for items dragged out of the editor. */
+  externalDrop(): ExternalDrop {
+    return {
+      hit: (x, y) => {
+        if (this.el.hidden || this.active !== 'files') return null;
+        const el = document.elementFromPoint(x, y) as HTMLElement | null;
+        if (!el || !this.el.contains(el)) return null;
+        const row = el.closest<HTMLElement>('.file-row[data-kind="doc"]');
+        if (row) return { el: row, drop: (ids, copy) => this.host.dropItems(row.dataset.id!, ids, copy) };
+        return { el: this.pane, drop: (ids, copy) => this.host.dropItems(null, ids, copy) };
+      },
+    };
+  }
+
   private head(title: string, ...buttons: HTMLElement[]) {
     this.pane.append(h('div.pane-head', {}, h('span', {}, title), h('span.spacer'), ...buttons));
   }
@@ -71,15 +99,21 @@ export class Sidebar {
     this.render();
   }
 
+  private newMenu(parent: string | null): MenuItem[] {
+    return [
+      { label: 'New document', run: () => this.newFile('doc', parent) },
+      { label: 'New folder', run: () => this.newFile('folder', parent) },
+      { label: 'Import OPML…', run: () => this.host.importOpml(parent) },
+    ];
+  }
+
   private renderFiles() {
-    const addBtn = h('button.icon-btn', { title: 'New…', onclick: (e: MouseEvent) => {
-      showMenu(e.clientX, e.clientY + 10, [
-        { label: 'New document', run: () => this.newFile('doc', null) },
-        { label: 'New folder', run: () => this.newFile('folder', null) },
-        { label: 'Import OPML…', run: () => this.host.importOpml(null) },
-      ]);
-    } }, icon('plus'));
-    this.head('My files', addBtn);
+    const btn = (name: string, title: string, run: (e: MouseEvent) => void) => h('button.icon-btn', { title, onclick: run }, icon(name));
+    this.head('My files',
+      btn('search', 'Find a document (Ctrl+O)', () => this.host.findFile()),
+      btn('inbox', 'Go to inbox', () => this.host.gotoInbox()),
+      btn('fold', 'Collapse all folders', () => this.collapseAll()),
+      btn('plus', 'New…', (e) => showMenu(e.clientX, e.clientY + 10, this.newMenu(null))));
     const files = this.ws.files();
     if (!files.length) {
       this.pane.append(h('div.empty-state', { style: 'margin-top:20px;font-size:14px' },
@@ -94,6 +128,17 @@ export class Sidebar {
     walk(files, 0, null);
   }
 
+  private collapseAll() {
+    const walk = (es: FileEntry[]) => {
+      for (const e of es) {
+        if (e.kind !== 'folder') continue;
+        if (!e.collapsed) this.ws.setCollapsed(e.id, true);
+        walk(e.children);
+      }
+    };
+    walk(this.ws.files());
+  }
+
   private fileRow(e: FileEntry, depth: number, parent: string | null, index: number): HTMLElement {
     const cur = this.host.currentDoc();
     const isFolder = e.kind === 'folder';
@@ -102,6 +147,8 @@ export class Sidebar {
       'div.file-row',
       {
         style: `padding-left:${8 + depth * 16}px`,
+        'data-id': e.id,
+        'data-kind': e.kind,
         draggable: this.renaming !== e.id,
         onclick: () => {
           if (isFolder) this.ws.setCollapsed(e.id, !e.collapsed);
@@ -123,12 +170,14 @@ export class Sidebar {
     );
     if (e.id === cur) row.classList.add('active');
     if (e.archived) row.classList.add('archived');
-    // drag & drop reordering
+    // drag & drop reordering (and documents onto editor items)
     row.addEventListener('dragstart', (ev) => {
       this.dragId = e.id;
       ev.dataTransfer!.effectAllowed = 'move';
       ev.dataTransfer!.setData('text/plain', e.title);
+      if (!isFolder) ev.dataTransfer!.setData(DOC_DRAG_TYPE, e.id);
     });
+    row.addEventListener('dragend', () => (this.dragId = null));
     const zone = (ev: DragEvent): 'before' | 'after' | 'into' => {
       const r = row.getBoundingClientRect();
       const y = ev.clientY - r.top;
@@ -190,18 +239,19 @@ export class Sidebar {
   }
 
   private fileMenu(e: FileEntry, x: number, y: number) {
-    const items = [];
+    const items: MenuItem[] = [];
     if (e.kind === 'folder') {
-      items.push(
-        { label: 'New document', run: () => this.newFile('doc', e.id) },
-        { label: 'New folder', run: () => this.newFile('folder', e.id) },
-        { label: 'Import OPML…', run: () => this.host.importOpml(e.id) },
-        { label: '', sep: true },
-      );
+      items.push(...this.newMenu(e.id), { label: '', sep: true });
     } else {
       items.push(
+        { label: 'Make a copy', run: () => this.host.copyDoc(e.id) },
+        { label: 'Version history', run: () => this.host.versionHistory(e.id) },
+        { label: 'Share…', run: () => this.host.share(e.id) },
         { label: 'Export…', run: () => this.host.exportDoc(e.id) },
         { label: 'Add to bookmarks', run: () => this.ws.addBookmark({ title: e.title, doc: e.id }) },
+      );
+      if (this.ws.pref('show_cleanup_newlines_option', false)) items.push({ label: 'Clean up newlines', run: () => this.host.cleanNewlines(e.id) });
+      items.push(
         { label: e.archived ? 'Unarchive' : 'Archive', run: () => this.ws.setArchived(e.id, !e.archived) },
         { label: '', sep: true },
       );
@@ -221,42 +271,126 @@ export class Sidebar {
     showMenu(x, y, items);
   }
 
+  private renameBookmark(b: Bookmark) {
+    const input = h('input', { value: b.title });
+    modal('Rename bookmark', h('div.field', {}, input), [
+      { label: 'Cancel' },
+      { label: 'Save', primary: true, run: () => this.ws.renameBookmark(b.id, input.value.trim() || b.title) },
+    ]);
+    input.select();
+  }
+
+  private removeBookmark(b: Bookmark) {
+    modal('Remove bookmark', h('div', {}, `Remove the bookmark "${b.title}"?`), [
+      { label: 'Cancel' },
+      { label: 'Remove', primary: true, run: () => this.ws.removeBookmark(b.id) },
+    ]);
+  }
+
   private renderBookmarks() {
-    this.head(`Bookmarks`, h('button.icon-btn', { title: 'Bookmark current view', onclick: () => this.host.bookmarkCurrent() }, icon('star')));
-    for (const b of this.ws.bookmarks()) {
+    this.head('Bookmarks', h('button.icon-btn', { title: 'Bookmark current view', onclick: () => this.host.bookmarkCurrent() }, icon('star')));
+    const list = this.ws.bookmarks();
+    if (!list.length) this.pane.append(h('div.pane-empty', {}, 'Bookmark a document, a zoomed item or a search with the ☆ button.'));
+    list.forEach((b, i) => {
+      const kind = b.global ? 'search' : b.q ? 'search' : b.zoom ? 'zoom' : 'doc';
       const row = h('div.file-row', {
         style: 'padding-left:12px',
-        onclick: () => this.host.openDoc(b.doc, b.zoom, b.q),
+        draggable: true,
+        title: `${this.ws.title(b.doc)}${b.q ? ` — "${b.q}"` : ''}${b.flat ? ' (flat)' : ''}`,
+        onclick: () => this.host.openBookmark(b),
+        ondblclick: () => this.renameBookmark(b),
         oncontextmenu: (ev: MouseEvent) => {
           ev.preventDefault();
           showMenu(ev.clientX, ev.clientY, [
-            {
-              label: 'Rename',
-              run: () => {
-                const input = h('input', { value: b.title });
-                modal('Rename bookmark', h('div.field', {}, input), [
-                  { label: 'Cancel' },
-                  { label: 'Save', primary: true, run: () => this.ws.renameBookmark(b.id, input.value) },
-                ]);
-              },
-            },
-            { label: 'Remove', run: () => this.ws.removeBookmark(b.id) },
+            { label: 'Rename', run: () => this.renameBookmark(b) },
+            { label: 'Remove', run: () => this.removeBookmark(b) },
           ]);
         },
-      }, h('span.ico', {}, icon('star')), h('span.name', {}, b.title));
+      }, h('span.ico', {}, icon(kind === 'search' ? 'search' : kind === 'zoom' ? 'zoomin' : 'star')), h('span.name', {}, b.title),
+      h('span.more', { onclick: (ev: MouseEvent) => (ev.stopPropagation(), this.removeBookmark(b)), title: 'Remove' }, '×'));
+      row.addEventListener('dragstart', (ev) => {
+        this.dragBookmark = b.id;
+        ev.dataTransfer!.effectAllowed = 'move';
+        ev.dataTransfer!.setData('text/plain', b.title);
+      });
+      row.addEventListener('dragover', (ev) => {
+        if (!this.dragBookmark || this.dragBookmark === b.id) return;
+        ev.preventDefault();
+        const before = ev.clientY < row.getBoundingClientRect().top + row.offsetHeight / 2;
+        row.classList.toggle('drop-before', before);
+        row.classList.toggle('drop-after', !before);
+      });
+      row.addEventListener('dragleave', () => row.classList.remove('drop-before', 'drop-after'));
+      row.addEventListener('drop', (ev) => {
+        ev.preventDefault();
+        const id = this.dragBookmark;
+        this.dragBookmark = null;
+        if (!id || id === b.id) return;
+        const before = ev.clientY < row.getBoundingClientRect().top + row.offsetHeight / 2;
+        const from = list.findIndex((x) => x.id === id);
+        let to = before ? i : i + 1;
+        if (from < to) to--;
+        this.ws.moveBookmark(id, to);
+      });
       this.pane.append(row);
-    }
+    });
   }
 
   private renderTags() {
     const { doc, all } = this.host.tags();
-    const section = (title: string, list: [string, number][], global: boolean) => {
-      this.head(`${title} (${list.length})`);
-      for (const [tag, n] of list) {
-        this.pane.append(h('div.tag-row', { onclick: () => this.host.searchTag(tag, global) }, h('span', {}, tag), h('span.count', {}, `(${n})`)));
+    const alpha = this.ws.pref<string>('tag_sort', 'count') === 'alpha';
+    const sorted = (list: [string, number][]) =>
+      alpha ? [...list].sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: 'base' })) : list;
+    const section = (key: string, title: string, list: [string, number][], global: boolean) => {
+      const collapsed = this.tagCollapsed.has(key);
+      this.pane.append(h('div.pane-head.clickable', { onclick: () => {
+        if (collapsed) this.tagCollapsed.delete(key);
+        else this.tagCollapsed.add(key);
+        this.render();
+      } }, h('span', {}, `${collapsed ? '▸' : '▾'} ${title} (${list.length})`), h('span.spacer'),
+      key === 'doc' ? h('button.btn.link', { title: 'Sort order', onclick: (ev: MouseEvent) => {
+        ev.stopPropagation();
+        this.ws.setPref('tag_sort', alpha ? 'count' : 'alpha');
+      } }, alpha ? 'A–Z' : 'By count') : null));
+      if (collapsed) return;
+      for (const [tag, n] of sorted(list)) {
+        this.pane.append(h('div.tag-row', {
+          onclick: () => this.host.searchTag(tag, global),
+          oncontextmenu: (ev: MouseEvent) => {
+            ev.preventDefault();
+            showMenu(ev.clientX, ev.clientY, [
+              { label: 'Search in this document', run: () => this.host.searchTag(tag, false) },
+              { label: 'Search everywhere', run: () => this.host.searchTag(tag, true) },
+              { label: '', sep: true },
+              { label: 'Rename tag…', run: () => this.renameTag(tag) },
+              { label: 'Delete tag…', run: () => modal('Delete tag', h('div', {}, `Remove ${tag} from every item in all documents?`), [
+                { label: 'Cancel' },
+                { label: 'Delete', primary: true, run: () => this.host.renameTag(tag, null) },
+              ]) },
+            ]);
+          },
+        }, h('span', {}, tag), h('span.count', {}, `(${n})`)));
       }
     };
-    section('Document tags', doc, false);
-    section('All tags', all, true);
+    section('doc', 'Document tags', doc, false);
+    section('all', 'All tags', all, true);
+  }
+
+  private renameTag(tag: string) {
+    const input = h('input', { value: tag });
+    modal('Rename tag', h('div', {}, h('label.field', {}, `Rename ${tag} in all documents to`, input)), [
+      { label: 'Cancel' },
+      {
+        label: 'Rename',
+        primary: true,
+        run: () => {
+          let to = input.value.trim();
+          if (!to || to === tag) return;
+          if (!/^[#@]/.test(to)) to = tag[0] + to;
+          this.host.renameTag(tag, to);
+        },
+      },
+    ]);
+    input.select();
   }
 }

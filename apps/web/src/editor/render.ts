@@ -1,6 +1,7 @@
 // Rendering of item text (display mode) and mapping clicks back to source offsets.
 
 import { mapDisplayOffset, renderInline, type RenderOptions } from '@outliner/core';
+import { enhance } from './enhance.ts';
 
 let opts: RenderOptions = {};
 
@@ -11,6 +12,12 @@ export function setRenderOptions(o: RenderOptions) {
 export function renderText(src: string, extra?: RenderOptions): string {
   if (!src) return '';
   return renderInline(src, extra ? { ...opts, ...extra } : opts);
+}
+
+/** Render `src` into `el` (with code highlighting and LaTeX). */
+export function renderInto(el: HTMLElement, src: string, extra?: RenderOptions) {
+  el.innerHTML = renderText(src, extra);
+  if (src.includes('```') || src.includes('$$')) enhance(el);
 }
 
 /** Source offset for a click at (x, y) inside a rendered element. */

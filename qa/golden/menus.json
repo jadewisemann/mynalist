@@ -1,0 +1,576 @@
+{
+ "meta": {
+  "source": "https://dynalist.io/demo",
+  "recorded": "2026-10-24T10:01:12.758Z"
+ },
+ "dynalist": {
+  "parent": [
+   [
+    [
+     "Collapse",
+     "Ctrl+."
+    ],
+    [
+     "Collapse all",
+     "Ctrl+Shift+."
+    ],
+    [
+     "Expand to level",
+     ""
+    ],
+    [
+     "Collapse all siblings",
+     ""
+    ],
+    [
+     "Zoom in",
+     "Ctrl+]"
+    ],
+    [
+     "Add note",
+     "Shift+↵"
+    ],
+    [
+     "Delete",
+     "Ctrl+Shift+⌫"
+    ],
+    [
+     "Delete checked items",
+     ""
+    ],
+    [
+     "Add to bookmarks",
+     ""
+    ],
+    [
+     "Sort",
+     ""
+    ],
+    [
+     "Search and replace…",
+     ""
+    ]
+   ],
+   [
+    [
+     "Move to…",
+     "Ctrl+Shift+M"
+    ]
+   ],
+   [
+    [
+     "Add checkbox",
+     "Ctrl+Shift+C"
+    ],
+    [
+     "Add checkbox to children",
+     ""
+    ],
+    [
+     "Check off",
+     "Ctrl+↵"
+    ],
+    [
+     "Number children",
+     "Ctrl+Shift+X"
+    ]
+   ],
+   [
+    [
+     "Get link",
+     ""
+    ],
+    [
+     "Show all references",
+     ""
+    ],
+    [
+     "Export…",
+     ""
+    ],
+    [
+     "Set as inbox",
+     ""
+    ]
+   ],
+   [
+    [
+     "<colors>",
+     ""
+    ]
+   ],
+   [
+    [
+     "<headings>",
+     ""
+    ]
+   ]
+  ],
+  "child": [
+   [
+    [
+     "Expand to level",
+     ""
+    ],
+    [
+     "Zoom in",
+     "Ctrl+]"
+    ],
+    [
+     "Add note",
+     "Shift+↵"
+    ],
+    [
+     "Delete",
+     "Ctrl+Shift+⌫"
+    ],
+    [
+     "Delete checked items",
+     ""
+    ],
+    [
+     "Add to bookmarks",
+     ""
+    ],
+    [
+     "Sort",
+     ""
+    ],
+    [
+     "Search and replace…",
+     ""
+    ]
+   ],
+   [
+    [
+     "Unindent",
+     "Shift+Tab"
+    ],
+    [
+     "Move to…",
+     "Ctrl+Shift+M"
+    ]
+   ],
+   [
+    [
+     "Add checkbox",
+     "Ctrl+Shift+C"
+    ],
+    [
+     "Check off",
+     "Ctrl+↵"
+    ],
+    [
+     "Number children",
+     "Ctrl+Shift+X"
+    ]
+   ],
+   [
+    [
+     "Get link",
+     ""
+    ],
+    [
+     "Show all references",
+     ""
+    ],
+    [
+     "Export…",
+     ""
+    ],
+    [
+     "Set as inbox",
+     ""
+    ]
+   ],
+   [
+    [
+     "<colors>",
+     ""
+    ]
+   ],
+   [
+    [
+     "<headings>",
+     ""
+    ]
+   ]
+  ],
+  "leaf": [
+   [
+    [
+     "Expand to level",
+     ""
+    ],
+    [
+     "Zoom in",
+     "Ctrl+]"
+    ],
+    [
+     "Add note",
+     "Shift+↵"
+    ],
+    [
+     "Delete",
+     "Ctrl+Shift+⌫"
+    ],
+    [
+     "Delete checked items",
+     ""
+    ],
+    [
+     "Add to bookmarks",
+     ""
+    ],
+    [
+     "Sort",
+     ""
+    ],
+    [
+     "Search and replace…",
+     ""
+    ]
+   ],
+   [
+    [
+     "Indent",
+     "Tab"
+    ],
+    [
+     "Move to…",
+     "Ctrl+Shift+M"
+    ]
+   ],
+   [
+    [
+     "Add checkbox",
+     "Ctrl+Shift+C"
+    ],
+    [
+     "Check off",
+     "Ctrl+↵"
+    ],
+    [
+     "Number children",
+     "Ctrl+Shift+X"
+    ]
+   ],
+   [
+    [
+     "Get link",
+     ""
+    ],
+    [
+     "Show all references",
+     ""
+    ],
+    [
+     "Export…",
+     ""
+    ],
+    [
+     "Set as inbox",
+     ""
+    ]
+   ],
+   [
+    [
+     "<colors>",
+     ""
+    ]
+   ],
+   [
+    [
+     "<headings>",
+     ""
+    ]
+   ]
+  ],
+  "checked": [
+   [
+    [
+     "Expand to level",
+     ""
+    ],
+    [
+     "Zoom in",
+     "Ctrl+]"
+    ],
+    [
+     "Add note",
+     "Shift+↵"
+    ],
+    [
+     "Delete",
+     "Ctrl+Shift+⌫"
+    ],
+    [
+     "Delete checked items",
+     ""
+    ],
+    [
+     "Add to bookmarks",
+     ""
+    ],
+    [
+     "Sort",
+     ""
+    ],
+    [
+     "Search and replace…",
+     ""
+    ]
+   ],
+   [
+    [
+     "Indent",
+     "Tab"
+    ],
+    [
+     "Move to…",
+     "Ctrl+Shift+M"
+    ]
+   ],
+   [
+    [
+     "Add checkbox",
+     "Ctrl+Shift+C"
+    ],
+    [
+     "Uncheck",
+     "Ctrl+↵"
+    ],
+    [
+     "Number children",
+     "Ctrl+Shift+X"
+    ]
+   ],
+   [
+    [
+     "Get link",
+     ""
+    ],
+    [
+     "Show all references",
+     ""
+    ],
+    [
+     "Export…",
+     ""
+    ],
+    [
+     "Set as inbox",
+     ""
+    ]
+   ],
+   [
+    [
+     "<colors>",
+     ""
+    ]
+   ],
+   [
+    [
+     "<headings>",
+     ""
+    ]
+   ]
+  ],
+  "checkbox": [
+   [
+    [
+     "Expand to level",
+     ""
+    ],
+    [
+     "Zoom in",
+     "Ctrl+]"
+    ],
+    [
+     "Add note",
+     "Shift+↵"
+    ],
+    [
+     "Delete",
+     "Ctrl+Shift+⌫"
+    ],
+    [
+     "Delete checked items",
+     ""
+    ],
+    [
+     "Add to bookmarks",
+     ""
+    ],
+    [
+     "Sort",
+     ""
+    ],
+    [
+     "Search and replace…",
+     ""
+    ]
+   ],
+   [
+    [
+     "Indent",
+     "Tab"
+    ],
+    [
+     "Move to…",
+     "Ctrl+Shift+M"
+    ]
+   ],
+   [
+    [
+     "Remove checkbox",
+     "Ctrl+Shift+C"
+    ],
+    [
+     "Check off",
+     "Ctrl+↵"
+    ],
+    [
+     "Number children",
+     "Ctrl+Shift+X"
+    ]
+   ],
+   [
+    [
+     "Get link",
+     ""
+    ],
+    [
+     "Show all references",
+     ""
+    ],
+    [
+     "Export…",
+     ""
+    ],
+    [
+     "Set as inbox",
+     ""
+    ]
+   ],
+   [
+    [
+     "<colors>",
+     ""
+    ]
+   ],
+   [
+    [
+     "<headings>",
+     ""
+    ]
+   ]
+  ],
+  "collapsed": [
+   [
+    [
+     "Expand",
+     "Ctrl+."
+    ],
+    [
+     "Expand all",
+     "Ctrl+Shift+."
+    ],
+    [
+     "Expand to level",
+     ""
+    ],
+    [
+     "Expand all siblings",
+     ""
+    ],
+    [
+     "Zoom in",
+     "Ctrl+]"
+    ],
+    [
+     "Add note",
+     "Shift+↵"
+    ],
+    [
+     "Delete",
+     "Ctrl+Shift+⌫"
+    ],
+    [
+     "Delete checked items",
+     ""
+    ],
+    [
+     "Add to bookmarks",
+     ""
+    ],
+    [
+     "Sort",
+     ""
+    ],
+    [
+     "Search and replace…",
+     ""
+    ]
+   ],
+   [
+    [
+     "Indent",
+     "Tab"
+    ],
+    [
+     "Move to…",
+     "Ctrl+Shift+M"
+    ]
+   ],
+   [
+    [
+     "Add checkbox",
+     "Ctrl+Shift+C"
+    ],
+    [
+     "Add checkbox to children",
+     ""
+    ],
+    [
+     "Check off",
+     "Ctrl+↵"
+    ],
+    [
+     "Number children",
+     "Ctrl+Shift+X"
+    ]
+   ],
+   [
+    [
+     "Get link",
+     ""
+    ],
+    [
+     "Show all references",
+     ""
+    ],
+    [
+     "Export…",
+     ""
+    ],
+    [
+     "Set as inbox",
+     ""
+    ]
+   ],
+   [
+    [
+     "<colors>",
+     ""
+    ]
+   ],
+   [
+    [
+     "<headings>",
+     ""
+    ]
+   ]
+  ]
+ }
+}

@@ -32,6 +32,10 @@ export class SyncClient {
   config: Config | null = null;
   state: SyncState = 'local-only';
   onState: (s: SyncState) => void = () => {};
+  /** last sync failure, for the status dialog */
+  lastError = '';
+  /** docs not synced in the background (archived), unless they have local edits */
+  paused: (doc: string) => boolean = () => false;
   /** Called when a document not yet loaded appears on the server. */
   onRemoteDoc: (doc: string) => void = () => {};
 
@@ -138,10 +142,10 @@ export class SyncClient {
     this.syncTimer = window.setTimeout(() => void this.syncNow(), Math.max(delay, this.backoff));
   }
 
-  private async api<T>(path: string, body?: unknown): Promise<T> {
+  async api<T>(path: string, body?: unknown, method?: 'GET' | 'POST' | 'DELETE'): Promise<T> {
     const c = this.config!;
     const res = await fetch(`${c.server}/api/${path}`, {
-      method: body === undefined ? 'GET' : 'POST',
+      method: method ?? (body === undefined ? 'GET' : 'POST'),
       headers: { authorization: `Bearer ${c.token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
@@ -153,12 +157,33 @@ export class SyncClient {
     return (await res.json()) as T;
   }
 
+  /** Absolute URL for a server path (the app may be served from elsewhere, e.g. the Android shell). */
+  serverUrl(path: string): string {
+    return new URL(path, this.config?.server || location.href).href;
+  }
+
+  /** Upload a file (POST /api/upload); resolves to its capability URL path. */
+  async upload(file: File): Promise<{ url: string; name: string; type: string }> {
+    const c = this.config;
+    if (!c) throw new Error('not connected to a sync server');
+    const res = await fetch(`${c.server}/api/upload?name=${encodeURIComponent(file.name || 'file')}`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${c.token}`, 'content-type': file.type || 'application/octet-stream' },
+      body: file,
+    });
+    if (res.status === 413) throw new Error('file too large');
+    if (res.status === 403) throw new Error('uploads are disabled on the server');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()) as { url: string; name: string; type: string };
+  }
+
   /** Make sure every document on the server has a local session. */
   async pullDocList() {
     const list = await this.api<{ doc: string; version: number }[]>('docs');
     for (const { doc, version } of list) {
       const s = this.sessions.get(doc);
       if (!s) {
+        if (this.paused(doc)) continue;
         this.doc(doc);
         this.onRemoteDoc(doc);
       } else if (version > s.version) {
@@ -177,6 +202,7 @@ export class SyncClient {
     const batch: { id: string; s: DocSession; req: { baseVersion: number; ops: Op[] } }[] = [];
     try {
       for (const [id, s] of this.sessions) {
+        if (!s.dirty && this.paused(id)) continue;
         const req = s.beginSync();
         if (req) batch.push({ id, s, req });
       }
@@ -201,10 +227,12 @@ export class SyncClient {
         this.save(b.id);
       }
       this.backoff = 0;
+      this.lastError = '';
       this.setState(this.dirty ? 'saving' : 'synced');
     } catch (e) {
       for (const b of batch) b.s.failSync();
       this.backoff = Math.min(this.backoff ? this.backoff * 2 : 2000, 300_000);
+      this.lastError = `${new Date().toLocaleTimeString()}: ${(e as Error).message}`;
       this.setState(navigator.onLine ? 'error' : 'offline');
       console.warn('sync failed', e);
       this.scheduleSync(this.backoff);

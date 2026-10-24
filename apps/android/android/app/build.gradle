@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+// Release signing: a properties file outside the repo (storeFile, storePassword, keyAlias, keyPassword),
+// default ~/.config/outliner/android-signing.properties (scripts/make-keystore.sh creates it).
+def signingProps = new Properties()
+def signingFile = file(System.getenv('OUTLINER_ANDROID_SIGNING') ?: "${System.getProperty('user.home')}/.config/outliner/android-signing.properties")
+if (signingFile.exists()) signingFile.withInputStream { signingProps.load(it) }
+
 android {
     namespace = "dev.outliner.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +22,19 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (signingProps.storeFile) {
+            release {
+                storeFile file(signingProps.storeFile)
+                storePassword signingProps.storePassword
+                keyAlias signingProps.keyAlias
+                keyPassword signingProps.keyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (signingProps.storeFile) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

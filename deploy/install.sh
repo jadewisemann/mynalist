@@ -20,9 +20,13 @@ ENV
 fi
 # systemd's PATH lacks version-manager shims: pin the node binary
 NODE=$(mise which node 2>/dev/null || command -v node)
-sed -e "s#%h/code/outliner#$ROOT#" -e "s#/usr/bin/env node#$NODE#" deploy/outliner.service > ~/.config/systemd/user/outliner.service
+for u in outliner.service outliner-backup.service; do
+  sed -e "s#%h/code/outliner#$ROOT#" -e "s#/usr/bin/env node#$NODE#" deploy/$u > ~/.config/systemd/user/$u
+done
+cp deploy/outliner-backup.timer ~/.config/systemd/user/
 systemctl --user daemon-reload
-systemctl --user enable outliner.service
+systemctl --user enable outliner.service outliner-backup.timer
 systemctl --user restart outliner.service
+systemctl --user start outliner-backup.timer
 loginctl enable-linger "$USER" 2>/dev/null || true
 systemctl --user --no-pager status outliner.service | head -5

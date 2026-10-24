@@ -13,6 +13,7 @@ async function client(name) {
   await page.waitForSelector('.o-editor');
   // connect via settings
   await page.click('button[title=Settings]');
+  await page.click('.set-tabs .tab:has-text("Sync & data")');
   await page.fill('label.field:has-text("Sync server URL") input', URL.replace(/\/$/, ''));
   await page.fill('input[type=password]', process.env.OUTLINER_PASSWORD ?? '');
   await page.click('text=Connect');
@@ -29,7 +30,7 @@ const outline = (page) => page.evaluate(() => {
 const A = await client('A');
 await A.waitForTimeout(1500);
 // A creates a doc
-await A.click('.pane-head button');
+await A.click('.pane-head button[title^="New"]');
 await A.click('text=New document');
 await A.keyboard.type('Shared doc');
 await A.keyboard.press('Enter');

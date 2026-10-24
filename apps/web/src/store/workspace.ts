@@ -25,7 +25,10 @@ export interface Bookmark {
   doc: string;
   zoom?: string;
   q?: string;
+  /** search results view: flat list of this doc, or every document */
   flat?: boolean;
+  global?: boolean;
+  sort?: string;
 }
 
 export class Workspace {
@@ -68,11 +71,11 @@ export class Workspace {
   }
 
   /** Flat list of all docs with folder path, for finders. */
-  allDocs(): { id: string; title: string; path: string }[] {
-    const out: { id: string; title: string; path: string }[] = [];
+  allDocs(): { id: string; title: string; path: string; archived: boolean }[] {
+    const out: { id: string; title: string; path: string; archived: boolean }[] = [];
     const walk = (es: FileEntry[], path: string) => {
       for (const e of es) {
-        if (e.kind === 'doc') out.push({ id: e.id, title: e.title, path });
+        if (e.kind === 'doc') out.push({ id: e.id, title: e.title, path, archived: e.archived });
         else walk(e.children, path ? `${path} / ${e.title}` : e.title);
       }
     };
@@ -144,6 +147,32 @@ export class Workspace {
     this.run((tx) => tx.set(id, { archived: archived || null }));
   }
 
+  /** Per-document user data (view options), stored on the file entry. */
+  docPref<T>(doc: NodeId, key: string, fallback: T): T {
+    const v = this.session.live.get(doc)?.props[`v_${key}`];
+    if (typeof v !== 'string') return fallback;
+    try {
+      return JSON.parse(v) as T;
+    } catch {
+      return fallback;
+    }
+  }
+
+  setDocPref(doc: NodeId, key: string, value: unknown) {
+    this.run((tx) => tx.set(doc, { [`v_${key}`]: value === undefined || value === null ? null : JSON.stringify(value) }));
+  }
+
+  /** Folder of a file entry (null = top level). */
+  parentOf(id: NodeId): NodeId | null {
+    const p = this.session.live.get(id)?.parent;
+    return p && p !== FILES ? p : null;
+  }
+
+  /** Position among its siblings. */
+  indexOf(id: NodeId): number {
+    return this.session.live.index(id);
+  }
+
   setCollapsed(id: NodeId, v: boolean) {
     this.run((tx) => tx.collapse(id, v));
   }
@@ -179,6 +208,8 @@ export class Workspace {
         zoom: p.zoom as string | undefined,
         q: p.q as string | undefined,
         flat: !!p.flat,
+        global: !!p.global,
+        sort: p.sort as string | undefined,
       };
     });
   }
@@ -187,6 +218,13 @@ export class Workspace {
     this.run((tx) => {
       const kids = tx.tree.get(BOOKMARKS)?.children ?? [];
       tx.create(BOOKMARKS, kids[kids.length - 1] ?? null, { ...b });
+    });
+  }
+
+  moveBookmark(id: NodeId, index: number) {
+    this.run((tx) => {
+      const kids = (tx.tree.get(BOOKMARKS)?.children ?? []).filter((c) => c !== id);
+      tx.move(id, BOOKMARKS, index <= 0 ? null : kids[Math.min(index, kids.length) - 1]!);
     });
   }
 

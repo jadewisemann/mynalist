@@ -2,7 +2,8 @@
 // tree immediately, recorded for sync + undo) and returns the selection to
 // show afterwards, or null when it does nothing.
 
-import { advanceRecurrence } from './dates.ts';
+import { advanceRecurrence, toDate } from './dates.ts';
+import { extractDates } from './inline.ts';
 import { newId } from './ids.ts';
 import { metaOf } from './item.ts';
 import { ROOT, type NodeId, type Op, type Props, type Tree } from './tree.ts';
@@ -198,12 +199,27 @@ export function indent(tx: Tx, v: View, ids: NodeId[], sel: Sel): CmdResult | nu
   return { sel };
 }
 
-export function outdent(tx: Tx, v: View, ids: NodeId[], sel: Sel): CmdResult | null {
+/**
+ * Unindent: the items become siblings right after their parent. `inPlace` (Workflowy-style): the
+ * siblings that followed them become children of the last one, so the visual order stays.
+ */
+export function outdent(tx: Tx, v: View, ids: NodeId[], sel: Sel, inPlace = false): CmdResult | null {
   const t = tx.tree;
   const parent = t.get(ids[0]!)?.parent;
   if (!parent) return null;
   const gp = t.get(parent)?.parent;
   if (!gp) return null;
+  if (inPlace) {
+    const sibs = t.get(parent)!.children;
+    const following = sibs.slice(sibs.indexOf(ids[ids.length - 1]!) + 1).filter((x) => !ids.includes(x));
+    const last = ids[ids.length - 1]!;
+    let anchor = t.get(last)!.children.at(-1) ?? null;
+    for (const f of following) {
+      tx.move(f, last, anchor);
+      anchor = f;
+    }
+    if (following.length && t.get(last)!.collapsed) tx.collapse(last, false);
+  }
   let after: NodeId = parent;
   for (const id of ids) {
     tx.move(id, gp, after);
@@ -541,3 +557,66 @@ export function toggleWrapItems(tx: Tx, ids: NodeId[], d: string): void {
     else if (!wrapped(s) && s) tx.set(id, { c: d + s + d });
   }
 }
+
+// ---- sorting ------------------------------------------------------------------
+
+export type SortMode =
+  | 'title-asc' | 'title-desc' | 'date-new' | 'date-old' | 'unchecked-first' | 'checked-first'
+  | 'edited-new' | 'edited-old' | 'created-new' | 'created-old' | 'reverse';
+
+export const SORT_LABELS: [SortMode, string][] = [
+  ['title-asc', 'Title A→Z'], ['title-desc', 'Title Z→A'], ['date-new', 'Date new→old'], ['date-old', 'Date old→new'],
+  ['unchecked-first', 'Unchecked first'], ['checked-first', 'Checked first'], ['edited-new', 'Edited new→old'],
+  ['edited-old', 'Edited old→new'], ['created-new', 'Created new→old'], ['created-old', 'Created old→new'],
+  ['reverse', 'Reverse current'],
+];
+
+/** First inline date of an item (ms), for date sorting. */
+function firstDate(t: Tree, id: NodeId): number | null {
+  const d = extractDates(text(t, id))[0];
+  return d ? toDate(d.spec.start).getTime() : null;
+}
+
+/** Comparator for a sort mode (stable when used with Array.prototype.sort); null for 'reverse'. */
+export function sortComparator(t: Tree, mode: SortMode): ((a: NodeId, b: NodeId) => number) | null {
+  const title = (x: NodeId) => text(t, x).toLocaleLowerCase();
+  const n = (x: NodeId) => t.get(x)!;
+  switch (mode) {
+    case 'title-asc': return (a, b) => title(a).localeCompare(title(b), undefined, { numeric: true });
+    case 'title-desc': return (a, b) => title(b).localeCompare(title(a), undefined, { numeric: true });
+    case 'date-new':
+    case 'date-old': {
+      const sign = mode === 'date-new' ? -1 : 1;
+      // items without a date go last either way
+      return (a, b) => {
+        const x = firstDate(t, a), y = firstDate(t, b);
+        if (x === null || y === null) return (x === null ? 1 : 0) - (y === null ? 1 : 0);
+        return sign * (x - y);
+      };
+    }
+    case 'unchecked-first': return (a, b) => Number(!!n(a).props.ck) - Number(!!n(b).props.ck);
+    case 'checked-first': return (a, b) => Number(!!n(b).props.ck) - Number(!!n(a).props.ck);
+    case 'edited-new': return (a, b) => n(b).edited - n(a).edited;
+    case 'edited-old': return (a, b) => n(a).edited - n(b).edited;
+    case 'created-new': return (a, b) => n(b).created - n(a).created;
+    case 'created-old': return (a, b) => n(a).created - n(b).created;
+    case 'reverse': return null;
+  }
+}
+
+/** Sort the children of each of `ids`. */
+export function sortChildren(tx: Tx, ids: NodeId[], mode: SortMode, sel: Sel): CmdResult {
+  for (const p of ids) {
+    const kids = [...(tx.tree.get(p)?.children ?? [])];
+    const cmp = sortComparator(tx.tree, mode);
+    if (cmp) kids.sort(cmp);
+    else kids.reverse();
+    let after: NodeId | null = null;
+    for (const k of kids) {
+      tx.move(k, p, after);
+      after = k;
+    }
+  }
+  return { sel };
+}
+

@@ -11,8 +11,8 @@ export const QA_NOW = Date.UTC(2026, 9, 21, 9, 0, 0);
 export const QA_TZ = 'UTC';
 
 /** A context + page set up like every scenario's (viewport, timezone, clock). */
-export async function newPage(b, viewport = { width: 1280, height: 900 }) {
-  const ctx = await b.newContext({ viewport, timezoneId: QA_TZ });
+export async function newPage(b, viewport = { width: 1280, height: 900 }, extra = {}) {
+  const ctx = await b.newContext({ viewport, timezoneId: QA_TZ, ...extra });
   const page = await ctx.newPage();
   await page.clock.install({ time: QA_NOW });
   await page.clock.resume();

@@ -397,4 +397,28 @@ add('undo', 'delete-caret', F1, [at(1, 1), 'Delete', 'Control+z', T('x')]);
 add('undo', 'redo-typing-caret', F1, [at(1), T('abc'), 'Control+z', 'Control+y', T('x')]);
 add('undo', 'word-delete-caret', 'one two three', [at(0), 'Control+Backspace', 'Control+z', T('x')]);
 
+// --- Search (Ctrl+F): which items stay visible, collapsed-looking parents, where Escape puts the caret ----------
+const FS = 'apple pie\n  seed\n  apple core\nbanana\n  apple juice\ncherry\n  pit\n    stone\nApple tart #fruit\nplain';
+const find = (q) => [at(0), 'Control+f', T(q), { wait: 700 }];
+add('search', 'word', FS, find('apple'));
+add('search', 'upper-case', FS, find('APPLE'));
+add('search', 'two-words', FS, find('apple core'));
+add('search', 'words-any-order', FS, find('core apple'));
+add('search', 'phrase', FS, find('"apple pie"'));
+add('search', 'negate', FS, find('-apple'));
+add('search', 'word-and-negate', FS, find('apple -pie'));
+add('search', 'or', FS, find('pit OR seed'));
+add('search', 'tag', FS, find('#fruit'));
+add('search', 'deep-child', FS, find('stone'));
+add('search', 'parent-only', FS, find('cherry'));
+add('search', 'no-match', FS, find('zzz'));
+add('search', 'prefix', FS, find('app'));
+add('search', 'note', FS, find('yellow'), [['note', 3, 'yellow skin']]);
+add('search', 'checked-hidden', FS, find('apple'), [['check', 4]]);
+add('search', 'collapsed-parent', FS, find('pit'), [['collapse', 5]]);
+add('search', 'escape-back', FS, [at(3, 2), 'Control+f', T('apple'), { wait: 700 }, 'Escape', { wait: 300 }, T('x')]);
+add('search', 'escape-twice', FS, [at(3, 2), 'Control+f', T('apple'), { wait: 700 }, 'Escape', { wait: 300 }, 'Escape', { wait: 200 }, T('x')]);
+add('search', 'enter-goes-to-first', FS, [at(9), 'Control+f', T('apple'), { wait: 700 }, 'Enter', { wait: 300 }, T('x')]);
+add('search', 'backspace-widens', FS, [at(0), 'Control+f', T('apple c'), { wait: 700 }, 'Backspace', 'Backspace', { wait: 700 }]);
+
 export default S;

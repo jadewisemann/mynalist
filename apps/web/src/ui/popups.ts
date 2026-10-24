@@ -3,7 +3,7 @@
 // See docs/02-editor-keyboard.md §1.9 and docs/03-features-ui.md §2.6, §3.
 
 import {
-  type DateSpec, type FuzzyMatch, type NodeId, extractDates, formatDateToken, fuzzyFilter, inlineToPlain, parseDateToken,
+  type DateSpec, type FuzzyMatch, type NodeId, extractDates, formatDateToken, withLocalTz, fuzzyFilter, inlineToPlain, parseDateToken,
 } from '@outliner/core';
 import type { Editor, TextContext } from '../editor/editor.ts';
 import { caretRect } from '../editor/caret.ts';
@@ -32,6 +32,8 @@ export interface PopupHost {
   /** first day of week, 0 = Sunday … 6 = Saturday */
   startDay(): number;
   hour12(): boolean;
+  /** pref show_timezone: write the local UTC offset into new timed dates */
+  encodeTimezone?(): boolean;
 }
 
 const MAX_TAGS = 8;
@@ -404,7 +406,7 @@ export class Popups {
     const text = ctx && ctx.id === st.id && ctx.f === st.f ? ctx.text : String(ed.tree.get(st.id)?.props[st.f] ?? '');
     let { s, e } = st;
     if (spec) {
-      let token = formatDateToken(spec);
+      let token = formatDateToken(this.host.encodeTimezone?.() ? withLocalTz(spec) : spec);
       const at = s;
       if (st.insert) {
         if (s > 0 && !isWs(text[s - 1])) token = ' ' + token;

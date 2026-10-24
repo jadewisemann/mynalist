@@ -28,7 +28,7 @@ async function setup(viewport) {
 
 async function newDoc(page, title) {
   if (await page.evaluate(() => matchMedia('(max-width: 760px)').matches)) await page.click('.topbar .icon-btn[title="Toggle sidebar"]');
-  await page.click('.pane-head button');
+  await page.click('.pane-head button[title^="New"]');
   await page.click('text=New document');
   await page.keyboard.type(title);
   await page.keyboard.press('Enter');

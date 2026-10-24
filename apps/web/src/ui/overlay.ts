@@ -6,35 +6,71 @@ export interface MenuItem {
   run?: () => void;
   sep?: boolean;
   custom?: HTMLElement;
+  /** submenu, opened on hover or click */
+  sub?: MenuItem[];
+  /** shown with a check mark */
+  checked?: boolean;
 }
 
 let openMenu: HTMLElement | null = null;
+let subMenu: HTMLElement | null = null;
 
 export function closeMenu() {
   openMenu?.remove();
-  openMenu = null;
+  subMenu?.remove();
+  openMenu = subMenu = null;
+}
+
+function fill(m: HTMLElement, items: MenuItem[], nested: boolean) {
+  for (const it of items) {
+    if (it.sep) m.append(h('div.sep'));
+    else if (it.custom) m.append(it.custom);
+    else {
+      const row: HTMLElement = h('div.mi', {
+        onmousedown: (e: Event) => e.preventDefault(),
+        onmouseenter: () => {
+          if (nested) return;
+          subMenu?.remove();
+          subMenu = null;
+          if (it.sub) openSub(row, it.sub);
+        },
+        onclick: () => {
+          if (it.sub) return openSub(row, it.sub);
+          closeMenu();
+          it.run?.();
+        },
+      }, h('span', {}, it.checked ? `✓ ${it.label}` : it.label), it.key ? h('span.k', {}, it.key) : it.sub ? h('span.k', {}, '▸') : null);
+      m.append(row);
+    }
+  }
+}
+
+function place(m: HTMLElement, x: number, y: number) {
+  document.body.append(m);
+  const r = m.getBoundingClientRect();
+  m.style.left = `${Math.max(4, Math.min(x, innerWidth - r.width - 4))}px`;
+  m.style.top = `${Math.max(4, Math.min(y, innerHeight - r.height - 4))}px`;
+}
+
+function openSub(row: HTMLElement, items: MenuItem[]) {
+  subMenu?.remove();
+  const m = h('div.menu');
+  fill(m, items, true);
+  const r = row.getBoundingClientRect();
+  place(m, r.right - 4, r.top - 4);
+  if (m.getBoundingClientRect().left < r.right - 8) m.style.left = `${Math.max(4, r.left - m.offsetWidth + 4)}px`;
+  subMenu = m;
 }
 
 export function showMenu(x: number, y: number, items: MenuItem[]) {
   closeMenu();
   const m = h('div.menu');
-  for (const it of items) {
-    if (it.sep) m.append(h('div.sep'));
-    else if (it.custom) m.append(it.custom);
-    else
-      m.append(
-        h('div.mi', { onmousedown: (e: Event) => e.preventDefault(), onclick: () => (closeMenu(), it.run?.()) },
-          h('span', {}, it.label), it.key ? h('span.k', {}, it.key) : null),
-      );
-  }
-  document.body.append(m);
-  const r = m.getBoundingClientRect();
-  m.style.left = `${Math.max(4, Math.min(x, innerWidth - r.width - 4))}px`;
-  m.style.top = `${Math.max(4, Math.min(y, innerHeight - r.height - 4))}px`;
+  fill(m, items, false);
+  place(m, x, y);
   openMenu = m;
   setTimeout(() => {
     const off = (e: Event) => {
-      if (openMenu === m && !m.contains(e.target as Node)) closeMenu();
+      if (openMenu === m && !m.contains(e.target as Node) && !subMenu?.contains(e.target as Node)) closeMenu();
       if (openMenu !== m) {
         document.removeEventListener('mousedown', off, true);
         document.removeEventListener('keydown', esc, true);

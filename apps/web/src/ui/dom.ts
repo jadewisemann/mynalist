@@ -36,6 +36,10 @@ const PATHS: Record<string, string> = {
   star: 'M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z',
   close: 'M6 6l12 12M18 6L6 18',
   filter: 'M3 5h18l-7 8v6l-4 2v-8z',
+  inbox: 'M3 13l3-8h12l3 8v6H3zM3 13h5l1 3h6l1-3h5',
+  fold: 'M7 4l5 5 5-5M7 20l5-5 5 5',
+  zoomin: 'M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 3v3M12 18v3M3 12h3M18 12h3',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
 };
 
 export function icon(name: keyof typeof PATHS | string): SVGSVGElement {
@@ -53,8 +57,10 @@ export function icon(name: keyof typeof PATHS | string): SVGSVGElement {
   return svg;
 }
 
-export function toast(msg: string, ms = 2200) {
+/** Show a short message; returns a function that removes it early. */
+export function toast(msg: string, ms = 2200): () => void {
   const t = h('div.toast', {}, msg);
   document.body.append(t);
   setTimeout(() => t.remove(), ms);
+  return () => t.remove();
 }

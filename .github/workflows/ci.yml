@@ -7,9 +7,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -21,9 +21,9 @@ jobs:
   # Dynalist parity: replays the recorded Dynalist results (qa/golden) against this build.
   # No network access to Dynalist is needed; fails only on regressions. See qa/PLAN.md.
   parity:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -32,7 +32,7 @@ jobs:
       - run: npx playwright-core install --with-deps chromium
       - run: npm run qa:serve
       - run: npm run qa
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: parity-report

@@ -9,13 +9,14 @@ import {
   backspaceAtStart, caret, cycleLevel, defaultView, deleteAtEnd, deleteItems, duplicate, enter,
   expandToLevel, flatten, indent, insertPortable, lastVisibleDescendant, moveDown, moveUp, nextVisible, nextVisibleNonDescendant,
   nextVisibleSibling, normalizeBlock, outdent, pasteItems, prevVisible, prevVisibleSibling, replaceWithEmpty,
-  selectBetween, setChildrenCheckbox, setLevel, toPortable, toggleChecked, toggleCollapse, toggleProp,
+  localTz, selectBetween, setChildrenCheckbox, setLevel, sortChildren, toPortable, toggleChecked, toggleCollapse, toggleProp,
+  type SortMode,
   toggleSiblings, toggleWrap, toggleWrapItems, uncheckDescendants, visibleChildren, wrapLink,
 } from '@outliner/core';
 import { getSel, getText, onFirstLine, onLastLine, placeAtX, caretRect, setSel, setText } from './caret.ts';
-import { Keymap, comboOf } from './keymap.ts';
-import { renderText, sourceOffsetAt } from './render.ts';
-import { parseClipboardData, portableToPlain, portableToHtml } from './clipboard.ts';
+import { IS_MAC, Keymap, comboOf } from './keymap.ts';
+import { renderInto, renderText, sourceOffsetAt } from './render.ts';
+import { parseClipboardData, portableToPlain, portableToHtml, portableToOpmlText } from './clipboard.ts';
 
 export interface EditorHost {
   /** zoom changed by the editor (update URL / breadcrumbs owner) */
@@ -33,6 +34,14 @@ export interface EditorHost {
   onDateClick?(id: NodeId, s: number, e: number, anchor: HTMLElement): void;
   /** right-click / long-press on a bullet, or the item menu */
   onItemMenu?(id: NodeId, x: number, y: number): void;
+  /** backlink counts for the current doc (null: badges off); called on full renders */
+  backlinkCounts?(): Map<NodeId, number> | null;
+  /** Ctrl/Cmd+click on a breadcrumb */
+  openInNewTab?(zoom: NodeId): void;
+  /** clicked a backlink badge */
+  onBacklinks?(id: NodeId, anchor: HTMLElement): void;
+  /** upload pasted / dropped files, resolving to one markdown link each (null: uploads unavailable) */
+  uploadFiles?(files: File[]): Promise<string[]> | null;
 }
 
 export interface TextContext {
@@ -55,6 +64,10 @@ export interface EditorPrefs {
   showNotes: 'show' | 'teaser' | 'hide';
   showChecked: boolean;
   unindentInPlace: boolean;
+  spellcheck: boolean;
+  highlightCurrent: boolean;
+  /** write the local UTC offset into inserted times */
+  encodeTimezone?: boolean;
 }
 
 interface Row {
@@ -62,6 +75,7 @@ interface Row {
   el: HTMLElement;
   row: HTMLElement;
   bullet: HTMLAnchorElement;
+  badge: HTMLElement;
   check: HTMLElement;
   content: HTMLElement;
   note: HTMLElement;
@@ -115,7 +129,8 @@ export class Editor {
   interceptor: KeyInterceptor | null = null;
   /** recurring-date behavior for toggle-checked (set by the app from prefs) */
   checkOptions: CheckOptions = {};
-  prefs: EditorPrefs = { bulletZoom: false, showNotes: 'show', showChecked: true, unindentInPlace: false };
+  prefs: EditorPrefs = { bulletZoom: false, showNotes: 'show', showChecked: true, unindentInPlace: false, spellcheck: false, highlightCurrent: false };
+  private backlinks: Map<NodeId, number> | null = null;
   readOnly = false;
 
   private host: EditorHost;
@@ -135,9 +150,27 @@ export class Editor {
     this.el.addEventListener('mousedown', (e) => this.onMouseDown(e));
     this.el.addEventListener('click', (e) => this.onClick(e));
     this.el.addEventListener('focusout', (e) => this.onFocusOut(e));
+    this.el.addEventListener('dblclick', (e) => {
+      // double-click a bullet: expand/collapse the whole subtree (the two clicks toggled it back and forth)
+      const r = (e.target as HTMLElement).closest('.o-bullet') && this.rowFromEvent(e);
+      if (!r || r.id === this.view.zoom || this.prefs.bulletZoom || !this.tree.get(r.id)?.children.length) return;
+      e.preventDefault();
+      this.run((tx) => toggleCollapse(tx, this.view, [r.id], true));
+    });
+    this.el.addEventListener('mouseover', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('.o-bullet');
+      const r = b && this.rowFromEvent(e);
+      if (!r) return;
+      const n = this.tree.get(r.id);
+      if (n && r.id !== ROOT) b.title = `Created at ${fmtTime(n.created)}\nLast edited at ${fmtTime(n.edited)}`;
+    });
     this.el.addEventListener('copy', (e) => this.onCopy(e, false));
     this.el.addEventListener('cut', (e) => this.onCopy(e, true));
     this.el.addEventListener('paste', (e) => this.onPaste(e));
+    this.el.addEventListener('dragover', (e) => {
+      if (e.dataTransfer?.types.includes('Files') && this.host.uploadFiles && !this.readOnly) e.preventDefault();
+    });
+    this.el.addEventListener('drop', (e) => this.onFileDrop(e));
     this.el.addEventListener('contextmenu', (e) => {
       const b = (e.target as HTMLElement).closest('.o-bullet, .o-title > .o-row');
       const r = this.rowFromEvent(e);
@@ -204,6 +237,8 @@ export class Editor {
   applyPrefs(p: Partial<EditorPrefs>) {
     this.prefs = { ...this.prefs, ...p };
     this.el.classList.toggle('o-bullet-zoom', this.prefs.bulletZoom);
+    this.el.classList.toggle('o-hl-current', this.prefs.highlightCurrent);
+    if (this.editing) this.editing.el.spellcheck = this.prefs.spellcheck;
     this.el.dataset.notes = this.prefs.showNotes;
     if (p.showChecked !== undefined) this.setShowChecked(p.showChecked);
   }
@@ -224,11 +259,18 @@ export class Editor {
     body.append(content, note);
     const menuBtn = div('o-menu-btn');
     menuBtn.textContent = '⋮';
-    row.append(menuBtn, bullet, check, body);
+    const badge = div('o-backlinks');
+    badge.hidden = true;
+    row.append(menuBtn, badge, bullet, check, body);
+    if (!isTitle) {
+      const zoomBtn = div('o-zoom-btn');
+      zoomBtn.title = 'Zoom in';
+      menuBtn.after(zoomBtn);
+    }
     el.append(row);
     if (!isTitle) el.append(kids);
     el.dataset.id = id;
-    return { id, el, row, bullet, check, content, note, kids, c: null, n: null, kidsKey: '', num: -1 };
+    return { id, el, row, bullet, badge, check, content, note, kids, c: null, n: null, kidsKey: '', num: -1 };
   }
 
   /** Full render (reuses existing rows). */
@@ -247,6 +289,7 @@ export class Editor {
         this.title.c = this.title.n = null;
       }
       this.rows.set(zoom, this.title);
+      this.backlinks = this.host.backlinkCounts?.() ?? null;
       this.renderCrumbs();
       this.updateRow(this.title, 0);
       this.reconcile(zoom, this.items, true);
@@ -347,13 +390,18 @@ export class Editor {
     const cls = r.el.classList;
     cls.toggle('o-checked', !!p.ck);
     cls.toggle('o-has-kids', kids);
-    cls.toggle('o-collapsed', kids && n.collapsed && !isTitle);
+    // while searching, collapse is ignored; a parent whose children are all filtered out looks collapsed (as in Dynalist)
+    const shut = this.view.filter ? kids && visibleChildren(t, r.id, this.view).length === 0 : kids && n.collapsed;
+    cls.toggle('o-collapsed', shut && !isTitle);
     cls.toggle('o-numbered', num > 0);
     for (const h of [1, 2, 3]) cls.toggle(`o-h${h}`, p.h === h);
     for (const c of [1, 2, 3, 4, 5, 6]) r.content.classList.toggle(`o-cl${c}`, p.cl === c);
     r.check.hidden = !p.cb;
     r.check.classList.toggle('o-on', !!p.ck);
     r.bullet.textContent = num > 0 ? `${num}.` : '';
+    const refs = this.backlinks?.get(r.id) ?? 0;
+    r.badge.hidden = !refs;
+    if (refs) r.badge.textContent = String(refs);
     r.bullet.href = `#z=${r.id}`;
 
     const c = (p.c as string | undefined) ?? '';
@@ -376,7 +424,7 @@ export class Editor {
     }
     if (r[f] === value) return;
     r[f] = value;
-    el.innerHTML = renderText(value);
+    renderInto(el, value);
   }
 
   private renderCrumbs() {
@@ -423,6 +471,8 @@ export class Editor {
 
   applySel(sel: Sel | undefined) {
     if (!sel) return;
+    // a locked (read-only) document can be read and navigated, not edited
+    if (this.readOnly && sel.k === 'text') return;
     if (sel.k === 'none') {
       this.block = null;
       this.paintBlock();
@@ -494,7 +544,7 @@ export class Editor {
       this.editing = { id, f, el };
       r.note.hidden = false;
       el.contentEditable = PLAINTEXT_ONLY ? 'plaintext-only' : 'true';
-      el.spellcheck = false;
+      el.spellcheck = this.prefs.spellcheck;
       setText(el, (this.tree.get(id)?.props[f] as string | undefined) ?? '');
       el.classList.add('o-editing');
       r.el.classList.add('o-current');
@@ -518,7 +568,7 @@ export class Editor {
     const r = this.rows.get(ed.id);
     r?.el.classList.remove('o-current');
     const value = (this.tree.get(ed.id)?.props[ed.f] as string | undefined) ?? '';
-    ed.el.innerHTML = renderText(value);
+    renderInto(ed.el, value);
     if (r) {
       r[ed.f] = value;
       r.note.hidden = !((this.tree.get(ed.id)?.props.n as string | undefined) ?? '');
@@ -614,13 +664,28 @@ export class Editor {
   }
 
   /** ids targeted by item commands: block selection or the item being edited. */
+  /** set by execOn: the items a menu command acts on, regardless of the selection */
+  private forced: NodeId[] | null = null;
+
   targets(): NodeId[] {
+    if (this.forced) return this.forced;
     if (this.block) return normalizeBlock(this.tree, this.block.ids);
     if (this.editing) return [this.editing.id];
     return [];
   }
 
+  /** Run a command on the given items (item menu of the zoomed-in title, which the selection doesn't cover). */
+  execOn(ids: NodeId[], cmd: string): boolean {
+    this.forced = ids;
+    try {
+      return this.exec(cmd);
+    } finally {
+      this.forced = null;
+    }
+  }
+
   undo() {
+    if (this.readOnly) return;
     this.mutating++;
     try {
       const shape = () => flatten(this.tree, this.view).join();
@@ -646,6 +711,7 @@ export class Editor {
   }
 
   redo() {
+    if (this.readOnly) return;
     this.mutating++;
     try {
       const sel = this.session.redo();
@@ -674,7 +740,7 @@ export class Editor {
       case 'indent':
         return has && this.run((tx) => indent(tx, v, notTitle, sel));
       case 'unindent':
-        return has && this.run((tx) => outdent(tx, v, notTitle, sel));
+        return has && this.run((tx) => outdent(tx, v, notTitle, sel, this.prefs.unindentInPlace));
       case 'collapse':
         return notTitle.length > 0 && this.run((tx) => toggleCollapse(tx, v, notTitle, false));
       case 'collapse-all':
@@ -759,25 +825,34 @@ export class Editor {
           return { sel: { k: 'none' } };
         });
       case 'sort-asc':
+        return this.exec('sort-title-asc');
       case 'sort-desc':
-        return has && this.run((tx) => {
-          for (const p of ids) {
-            const kids = [...tx.tree.get(p)!.children];
-            const key = (x: NodeId) => String(tx.tree.get(x)!.props.c ?? '').toLocaleLowerCase();
-            kids.sort((a, b) => key(a).localeCompare(key(b), undefined, { numeric: true }));
-            if (id === 'sort-desc') kids.reverse();
-            let after: NodeId | null = null;
-            for (const k of kids) {
-              tx.move(k, p, after);
-              after = k;
-            }
-          }
-          return { sel };
-        });
+        return this.exec('sort-title-desc');
       case 'swap-up':
         return notTitle.length > 0 && this.run((tx) => moveUp(tx, v, notTitle, sel));
       case 'swap-down':
         return notTitle.length > 0 && this.run((tx) => moveDown(tx, v, notTitle, sel));
+      case 'goto-parent': {
+        const target = ids[0];
+        const p = target && target !== v.zoom ? this.tree.get(target)?.parent : null;
+        if (p) this.applySel(caret(p, 0));
+        return true;
+      }
+      case 'goto-prev-sibling':
+      case 'goto-next-sibling': {
+        const target = ids[0];
+        if (!target || target === v.zoom) return true;
+        const sib = id === 'goto-prev-sibling' ? prevVisibleSibling(this.tree, target, v) : nextVisibleSibling(this.tree, target, v);
+        if (sib) this.applySel(caret(sib, 0));
+        return true;
+      }
+      case 'goto-item-start':
+      case 'goto-item-end': {
+        const ed = this.editing;
+        if (!ed) return false;
+        this.applySel(caret(ed.id, id === 'goto-item-start' ? 0 : getText(ed.el).length, ed.f));
+        return true;
+      }
       case 'goto-first': {
         const first = visibleChildren(this.tree, v.zoom, v)[0];
         if (first) this.applySel(caret(first, 0));
@@ -812,7 +887,7 @@ export class Editor {
         const d = new Date();
         const p2 = (x: number) => String(x).padStart(2, '0');
         let str = `!(${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
-        if (id === 'insert-time') str += ` ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+        if (id === 'insert-time') str += ` ${p2(d.getHours())}:${p2(d.getMinutes())}${this.prefs.encodeTimezone ? ` ${localTz(d)}` : ''}`;
         str += ')';
         return this.editText((t, s, e) => ({ text: t.slice(0, s) + str + t.slice(e), s: s + str.length, e: s + str.length }));
       }
@@ -821,6 +896,7 @@ export class Editor {
       case 'cycle-color':
         return has && this.run((tx) => cycleLevel(tx, ids, 'cl', 6, sel));
       default: {
+        if (id.startsWith('sort-')) return has && this.run((tx) => sortChildren(tx, ids, id.slice(5) as SortMode, sel));
         const m = /^(heading|color)-(\d)$/.exec(id);
         if (m && has) {
           const key = m[1] === 'heading' ? 'h' : 'cl';
@@ -915,7 +991,9 @@ export class Editor {
       e.stopPropagation();
       return;
     }
-    const combo = comboOf(e);
+    let combo = comboOf(e);
+    // macOS text-field bindings: Ctrl+P / Ctrl+N move up / down
+    if (IS_MAC && (combo === 'Ctrl+P' || combo === 'Ctrl+N')) combo = combo === 'Ctrl+P' ? 'Up' : 'Down';
 
     if (this.handleHardKey(combo, e)) {
       e.preventDefault();
@@ -1131,7 +1209,19 @@ export class Editor {
   }
 
   /** Mobile keyboards often send no usable keydown; handle structural input here. */
+  /** Lock / unlock the document (read-only mode). */
+  setReadOnly(v: boolean) {
+    if (v === this.readOnly) return;
+    if (v) this.stopEdit();
+    this.readOnly = v;
+    this.el.classList.toggle('o-readonly', v);
+  }
+
   private onBeforeInput(e: InputEvent) {
+    if (this.readOnly) {
+      e.preventDefault();
+      return;
+    }
     const ed = this.editing;
     if (!ed) {
       if (this.block) e.preventDefault();
@@ -1173,7 +1263,7 @@ export class Editor {
       }
       return;
     }
-    if (target.closest('.o-bullet, .o-check, .o-menu-btn, a[href], [data-atomic], .o-crumb')) return;
+    if (target.closest('.o-bullet, .o-check, .o-menu-btn, .o-zoom-btn, .o-backlinks, a[href], [data-atomic], .o-crumb')) return;
     const fieldEl = target.closest<HTMLElement>('.o-content, .o-note');
     const f: 'c' | 'n' = fieldEl?.classList.contains('o-note') ? 'n' : 'c';
 
@@ -1231,10 +1321,22 @@ export class Editor {
     const crumb = target.closest<HTMLElement>('.o-crumb');
     if (crumb) {
       e.preventDefault();
-      this.setZoom(crumb.dataset.id!);
+      if ((e.ctrlKey || e.metaKey) && this.host.openInNewTab) this.host.openInNewTab(crumb.dataset.id!);
+      else this.setZoom(crumb.dataset.id!);
       return;
     }
     if (!r) return;
+    if (target.closest('.o-zoom-btn')) {
+      e.preventDefault();
+      this.setZoom(r.id);
+      return;
+    }
+    const badge = target.closest<HTMLElement>('.o-backlinks');
+    if (badge) {
+      e.preventDefault();
+      this.host.onBacklinks?.(r.id, badge);
+      return;
+    }
     if (target.closest('.o-menu-btn')) {
       e.preventDefault();
       if (r.id !== this.view.zoom && !this.block?.ids.includes(r.id)) this.applySel({ k: 'block', ids: [r.id], anchor: r.id, focus: r.id });
@@ -1247,6 +1349,11 @@ export class Editor {
       const kids = (this.tree.get(r.id)?.children.length ?? 0) > 0;
       if (this.prefs.bulletZoom || !kids || e.altKey || matchMedia('(pointer: coarse)').matches) {
         this.setZoom(r.id);
+      } else if (this.readOnly) {
+        // expanding/collapsing is still allowed in a locked document (view state, not content)
+        const tx = new Tx(this.tree);
+        tx.collapse(r.id, !this.tree.get(r.id)!.collapsed);
+        this.session.commit(tx, { before: null, after: null }, { undoable: false });
       } else {
         this.run((tx) => toggleCollapse(tx, this.view, [r.id], false));
       }
@@ -1300,6 +1407,7 @@ export class Editor {
       const text = getText(ed.el).slice(s.s, s.e);
       e.clipboardData.setData('text/plain', text);
       e.clipboardData.setData('text/html', escapeHtml(text));
+      e.clipboardData.setData('text/opml', portableToOpmlText([{ props: { c: text }, children: [] }]));
       if (cut) this.editText((t, a, b) => ({ text: t.slice(0, a) + t.slice(b), s: a, e: a }));
       return;
     }
@@ -1307,9 +1415,11 @@ export class Editor {
     e.preventDefault();
     const ids = this.targets();
     const items = ids.map((id) => toPortable(this.tree, id, this.view));
-    const text = portableToPlain(items);
+    const parent = this.tree.get(ids[0]!)?.parent;
+    const text = portableToPlain(items, !!(parent && this.tree.get(parent)?.props.num));
     e.clipboardData.setData('text/plain', text);
     e.clipboardData.setData('text/html', portableToHtml(items));
+    e.clipboardData.setData('text/opml', portableToOpmlText(items));
     this.clip = { text, items };
     if (cut) this.run((tx) => deleteItems(tx, this.view, ids, 'left'));
   }
@@ -1319,6 +1429,15 @@ export class Editor {
     if (!dt) return;
     const text = (dt.getData('text/plain') ?? '').replace(/\r\n?/g, '\n');
     const ed = this.editing;
+    // pasted files (screenshots…) without text: upload and link them at the caret
+    if (ed && dt.files.length && !text) {
+      const pending = this.host.uploadFiles?.([...dt.files]);
+      if (pending) {
+        e.preventDefault();
+        void pending.then((links) => this.insertLinks(ed.id, ed.f, links.join(' ')));
+        return;
+      }
+    }
     if (ed && (ed.f === 'n' || ed.id === this.view.zoom)) {
       e.preventDefault();
       this.editText((t, s, en) => ({ text: t.slice(0, s) + text + t.slice(en), s: s + text.length, e: s + text.length }));
@@ -1349,10 +1468,53 @@ export class Editor {
     const s = getSel(ed.el) ?? { s: 0, e: 0 };
     this.run((tx) => pasteItems(tx, this.view, ed.id, s.s, s.e, items));
   }
+
+  /** Put uploaded-file links at the caret (or at the end of the item when it is no longer edited). */
+  private insertLinks(id: NodeId, f: 'c' | 'n', str: string) {
+    if (!str || !this.tree.get(id)) return;
+    const ed = this.editing;
+    if (ed && ed.id === id && ed.f === f) {
+      this.editText((t, s, e) => {
+        const pad = s > 0 && !/\s$/.test(t.slice(0, s)) ? ' ' : '';
+        const ins = pad + str;
+        return { text: t.slice(0, s) + ins + t.slice(e), s: s + ins.length, e: s + ins.length };
+      });
+      return;
+    }
+    this.run((tx) => {
+      const cur = (tx.tree.get(id)?.props[f] as string | undefined) ?? '';
+      tx.set(id, { [f]: cur ? `${cur} ${str}` : str });
+    });
+  }
+
+  /** Files dropped from the desktop: upload, then one new item per file after the item under the pointer. */
+  private onFileDrop(e: DragEvent) {
+    const files = [...(e.dataTransfer?.files ?? [])];
+    if (!files.length || this.readOnly) return;
+    const pending = this.host.uploadFiles?.(files);
+    if (!pending) return;
+    e.preventDefault();
+    const over = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('.o-node');
+    const target = over && this.el.contains(over) ? over.dataset.id ?? null : null;
+    void pending.then((links) => {
+      if (!links.length) return;
+      this.run((tx) => {
+        const t = tx.tree;
+        const zoom = this.view.zoom;
+        const useTarget = target && target !== zoom && t.get(target)?.parent && t.isAttached(target);
+        const parent = useTarget ? t.get(target!)!.parent! : zoom;
+        let after: NodeId | null = useTarget ? target : (t.get(zoom)?.children.at(-1) ?? null);
+        for (const l of links) after = tx.create(parent, after, { c: l });
+        return { sel: caret(after!, ((tx.tree.get(after!)?.props.c as string) ?? '').length) };
+      });
+    });
+  }
 }
 
 /** Commands whose no-op result should let the browser handle the key (native text selection). */
 const NATIVE_FALLBACK = new Set(['select-up', 'select-down']);
+
+const fmtTime = (ms: number) => (ms ? new Date(ms).toLocaleString() : '—');
 
 const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 

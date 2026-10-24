@@ -43,7 +43,7 @@ export function qaSnapshot(ed: Editor): QaState {
         cb: hasCheckbox(n),
         h: heading(n),
         num: parentNum,
-        col: n.collapsed && n.children.length > 0,
+        col: n.children.length > 0 && (v.filter ? visibleChildren(t, c, v).length === 0 : n.collapsed),
       });
       walk(c, d + 1);
     }

@@ -6,7 +6,8 @@ export interface View {
   showChecked: boolean;
   /**
    * Active search filter: ids that match or are ancestors of a match.
-   * When set, collapse is ignored for these nodes and everything else hides.
+   * When set, collapse is ignored for these nodes and everything else hides. The check filter was
+   * already applied when the set was built (searchTree), so `is:completed` can show checked items.
    */
   filter?: Set<NodeId> | null;
 }
@@ -21,7 +22,7 @@ export function isHiddenByCheck(t: Tree, id: NodeId, v: View): boolean {
 export function visibleChildren(t: Tree, id: NodeId, v: View): NodeId[] {
   const n = t.get(id);
   if (!n) return [];
-  if (v.filter) return n.children.filter((c) => v.filter!.has(c) && !isHiddenByCheck(t, c, v));
+  if (v.filter) return n.children.filter((c) => v.filter!.has(c));
   if (n.collapsed && id !== v.zoom) return [];
   if (v.showChecked) return n.children;
   return n.children.filter((c) => !t.get(c)?.props.ck);

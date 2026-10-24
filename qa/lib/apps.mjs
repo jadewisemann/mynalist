@@ -165,7 +165,10 @@ export const ours = {
   async fresh(page) {
     await page.goto(OURS_URL);
     await page.waitForSelector('.o-editor');
-    await page.click('.pane-head button');
+    // phones: the file pane is a drawer
+    const inView = await page.locator('.pane-head button[title^="New"]').evaluate((b) => b.getBoundingClientRect().right > 0);
+    if (!inView) await page.click('header button[title="Toggle sidebar"]');
+    await page.click('.pane-head button[title^="New"]');
     await page.click('text=New document');
     await page.waitForTimeout(80);
     await page.keyboard.type('Welcome to Dynalist'); // same title text as the demo doc
@@ -190,7 +193,9 @@ export const ours = {
         if (c.contains('o-strike')) return { flag: 's' };
         if (c.contains('o-highlight')) return { flag: 'h' };
         if (c.contains('o-code')) return { flag: 'code' };
+        if (c.contains('o-copy')) return { skip: true };
         if (c.contains('o-codeblock')) return { flag: 'codeblock' };
+        if (c.contains('o-hl')) return null; // syntax highlight spans
         if (c.contains('o-tag')) return { flag: 'tag', atomic: true };
         if (c.contains('o-date')) return { flag: 'date', atomic: true };
         if (c.contains('o-latex')) return { flag: 'latex', atomic: true, text: el.dataset.tex };

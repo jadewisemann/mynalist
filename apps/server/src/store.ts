@@ -99,6 +99,9 @@ export class Store {
       snapLatest: p('SELECT version, tree FROM snapshots WHERE doc = ? ORDER BY version DESC LIMIT 1'),
       snapInsert: p('INSERT OR REPLACE INTO snapshots (doc, version, ts, tree) VALUES (?, ?, ?, ?)'),
       snapPrune: p('DELETE FROM snapshots WHERE doc = ? AND version < ?'),
+      snapAt: p('SELECT version, tree FROM snapshots WHERE doc = ? AND version <= ? ORDER BY version DESC LIMIT 1'),
+      snapFloor: p('SELECT MAX(version) AS v FROM snapshots WHERE doc = ? AND version <= ?'),
+      opsTimes: p('SELECT version, ts FROM ops WHERE doc = ? AND version > ? ORDER BY version'),
     };
   }
 
@@ -153,6 +156,34 @@ export class Store {
     return this.q.docList!.all() as unknown as DocVersion[];
   }
 
+  /**
+   * Points in the retained history of a doc, newest first: the last version of each burst of edits
+   * (batches less than `gapMs` apart are one burst).
+   */
+  history(id: string, gapMs = 5 * 60 * 1000, max = 500): { version: number; ts: number; edits: number }[] {
+    const row = this.q.docGet!.get(id) as DocRow | undefined;
+    if (!row) return [];
+    const rows = this.q.opsTimes!.all(id, row.floor) as { version: number; ts: number }[];
+    const out: { version: number; ts: number; edits: number }[] = [];
+    for (const r of rows) {
+      const last = out[out.length - 1];
+      if (last && r.ts - last.ts < gapMs) Object.assign(last, { version: r.version, ts: r.ts, edits: last.edits + 1 });
+      else out.push({ version: r.version, ts: r.ts, edits: 1 });
+    }
+    return out.reverse().slice(0, max);
+  }
+
+  /** The doc as it was at `version`, or null when that version is outside the retained history. */
+  treeAt(id: string, version: number): SerializedTree | null {
+    const row = this.q.docGet!.get(id) as DocRow | undefined;
+    if (!row || version < row.floor || version > row.version) return null;
+    const snapRow = this.q.snapAt!.get(id, version) as { version: number; tree: string } | undefined;
+    if (!snapRow && row.floor > 0) return null;
+    const tree = snapRow ? Tree.fromJSON(JSON.parse(snapRow.tree) as SerializedTree) : new Tree();
+    for (const op of this.readOps(id, snapRow?.version ?? 0, version)) tree.apply(op);
+    return tree.toJSON();
+  }
+
   /** Cached versions (for tests / diagnostics). */
   cachedDocs(): string[] {
     return [...this.cache.keys()];
@@ -204,9 +235,8 @@ export class Store {
             this.q.docUpdate!.run(version, now, e.doc);
             if (version - d.snap >= this.opts.snapshotEvery) {
               if (this.opts.purgeDetachedMs > 0) d.tree.purgeDetached(now - this.opts.purgeDetachedMs);
+              // older snapshots stay until prune(): they are the bases for version history
               this.q.snapInsert!.run(e.doc, version, now, JSON.stringify(d.tree.toJSON()));
-              // keep the previous snapshot as well, drop older ones
-              this.q.snapPrune!.run(e.doc, d.snap);
               d.snap = version;
             }
             changed.push({ doc: e.doc, version });
@@ -236,10 +266,13 @@ export class Store {
       if (limit <= row.floor) continue;
       const recent = (this.q.opsFirstRecent!.get(row.id, cutoff) as { v: number | null }).v;
       if (recent !== null) limit = Math.min(limit, recent - 1);
+      // the floor always sits on a snapshot, so every retained version can be rebuilt (version history)
+      limit = (this.q.snapFloor!.get(row.id, limit) as { v: number | null }).v ?? 0;
       if (limit <= row.floor) continue;
       this.db.exec('BEGIN IMMEDIATE');
       try {
         removed += Number(this.q.opsPrune!.run(row.id, limit).changes);
+        this.q.snapPrune!.run(row.id, limit);
         this.q.docFloor!.run(limit, row.id);
         this.db.exec('COMMIT');
       } catch (err) {

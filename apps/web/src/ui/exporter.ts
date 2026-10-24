@@ -7,19 +7,42 @@ import { modal } from './overlay.ts';
 
 type Format = 'text' | 'html' | 'opml';
 
-export function exportDialog(tree: Tree, id: NodeId, title: string) {
+export interface ExportOptions {
+  /** current view: what "visible items only" leaves out */
+  showChecked?: boolean;
+  notes?: 'show' | 'teaser' | 'hide';
+  /** active search filter */
+  include?: (id: NodeId) => boolean;
+  /** remembered "Export visible items only" (export_visible_only) */
+  visibleOnly?: boolean;
+  onVisibleOnly?: (v: boolean) => void;
+  /** OPML head */
+  source?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+}
+
+/** Export a document (ROOT), an item, or a selection of items. */
+export function exportDialog(tree: Tree, sel: NodeId | NodeId[], title: string, opts: ExportOptions = {}) {
   let format: Format = 'text';
   let indent: 'spaces' | 'asterisks' | 'dashes' | 'none' = 'spaces';
-  const visibleOnly = h('input', { type: 'checkbox' });
+  const visibleOnly = h('input', { type: 'checkbox', checked: !!opts.visibleOnly });
   const out = h('textarea', { readOnly: true, style: 'width:100%;height:280px;font:13px var(--mono);resize:vertical' });
+  const list = Array.isArray(sel) ? sel : [sel];
   // exporting the document root exports its children (the root is the title)
-  const ids = () => (id === ROOT ? tree.get(ROOT)!.children : [id]);
+  const ids = () => (list.length === 1 && list[0] === ROOT ? tree.get(ROOT)!.children : list);
   const update = () => {
-    const scope = { visibleOnly: visibleOnly.checked };
+    const vis = visibleOnly.checked;
+    const scope = {
+      visibleOnly: vis,
+      showChecked: opts.showChecked ?? true,
+      notes: opts.notes === 'teaser' ? 'first' as const : opts.notes ?? 'show',
+      include: vis ? opts.include : undefined,
+    };
     out.value =
       format === 'text' ? exportText(tree, ids(), { ...scope, indent })
-      : format === 'html' ? exportHtml(tree, ids(), scope)
-      : exportOpml(tree, ids(), { ...scope, title });
+      : format === 'html' ? exportHtml(tree, ids(), { ...scope, document: true, title })
+      : exportOpml(tree, ids(), { ...scope, title, source: opts.source, ownerName: opts.ownerName, ownerEmail: opts.ownerEmail });
   };
   const tab = (f: Format, label: string) => {
     const b = h('button.btn', { onclick: () => {
@@ -36,10 +59,14 @@ export function exportDialog(tree: Tree, id: NodeId, title: string) {
   const indentSel = h('select', { onchange: () => { indent = indentSel.value as typeof indent; update(); } },
     h('option', { value: 'spaces' }, 'Indent with spaces'), h('option', { value: 'asterisks' }, 'Asterisks'),
     h('option', { value: 'dashes' }, 'Dashes'), h('option', { value: 'none' }, 'No indentation'));
-  visibleOnly.addEventListener('change', update);
+  visibleOnly.addEventListener('change', () => {
+    opts.onVisibleOnly?.(visibleOnly.checked);
+    update();
+  });
   update();
   const ext: Record<Format, [string, string]> = { text: ['txt', 'text/plain'], html: ['html', 'text/html'], opml: ['opml', 'text/x-opml'] };
-  modal(`Export "${title}"`, h('div', {}, tabs,
+  const label = list.length > 1 ? `${list.length} items` : `"${title}"`;
+  modal(`Export ${label}`, h('div', {}, tabs,
     h('div', { style: 'display:flex;gap:12px;align-items:center;margin-bottom:8px;font-size:14px' }, indentSel,
       h('label', {}, visibleOnly, ' Export visible items only')),
     out), [

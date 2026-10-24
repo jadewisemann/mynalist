@@ -14,7 +14,8 @@ npm run qa:record       # live, and re-record qa/golden/ from Dynalist
 node qa/run.mjs <editing|fuzz|render> [--replay|--record] [--only=undo/,nav/] [--workers=N] [--verbose]
     live-only: [--stability] [--no-confirm]; replay-only: [--accept]
 FUZZ_N=200 FUZZ_FROM=1001 node qa/run.mjs fuzz     # explore new seeds (the recording covers 1–400 × 10)
-node qa/layout.mjs [--replay|--record]
+node qa/layout.mjs [--replay|--record] [--mobile]   # --mobile: 390×844 phone, Dynalist's mobile layout
+node qa/menus.mjs [--replay|--record]            # item context menu: groups, labels, shortcut hints
 node qa/show.mjs <suite> [id-substring]           # side-by-side diffs in the terminal, with trace context
 ```
 
@@ -53,10 +54,12 @@ the same five functions as the two in `qa/lib/apps.mjs`.
 
 | suite | what | how it compares |
 |---|---|---|
-| `editing` | ~340 hand-written scenarios in 17 groups: enter, backspace, delete, delitem, indent, outdent, move, nav, select, props, collapse, zoom, undo, format, typing, paste, copy | normalized editor state after the steps |
+| `editing` | ~360 hand-written scenarios in 18 groups: enter, backspace, delete, delitem, indent, outdent, move, nav, select, props, collapse, zoom, undo, format, typing, paste, copy, search (Ctrl+F query syntax, which items stay visible, parents whose children are all filtered look collapsed, Escape puts the caret back) | normalized editor state after the steps |
 | `fuzz` | seeded random key sequences (28 keys incl. typing, undo/redo, block selection, moves) over 5 fixtures | state after **every** step; reports the first divergent step |
 | `render` | ~120 inputs for the inline syntax: emphasis, empty pairs, links, tags, dates, recurrence, relative dates, LaTeX, code | styled text runs of the rendered (not edited) item |
 | `layout` | one rich fixture: computed font size/weight/line height/colour, row pitch, indent, bullet/checkbox geometry, inline element styles | 129 metrics with tolerances |
+| `layout --mobile` | the same fixture on a phone viewport (touch, mobile user agent) | 129 metrics with tolerances |
+| `menus` | the item context menu in six item states (parent, nested child, leaf, checked, with checkbox, collapsed) | groups, labels in order, shortcut hints; our own extra entries (Share…, Duplicate, …) are listed in `qa/menus.mjs` and ignored |
 | `apps/web/e2e/*` | our own end-to-end checks (keys, popups, drag & drop, mobile toolbar, two-client sync) | expectations; sync has no Dynalist counterpart in the demo |
 | `packages/core/test/parity.test.ts` | the behaviour rules found here, pinned at the core level | unit tests |
 

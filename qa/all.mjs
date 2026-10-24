@@ -9,6 +9,8 @@ const dir = fileURLToPath(new URL('.', import.meta.url));
 const runs = [
   ...['editing', 'fuzz', 'render'].map((s) => ['run.mjs', s, ...args]),
   ['layout.mjs', ...mode],
+  ['layout.mjs', '--mobile', ...mode],
+  ['menus.mjs', ...mode],
 ];
 let failed = [];
 for (const [script, ...rest] of runs) {

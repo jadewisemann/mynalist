@@ -6,7 +6,12 @@ import type { Editor } from './editor.ts';
 
 type Drop = { parent: NodeId; after: NodeId | null; row: HTMLElement; mode: 'before' | 'after' | 'inside' };
 
-export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }) {
+/** A drop target outside the editor (the file pane): `hit` highlights it, `drop` takes the items. */
+export interface ExternalDrop {
+  hit(x: number, y: number): { el: HTMLElement; drop(ids: NodeId[], copy: boolean): void } | null;
+}
+
+export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean; external?: ExternalDrop }) {
   const root = editor.el;
   let line: HTMLElement | null = null;
   let label: HTMLElement | null = null;
@@ -21,6 +26,7 @@ export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }
     let dragging = false;
     let timer = 0;
     let drop: Drop | null = null;
+    let ext: ReturnType<ExternalDrop['hit']> = null;
     let copy = false;
     let ids: NodeId[] = [];
     let scrollTimer = 0;
@@ -60,6 +66,10 @@ export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }
       label!.textContent = `${copy ? 'Copy' : 'Move'} ${ids.length} item${ids.length > 1 ? 's' : ''}`;
       label!.style.transform = `translate(${x + 14}px, ${y + 10}px)`;
       drop = hitTest(x, y);
+      const nextExt = drop ? null : opts.external?.hit(x, y) ?? null;
+      if (ext?.el !== nextExt?.el) ext?.el.classList.remove('drop-target');
+      ext = nextExt;
+      ext?.el.classList.add('drop-target');
       if (!drop) {
         line!.hidden = true;
         return;
@@ -77,6 +87,8 @@ export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }
     const hitTest = (x: number, y: number): Drop | null => {
       const t = editor.tree;
       const v = editor.view;
+      // left of the document column (over the file pane): not an editor drop
+      if (x < ((root.closest('.o-scroll') ?? root) as HTMLElement).getBoundingClientRect().left) return null;
       const el = document.elementFromPoint(Math.max(x, root.getBoundingClientRect().left + 40), y)?.closest<HTMLElement>('.o-node');
       if (!el || !root.contains(el)) return null;
       const tid = el.dataset.id!;
@@ -127,6 +139,7 @@ export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }
     const up = () => {
       const was = dragging;
       const target = drop;
+      const outside = ext;
       const asCopy = copy;
       cleanup();
       if (!was) return;
@@ -135,6 +148,10 @@ export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }
       const swallow = (ev: Event) => (ev.stopPropagation(), ev.preventDefault());
       window.addEventListener('click', swallow, { capture: true, once: true });
       setTimeout(() => window.removeEventListener('click', swallow, { capture: true }), 0);
+      if (outside) {
+        outside.drop(ids, asCopy);
+        return;
+      }
       if (!target) return;
       editor.run((tx) => {
         let after = target.after;
@@ -163,6 +180,8 @@ export function installDrag(editor: Editor, opts: { insideAtTop: () => boolean }
       window.removeEventListener('keyup', onKey);
       line?.remove();
       label?.remove();
+      ext?.el.classList.remove('drop-target');
+      ext = null;
       line = label = null;
       document.body.classList.remove('o-dragging');
       dragging = false;

@@ -1,7 +1,7 @@
 # TASKS — 작업 현황과 남은 일
 
 Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이 문서만 읽고 이어서 작업할 수 있게 정리했다.
-(최종 갱신: 2026-10-24, 커밋 `5c0598e` 기준)
+(최종 갱신: 2026-10-24)
 
 - 레포: https://github.com/jadewisemann/mynalist (public), 로컬 `/home/ubuntu/code/outliner`, 브랜치 `main`
 - 구조:
@@ -54,6 +54,43 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
    - 루트 `npm start`: web 빌드가 없으면 빌드한 뒤 서빙한다.
    - `SERVER_PORT` 지원.
    - `deploy/install.sh`: 127.0.0.1에만 바인딩하고, node 경로를 고정한다.
+10. **스펙 갭 일괄 구현 (2026-10-24, "남은 일" 3번의 P1/P2/P3):**
+    - **서버:**
+      - 버전 기록 API (`/api/doc/<id>/history`, `/at/<v>`).
+      - 백업: `/api/backup`, `outliner-backup.timer`. 업로드 파일도 백업한다.
+      - 파일 업로드: `/api/upload`, `/files/<key>/…`.
+      - 공유 링크: `/s/<token>`. 서버가 렌더링하는 읽기 전용 페이지다.
+      - 캘린더 ICS 피드: `/cal/<key>.ics`.
+      - 보안 헤더.
+    - **core:**
+      - `restoreTree` (버전 복원)
+      - 정렬 모드 11종
+      - 검색/치환, backlinks
+      - `is:completed` 필터, unindent in place
+      - ICS 생성, 시간대 기록 (`withLocalTz`)
+    - **웹, 검색과 탐색:**
+      - Flat/Global 검색 결과 화면
+      - Search & replace
+      - 버전 기록 모달 (diff, 복원)
+    - **웹, 입력과 관리:**
+      - Inbox: 빠른 입력, 이동
+      - 백업 zip
+      - Settings (탭, Keymap 편집, 고급 설정)
+      - 도움말 사이드 패널
+      - 모바일 툴바 사용자화
+    - **웹, 보기:**
+      - 테마 4종, 글꼴
+      - 문서별 보기 옵션 (체크, 노트, Article, 마인드맵, RTL, 잠금)
+      - 코드 하이라이트와 Copy 버튼, KaTeX
+    - **웹, 항목:**
+      - backlinks 섹션과 배지
+      - 사이드바: 툴바, 문서 메뉴, 드래그로 문서 간 이동, 보관 문서는 동기화 생략
+      - 북마크와 태그 패널 기능
+      - 단축키 추가
+      - 이미지 미리보기, 튜토리얼, What's new
+      - 파일 붙여넣기/드롭 업로드
+      - 공유 대화상자, 업로드/공유/캘린더 관리 화면
+    - **Android:** release 서명 설정. 키스토어는 레포 밖에 두고 `scripts/make-keystore.sh`로 만든다.
 
 ### 배포 (이 머신, oci-agent)
 
@@ -80,10 +117,12 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
 
   | 묶음 | 내용 | 결과 |
   |---|---|---|
-  | editing | 시나리오 343개 | 전부 일치 |
+  | editing | 시나리오 363개 (search 20개 포함) | 전부 일치 |
   | fuzz | 랜덤 키 400개 × 10스텝, 매 스텝 비교 | 399개 일치, 1개 건너뜀 |
   | render | 인라인 문법 117개 | 117/117 |
   | layout | 측정값 129개 | 129/129 |
+  | layout --mobile | 폰 뷰포트 측정값 129개 | 129/129 |
+  | menus | 컨텍스트 메뉴 6가지 상태 | 6/6 |
 
   - editing과 fuzz의 "일치"에는 ±1글자 캐럿 허용, 단독 재실행에서 일치한 타이밍 흔들림, 문서화한 Dynalist 쪽 버그가 포함된다.
   - fuzz에서 건너뛴 1개는 undo로 Dynalist 데모 내용이 되살아나는 경우다. 데모 내용은 저장하지 않으므로 판정만 남긴다.
@@ -116,158 +155,101 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
     - 날짜 라벨 형식("Tue, January 2nd 2024, 10 am", 상대 시간)을 맞췄다.
   - **레이아웃:** 크기, 줄 높이, 색, 간격을 Dynalist에서 측정한 값으로 맞췄다.
   - **실제 버그 수정:** 자식이 있는 외동 자식으로 Delete를 누르면 하위 트리가 사라지던 문제.
-- **이 규칙들의 단위 테스트:** `packages/core/test/parity.test.ts`. 현재 core/server 테스트 166개가 통과한다.
+- **이 규칙들의 단위 테스트:** `packages/core/test/parity.test.ts`. 현재 core/server 테스트 187개가 통과한다.
+- **2026-10-24에 추가한 비교:**
+  - **search 그룹 (editing에 20개):**
+    - 검색 쿼리 문법과 항목 표시 여부를 비교한다.
+    - 자식이 모두 걸러진 부모는 접힌 모양으로 보인다.
+    - Esc를 누르면 캐럿이 원래 자리로 돌아간다.
+  - **`menus` 스위트:** 6가지 항목 상태에서 컨텍스트 메뉴의 그룹, 라벨, 단축키 표기를 비교한다. 6/6 일치.
+  - **`layout --mobile`:** 폰 뷰포트에서 Dynalist 모바일 레이아웃과 비교한다. 129/129 일치.
+  - **이 비교로 고친 것:**
+    - 메뉴 라벨과 순서를 맞췄다.
+    - 단축키 표기를 ↵/⌫로 바꿨다.
+    - 모바일에서 들여쓰기는 21px, 체크박스 터치 영역은 28px로 했다.
+    - 모바일에서 문서를 열어도 사이드 드로어가 닫히지 않던 버그를 고쳤다.
+    - 제목 메뉴의 정렬이 현재 선택 항목에 적용되던 버그를 고쳤다.
 
 ## 남은 일
 
 ### 1. 공개 배포 마무리 (사용자 작업이 필요)
-- [ ] 사용자가 `sudo tailscale funnel --bg 8080`을 실행하고, 링크가 뜨면 HTTPS/Funnel을 승인한다.
+- [ ] 사용자가 `sudo tailscale funnel --bg 8080`을 실행하고, 링크가 뜨면 HTTPS/Funnel을 승인한다. (자동 실행은 막혀 있다.)
 - [ ] 공개 URL(`https://<machine>.<tailnet>.ts.net`)로 접속해 본다:
   - 로그인
-  - 설정 → Sync server에 같은 URL로 연결
+  - 설정 → Sync & data에서 같은 URL로 연결
   - 휴대폰에서 PWA 설치
   - 두 기기 간 동기화
-- [ ] 휴대폰 실사용 점검: 모바일 툴바, 가상 키보드, 팝업 위치.
-- [ ] DB 백업: 지금은 없다. systemd timer로 `outliner.db`를 주기적으로 복사하는 정도면 된다. sqlite `.backup` 또는 `VACUUM INTO`.
-- [ ] 공개 전에 서버 보안을 한 번 더 확인한다: 로그인 시도 제한(현재 있음), CORS 기본값 `*`, 업로드 크기 제한.
+- [ ] 휴대폰 실사용 점검: 모바일 툴바, 가상 키보드, 팝업 위치. headless 모바일 뷰포트 비교는 통과했다.
+- [x] DB 백업:
+  - `outliner-backup.timer`가 매일 04:17에 `VACUUM INTO`로 백업하고 14개를 보관한다.
+  - 업로드 파일은 `backups/files/`로 증분 복사한다.
+  - 이 머신에 설치했고 활성화되어 있다.
+- [x] 서버 보안 점검. 결과는 README "Security notes"에 정리했다:
+  - 로그인 제한
+  - CORS `*`를 쓰는 근거
+  - 본문 크기와 업로드 크기 제한
+  - 보안 헤더
+  - capability URL 3종 (파일, 공유, 캘린더)
 
 ### 2. QA에서 남은 차이와 한계
-- [ ] **코드 블록:** 문법 강조(highlight.js 계열)와 Copy 버튼을 구현한다. 현재 render 비교에서는 무시하고 있다.
-- [ ] **비교할 수 없는 것:**
-  - HTML 붙여넣기: 데모가 합성 이벤트로 넣은 HTML을 무시한다. 우리 쪽 e2e로 따로 검증할 것.
+- [x] **코드 블록:** 문법 강조와 Copy 버튼을 구현했다. 자체 하이라이터를 썼다.
+- [x] **HTML 붙여넣기:** `apps/web/e2e/features.mjs`에서 검증한다. 중첩 목록과 굵게가 유지된다.
+- [x] **QA 확장:**
+  - 검색: editing의 search 그룹
+  - 컨텍스트 메뉴와 단축키 표기: `qa/menus.mjs`
+  - 모바일 뷰포트: `qa/layout.mjs --mobile`
+- [ ] **아직 비교하지 않은 것:**
   - 여러 문서, 동기화, 설정, 색 라벨(Ctrl+Shift+L): 데모에 없거나 동작하지 않는다.
-- [ ] **QA를 더 넓힐 곳:**
-  - 검색(쿼리 문법, 하이라이트)
-  - 컨텍스트 메뉴와 단축키 목록이 Dynalist와 같은지
-  - 모바일 뷰포트에서의 비교
+  - 모바일 툴바와 터치 동작.
+  - 검색 결과의 하이라이트 범위.
 - [ ] **녹화 다시 하기:** Dynalist가 바뀌었는지 가끔 `npm run qa:live`로 확인하고, 필요하면 `npm run qa:record`.
-- [ ] **CI 관리:**
-  - ubuntu-latest가 Ubuntu 26으로 바뀌는 것(2026-10-19부터)에 대비한다.
-  - `actions/upload-artifact@v4`가 Node 20 기반이라 경고가 나면 올린다.
+- [x] **CI:**
+  - 러너를 `ubuntu-24.04`로 고정했다. ubuntu-latest가 26으로 바뀌는 것에 대비한 것이다.
+  - `checkout@v6`, `upload-artifact@v7`로 올렸다.
+  - push 후 통과하는지 확인할 것.
 
 ### 3. 스펙 대비 미구현/부분 구현 기능
-(아래 목록은 `docs/0x` 스펙과 코드를 대조해서 뽑았다. 다음 두 가지는 갭이 아니다.)
-- 글자 크기와 간격 값이 스펙과 다른 것: QA에서 Dynalist를 측정해 일부러 맞춘 값이다.
-- 분리된 노드 purge가 스펙의 48시간이 아니라 30일인 것: 의도한 값이다.
+P1과 P2는 아래 두 가지를 빼고 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10번에 있다.
+- [ ] **데스크톱 항목 툴바:** hover하면 나오는 버튼 줄. 메뉴와 단축키로 같은 일을 할 수 있어 미뤘다.
+- [ ] **접기/펼치기 애니메이션:** QA의 타이밍과 레이아웃 측정을 흔들 수 있어 미뤘다. 넣는다면 `prefers-reduced-motion`을 지키고 QA에서는 끈다.
 
-**P1: 개인용으로 매일 쓰려면 필요한 것**
-- [ ] **Inbox:**
-  - 빠른 입력(Ctrl+Shift+I)과 Go to inbox를 구현한다. 지금은 커맨드만 있고 false를 반환한다. "Set as inbox"는 설정값만 저장한다.
-  - inbox 위치와 넣을 위치 설정.
-- [ ] **페이지를 떠날 때:** 저장 안 된 변경이 있으면 경고한다. 지금 `beforeunload`는 `flushSaves()`만 부른다.
-- [ ] **백업:** 앱에서 백업 다운로드(zip)와 주기 백업. 서버 쪽 백업은 1번 참고.
-- [ ] **버전 기록:**
-  - 서버에 history 엔드포인트를 만들고 버전을 묶어 보여주는 모달을 만든다.
-  - op 로그는 이미 있으니 이를 활용한다.
-- [ ] **검색:**
-  - Search & replace 모달: `search-replace` 커맨드는 keymap에 있지만 처리하는 코드가 없다.
-  - Flat search와 Global search는 스펙상 결과 화면 방식이다. 지금은 finder 팝업이다:
-    - 정렬
-    - "Search results for…" 헤더
-    - Esc로 돌아가기
-    - 문서별 카드
-    - 숨겨진 결과 수 표시
-  - `is:completed` 필터를 쓸 때 체크된 항목을 강제로 보이게 한다. `view.ts`의 `visibleChildren` 수정.
-  - 검색에 걸린 note는 숨김 설정이어도 보이게 한다.
-- [ ] **정렬 메뉴:** 지금은 제목 A→Z/Z→A만 있다. 날짜, 체크된 항목 먼저/나중, 수정·생성 시각, 역순을 추가한다.
-- [ ] **Backlinks:**
-  - "This item is referenced in:" 섹션.
-  - 참조 수 배지.
-  - Show all references.
-- [ ] **기존 기능에서 빠진 부분:**
-  - `[[` 링크의 제목 자동 표시: core에 `linkTitle`이 있지만 `renderOpts`가 넘기지 않는다.
-  - Unindent in place: `EditorPrefs.unindentInPlace`는 있지만 아무 데서도 쓰지 않는다.
-  - 문서별로 마지막 줌 위치 기억.
-  - bullet을 더블클릭하면 자식 전체 펼치기/접기.
-  - 기한 지난 날짜 강조가 체크된 항목에도 붙는다. 체크된 항목은 제외해야 한다.
-- [ ] **클립보드:**
-  - `text/opml`을 복사·붙여넣기 모두 지원한다.
-  - 번호 목록을 복사할 때 `N.` 접두사를 붙인다.
-- [ ] **내보내기:**
-  - 여러 항목을 선택했을 때 첫 항목만 내보내진다.
-  - "보이는 항목만" 옵션이 체크/노트 상태를 반영하지 않는다.
-  - HTML 내보내기는 완전한 문서 형태로 만든다.
-  - OPML 헤더에 owner 정보를 넣는다.
-  - 인쇄 스타일: 10pt, 흰 배경, `print-color-adjust`.
-
-**P2: Dynalist다운 UI/UX**
-- [ ] **상단 메인 메뉴:** 지금은 도움말만 연다. 백업 다운로드, Import from WorkFlowy, About이 있어야 한다.
-- [ ] **Settings 화면:**
-  - 탭으로 나눈다: Preferences, Keymap, advanced.
-  - Keymap 편집: `Keymap`은 `overrides`를 받을 수 있지만 `shortcut_override`를 읽거나 쓰는 곳이 없다.
-  - 빠진 설정들:
-    - 현재 항목 강조: 지금은 항상 켜져 있다.
-    - 맞춤법 검사: `editor.ts`에 꺼짐으로 고정돼 있다.
-    - 단어 수 표시, 글꼴/동아시아 글꼴/난독증 글꼴
-    - RTL, 태그 배경, 문서 테두리, 첫 항목 자동 포커스, 검색 팁
-    - 날짜 표시 형식: core의 `dateFormat`이 연결돼 있지 않다.
-    - 시간대 기록, 줄바꿈 정리, Custom CSS
-    - 항목 이동 위치 UI, `export_visible_only` 저장
-- [ ] **문서별 보기 옵션:**
-  - 체크된 항목 표시, 노트 표시, 레이아웃(Article), 텍스트 방향.
-  - 문서별 사용자 데이터를 저장하는 곳이 아직 없다.
-- [ ] **사이드바:**
-  - 파일 패널 툴바: 파일 찾기, inbox, 접기.
-  - 문서 메뉴에 Make a copy, Version history, Clean up newlines를 추가한다.
-  - 항목을 문서로 끌어서 새 문서 만들기/옮기기, 문서를 항목으로 끌어서 넣기.
-  - 보관된 문서는 미리 불러오거나 동기화하지 않는다. 지금은 `sync.ts`, 태그 집계, 전역 검색이 모두 불러온다.
-- [ ] **북마크:**
-  - 포커스 노드, flat 여부, 정렬도 저장한다.
-  - 더블클릭으로 이름 바꾸기, 삭제 확인.
-  - 제목과 검색창 옆에 북마크 아이콘.
-  - 북마크 패널 단축키가 열기만 하고 닫지 못한다.
-- [ ] **태그 패널:** 정렬 토글, 섹션 접기, 태그 이름 바꾸기/삭제(core의 `replaceTag` 활용).
-- [ ] **항목 hover:**
-  - 줌 아이콘.
-  - bullet 툴팁에 생성/수정 시각.
-  - 이미지 미리보기.
-  - 데스크톱용 항목 툴바.
-  - 접기/펼치기 애니메이션.
-- [ ] **모바일 툴바:**
-  - 버튼 추가: 삭제, 줌, 체크박스, 색, 헤딩, 복제, 날짜 등.
-  - 사용자가 버튼 순서를 바꿀 수 있게.
-- [ ] **도움말:**
-  - 모달이 아니라 옆에서 열리는 패널로.
-  - 트리거 표(`#`, `@`, `!`, `[[`).
-  - 단축키가 없는 커맨드도 목록에 포함.
-- [ ] **URL과 링크:**
-  - URL에 포커스 노드, flat, 정렬을 담는다.
-  - 브레드크럼을 Ctrl/Cmd+클릭하면 새 탭에서 연다.
-  - Get link를 누르면 URL 모달을 보여준다.
-- [ ] **상태 표시:**
-  - 동기화 상태 모달에 문서별 오류를 보여준다.
-  - "Cannot open document"와 "Failed to load + Retry" 빈 화면.
-  - 단어 수 상태바.
-- [ ] **누락된 단축키:**
-  - 부모/이전 형제/다음 형제로 이동, 항목 처음/끝으로 이동.
-  - 이 문서에서만 체크/노트 토글.
-  - 맞춤법 검사 토글.
-  - 템플릿 삽입.
-  - Mac Ctrl+P/N.
-- [ ] **테마 추가:** Sci-Fi, Sakura, Dark gold, Christmas.
-- [ ] **LaTeX:** 지금은 원문을 보여준다. 수식 렌더링을 넣을지 결정한다(KaTeX 등).
-
-**P3: 범위 밖이거나 나중에 (단일 사용자 셀프호스팅이라 우선순위 낮음)**
-- [ ] 파일 업로드: 클라이언트와 서버 모두, 업로드 관리자 포함.
-- [ ] 공유, 공개 뷰어, 협업자, 권한(namespace, linkfile). 지금 서버는 단일 사용자다.
-- [ ] Mind map 뷰, Article 레이아웃, RTL.
-- [ ] Google Calendar 연동, 이메일로 inbox에 보내기, Dropbox/Drive 자동 백업.
-- [ ] 온보딩 튜토리얼(지금은 Welcome 문서), What's new, 읽기 전용 잠금 모드.
+**P3 (단일 사용자 셀프호스팅 기준):**
+- [x] 파일 업로드:
+  - 붙여넣기/드롭으로 업로드한다.
+  - capability URL로 서빙한다. `nosniff`와 sandbox CSP를 붙인다.
+  - 업로드 관리자가 있다.
+- [x] 공유와 공개 뷰어:
+  - `/s/<token>`은 실시간 내용을 보여주는 읽기 전용 HTML이다. 스크립트가 없다.
+  - 링크마다 취소할 수 있다.
+- [ ] 협업자와 권한(namespace, linkfile): 서버가 단일 사용자 구조라 범위 밖이다.
+- [x] Mind map 뷰(읽기 전용), Article 레이아웃, RTL.
+- [x] 캘린더: ICS 구독 피드로 대신했다. Google Calendar의 "URL로 추가"에서 쓴다. Google API 연동은 하지 않는다.
+- [ ] 이메일로 inbox에 보내기: 메일 수신 인프라가 필요해 범위 밖이다.
+- [ ] Dropbox/Drive 자동 백업: 서버 쪽 일일 백업과 앱의 백업 다운로드로 대신한다. 필요하면 rclone으로 `backups/`를 동기화한다.
+- [x] 온보딩 튜토리얼과 What's new: 메인 메뉴에서 연다. QA에 방해되지 않게 자동으로 열지 않는다.
+- [x] 읽기 전용 잠금 모드: 문서별 보기 옵션에서 켠다.
 
 ### 4. Android
-- [ ] 실제 기기에서 debug APK를 테스트한다: 서버 URL 입력, 동기화, 키보드.
-- [ ] 필요하면 release 서명 빌드를 만든다. 키스토어는 레포 밖에 둔다.
+- [ ] 실제 기기에서 debug APK를 테스트한다 (사용자). 테스트 항목:
+  - 서버 URL 입력
+  - 동기화
+  - 키보드
+  - 파일 업로드
+- [x] release 서명 빌드 준비:
+  - `apps/android/scripts/make-keystore.sh`로 `~/.config/outliner`에 키스토어와 속성 파일을 만든다.
+  - 빌드는 `npm run build:release -w @outliner/android`.
+- [ ] 키스토어를 만들어 release APK를 빌드하고, 키스토어를 안전한 곳에 백업한다 (사용자 판단).
 
 ## 자주 쓰는 명령
 
 ```sh
 npm test && npm run typecheck                    # core/server 테스트
-npm run qa:serve && npm run qa                   # Dynalist 비교(오프라인 녹화본)
+npm run qa:serve && npm run qa                   # Dynalist 비교(오프라인 녹화본): editing/fuzz/render/layout/layout-mobile/menus
 npm run qa:live                                  # 라이브 Dynalist와 나란히
 node qa/run.mjs editing --only=undo/ --verbose   # 일부만, 차이를 바로 출력
 node qa/show.mjs fuzz fuzz/123                   # 차이를 나란히 보기 (단계별)
 FUZZ_FROM=5001 FUZZ_N=200 node qa/run.mjs fuzz   # 새 시드로 탐색 (라이브)
-apps/web/e2e/snapshot.sh && node apps/web/e2e/keys.mjs   # 우리 쪽 e2e (popups/drag/mobile/sync도 있음)
+apps/web/e2e/snapshot.sh && node apps/web/e2e/keys.mjs   # 우리 쪽 e2e (popups/drag/mobile/features/server-extras/sync도 있음)
 npm run build -w @outliner/web && systemctl --user restart outliner   # 배포 갱신
 ```
 

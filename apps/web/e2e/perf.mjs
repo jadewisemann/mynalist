@@ -6,7 +6,7 @@ const page = await (await browser.newContext({ viewport: { width: 1200, height: 
 page.on('pageerror', (e) => console.log('pageerror', String(e)));
 await page.goto(process.env.URL ?? 'http://localhost:5174/');
 await page.waitForSelector('.o-editor');
-await page.click('.pane-head button'); await page.click('text=New document');
+await page.click('.pane-head button[title^="New"]'); await page.click('text=New document');
 await page.keyboard.type('Perf'); await page.keyboard.press('Enter');
 await page.waitForTimeout(200);
 await page.click('.o-editor', { position: { x: 300, y: 120 } });

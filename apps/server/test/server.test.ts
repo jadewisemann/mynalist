@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import WebSocket from 'ws';
 import { DocSession, ROOT, Tree, type SerializedTree } from '@outliner/core';
+import { backup } from '../src/backup.ts';
+import { Store } from '../src/store.ts';
 import { NO_SEL, PASSWORD, TOKEN, api, launch, randomEdit, rng, syncSession, type TestServer } from './helpers.ts';
 
 let servers: TestServer[] = [];
@@ -239,7 +241,6 @@ describe('sync', () => {
     const second = await start({}, { snapshotEvery: 5 }, dir);
     const snaps = second.store.db.prepare('SELECT version FROM snapshots WHERE doc = ? ORDER BY version').all('persist') as { version: number }[];
     expect(snaps.length).toBeGreaterThan(0);
-    expect(snaps.length).toBeLessThanOrEqual(2);
     const after = await serverCanonical(second, 'persist');
     expect(after).toEqual(before);
     // and editing continues from there
@@ -285,6 +286,51 @@ describe('sync', () => {
     const r = await api(srv, '/api/sync', { method: 'POST', json: { docs: [{ doc, baseVersion: 12, ops: [] }] } });
     expect(r.data.docs[0].version).toBe(14);
     expect(r.data.docs[0].remote.length).toBe(2);
+  });
+});
+
+describe('history', () => {
+  it('lists edit bursts and rebuilds any retained version, also after pruning', async () => {
+    const srv = await start({}, { snapshotEvery: 4, retainVersions: 5, retainMs: 0 });
+    const doc = 'hist';
+    const A = new DocSession();
+    const ts = Date.now();
+    A.transact([{ t: 'create', id: 'a', parent: ROOT, after: null, props: { c: 'v0' }, ts }], NO_SEL);
+    await syncSession(srv, A, doc);
+    const seen = new Map<number, string>();
+    for (let i = 1; i <= 14; i++) {
+      A.transact([{ t: 'set', id: 'a', props: { c: `v${i}` }, ts: ts + i }], NO_SEL);
+      await syncSession(srv, A, doc);
+      seen.set(A.version, `v${i}`);
+    }
+    const h = await api(srv, `/api/doc/${doc}/history`);
+    expect(h.status).toBe(200);
+    expect(h.data.points[0].version).toBe(15); // one burst (no 5-minute gap), newest first
+    const at = (v: number) => api(srv, `/api/doc/${doc}/at/${v}`);
+    for (const v of [2, 7, 9, 15]) {
+      const r = await at(v);
+      expect(Tree.fromJSON(r.data.tree).get('a')?.props.c).toBe(seen.get(v));
+    }
+    expect(srv.store.prune()).toBeGreaterThan(0);
+    const floor = (srv.store.db.prepare('SELECT floor FROM docs WHERE id = ?').get(doc) as { floor: number }).floor;
+    expect(floor % 4).toBe(0); // on a snapshot
+    expect((await at(floor - 1)).status).toBe(404);
+    for (let v = floor; v <= 15; v++) expect(Tree.fromJSON((await at(v)).data.tree).get('a')?.props.c).toBe(seen.get(v));
+    expect((await at(99)).status).toBe(404);
+  });
+
+  it('backup returns every doc', async () => {
+    const srv = await start();
+    for (const doc of ['x', 'y']) {
+      const s = new DocSession();
+      s.transact([{ t: 'create', id: 'n', parent: ROOT, after: null, props: { c: doc }, ts: 1 }], NO_SEL);
+      await syncSession(srv, s, doc);
+    }
+    const r = await api(srv, '/api/backup');
+    expect(r.status).toBe(200);
+    expect(Object.keys(r.data.docs).sort()).toEqual(['x', 'y']);
+    expect(Tree.fromJSON(r.data.docs.y.tree).get('n')?.props.c).toBe('y');
+    expect((await api(srv, '/api/backup', { token: null })).status).toBe(401);
   });
 });
 
@@ -355,5 +401,21 @@ describe('static', () => {
     expect((await fetch(`${srv.url}/missing.js`)).status).toBe(404);
     expect((await fetch(`${srv.url}/..%2f..%2fetc%2fpasswd`)).status).toBe(403);
     expect((await fetch(`${srv.url}/api/nope`, { headers: { Authorization: `Bearer ${TOKEN}` } })).status).toBe(404);
+  });
+});
+
+describe('backup', () => {
+  it('copies the live database and keeps the newest N', async () => {
+    const srv = await start();
+    const s = new DocSession();
+    s.transact([{ t: 'create', id: 'n', parent: ROOT, after: null, props: { c: 'kept' }, ts: 1 }], NO_SEL);
+    await syncSession(srv, s, 'b');
+    const dir = join(srv.dir, 'backups');
+    let last = '';
+    for (let i = 0; i < 4; i++) last = backup(srv.cfg.store.path, dir, 2, new Date(Date.UTC(2026, 0, 1 + i)));
+    expect(readdirSync(dir).sort()).toEqual(['outliner-20260103-000000.db', 'outliner-20260104-000000.db']);
+    const copy = new Store({ ...srv.cfg.store, path: last });
+    expect(Tree.fromJSON(copy.getDoc('b').tree).get('n')?.props.c).toBe('kept');
+    copy.close();
   });
 });

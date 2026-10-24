@@ -21,7 +21,7 @@ async function expect(label, want) {
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${label}${ok ? '' : `\n--- want\n${want}--- got\n${got}`}`);
 }
 // fresh doc
-await page.click('.pane-head button');
+await page.click('.pane-head button[title^="New"]');
 await page.click('text=New document');
 await T('Test');
 await K('Enter');

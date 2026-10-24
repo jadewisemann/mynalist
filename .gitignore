@@ -5,3 +5,6 @@ dist
 .env
 apps/android/android/app/build
 qa/out
+*.jks
+*.keystore
+android-signing.properties

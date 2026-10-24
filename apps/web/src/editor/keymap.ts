@@ -56,6 +56,11 @@ export const COMMANDS: CommandInfo[] = [
   { id: 'toggle-tag-pane', label: 'Toggle tag pane', group: 'General', keys: [] },
   { id: 'toggle-show-checked', label: 'Show/hide checked items', group: 'General', keys: [] },
   { id: 'toggle-show-notes', label: 'Show/hide notes', group: 'General', keys: [] },
+  { id: 'toggle-doc-checked', label: 'Show/hide checked items in this document', group: 'General', keys: [] },
+  { id: 'toggle-doc-notes', label: 'Show/hide notes in this document', group: 'General', keys: [] },
+  { id: 'toggle-spellcheck', label: 'Toggle spell checker', group: 'General', keys: [] },
+  { id: 'version-history', label: 'Version history', group: 'General', keys: [] },
+  { id: 'download-backup', label: 'Download backup', group: 'General', keys: [] },
   { id: 'save', label: 'Save / sync now', group: 'General', keys: ['Mod+S'] },
   { id: 'inbox-capture', label: 'Capture to inbox', group: 'General', keys: ['Mod+Shift+I'] },
   { id: 'bookmark', label: 'Bookmark current view', group: 'General', keys: [] },
@@ -76,9 +81,14 @@ export const COMMANDS: CommandInfo[] = [
   { id: 'undo', label: 'Undo', group: 'Lists', keys: ['Mod+Z'] },
   { id: 'redo', label: 'Redo', group: 'Lists', keys: ['Mod+Y', 'Mod+Shift+Z'] },
   { id: 'copy-link', label: 'Copy link to item', group: 'Lists', keys: [] },
+  { id: 'get-link', label: 'Get link to item', group: 'Lists', keys: [] },
+  { id: 'show-references', label: 'Show all references', group: 'Lists', keys: [] },
+  { id: 'insert-template', label: 'Insert template…', group: 'Lists', keys: [] },
   { id: 'delete-checked', label: 'Delete completed items', group: 'Lists', keys: [] },
   { id: 'sort-asc', label: 'Sort children A→Z', group: 'Lists', keys: [] },
   { id: 'sort-desc', label: 'Sort children Z→A', group: 'Lists', keys: [] },
+  { id: 'sort-date-new', label: 'Sort children by date (new→old)', group: 'Lists', keys: [] },
+  { id: 'sort-date-old', label: 'Sort children by date (old→new)', group: 'Lists', keys: [] },
   { id: 'expand-1', label: 'Expand to level 1', group: 'Lists', keys: [] },
   { id: 'expand-2', label: 'Expand to level 2', group: 'Lists', keys: [] },
   { id: 'expand-3', label: 'Expand to level 3', group: 'Lists', keys: [] },
@@ -90,6 +100,11 @@ export const COMMANDS: CommandInfo[] = [
   { id: 'zoom-prev-sibling', label: 'Zoom into previous sibling', group: 'Navigate', keys: ['Mod+Shift+['] },
   { id: 'zoom-next-sibling', label: 'Zoom into next sibling', group: 'Navigate', keys: ['Mod+Shift+]'] },
   { id: 'goto-inbox', label: 'Go to inbox', group: 'Navigate', keys: [] },
+  { id: 'goto-parent', label: 'Go to parent item', group: 'Navigate', keys: [] },
+  { id: 'goto-prev-sibling', label: 'Go to previous sibling', group: 'Navigate', keys: [] },
+  { id: 'goto-next-sibling', label: 'Go to next sibling', group: 'Navigate', keys: [] },
+  { id: 'goto-item-start', label: 'Go to start of item text', group: 'Navigate', keys: [] },
+  { id: 'goto-item-end', label: 'Go to end of item text', group: 'Navigate', keys: [] },
   { id: 'goto-first', label: 'Go to first item', group: 'Navigate', keys: ['Mod+Home'] },
   { id: 'goto-last', label: 'Go to last item', group: 'Navigate', keys: ['Mod+End'] },
   { id: 'back', label: 'Back', group: 'Navigate', keys: ['Alt+Left'] },
@@ -153,6 +168,7 @@ export class Keymap {
 export function prettyCombo(combo: string): string {
   return combo
     .split('+')
-    .map((p) => (p === 'Mod' ? (IS_MAC ? '⌘' : 'Ctrl') : p === 'Ctrl' ? '⌃' : p === 'Alt' ? (IS_MAC ? '⌥' : 'Alt') : p === 'Shift' ? (IS_MAC ? '⇧' : 'Shift') : p))
+    .map((p) => (p === 'Mod' ? (IS_MAC ? '⌘' : 'Ctrl') : p === 'Ctrl' ? '⌃' : p === 'Alt' ? (IS_MAC ? '⌥' : 'Alt') : p === 'Shift' ? (IS_MAC ? '⇧' : 'Shift')
+      : p === 'Enter' ? '↵' : p === 'Backspace' ? '⌫' : p))
     .join(IS_MAC ? '' : '+');
 }

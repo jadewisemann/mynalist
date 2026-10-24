@@ -11,7 +11,7 @@ const outline = () => page.evaluate(() => {
   const walk = (el, d) => [...el.children].map((n) => '  '.repeat(d) + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
   return walk(document.querySelector('.o-items'), 0);
 });
-await page.click('.pane-head button'); await page.click('text=New document'); await T('Drag'); await K('Enter');
+await page.click('.pane-head button[title^="New"]'); await page.click('text=New document'); await T('Drag'); await K('Enter');
 await page.waitForTimeout(200);
 await page.click('.o-editor', { position: { x: 300, y: 120 } });
 await T('one'); await K('Enter'); await T('two'); await K('Enter'); await T('three'); await K('Escape');

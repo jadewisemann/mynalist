@@ -9,3 +9,6 @@ export * from './inline.ts';
 export * from './search.ts';
 export * from './paste.ts';
 export * from './export.ts';
+export * from './history.ts';
+export * from './refs.ts';
+export * from './calendar.ts';
