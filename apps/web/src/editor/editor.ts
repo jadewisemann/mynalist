@@ -93,6 +93,18 @@ interface Editing {
   el: HTMLElement;
 }
 
+/** Collapse/expand animation of an item's children (visual only, see animateKids). */
+const ANIM_MS = 180;
+/** Subtrees with more rows than this toggle without animation. */
+const ANIM_MAX_ROWS = 200;
+
+interface KidsAnim {
+  a: Animation;
+  /** what is animating: the real children container (expand) or a copy of the old one (collapse) */
+  el: HTMLElement;
+  done(): void;
+}
+
 const PLAINTEXT_ONLY = (() => {
   const d = document.createElement('div');
   try {
@@ -132,6 +144,9 @@ export class Editor {
   prefs: EditorPrefs = { bulletZoom: false, showNotes: 'show', showChecked: true, unindentInPlace: false, spellcheck: false, highlightCurrent: false };
   private backlinks: Map<NodeId, number> | null = null;
   readOnly = false;
+  /** set around user collapse/expand commands: the next patch may animate the toggled children */
+  private animateNext = false;
+  private anims = new Map<NodeId, KidsAnim>();
 
   private host: EditorHost;
 
@@ -155,7 +170,7 @@ export class Editor {
       const r = (e.target as HTMLElement).closest('.o-bullet') && this.rowFromEvent(e);
       if (!r || r.id === this.view.zoom || this.prefs.bulletZoom || !this.tree.get(r.id)?.children.length) return;
       e.preventDefault();
-      this.run((tx) => toggleCollapse(tx, this.view, [r.id], true));
+      this.animated(() => this.run((tx) => toggleCollapse(tx, this.view, [r.id], true)));
     });
     this.el.addEventListener('mouseover', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLElement>('.o-bullet');
@@ -276,6 +291,7 @@ export class Editor {
   /** Full render (reuses existing rows). */
   render() {
     if (!this.session) return;
+    this.endAnims();
     this.mutating++;
     try {
       const t = this.tree;
@@ -303,6 +319,8 @@ export class Editor {
 
   /** Patch rows for touched nodes only. */
   private patch(touched: Set<NodeId>) {
+    const animate = this.animateNext;
+    this.animateNext = false;
     this.mutating++;
     try {
       const t = this.tree;
@@ -329,6 +347,19 @@ export class Editor {
           removed = true;
         }
       }
+      // a running animation never outlives a re-render of its children; `reached` is how far it got
+      const reached = new Map<NodeId, number>();
+      for (const p of parents) {
+        const h = this.endAnim(p);
+        if (h !== null) reached.set(p, h);
+      }
+      // animate only when exactly one rendered item flips (collapse-all / expand-to-level just snap)
+      const flips = [...parents].map((p) => this.rows.get(p)).filter((r): r is Row => !!r && r !== this.title && r.el.classList.contains('o-collapsed') !== this.isShut(r.id));
+      const flip = animate && flips.length === 1 && this.motionOk() ? flips[0]! : null;
+      const closing = !!flip && this.isShut(flip.id);
+      // collapsing: copy the children before they are removed, so the copy can shrink in their place
+      const ghost = closing && fewRows(flip!.kids) ? ghostOf(flip!.kids) : null;
+      const from = flip ? (reached.get(flip.id) ?? (ghost ? flip.kids.offsetHeight : 0)) : 0;
       for (const p of parents) {
         const r = this.rows.get(p);
         if (!r) continue;
@@ -336,6 +367,7 @@ export class Editor {
         this.updateRow(r, this.numberOf(p));
         removed = true;
       }
+      if (flip && (ghost || (!closing && fewRows(flip.kids)))) this.animateKids(flip, ghost, from);
       if (removed) for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
       if (touched.has(this.view.zoom) || (this.view.zoom !== ROOT && [...touched].some((id) => t.ancestors(this.view.zoom).includes(id)))) {
         this.renderCrumbs();
@@ -390,9 +422,7 @@ export class Editor {
     const cls = r.el.classList;
     cls.toggle('o-checked', !!p.ck);
     cls.toggle('o-has-kids', kids);
-    // while searching, collapse is ignored; a parent whose children are all filtered out looks collapsed (as in Dynalist)
-    const shut = this.view.filter ? kids && visibleChildren(t, r.id, this.view).length === 0 : kids && n.collapsed;
-    cls.toggle('o-collapsed', shut && !isTitle);
+    cls.toggle('o-collapsed', this.isShut(r.id) && !isTitle);
     cls.toggle('o-numbered', num > 0);
     for (const h of [1, 2, 3]) cls.toggle(`o-h${h}`, p.h === h);
     for (const c of [1, 2, 3, 4, 5, 6]) r.content.classList.toggle(`o-cl${c}`, p.cl === c);
@@ -409,6 +439,74 @@ export class Editor {
     this.syncField(r, 'c', c);
     this.syncField(r, 'n', nt);
     r.note.hidden = !nt && !(this.editing?.id === r.id && this.editing.f === 'n');
+  }
+
+  /** Does the item render collapsed? */
+  private isShut(id: NodeId): boolean {
+    const n = this.tree.get(id);
+    if (!n?.children.length) return false;
+    // while searching, collapse is ignored; a parent whose children are all filtered out looks collapsed (as in Dynalist)
+    return this.view.filter ? visibleChildren(this.tree, id, this.view).length === 0 : n.collapsed;
+  }
+
+  // ---- collapse/expand animation -------------------------------------------------
+  //
+  // State first: the tree, the rows and the classes change at once, exactly as without animation; only the
+  // height of the children block is animated afterwards (Web Animations, so no inline styles are left behind).
+  // Collapsing shrinks an inert copy of the old children placed where they were; expanding grows the real
+  // container. Any key ends running animations first, so caret moves that hit-test the layout
+  // (Up/Down keep the x position) always see the final layout.
+
+  /** Run a user collapse/expand command; the toggle it makes may animate. */
+  private animated<T>(fn: () => T): T {
+    this.animateNext = true;
+    try {
+      return fn();
+    } finally {
+      this.animateNext = false;
+    }
+  }
+
+  private motionOk(): boolean {
+    return !this.view.filter && typeof Element.prototype.animate === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  /** Animate `r`'s children block from height `from` to its final height (0 when collapsing). */
+  private animateKids(r: Row, ghost: HTMLElement | null, from: number) {
+    const el = ghost ?? r.kids;
+    if (ghost) r.kids.after(ghost);
+    const to = ghost ? 0 : r.kids.offsetHeight;
+    if (Math.abs(to - from) < 1) {
+      ghost?.remove();
+      return;
+    }
+    el.classList.add('o-kids-anim');
+    const a = el.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: ANIM_MS, easing: 'ease-out' });
+    const x: KidsAnim = {
+      a,
+      el,
+      done: () => {
+        if (this.anims.get(r.id) === x) this.anims.delete(r.id);
+        if (ghost) ghost.remove();
+        else el.classList.remove('o-kids-anim');
+      },
+    };
+    a.onfinish = x.done;
+    this.anims.set(r.id, x);
+  }
+
+  /** Jump a running animation to its end; returns the height it had reached (null: none running). */
+  private endAnim(id: NodeId): number | null {
+    const x = this.anims.get(id);
+    if (!x) return null;
+    const h = x.el.getBoundingClientRect().height;
+    x.a.cancel();
+    x.done();
+    return h;
+  }
+
+  private endAnims() {
+    for (const id of [...this.anims.keys()]) this.endAnim(id);
   }
 
   private syncField(r: Row, f: 'c' | 'n', value: string) {
@@ -742,16 +840,16 @@ export class Editor {
       case 'unindent':
         return has && this.run((tx) => outdent(tx, v, notTitle, sel, this.prefs.unindentInPlace));
       case 'collapse':
-        return notTitle.length > 0 && this.run((tx) => toggleCollapse(tx, v, notTitle, false));
+        return notTitle.length > 0 && this.animated(() => this.run((tx) => toggleCollapse(tx, v, notTitle, false)));
       case 'collapse-all':
-        return has && this.run((tx) => toggleCollapse(tx, v, ids, true));
+        return has && this.animated(() => this.run((tx) => toggleCollapse(tx, v, ids, true)));
       case 'toggle-siblings':
-        return has && this.run((tx) => toggleSiblings(tx, ids[0]!));
+        return has && this.animated(() => this.run((tx) => toggleSiblings(tx, ids[0]!)));
       case 'expand-1':
       case 'expand-2':
       case 'expand-3':
       case 'expand-4':
-        return has && this.run((tx) => expandToLevel(tx, ids, Number(id.slice(-1))));
+        return has && this.animated(() => this.run((tx) => expandToLevel(tx, ids, Number(id.slice(-1)))));
       case 'zoom-in': {
         const target = ids[0];
         if (!target) return false;
@@ -986,6 +1084,7 @@ export class Editor {
 
   private onKeyDown(e: KeyboardEvent) {
     if (e.isComposing || e.keyCode === 229) return;
+    this.endAnims();
     if (this.interceptor?.onKey(e)) {
       e.preventDefault();
       e.stopPropagation();
@@ -1353,9 +1452,9 @@ export class Editor {
         // expanding/collapsing is still allowed in a locked document (view state, not content)
         const tx = new Tx(this.tree);
         tx.collapse(r.id, !this.tree.get(r.id)!.collapsed);
-        this.session.commit(tx, { before: null, after: null }, { undoable: false });
+        this.animated(() => this.session.commit(tx, { before: null, after: null }, { undoable: false }));
       } else {
-        this.run((tx) => toggleCollapse(tx, this.view, [r.id], false));
+        this.animated(() => this.run((tx) => toggleCollapse(tx, this.view, [r.id], false)));
       }
       return;
     }
@@ -1525,6 +1624,26 @@ function parentIfNotZoom(t: DocSession['live'], id: NodeId, v: View): NodeId | n
 
 function kidsKey(children: NodeId[], collapsed: boolean, num: unknown): string {
   return `${collapsed ? 1 : 0}${num ? 1 : 0}${children.join(',')}`;
+}
+
+function fewRows(kids: HTMLElement): boolean {
+  return kids.getElementsByClassName('o-node').length <= ANIM_MAX_ROWS;
+}
+
+/** An inert, unaddressable copy of a children block, for the collapse animation. */
+function ghostOf(kids: HTMLElement): HTMLElement {
+  const g = kids.cloneNode(true) as HTMLElement;
+  g.classList.add('o-kids-ghost');
+  g.inert = true;
+  g.setAttribute('aria-hidden', 'true');
+  // not an item: queries for rows, ids and editable fields must not find the copy
+  for (const el of g.querySelectorAll<HTMLElement>('[data-id], [id], [contenteditable], .o-node')) {
+    el.removeAttribute('data-id');
+    el.removeAttribute('id');
+    el.removeAttribute('contenteditable');
+    if (el.classList.contains('o-node')) el.classList.replace('o-node', 'o-gnode');
+  }
+  return g;
 }
 
 function div(cls: string): HTMLDivElement {

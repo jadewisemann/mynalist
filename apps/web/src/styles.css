@@ -159,6 +159,10 @@ button { font: inherit; color: inherit; }
 .o-node { margin-left: -50px; padding-left: 50px; }
 .o-kids { margin-left: 9px; padding-left: 20px; border-left: 1px solid var(--guide); }
 .o-node.o-collapsed > .o-kids { display: none; }
+/* collapse/expand animation (editor.ts animateKids): the block's height is animated, its content clipped
+   vertically only (bullets and numbers hang into the left padding); the collapsing copy is inert */
+.o-kids.o-kids-anim { overflow-x: visible; overflow-y: clip; }
+.o-node.o-collapsed > .o-kids.o-kids-ghost { display: block; pointer-events: none; }
 
 .o-row { display: flex; align-items: flex-start; position: relative; padding: var(--pad) 0; border-radius: 3px; }
 .o-bullet {
@@ -448,10 +452,10 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .o-editor[dir='rtl'] .o-bullet { margin-left: 0; margin-right: -18px; }
 .o-editor[dir='rtl'] .o-body { padding-left: 0; padding-right: 6px; }
 /* article layout: bullets on hover only, no guides, paragraph spacing */
-.o-article .o-node > .o-row > .o-bullet { opacity: 0; transition: opacity .1s; }
+.o-article :is(.o-node, .o-gnode) > .o-row > .o-bullet { opacity: 0; transition: opacity .1s; }
 .o-article .o-node > .o-row:hover > .o-bullet, .o-article .o-collapsed > .o-row > .o-bullet { opacity: 1; }
 .o-article .o-kids { border-left-color: transparent; }
-.o-article .o-node > .o-row { padding-top: calc(var(--pad) + 5px); padding-bottom: calc(var(--pad) + 5px); }
+.o-article :is(.o-node, .o-gnode) > .o-row { padding-top: calc(var(--pad) + 5px); padding-bottom: calc(var(--pad) + 5px); }
 /* a search shows matching notes even when notes are hidden */
 .o-searching[data-notes] .o-note:has(.o-match) { display: block !important; white-space: pre-wrap !important; }
 .drop-target { outline: 2px dashed var(--accent); outline-offset: -2px; }
