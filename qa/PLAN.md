@@ -16,6 +16,7 @@ node qa/run.mjs <editing|fuzz|render> [--replay|--record] [--only=undo/,nav/] [-
 FUZZ_N=200 FUZZ_FROM=1001 node qa/run.mjs fuzz     # explore new seeds (the recording covers 1–400 × 10)
 node qa/layout.mjs [--replay|--record] [--mobile]   # --mobile: 390×844 phone, Dynalist's mobile layout
 node qa/menus.mjs [--replay|--record]            # item context menu: groups, labels, shortcut hints
+node qa/mobile.mjs [--replay|--record] [--verbose]  # phone: header, bottom toolbar, touch interactions
 node qa/show.mjs <suite> [id-substring]           # side-by-side diffs in the terminal, with trace context
 ```
 
@@ -60,6 +61,7 @@ the same five functions as the two in `qa/lib/apps.mjs`.
 | `layout` | one rich fixture: computed font size/weight/line height/colour, row pitch, indent, bullet/checkbox geometry, inline element styles | 129 metrics with tolerances |
 | `layout --mobile` | the same fixture on a phone viewport (touch, mobile user agent) | 129 metrics with tolerances |
 | `menus` | the item context menu in six item states (parent, nested child, leaf, checked, with checkbox, collapsed) | groups, labels in order, shortcut hints; our own extra entries (Share…, Duplicate, …) are listed in `qa/menus.mjs` and ignored |
+| `mobile` | phone viewport (390×844, touch, Android Chrome UA): the header buttons (menu, undo, redo when available, select multiple, search, read-mode lock, more) with disabled/active states; when the bottom editing toolbar shows (item or title text yes; note, idle, read mode no; block selection yes, without the single-item buttons), its buttons in order, and its geometry (bottom edge on the layout viewport, also with the viewport shrunk as by a virtual keyboard; 42px high, 40px buttons, 20px icons, scrolls sideways, the document ends at its top); touch interactions: tap to edit (caret at the end), tap a bullet (zoom), toolbar indent/unindent/zoom/delete/check/note/move/checkbox, header undo/redo, select multiple + toolbar indent, read mode, colour and heading pickers | lists, normalized states, metrics with the layout tolerances. Dynalist's toolbar classes and header options are mapped to our command ids (`data-cmd`) and header ids (`data-hb`) in `qa/mobile.mjs`. Our extras (`OURS_EXTRA`: the toolbar's Customize button, Pro-only in Dynalist) are ignored; intentional differences (`OURS_DIFFERENT`: Undo disabled in read mode) must show exactly the documented value |
 | `apps/web/e2e/*` | our own end-to-end checks (keys, popups, drag & drop, mobile toolbar, two-client sync) | expectations; sync has no Dynalist counterpart in the demo |
 | `packages/core/test/parity.test.ts` | the behaviour rules found here, pinned at the core level | unit tests |
 

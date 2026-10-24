@@ -103,6 +103,13 @@ describe('structure', () => {
     expect(t.get('a')!.props.ck).toBe(true);
     expect(r.sel).toMatchObject({ id: 'b' });
   });
+  it('check with stay (mobile toolbar) keeps the caret on the item', () => {
+    const t = build('a\nb');
+    const sel = { k: 'text', id: 'a', f: 'c', s: 1, e: 1 } as const;
+    const r = toggleChecked(new Tx(t), v, ['a'], sel, { stay: true })!;
+    expect(t.get('a')!.props.ck).toBe(true);
+    expect(r.sel).toEqual(sel);
+  });
 });
 
 describe('toggleChecked with recurring dates', () => {

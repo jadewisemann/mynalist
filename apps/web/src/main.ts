@@ -23,7 +23,7 @@ import { searchReplaceDialog } from './ui/replace.ts';
 import { backupZip, downloadBlob } from './ui/backup.ts';
 import { settingsDialog } from './ui/settings.ts';
 import { HelpPanel } from './ui/help.ts';
-import { MobileBar } from './ui/mobilebar.ts';
+import { MobileBar, pickSheet } from './ui/mobilebar.ts';
 import { HoverBar } from './ui/hoverbar.ts';
 import { MindMap } from './ui/mindmap.ts';
 import { tutorial, whatsNew } from './ui/tour.ts';
@@ -76,7 +76,9 @@ class App {
   private searchBox = h('div.search-box', { hidden: true }, icon('search'), this.searchInput,
     h('button.icon-btn', { title: 'Bookmark this search', onclick: () => this.bookmarkCurrent() }, icon('star')),
     h('button.icon-btn', { title: 'Close search', onclick: () => this.closeSearch() }, icon('close')));
-  private syncLabel = h('span.sync-status', { onclick: () => this.syncDialog() });
+  private syncLabel = h('span.sync-status.desktop-only', { onclick: () => this.syncDialog() });
+  /** phone header buttons whose state follows the editor (undo/redo availability, select mode, lock) */
+  private phoneButtons: Record<'undo' | 'redo' | 'select' | 'lock', HTMLButtonElement> | null = null;
   private docTimer = 0;
   private unsubDoc: (() => void) | null = null;
 
@@ -160,8 +162,9 @@ class App {
       update: (q, sort) => this.go({ ...this.route, q, sort }, false),
     });
     this.help = new HelpPanel(() => this.editor.keymap);
-    this.mobile = new MobileBar(this.ws, (cmd) => this.editor.exec(cmd));
+    this.mobile = new MobileBar(this.ws, (cmd) => this.mobileCommand(cmd));
     this.hoverBar = new HoverBar(this.editor, this.ws);
+    this.editor.onState(() => this.paintEditState());
     this.ws.onChange(() => {
       this.applyPrefs();
       if (this.route.doc && !this.ws.get(this.route.doc)) this.go({ doc: null, zoom: ROOT, q: '' }, false);
@@ -195,17 +198,31 @@ class App {
   // ---- shell ---------------------------------------------------------------------
 
   private buildShell() {
-    const btn = (name: string, title: string, run: (e: MouseEvent) => void) =>
-      h('button.icon-btn', { title, onclick: run }, icon(name));
+    // data-hb: header button ids (qa/mobile.mjs); phone-only / desktop-only: see the mobile media query.
+    // On phones the header follows Dynalist's mobile one: menu … undo, (redo), select multiple, search, lock, more.
+    const btn = (name: string, title: string, run: (e: MouseEvent) => void, hb?: string, cls = '') =>
+      h(`button.icon-btn${cls}`, { title, 'data-hb': hb, onclick: run }, icon(name));
+    // these act on the edited item: keep its focus (and the phone keyboard)
+    const keep = (b: HTMLButtonElement) => (b.addEventListener('pointerdown', (e) => e.preventDefault()), b);
+    this.phoneButtons = {
+      undo: keep(btn('undo', 'Undo', () => this.editor.exec('undo'), 'undo', '.phone-only')),
+      redo: keep(btn('redo', 'Redo', () => this.editor.exec('redo'), 'redo', '.phone-only')),
+      select: btn('select', 'Select multiple items', () => this.editor.setSelectMode(!this.editor.selectMode), 'select', '.phone-only'),
+      lock: btn('lock', 'Read mode (lock document)', () => this.toggleLock(), 'lock', '.phone-only'),
+    };
     const top = h('header.topbar', {},
-      btn('side', 'Toggle sidebar', () => this.toggleSidebar()),
-      btn('back', 'Back', () => history.back()),
-      btn('fwd', 'Forward', () => history.forward()),
+      btn('side', 'Toggle sidebar', () => this.toggleSidebar(), 'menu'),
+      btn('back', 'Back', () => history.back(), 'back', '.desktop-only'),
+      btn('fwd', 'Forward', () => history.forward(), 'fwd', '.desktop-only'),
       h('span.spacer'),
       this.syncLabel,
-      btn('search', 'Search (Ctrl+F)', () => this.openSearch()),
-      btn('gear', 'Settings', () => this.settingsDialog()),
-      btn('menu', 'Menu', (e) => this.mainMenu(e)),
+      this.phoneButtons.undo,
+      this.phoneButtons.redo,
+      this.phoneButtons.select,
+      btn('search', 'Search (Ctrl+F)', () => this.openSearch(), 'search'),
+      this.phoneButtons.lock,
+      btn('gear', 'Settings', () => this.settingsDialog(), 'settings', '.desktop-only'),
+      btn('menu', 'Menu', (e) => this.mainMenu(e), 'more'),
     );
     const actions = h('div.doc-actions', {},
       btn('star', 'Bookmark this view', () => this.bookmarkCurrent()),
@@ -644,6 +661,47 @@ class App {
     if ((document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) &&
       !['go-anywhere', 'goto-item', 'help', 'inbox-capture'].includes(cmd)) return;
     if (this.editor.exec(cmd)) e.preventDefault();
+  }
+
+  /** A tap on the phone toolbar. Mostly editor commands; a few behave as Dynalist's toolbar does. */
+  private mobileCommand(cmd: string) {
+    const ed = this.editor;
+    switch (cmd) {
+      case 'toggle-checked':
+        ed.exec('toggle-checked-here'); // the caret stays on the item (Ctrl+Enter moves on to the next one)
+        return;
+      case 'zoom-in':
+        ed.exec('zoom-in');
+        ed.applySel({ k: 'none' }); // like tapping a bullet: the zoomed view opens without editing
+        return;
+      case 'color-menu':
+        pickSheet(['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple', 'Clear color'].map((l, i) => [l, () => ed.exec(`color-${(i + 1) % 7}`)]));
+        return;
+      case 'heading-menu':
+        pickSheet(['Heading 1', 'Heading 2', 'Heading 3', 'Clear heading'].map((l, i) => [l, () => ed.exec(`heading-${(i + 1) % 4}`)]));
+        return;
+      default:
+        ed.exec(cmd);
+    }
+  }
+
+  private toggleLock() {
+    const doc = this.route.doc;
+    if (doc) this.ws.setDocPref(doc, 'locked', this.ws.docPref(doc, 'locked', false) ? null : true);
+  }
+
+  /** Toolbar visibility and the phone header's undo/redo/select/lock state. */
+  private paintEditState() {
+    const ed = this.editor;
+    const s = ed.editState();
+    this.mobile.update({ f: s.f, block: s.block, readOnly: ed.readOnly });
+    const b = this.phoneButtons;
+    if (!b) return;
+    const session = this.route.doc ? ed.docSession : null;
+    b.undo.disabled = !session?.canUndo() || ed.readOnly;
+    b.redo.hidden = !session?.canRedo() || ed.readOnly;
+    b.select.setAttribute('aria-pressed', String(ed.selectMode));
+    b.lock.setAttribute('aria-pressed', String(ed.readOnly));
   }
 
   appCommand(id: string): boolean {

@@ -149,6 +149,10 @@ export class Editor {
   /** set around user collapse/expand commands: the next patch may animate the toggled children */
   private animateNext = false;
   private anims = new Map<NodeId, KidsAnim>();
+  /** touch "select multiple" mode: tapping an item adds it to / removes it from the block selection */
+  selectMode = false;
+  private stateListeners = new Set<() => void>();
+  private stateQueued = false;
 
   private host: EditorHost;
 
@@ -216,6 +220,7 @@ export class Editor {
       if (kind === 'remote' || !touched) this.render();
       else this.patch(touched);
       if (kind === 'remote') this.revalidateSel();
+      this.emitState();
     });
     this.block = null;
     this.editing = null;
@@ -629,6 +634,7 @@ export class Editor {
   private paintBlock() {
     for (const el of this.painted) el.classList.remove('o-selected');
     this.painted = [];
+    this.emitState();
     if (!this.block) return;
     for (const id of this.block.ids) {
       const el = this.rows.get(id)?.el;
@@ -662,12 +668,14 @@ export class Editor {
     setSel(el, Math.min(s, len), Math.min(e, len));
     this.lastSel = { k: 'text', id, f, s, e };
     scrollCaretIntoView(el);
+    this.emitState();
   }
 
   stopEdit() {
     const ed = this.editing;
     if (!ed) return;
     this.editing = null;
+    this.emitState();
     this.titleBlock = false;
     ed.el.removeAttribute('contenteditable');
     ed.el.classList.remove('o-editing');
@@ -894,6 +902,8 @@ export class Editor {
         return this.gotoNote();
       case 'toggle-checked':
         return notTitle.length > 0 && this.run((tx) => toggleChecked(tx, v, notTitle, sel, this.checkOptions));
+      case 'toggle-checked-here': // the mobile toolbar's check: the caret stays on the item
+        return notTitle.length > 0 && this.run((tx) => toggleChecked(tx, v, notTitle, sel, { ...this.checkOptions, stay: true }));
       case 'uncheck-children':
         return has && this.run((tx) => uncheckDescendants(tx, ids, sel));
       case 'toggle-checkbox':
@@ -1322,6 +1332,45 @@ export class Editor {
     if (v) this.stopEdit();
     this.readOnly = v;
     this.el.classList.toggle('o-readonly', v);
+    this.emitState();
+  }
+
+  /** Called (batched, after the current task) whenever editing, the block selection, the doc or undo history changed. */
+  onState(fn: () => void): () => void {
+    this.stateListeners.add(fn);
+    return () => this.stateListeners.delete(fn);
+  }
+
+  private emitState() {
+    if (this.stateQueued) return;
+    this.stateQueued = true;
+    queueMicrotask(() => {
+      this.stateQueued = false;
+      for (const fn of this.stateListeners) fn();
+    });
+  }
+
+  /** The field being edited (item text or title 'c', note 'n', or null) and the number of block-selected items. */
+  editState(): { f: 'c' | 'n' | null; block: number } {
+    return { f: this.editing?.f ?? null, block: this.block?.ids.length ?? 0 };
+  }
+
+  /** Touch "select multiple" mode (mobile header): taps select items instead of editing them. */
+  setSelectMode(on: boolean) {
+    if (on === this.selectMode) return;
+    this.selectMode = on;
+    this.el.classList.toggle('o-select-mode', on);
+    this.applySel({ k: 'none' });
+    this.emitState();
+  }
+
+  /** Add an item to the block selection, or take it out (Ctrl+click, taps in select mode). */
+  private toggleInBlock(id: NodeId) {
+    if (id === this.view.zoom) return;
+    const cur = this.block?.ids ?? (this.editing && this.editing.id !== this.view.zoom ? [this.editing.id] : []);
+    const ids = cur.includes(id) ? cur.filter((x) => x !== id) : normalizeBlock(this.tree, [...cur, id]);
+    if (ids.length) this.applySel({ k: 'block', ids, anchor: ids[0]!, focus: ids[ids.length - 1]! });
+    else this.applySel({ k: 'none' });
   }
 
   private onBeforeInput(e: InputEvent) {
@@ -1370,6 +1419,11 @@ export class Editor {
       }
       return;
     }
+    if (this.selectMode && !target.closest('.o-crumb')) {
+      e.preventDefault();
+      this.toggleInBlock(r.id);
+      return;
+    }
     if (target.closest('.o-bullet, .o-check, .o-menu-btn, .o-zoom-btn, .o-backlinks, a[href], [data-atomic], .o-crumb')) return;
     const fieldEl = target.closest<HTMLElement>('.o-content, .o-note');
     const f: 'c' | 'n' = fieldEl?.classList.contains('o-note') ? 'n' : 'c';
@@ -1385,10 +1439,7 @@ export class Editor {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       if (r.id === this.view.zoom) return;
-      const cur = this.block?.ids ?? (this.editing ? [this.editing.id] : []);
-      const ids = cur.includes(r.id) ? cur.filter((x) => x !== r.id) : normalizeBlock(this.tree, [...cur, r.id]);
-      if (ids.length) this.applySel({ k: 'block', ids, anchor: ids[0]!, focus: ids[ids.length - 1]! });
-      else this.applySel({ k: 'none' });
+      this.toggleInBlock(r.id);
       return;
     }
     if (this.editing && fieldEl === this.editing.el) {
@@ -1433,6 +1484,10 @@ export class Editor {
       return;
     }
     if (!r) return;
+    if (this.selectMode) {
+      e.preventDefault(); // the tap was handled on mousedown: no zooming, checking or link opening
+      return;
+    }
     if (target.closest('.o-zoom-btn')) {
       e.preventDefault();
       this.setZoom(r.id);

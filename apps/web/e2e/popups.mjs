@@ -230,7 +230,7 @@ const dates = (page) => page.$$eval('.o-items .o-date', (els) => els.map((e) => 
   // ---- add-date command on an item without a date (via mobile bar handler path)
   await page.click('.o-content >> text=gamma');
   await K('End');
-  await page.evaluate(() => [...document.querySelectorAll('.mobile-bar button')].find((b) => b.textContent === '◷')?.click());
+  await page.evaluate(() => document.querySelector('.mobile-bar button[data-cmd="add-date"]')?.click());
   const viaCmd = await visible(page, '.dp');
   check('add-date opens picker', viaCmd);
   if (viaCmd) {
@@ -265,7 +265,7 @@ const dates = (page) => page.$$eval('.o-items .o-date', (els) => els.map((e) => 
   await K('Escape');
   // push the item toward the bottom so the picker has to flip above
   for (let i = 0; i < 12; i++) { await K('Enter'); await T(`line ${i}`); }
-  await page.click('.mobile-bar button:has-text("◷")');
+  await page.click('.mobile-bar button[data-cmd="add-date"]');
   check('mobile: add-date button opens picker', await visible(page, '.dp'));
   check('mobile: picker in viewport', (await inViewport(page, '.dp')) === true, await inViewport(page, '.dp'));
   const above = await page.evaluate(() => {

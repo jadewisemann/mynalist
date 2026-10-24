@@ -223,6 +223,7 @@ button { font: inherit; color: inherit; }
 .o-hl-current .o-current > .o-row { background: color-mix(in srgb, var(--line) 45%, transparent); }
 .o-selected > .o-row, .o-selected > .o-kids { background: var(--sel); }
 .o-selected > .o-kids { border-left-color: transparent; }
+.o-select-mode .o-row { user-select: none; -webkit-user-select: none; }
 .o-editor ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
 
 /* inline syntax (classes from core renderInline) */
@@ -279,17 +280,38 @@ button { font: inherit; color: inherit; }
 
 /* ---- mobile ---- */
 .mobile-bar { display: none; }
+.topbar .phone-only { display: none; }
+.topbar .icon-btn[aria-pressed='true'] { color: var(--accent); }
+.topbar .icon-btn:disabled { opacity: .45; cursor: default; background: none; }
+.sheet-bg { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.3); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 15px 15px calc(15px + env(safe-area-inset-bottom)); }
+.sheet { width: min(360px, 100%); display: flex; flex-direction: column; gap: 12px; }
+.sheet-opts { display: flex; flex-direction: column; background: var(--bg); border-radius: 10px; overflow: hidden; }
+.sheet button { height: 44px; border: 0; background: var(--bg); color: var(--fg); font: inherit; font-size: 16px; cursor: pointer; }
+.sheet-opts button + button { border-top: 1px solid var(--line); }
+.sheet > button { border-radius: 10px; font-weight: 700; }
 @media (max-width: 760px) {
+  /* header as Dynalist's on phones: 46px, edge-to-edge touch targets, 20px icons */
+  .topbar { height: 46px; padding-left: 0; padding-right: 0; gap: 0; }
+  .topbar .desktop-only { display: none; }
+  .topbar .phone-only { display: inline-flex; }
+  .topbar .icon-btn { height: 46px; min-width: 44px; padding: 0 12px; border-radius: 0; }
+  .topbar .icon-btn svg { width: 20px; height: 20px; }
   .sidebar { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: 82vw; max-width: 320px; transform: translateX(-100%); transition: transform .2s; padding-top: env(safe-area-inset-top); }
   .app.side-open .sidebar { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3); }
   .app.side-open .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 39; }
   .splitter { display: none; }
   .doc-wrap { padding: 12px 14px 40vh 30px; }
+  /* bottom toolbar (Dynalist's metrics): 42px incl. the top border, 40px-wide buttons, 20px icons, scrolls sideways */
   .mobile-bar {
-    display: flex; flex: none; overflow-x: auto; gap: 2px; padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line); background: var(--side-bg);
+    display: flex; flex: none; overflow-x: auto; scrollbar-width: none; height: 41px; box-sizing: content-box;
+    padding: 0 0 env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: var(--bg);
+    box-shadow: 0 -1px 2px rgba(0,0,0,.06);
   }
-  .mobile-bar button { flex: none; border: 0; background: none; height: 40px; min-width: 42px; border-radius: 8px; color: var(--fg); font-size: 15px; }
+  .mobile-bar button {
+    flex: none; box-sizing: border-box; width: 40px; height: 41px; padding: 0; border: 0; background: none; color: var(--muted);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 15px;
+  }
+  .mobile-bar button svg { width: 20px; height: 20px; }
   .mobile-bar button:active { background: var(--hover); }
   .search-box { width: 100%; }
 }

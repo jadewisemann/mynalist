@@ -315,6 +315,8 @@ Visibility rules:
 **Node toolbar** (hover toolbar on desktop, bottom toolbar on mobile; customizable on mobile):
 - Unindent, Indent, Zoom in, Delete, Check off, Edit note, Add date, Upload a file, Toggle checkbox, Set color label, Set heading level, Duplicate, Export item, Insert new line, Customize toolbar.
 - Mobile extras: Move item up/down, Insert hash tag, Insert at tag, Make date range.
+- On phones the toolbar sits at the bottom (above the virtual keyboard) and shows only while an item's text or the title is edited, or items are selected. Default order: Unindent, Indent, Zoom in, Delete, Check off, Edit note, Add date, Move up, Move down, Move item to…, Toggle checkbox, Color label (picker), Heading (picker), Get link, then Customize. With several items selected the single-item buttons are hidden. Check off keeps the caret on the item; Zoom in ends editing.
+- Phone header: sidebar menu, then Undo (disabled when there is nothing to undo), Redo (only when available), Select multiple (taps select items), Search, Read mode lock, More.
 
 ---
 
