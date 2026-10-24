@@ -135,7 +135,7 @@ export async function runScenario(appName, sc, { shot } = {}) {
       if (sc.trace) out.trace.push(await app.state(page));
     }
     await sleep(150);
-    out.post = await app.state(page);
+    out.post = await app.state(page, { marks: sc.marks });
     if (sc.render) {
       await page.evaluate(() => document.activeElement?.blur()); // every item shows its rendered form
       await sleep(250);

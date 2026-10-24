@@ -1,6 +1,7 @@
 // App adapters: the same abstract operations against Dynalist (live demo, black-box) and our build.
 // Each adapter: fresh(page) → empty doc with an empty first item focused; item(page, i) → locator of
-// the i-th visible item's text (-1 = title); state(page) → normalized state (see state.mjs).
+// the i-th visible item's text (-1 = title); state(page, { marks }) → normalized state (see state.mjs), with
+// `marks` (search highlighting) only when asked for.
 
 import { existsSync } from 'node:fs';
 
@@ -11,7 +12,7 @@ export const OURS_URL = process.env.OURS_URL ?? 'http://localhost:5174/';
 export const DYN_URL = 'https://dynalist.io/demo';
 
 /** Normalized state extraction for Dynalist, from its DOM (raw item text lives in `.Node-content`). */
-function dynState() {
+function dynState(markRows) {
   const root = document.querySelector('.Node.is-currentRoot');
   const items = [];
   const els = [];
@@ -63,7 +64,39 @@ function dynState() {
     title = ''; // Dynalist's empty-title placeholder (its text is in the DOM, so a caret in it reads offset 8)
     if (focus?.i === -1) focus = { ...focus, s: 0, e: 0 };
   }
-  return { zoom: zoomed ? title : null, title, items, focus, selected };
+  const st = { zoom: zoomed ? title : null, title, items, focus, selected };
+  if (markRows) {
+    const row = (n) => n.firstElementChild;
+    st.marks = markRows([root, ...els].map((n) => [row(n).querySelector('.Node-renderedContent'), row(n).querySelector('.Node-renderedNote')]), '.search-match');
+  }
+  return st;
+}
+
+/**
+ * Search highlighting: for the title and then every visible item, [content, note] as rendered text with ⟦…⟧
+ * around every element matching `sel`, or '' for a field without any highlight. Shared by both adapters
+ * (passed as source).
+ */
+function markRows(rows, sel) {
+  return rows.map((fields) =>
+    fields.map((el) => {
+      if (!el || !el.querySelector(sel)) return '';
+      let s = '';
+      const walk = (node, inside) => {
+        for (const c of node.childNodes) {
+          if (c.nodeType === 3) s += c.nodeValue;
+          else if (c.nodeType === 1) {
+            const m = !inside && c.matches(sel);
+            if (m) s += '⟦';
+            walk(c, inside || m);
+            if (m) s += '⟧';
+          }
+        }
+      };
+      walk(el, false);
+      return s.replace(/\n$/, '');
+    }),
+  );
 }
 
 
@@ -131,7 +164,7 @@ export const dynalist = {
     if (i < 0) return page.locator('.Node.is-currentRoot > .Node-self .Node-contentContainer').first();
     return page.locator('.Node.is-currentRoot .Node:not(.is-currentRoot)').filter({ visible: true }).nth(i).locator(':scope > .Node-self .Node-contentContainer');
   },
-  state: (page) => page.evaluate(dynState),
+  state: (page, o = {}) => page.evaluate(`(${dynState})(${o.marks ? markRows : null})`),
   render: (page) =>
     page.evaluate(`(${renderRuns})(
       [...document.querySelectorAll('.Node.is-currentRoot .Node-children .Node-renderedContent')],
@@ -205,8 +238,16 @@ export const ours = {
         if (el.tagName === 'CODE' && el.parentElement.classList.contains('o-codeblock')) return null;
         return { flag: '?' + (el.className || el.tagName.toLowerCase()) };
       })`),
-  async state(page) {
+  async state(page, o = {}) {
     const s = await page.evaluate(() => window.__qa());
+    if (o.marks) {
+      s.marks = await page.evaluate(
+        `(${markRows})([null, ...${JSON.stringify(s.items.map((it) => it.id))}].map((id) => {
+          const n = document.querySelector(id ? '.o-items .o-node[data-id="' + id + '"] > .o-row' : '.o-title > .o-row');
+          return [n?.querySelector('.o-content'), n?.querySelector('.o-note')];
+        }), 'mark.o-match')`,
+      );
+    }
     for (const it of s.items) delete it.id;
     return s;
   },

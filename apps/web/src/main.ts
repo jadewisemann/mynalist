@@ -482,16 +482,15 @@ class App {
     const q = this.searchInput.value.trim();
     if (!this.route.doc) return;
     if (!q) {
-      setRenderOptions({ ...this.renderOpts() });
       this.editor.el.classList.remove('o-searching');
       this.editor.setFilter(null);
       this.editor.refreshText();
     } else {
-      const m = compileQuery(q, Date.now(), { typing });
+      // untrimmed: a trailing space ends the last term, which is then no longer a prefix match
+      const m = compileQuery(this.searchInput.value, Date.now(), { typing });
       const res = searchTree(this.editor.tree, m, this.editor.view.zoom, { showChecked: this.editor.view.showChecked });
-      setRenderOptions({ ...this.renderOpts(), highlight: m.terms });
       this.editor.el.classList.add('o-searching');
-      this.editor.setFilter(res.visible);
+      this.editor.setFilter(res.visible, { terms: m.terms, ids: new Set(res.matches) });
       this.editor.refreshText();
     }
     if (!typing && q !== this.route.q) this.go({ ...this.route, q }, false, false);
@@ -1178,7 +1177,7 @@ class App {
     root.classList.toggle('doc-border', p('doc_border', false));
     this.customCss.textContent = p('custom_css', '');
     this.docArea.classList.toggle('wide', !p('center_doc', true));
-    setRenderOptions({ ...this.renderOpts(), highlight: undefined });
+    setRenderOptions(this.renderOpts());
     this.editor.keymap = new Keymap({ overrides: p('shortcut_override', {}), workflowy: p('workflowy_shortcuts', false) });
     this.editor.applyPrefs({
       bulletZoom: p('use_bullet_to_zoom', false),

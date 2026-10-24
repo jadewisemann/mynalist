@@ -1,4 +1,5 @@
-// Normalized editor state: { zoom, items: [{d,c,n,ck,cb,h,num,col}], focus: {i,f,s,e} | null, selected: [i] }
+// Normalized editor state: { zoom, items: [{d,c,n,ck,cb,h,num,col}], focus: {i,f,s,e} | null, selected: [i] },
+// plus render (styled runs per item) or marks (search highlights per item: [content, note]) when a scenario asks.
 // Rendered as an outline text so both apps can be diffed line by line and read by a human.
 
 function mark(text, f, s, e) {
@@ -31,6 +32,11 @@ export function outline(st) {
     lines.push('— rendered —');
     st.render.forEach((runs, i) => lines.push(`${i}: ${runs.map((r) => (r.f ? `<${r.f}${r.x ? ' ' + r.x : ''}>${r.t}</>` : r.t)).join('')}`));
   }
+  if (st.marks) {
+    lines.push('— highlighted —');
+    // marks[0] is the title, then the items
+    st.marks.forEach(([c, n], i) => (c || n) && lines.push(`${i ? i - 1 : 'T'}: ${c}${n ? `  ¶ ${n}` : ''}`.replace(/\n/g, '⏎')));
+  }
   return lines;
 }
 
@@ -58,5 +64,6 @@ export function diffKinds(a, b) {
   if (f(a) !== f(b)) k.add(a.focus && b.focus && a.focus.i === b.focus.i && a.focus.f === b.focus.f ? 'caret' : 'focus');
   if (JSON.stringify(a.selected) !== JSON.stringify(b.selected)) k.add('selection');
   if (a.render && JSON.stringify(a.render) !== JSON.stringify(b.render)) k.add('render');
+  if (a.marks && JSON.stringify(a.marks) !== JSON.stringify(b.marks)) k.add('marks');
   return [...k];
 }

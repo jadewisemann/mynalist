@@ -4,7 +4,8 @@
 import { diffKinds, same, withinCaretTol } from './state.mjs';
 
 // Divergences that are Dynalist quirks rather than editing behaviour (documented in qa/PLAN.md).
-// Each gets the steps, the index of the first divergent step and the (shared) state before it.
+// `test` (traced scenarios) gets the steps, the index of the first divergent step and the (shared) state before
+// it. `marks` (search highlighting) gets both apps' final marks when they are the only difference.
 export const KNOWN = [
   {
     id: 'tab-without-focus',
@@ -26,6 +27,13 @@ export const KNOWN = [
     id: 'demo-reset-in-undo',
     why: 'harness: the demo document is reset by deleting its content, and Dynalist\'s undo can bring it back',
     test: (steps, k, pre, dyn) => steps[k] === 'Control+z' && dyn.items.some((it) => it.c.startsWith('Hi there!')),
+  },
+  {
+    id: 'code-backtick-highlighted',
+    why: 'a search match inside inline code makes Dynalist show the opening backtick of that code span (not the closing one)',
+    marks: (dyn, ours) =>
+      dyn.length === ours.length &&
+      dyn.every((row, i) => row.every((f, j) => f === ours[i][j] || (f.split('`').length > ours[i][j].split('`').length && f.replace(/`/g, '') === ours[i][j].replace(/`/g, '')))),
   },
   {
     id: 'dynalist-exception',
@@ -54,9 +62,13 @@ export function compare(sc, dyn, ours) {
       const d = diffKinds(dyn.trace[k], ours.trace[k]);
       tolerated = /^(Shift\+)?Arrow(Up|Down)$/.test(key) && d.every((x) => x === 'caret') && Math.abs(dyn.trace[k].focus.s - ours.trace[k].focus.s) <= 1;
       const pre = k ? dyn.trace[k - 1] : dyn.pre;
-      known = KNOWN.find((q) => pre && q.test(sc.steps, k, pre, dyn.trace[k], dyn.errors ?? [], dyn.trace));
+      known = KNOWN.find((q) => pre && q.test?.(sc.steps, k, pre, dyn.trace[k], dyn.errors ?? [], dyn.trace));
       if (known) kinds.unshift(`known:${known.id}`);
     }
+  }
+  if (!known && kinds.length && kinds.every((x) => x === 'marks') && ours.post?.marks) {
+    known = KNOWN.find((q) => q.marks?.(dyn.post.marks, ours.post.marks));
+    if (known) kinds.unshift(`known:${known.id}`);
   }
   const preKinds = diffKinds(dyn.pre, ours.pre).filter((k) => k !== 'focus' && k !== 'caret' && k !== 'selection');
   const status = dyn.fatal || ours.fatal ? 'error' : preKinds.length ? 'setup' : tolerated ? 'geometry' : known ? 'known' : kinds.length ? 'diff' : 'match';

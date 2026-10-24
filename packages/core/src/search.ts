@@ -67,7 +67,8 @@ function tokenize(q: string): RawTerm[] {
       neg = true;
       i++;
     }
-    if (q[i] === '"') {
+    // a quote without its closing quote is just a character of the word (as in Dynalist)
+    if (q[i] === '"' && q.indexOf('"', i + 1) >= 0) {
       out.push({ neg, v: readQuoted(), quoted: true });
       continue;
     }

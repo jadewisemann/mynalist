@@ -421,4 +421,62 @@ add('search', 'escape-twice', FS, [at(3, 2), 'Control+f', T('apple'), { wait: 70
 add('search', 'enter-goes-to-first', FS, [at(9), 'Control+f', T('apple'), { wait: 700 }, 'Enter', { wait: 300 }, T('x')]);
 add('search', 'backspace-widens', FS, [at(0), 'Control+f', T('apple c'), { wait: 700 }, 'Backspace', 'Backspace', { wait: 700 }]);
 
+// --- Search highlighting: which substrings of the visible items (content and note) are marked as matches ----
+const FH = [
+  'apple pie and apple tart',
+  '  Pineapple slice',
+  '  **apple** in bold',
+  '  [apple site](https://example.com) link',
+  '  core #apple tag',
+  '  **ap**ple split',
+  'banana bread',
+  '  seed of APPLE',
+  'apple tree',
+  '  pit',
+  '    stone apple',
+  'cherry #fruit #fruity',
+  'plain',
+  '  pic ![apple pic](https://img.example.com/cat.png)',
+].join('\n');
+const HL = { marks: true };
+const hl = (id, q, setup, more = []) => add('highlight', id, FH, [...find(q), ...more], setup, HL);
+hl('word', 'apple');
+hl('upper-case', 'APPLE');
+hl('two-words', 'apple tart');
+hl('phrase', '"apple pie"');
+// a quote that isn't closed (yet) is a literal character
+hl('phrase-unclosed', '"apple pie');
+hl('prefix', 'app');
+hl('mid-word', 'ppl');
+hl('overlap', 'pinea apple');
+hl('adjacent', 'pine apple');
+hl('repeated-term', 'apple apple');
+hl('link-text', 'site');
+hl('link-url', 'example');
+hl('link-text-and-url', 'site example');
+hl('link-markup', '](');
+hl('image-url', 'cat.png');
+hl('tag', '#apple');
+hl('tag-prefix', '#fru');
+hl('tag-text', 'fruit');
+hl('negate', '-apple');
+hl('word-negate', 'apple -pie');
+hl('or', 'pit OR seed');
+hl('or-lower', 'pit or seed');
+hl('note', 'apple', [['note', 6, 'an apple note']]);
+hl('note-only', 'yellow', [['note', 12, 'yellow skin']]);
+hl('context-ancestor', 'stone apple');
+hl('context-plain', 'stone');
+hl('escape-clears', 'apple', undefined, ['Escape', { wait: 300 }]);
+hl('title', 'to');
+// other inline formats, and tag queries against longer tags
+const FH2 = 'code `apple` here\n__apple__ italic\n==apple== marked\n~~apple~~ gone\nwww.apple.com site\n#appletag only\n@apple person\nnothing';
+add('highlight', 'formats', FH2, find('apple'), undefined, HL);
+add('highlight', 'tag-typing-prefix', FH2, find('#apple'), undefined, HL);
+add('highlight', 'tag-whole', FH2, find('#apple '), undefined, HL);
+add('highlight', 'at-tag', FH2, find('@apple'), undefined, HL);
+add('highlight', 'quote-literal', 'say "apple pie\napple pie\nother', find('"apple pie'), undefined, HL);
+add('highlight', 'quote-literal-word', 'say "apple pie\napple pie\nother', find('"apple'), undefined, HL);
+hl('backspace-widens', 'apple t', undefined, ['Backspace', 'Backspace', { wait: 700 }]);
+
 export default S;

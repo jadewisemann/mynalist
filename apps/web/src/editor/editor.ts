@@ -5,7 +5,7 @@
 // the model is updated from it on every input event).
 
 import {
-  type CheckOptions, type CmdResult, type DocSession, type NodeId, type Portable, ROOT, type Sel, Tx, type View,
+  type CheckOptions, type CmdResult, type DocSession, type NodeId, type Portable, type RenderOptions, ROOT, type Sel, Tx, type View,
   backspaceAtStart, caret, cycleLevel, defaultView, deleteAtEnd, deleteItems, duplicate, enter,
   expandToLevel, flatten, indent, insertPortable, lastVisibleDescendant, moveDown, moveUp, nextVisible, nextVisibleNonDescendant,
   nextVisibleSibling, normalizeBlock, outdent, pasteItems, prevVisible, prevVisibleSibling, replaceWithEmpty,
@@ -113,6 +113,8 @@ export class Editor {
   private unsub: (() => void) | null = null;
   view: View = defaultView();
   private editing: Editing | null = null;
+  /** search highlighting: the terms, marked only in the items that match (not in ancestors shown for context) */
+  private searchHl: { terms: string[]; ids: Set<NodeId> } | null = null;
   private block: { ids: NodeId[]; anchor: NodeId; focus: NodeId } | null = null;
   private lastSel: Sel = { k: 'none' };
   /**
@@ -218,9 +220,15 @@ export class Editor {
     if (focus) this.applySel(focus);
   }
 
-  setFilter(filter: Set<NodeId> | null) {
+  setFilter(filter: Set<NodeId> | null, highlight: { terms: string[]; ids: Set<NodeId> } | null = null) {
     this.view = { ...this.view, filter };
+    this.searchHl = filter && highlight;
     this.render();
+  }
+
+  /** Render options for one item's text: the search terms if the item is a search match. */
+  private renderOptsFor(id: NodeId): RenderOptions | undefined {
+    return this.searchHl?.ids.has(id) ? { highlight: this.searchHl.terms } : undefined;
   }
 
   /** Re-render all text (e.g. after render options like search highlight changed). */
@@ -424,7 +432,7 @@ export class Editor {
     }
     if (r[f] === value) return;
     r[f] = value;
-    renderInto(el, value);
+    renderInto(el, value, this.renderOptsFor(r.id));
   }
 
   private renderCrumbs() {
@@ -568,7 +576,7 @@ export class Editor {
     const r = this.rows.get(ed.id);
     r?.el.classList.remove('o-current');
     const value = (this.tree.get(ed.id)?.props[ed.f] as string | undefined) ?? '';
-    renderInto(ed.el, value);
+    renderInto(ed.el, value, this.renderOptsFor(ed.id));
     if (r) {
       r[ed.f] = value;
       r.note.hidden = !((this.tree.get(ed.id)?.props.n as string | undefined) ?? '');

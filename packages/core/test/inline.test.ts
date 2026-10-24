@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  extractDates, extractLinks, extractTags, inlineToPlain, mapDisplayOffset, normalizeUrl, parseInline,
+  extractDates, extractLinks, extractTags, inlineToPlain, mapDisplayOffset, matchRanges, normalizeUrl, parseInline,
   renderInline, replaceTag, safeUrl, tokenPathAt, walkTokens, type InlineToken,
 } from '../src/inline.ts';
 
@@ -304,6 +304,29 @@ describe('renderInline', () => {
       '<span class="o-t" data-s="0" data-e="11"><mark class="o-match">Foo</mark> bar <mark class="o-match">foo</mark></span>',
     );
     expect(renderInline('a<b', { highlight: ['<'] })).toContain('<mark class="o-match">&lt;</mark>');
+  });
+
+  it('merges overlapping and touching search matches into one mark', () => {
+    expect(matchRanges('Pineapple pie', ['pinea', 'apple'])).toEqual([[0, 9]]);
+    expect(matchRanges('Pineapple pie', ['pine', 'apple'])).toEqual([[0, 9]]);
+    expect(matchRanges('apple pie apple', ['apple', 'apple'])).toEqual([[0, 5], [10, 15]]);
+    expect(matchRanges('aaa', ['aa'])).toEqual([[0, 3]]);
+    expect(renderInline('Pineapple', { highlight: ['pinea', 'apple'] })).toContain('<mark class="o-match">Pineapple</mark>');
+  });
+
+  it('highlights matches in tags and image alt text', () => {
+    expect(renderInline('core #apple', { highlight: ['apple'] })).toContain('>#<mark class="o-match">apple</mark></span>');
+    expect(renderInline('![apple pic](https://x.com/a.png)', { highlight: ['apple'] })).toContain('><mark class="o-match">apple</mark> pic</a>');
+  });
+
+  it('shows a link\'s markup when a match is hidden in its URL (as Dynalist does)', () => {
+    const md = '[apple site](https://example.com) x';
+    expect(renderInline(md, { highlight: ['apple'] })).toContain('><span class="o-t" data-s="1" data-e="11"><mark class="o-match">apple</mark> site</span></a>');
+    expect(renderInline(md, { highlight: ['example'] })).toContain('>[apple site](https://<mark class="o-match">example</mark>.com)</a>');
+    expect(renderInline(md, { highlight: ['site', 'example'] })).toContain('>[apple <mark class="o-match">site</mark>](https://<mark class="o-match">example</mark>.com)</a>');
+    expect(renderInline(md, { highlight: ['](' ] })).toContain('>[apple site<mark class="o-match">](</mark>https://example.com)</a>');
+    expect(renderInline('![pic](https://x.com/cat.png)', { highlight: ['cat'] })).toContain('>![pic](https://x.com/<mark class="o-match">cat</mark>.png)</a>');
+    expect(renderInline(md, { highlight: ['example'], clean: true })).toBe('<a href="https://example.com">apple site</a> x');
   });
 
   it('clean mode emits plain HTML without attributes', () => {
