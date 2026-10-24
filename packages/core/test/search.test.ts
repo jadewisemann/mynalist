@@ -54,6 +54,12 @@ describe('text terms', () => {
     expect(run('-"milk"')).not.toContain('a');
   });
 
+  it('a quote without a closing quote is a literal character', () => {
+    expect(run('"milk')).toEqual([]);
+    expect(run('"Exact')).toEqual(['d']);
+    expect(compileQuery('"Exact Phrase', NOW).terms).toEqual(['"Exact', 'Phrase']);
+  });
+
   it('tags match whole words', () => {
     expect(run('#shopping')).toEqual(['a']);
     expect(run('#shopping-list')).toEqual(['c']);

@@ -54,7 +54,7 @@ the same five functions as the two in `qa/lib/apps.mjs`.
 
 | suite | what | how it compares |
 |---|---|---|
-| `editing` | ~360 hand-written scenarios in 18 groups: enter, backspace, delete, delitem, indent, outdent, move, nav, select, props, collapse, zoom, undo, format, typing, paste, copy, search (Ctrl+F query syntax, which items stay visible, parents whose children are all filtered look collapsed, Escape puts the caret back) | normalized editor state after the steps |
+| `editing` | ~390 hand-written scenarios in 19 groups: enter, backspace, delete, delitem, indent, outdent, move, nav, select, props, collapse, zoom, undo, format, typing, paste, copy, search (Ctrl+F query syntax, which items stay visible, parents whose children are all filtered look collapsed, Escape puts the caret back), highlight (which substrings a search marks, in content and notes) | normalized editor state after the steps; for highlight also the marked text |
 | `fuzz` | seeded random key sequences (28 keys incl. typing, undo/redo, block selection, moves) over 5 fixtures | state after **every** step; reports the first divergent step |
 | `render` | ~120 inputs for the inline syntax: emphasis, empty pairs, links, tags, dates, recurrence, relative dates, LaTeX, code | styled text runs of the rendered (not edited) item |
 | `layout` | one rich fixture: computed font size/weight/line height/colour, row pitch, indent, bullet/checkbox geometry, inline element styles | 129 metrics with tolerances |
@@ -69,6 +69,11 @@ the same five functions as the two in `qa/lib/apps.mjs`.
 { zoom, title, items: [{ d: depth, c: text, n: note, ck: checked, cb: checkbox, h: heading, num, col: collapsed }],
   focus: { i: item index (-1 = title), f: 'c'|'n', s, e } | null, selected: [item indexes] }
 ```
+
+Scenarios with `marks: true` (the highlight group) also capture `marks`: for the title and every visible
+item, `[content, note]` as rendered text with `⟦…⟧` around each search highlight (Dynalist's `.search-match`,
+our `mark.o-match`), `''` for a field without one. It is printed under "— highlighted —". Other scenarios
+don't capture it, so their recordings and fingerprints are unchanged.
 
 On Dynalist it is read from the DOM: `.Node.is-currentRoot` and the `.Node-content`/`.Node-note` text, the
 `is-checked`/`has-checkbox`/`is-headingN`/`is-numbered`/`is-collapsed`/`is-selected` classes, `#z=` in the URL
@@ -120,6 +125,8 @@ selection, `¶` note), so a diff can be read directly.
 - **Demo reset in undo history:** the harness resets the demo by deleting its content. In fuzz, enough
   Ctrl+Z presses bring that content back. This is a harness artifact.
 - **Exceptions:** Dynalist occasionally throws (`generate_loc_id` of null) mid-scenario.
+- **Backtick in highlighted code:** a search match inside inline code makes Dynalist show that code span's
+  opening backtick (not the closing one). Checked on the final marks (`code-backtick-highlighted`).
 
 ## Untestable on the demo
 
@@ -179,5 +186,16 @@ The behaviours below were found by this harness, mostly by fuzz. Each now matche
   - Link text is literal.
   - Date labels look like "Tue, January 2nd 2024, 10 am" (with ", every week" for recurrence). A timed date
     today shows as relative ("in 14 hours").
+- **Search highlighting:**
+  - Only items that match the query are highlighted. Ancestors shown for context, and the title, are not,
+    even when they contain a term (e.g. `apple -pie` leaves "apple pie" unmarked).
+  - Every positive term is marked, case-insensitively, in content and note. Overlapping or touching
+    matches form one mark ("pinea apple" → one mark over "Pineapple").
+  - Matches are marked inside bold, italic, links, tags and image alt text. They are not marked across a
+    format boundary.
+  - A match that falls in a link's or image's hidden part (the URL, or `](`) makes it show its markup,
+    with the match marked.
+  - A trailing space ends the last term, so `#apple ` no longer matches `#appletag` as a prefix.
+  - A quote without a closing quote is a literal character (`"apple` looks for `"apple`).
 - **Layout:** the metrics were measured from Dynalist (sizes, line heights, colours, spacing) and are listed
   in `qa/layout.mjs`'s report.

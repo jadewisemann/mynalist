@@ -481,7 +481,7 @@ export interface RenderOptions {
   markOverdue?: boolean;
   /** render `![]()` as `<img>` instead of a chip */
   inlineImages?: boolean;
-  /** case-insensitive substrings to wrap in `<mark class="o-match">` (search) */
+  /** case-insensitive substrings to wrap in `<mark class="o-match">` (search; see `matchRanges`) */
   highlight?: string[];
   /** true for app-internal URLs (rendered with `o-link-internal`, no target) */
   isInternal?: (url: string) => boolean;
@@ -506,11 +506,12 @@ export interface RenderOptions {
  * caret); latex additionally gets `data-select-whole`.
  */
 export function renderInline(src: string, opts: RenderOptions = {}): string {
-  return renderTokens(parseInline(src), opts);
+  return renderTokens(parseInline(src), opts, src);
 }
 
-export function renderTokens(tokens: InlineToken[], opts: RenderOptions = {}): string {
-  const r = new Renderer(opts);
+/** `src` (what `tokens` were parsed from) is needed only to reveal search matches hidden in link URLs. */
+export function renderTokens(tokens: InlineToken[], opts: RenderOptions = {}, src?: string): string {
+  const r = new Renderer(opts, src);
   return r.tokens(tokens);
 }
 
@@ -537,16 +538,49 @@ export function tokenPathAt(tokens: InlineToken[], offset: number): InlineToken[
   return path;
 }
 
+/**
+ * Where search terms occur in `s` (case-insensitive): every occurrence of every term, with overlapping and
+ * touching ranges merged into one, sorted. This is what gets wrapped in `<mark class="o-match">`.
+ */
+export function matchRanges(s: string, terms: string[]): [number, number][] {
+  const found: [number, number][] = [];
+  for (const t of terms) {
+    if (!t) continue;
+    const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    for (let m; (m = re.exec(s)); re.lastIndex = m.index + 1) found.push([m.index, m.index + m[0].length]);
+  }
+  found.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const out: [number, number][] = [];
+  for (const r of found) {
+    const last = out[out.length - 1];
+    if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+    else out.push(r);
+  }
+  return out;
+}
+
 class Renderer {
   private o: RenderOptions;
-  private hl: RegExp | null;
+  private terms: string[];
+  /** the source being rendered, when known (links whose match is in the hidden URL show their source) */
+  private src: string | undefined;
 
-  constructor(o: RenderOptions) {
+  constructor(o: RenderOptions, src?: string) {
     this.o = o;
-    const terms = (o.highlight ?? []).filter((t) => t.length > 0);
-    this.hl = terms.length
-      ? new RegExp(terms.sort((a, b) => b.length - a.length).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'gi')
-      : null;
+    this.terms = (o.highlight ?? []).filter((t) => t.length > 0);
+    this.src = src;
+  }
+
+  /**
+   * Source of a link/image when a search match in it falls outside its visible text (in the URL or the
+   * brackets): like Dynalist, the link then shows its markup so the match can be seen. Otherwise null.
+   */
+  private revealed(t: LinkToken | ImageToken): string | null {
+    if (!this.terms.length || this.src === undefined || this.o.clean) return null;
+    const raw = this.src.slice(t.start, t.end);
+    const a = t.innerStart - t.start;
+    const b = t.innerEnd - t.start;
+    return matchRanges(raw, this.terms).some(([s, e]) => s < a || e > b) ? raw : null;
   }
 
   private attrs(t: Span, extra = ''): string {
@@ -579,14 +613,12 @@ class Renderer {
   }
 
   private mark(s: string): string {
-    if (!this.hl) return escapeHtml(s);
+    if (!this.terms.length) return escapeHtml(s);
     let out = '';
     let last = 0;
-    this.hl.lastIndex = 0;
-    for (let m; (m = this.hl.exec(s)); ) {
-      if (!m[0]) { this.hl.lastIndex++; continue; }
-      out += escapeHtml(s.slice(last, m.index)) + `<mark class="o-match">${escapeHtml(m[0])}</mark>`;
-      last = m.index + m[0].length;
+    for (const [a, b] of matchRanges(s, this.terms)) {
+      out += escapeHtml(s.slice(last, a)) + `<mark class="o-match">${escapeHtml(s.slice(a, b))}</mark>`;
+      last = b;
     }
     return out + escapeHtml(s.slice(last));
   }
@@ -626,7 +658,8 @@ class Renderer {
         const href = safeUrl(t.url);
         const internal = !!(href && o.isInternal?.(href));
         const title = (!t.text || t.text === t.url) ? o.linkTitle?.(t.url) : undefined;
-        const body = title !== undefined ? escapeHtml(title) : t.children.length ? this.tokens(t.children) : 'Link';
+        const raw = this.revealed(t);
+        const body = raw !== null ? this.mark(raw) : title !== undefined ? escapeHtml(title) : t.children.length ? this.tokens(t.children) : 'Link';
         const hrefAttr = href ? ` href="${escapeHtml(href)}"` : '';
         if (o.clean) return `<a${hrefAttr}>${body}</a>`;
         const target = internal || !href ? '' : ' target="_blank" rel="noopener noreferrer"';
@@ -641,7 +674,9 @@ class Renderer {
           return `<img class="o-img" src="${escapeHtml(src)}" alt="${alt}"${this.attrs(t, ' data-atomic')}>`;
         }
         const hrefAttr = src ? ` href="${escapeHtml(src)}" target="_blank" rel="noopener noreferrer" data-src="${escapeHtml(src)}"` : '';
-        return `<a class="o-image"${hrefAttr}${this.attrs(t, ' data-atomic')}>${alt || 'Image'}</a>`;
+        const raw = this.revealed(t);
+        const body = raw !== null ? this.mark(raw) : t.text ? this.mark(t.text) : 'Image';
+        return `<a class="o-image"${hrefAttr}${this.attrs(t, ' data-atomic')}>${body}</a>`;
       }
       case 'autolink': {
         const href = safeUrl(t.url);

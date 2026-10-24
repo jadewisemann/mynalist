@@ -18,7 +18,7 @@ const GZIP_OVER = 1 << 20;
 
 /** Everything that determines what Dynalist does in a scenario (not its id, group or comparison tolerances). */
 export function fingerprint(sc) {
-  const def = { fx: sc.fx, steps: sc.steps, setup: sc.setup, render: sc.render, trace: sc.trace };
+  const def = { fx: sc.fx, steps: sc.steps, setup: sc.setup, render: sc.render, trace: sc.trace, marks: sc.marks };
   return createHash('sha1').update(JSON.stringify(def)).digest('hex').slice(0, 12);
 }
 
