@@ -109,7 +109,8 @@ export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'keymap' | 'da
       row('Move to position', sel('inbox_move_position', 'bottom', [['bottom', 'End of inbox'], ['top', 'Start of inbox']]))),
     section('Control',
       row('Use bullet point to zoom in', chk('use_bullet_to_zoom', false)),
-      row('Unindent items in-place', chk('unindent_in_place', false), 'Following siblings become children of the unindented item.')),
+      row('Unindent items in-place', chk('unindent_in_place', false), 'Following siblings become children of the unindented item.'),
+      row('Show item toolbar on hover (desktop)', chk('item_toolbar_hover', false))),
     h('button.btn.link', { onclick: (e: MouseEvent) => {
       advanced.hidden = !advanced.hidden;
       (e.target as HTMLElement).textContent = advanced.hidden ? 'Show advanced settings' : 'Hide advanced settings';

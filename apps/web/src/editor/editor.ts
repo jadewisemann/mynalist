@@ -1469,6 +1469,17 @@ export class Editor {
     this.run((tx) => pasteItems(tx, this.view, ed.id, s.s, s.e, items));
   }
 
+  /** Upload picked files into item `id` (hover toolbar "Upload a file"); false when uploads are unavailable. */
+  attachFiles(id: NodeId, files: File[]): boolean {
+    if (!files.length || this.readOnly) return false;
+    const ed = this.editing;
+    const f = ed && ed.id === id ? ed.f : 'c';
+    const pending = this.host.uploadFiles?.(files);
+    if (!pending) return false;
+    void pending.then((links) => this.insertLinks(id, f, links.join(' ')));
+    return true;
+  }
+
   /** Put uploaded-file links at the caret (or at the end of the item when it is no longer edited). */
   private insertLinks(id: NodeId, f: 'c' | 'n', str: string) {
     if (!str || !this.tree.get(id)) return;

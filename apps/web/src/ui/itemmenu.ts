@@ -65,16 +65,24 @@ export function itemMenu(editor: Editor, id: NodeId, x: number, y: number, extra
   items.push({ label: 'Export…', run: extra.exportItem });
   if (!multi) items.push({ label: 'Set as inbox', run: extra.setInbox });
   items.push({ label: '', sep: true });
-  const cur = (k: 'cl' | 'h') => (ids.every((i) => (t.get(i)?.props[k] ?? 0) === (t.get(id)?.props[k] ?? 0)) ? Number(t.get(id)?.props[k] ?? 0) : -1);
-  const swatch = (k: 'cl' | 'h', val: number, text: string) => {
-    const el = h('div.sw', { onmousedown: (e: Event) => e.preventDefault(), onclick: () => (closeMenu(), editor.execOn(ids, `${k === 'cl' ? 'color' : 'heading'}-${val}`)) }, text);
-    if (k === 'cl' && val) el.classList.add(`o-cl${val}`);
-    if (cur(k) === val) el.style.outline = '2px solid var(--accent)';
-    return el;
-  };
-  items.push({ label: 'colors', custom: h('div.swatches', {}, ...[0, 1, 2, 3, 4, 5, 6].map((c) => swatch('cl', c, c ? 'A' : '∅'))) });
-  items.push({ label: 'headings', custom: h('div.swatches', {}, ...[0, 1, 2, 3].map((lv) => swatch('h', lv, lv ? `H${lv}` : '∅'))) });
+  items.push({ label: 'colors', custom: swatches(editor, id, ids, 'cl') });
+  items.push({ label: 'headings', custom: swatches(editor, id, ids, 'h') });
   // drop trailing / doubled separators
   const clean = items.filter((it, i) => !(it.sep && (i === 0 || items[i - 1]!.sep || i === items.length - 1)));
   showMenu(x, y, clean);
+}
+
+/** Color label ('cl') or heading ('h') swatch strip for `ids`; the current value (of `id`) is outlined. */
+export function swatches(editor: Editor, id: NodeId, ids: NodeId[], k: 'cl' | 'h'): HTMLElement {
+  const t = editor.tree;
+  const cur = ids.every((i) => (t.get(i)?.props[k] ?? 0) === (t.get(id)?.props[k] ?? 0)) ? Number(t.get(id)?.props[k] ?? 0) : -1;
+  const swatch = (val: number, text: string) => {
+    const el = h('div.sw', { onmousedown: (e: Event) => e.preventDefault(), onclick: () => (closeMenu(), editor.execOn(ids, `${k === 'cl' ? 'color' : 'heading'}-${val}`)) }, text);
+    if (k === 'cl' && val) el.classList.add(`o-cl${val}`);
+    if (cur === val) el.style.outline = '2px solid var(--accent)';
+    return el;
+  };
+  return h('div.swatches', {}, ...(k === 'cl'
+    ? [0, 1, 2, 3, 4, 5, 6].map((c) => swatch(c, c ? 'A' : '∅'))
+    : [0, 1, 2, 3].map((lv) => swatch(lv, lv ? `H${lv}` : '∅'))));
 }
