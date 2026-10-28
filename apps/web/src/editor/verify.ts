@@ -38,10 +38,10 @@ function isShut(t: Tree, v: View, id: NodeId): boolean {
 }
 
 /** Problems found (empty: the DOM matches the model). */
-export function verifyRender(ed: Editor, max = 40): string[] {
+export function verifyRender(ed: Editor, limit = 40): string[] {
   const errs: string[] = [];
   const bad = (m: string) => {
-    if (errs.length < max) errs.push(m);
+    if (errs.length < limit) errs.push(m);
   };
   const x = ed.debugInternals();
   const t = ed.tree;
@@ -130,10 +130,26 @@ export function verifyRender(ed: Editor, max = 40): string[] {
   if (x.title.id !== zoom || x.rows.get(zoom) !== x.title) bad(`title row is not the zoom root ${zoom}`);
   checkRow(x.title, zoom, 0, true);
 
+  // chunking: a list is grouped iff it is longer than chunkSize; chunks hold [min, max + min) rows, not mixed with rows
+  const max = Math.max(1, x.chunkSize);
+  const min = Math.max(1, max >> 2);
+  const chunks = (parent: NodeId, container: HTMLElement, n: number) => {
+    const kids = [...container.children];
+    const grouped = kids.filter((c) => c.classList.contains(GROUP_CLASS));
+    if (grouped.length && grouped.length !== kids.length) return bad(`children of ${name(parent)}: rows and chunks mixed`);
+    if (!!grouped.length !== n > max) return bad(`children of ${name(parent)}: ${n} rows ${grouped.length ? '' : 'not '}chunked (chunk size ${max})`);
+    grouped.forEach((c, i) => {
+      const k = c.children.length;
+      if (!k || k >= max + min || (k < min && grouped.length > 1)) bad(`children of ${name(parent)}: chunk ${i} has ${k} rows (size ${max})`);
+      if (c.querySelector(`:scope > :not(.o-node)`)) bad(`children of ${name(parent)}: chunk ${i} holds a non-row`);
+    });
+  };
+
   const seen = new Set<NodeId>();
   const walk = (parent: NodeId, container: HTMLElement | null) => {
     const want = visibleChildren(t, parent, v);
     const els = container ? itemElements(container, bad) : [];
+    if (container) chunks(parent, container, els.length);
     const got = els.map((e) => e.dataset.id ?? '?');
     if (got.join() !== want.join()) {
       bad(`children of ${name(parent)}: DOM [${got.join()}] != model [${want.join()}]`);

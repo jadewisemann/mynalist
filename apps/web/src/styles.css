@@ -157,6 +157,9 @@ button { font: inherit; color: inherit; }
 .o-node { content-visibility: auto; contain-intrinsic-size: auto 30px; }
 /* content-visibility clips overflow: extend each node's box over the bullet/menu gutter */
 .o-node { margin-left: -50px; padding-left: 50px; }
+/* long children lists are grouped into chunks (editor.ts reconcile): layout and hit-testing skip whole off-screen
+   chunks; same gutter extension as rows, its rows then sit exactly where they would without it */
+.o-chunk { content-visibility: auto; contain-intrinsic-size: auto 3000px; margin-left: -50px; padding-left: 50px; position: relative; }
 /* guide line under the parent's bullet center (bullet spans -18..0); children keep their 30px indent */
 .o-editor { --kid-pad: 38px; }
 .o-kids { margin-left: -9px; padding-left: var(--kid-pad); border-left: 1px solid var(--guide); }
@@ -231,24 +234,31 @@ button { font: inherit; color: inherit; }
    to the current item is drawn in the accent color — ancestor bullets, the guide from each ancestor's bullet down
    to the branch holding the current item, and a curved elbow into that branch's bullet. Coordinates are in a
    child node's box: its content starts 50px in (gutter), the parent's guide sits 1px left of the --kid-pad indent.
-   :has() can't nest, so "contains the current item" is spelled out per rule. */
+   :has() can't nest, so "contains the current item" is spelled out per rule. Selectors are written out in full on
+   purpose: an :is() in front of a :has() subject made every caret move re-match whole documents (30x slower). */
 .o-editor { --thread: var(--accent); --thread-w: 2px; }
 .o-node { --bh: var(--row-h); --elbow-end: 37px; }
 .o-h1 { --bh: calc(var(--efs) * 1.5556); } .o-h2 { --bh: calc(var(--efs) * 1.4444); } .o-h3 { --bh: calc(var(--efs) * 1.3333); }
 .o-numbered { --elbow-end: 22px; }
-.o-thread:not([dir='rtl'], .o-article) :is(.o-current, .o-node:has(.o-current)) > .o-row > .o-bullet { color: var(--thread); }
+.o-thread:not([dir='rtl'], .o-article) .o-current > .o-row > .o-bullet,
+.o-thread:not([dir='rtl'], .o-article) .o-node:has(.o-current) > .o-row > .o-bullet { color: var(--thread); }
 /* parent: from its bullet down to its children block */
 .o-thread:not([dir='rtl'], .o-article) .o-node:has(> .o-kids .o-current) > .o-row::after {
   content: ''; position: absolute; pointer-events: none; left: calc(-8.5px - var(--thread-w) / 2); width: var(--thread-w);
   top: calc(var(--pad) + var(--bh) / 2); bottom: 0; background: var(--thread);
 }
-/* siblings above the active branch: straight segment over their whole height */
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-node:has(~ .o-current, ~ .o-node .o-current)::before {
+/* siblings above the active branch (in its chunk, and whole chunks before it): straight segment over their whole height */
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-node:has(~ .o-current, ~ .o-node .o-current)::before,
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-node:has(~ .o-current, ~ .o-node .o-current)::before,
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk:has(~ .o-chunk .o-current)::before {
   content: ''; position: absolute; pointer-events: none; left: calc(49.5px - var(--kid-pad) - var(--thread-w) / 2);
   width: var(--thread-w); top: 0; bottom: 0; background: var(--thread);
 }
 /* the active branch: down to its bullet, then a rounded turn into it */
-.o-thread:not([dir='rtl'], .o-article) .o-kids > :is(.o-current, .o-node:has(.o-current))::before {
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-current::before,
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-node:has(.o-current)::before,
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-current::before,
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-node:has(.o-current)::before {
   content: ''; position: absolute; pointer-events: none; box-sizing: border-box;
   left: calc(49.5px - var(--kid-pad) - var(--thread-w) / 2); top: 0;
   width: calc(var(--elbow-end) - 49.5px + var(--kid-pad) + var(--thread-w) / 2);
@@ -509,7 +519,7 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 :root.doc-border .doc-scroll { background: var(--side-bg); }
 :root.doc-border .doc-wrap { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; margin-bottom: 12px; }
 .o-editor[dir='rtl'] .o-kids { margin-left: 0; padding-left: 0; border-left: 0; margin-right: -9px; padding-right: 38px; border-right: 1px solid var(--guide); }
-.o-editor[dir='rtl'] .o-node { margin-left: 0; padding-left: 0; margin-right: -50px; padding-right: 50px; }
+.o-editor[dir='rtl'] :is(.o-node, .o-chunk) { margin-left: 0; padding-left: 0; margin-right: -50px; padding-right: 50px; }
 .o-editor[dir='rtl'] .o-bullet { margin-left: 0; margin-right: -18px; }
 .o-editor[dir='rtl'] .o-body { padding-left: 0; padding-right: 6px; }
 /* article layout: bullets on hover only, no guides, paragraph spacing */

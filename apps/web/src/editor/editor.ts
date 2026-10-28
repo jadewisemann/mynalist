@@ -239,6 +239,7 @@ export class Editor {
       searchHl: this.searchHl,
       backlinks: this.backlinks,
       animating: this.anims.size,
+      chunkSize: this.chunkSize,
     };
   }
 
@@ -408,7 +409,7 @@ export class Editor {
         const p = n.parent;
         if (p) {
           const pr = this.rows.get(p);
-          if (!pr || !r || r.el.parentElement !== (p === this.view.zoom ? this.items : pr.kids) || pr.kidsKey !== kidsKey(t.get(p)!.children, t.get(p)!.collapsed, t.get(p)!.props.num)) {
+          if (!pr || !r || containerOf(r.el) !== (p === this.view.zoom ? this.items : pr.kids) || pr.kidsKey !== kidsKey(t.get(p)!.children, t.get(p)!.collapsed, t.get(p)!.props.num)) {
             parents.add(p);
           }
           // checked state affects visibility in the parent when hiding checked items
@@ -458,6 +459,13 @@ export class Editor {
     return visibleChildren(t, p, this.view).indexOf(id) + 1;
   }
 
+  /**
+   * Children lists longer than this are grouped into chunks (`.o-chunk`) of about this many rows. The browser lays
+   * out and hit-tests a container by walking its children, so one flat list of thousands of rows made every edit
+   * cost time proportional to the list; chunks are skipped whole when off-screen (content-visibility).
+   */
+  chunkSize = 100;
+
   /** `container` is null for an item whose children block was never needed yet. */
   private reconcile(parent: NodeId, container: HTMLElement | null, deep: boolean) {
     const t = this.tree;
@@ -470,29 +478,75 @@ export class Editor {
       if (!want.length || !pr) return;
       container = this.kidsEl(pr);
     }
-    // `at` is the element at position i. Recursing may pull later rows out of this container (e.g. after
-    // zoom out), so it is read again after each recursion; indexing `container.children` instead is
-    // quadratic (every insert invalidates the live collection's cache)
+    const max = Math.max(1, this.chunkSize);
+    const chunked = !!container.firstElementChild?.classList.contains('o-chunk');
+    if (want.length <= max) {
+      if (chunked) for (const ch of [...container.children]) ch.replaceWith(...ch.children);
+      removeFrom(this.place(container, want, 0, numbered, deep));
+      return;
+    }
+    if (!chunked && container.firstElementChild) {
+      const ch = div('o-chunk');
+      ch.append(...container.children);
+      container.append(ch);
+    }
+    // Partition, keeping the existing boundaries: the first row of a chunk starts a chunk again (unless the one
+    // before would be too short), so an edit only reshapes the chunk it lands in. Chunks hold at most `max` rows;
+    // all but the last at least `min` (a short last one joins the one before).
+    const min = Math.max(1, max >> 2);
+    const starts = new Map<NodeId, HTMLElement>();
+    for (const ch of container.children) {
+      const first = (ch.firstElementChild as HTMLElement | null)?.dataset.id;
+      if (first) starts.set(first, ch as HTMLElement);
+    }
+    const parts: { ids: NodeId[]; el: HTMLElement | null }[] = [];
+    for (const id of want) {
+      const cur = parts[parts.length - 1];
+      const el = starts.get(id) ?? null;
+      if (!cur || cur.ids.length >= max || (el && cur.ids.length >= min)) parts.push({ ids: [id], el });
+      else cur.ids.push(id);
+    }
+    if (parts.length > 1 && parts[parts.length - 1]!.ids.length < min) parts[parts.length - 2]!.ids.push(...parts.pop()!.ids);
+    // Rows still wanted are only ever moved (insertBefore), never taken out and put back; what is left over in a
+    // chunk after every row was placed is no longer wanted here.
     let at = container.firstElementChild;
-    want.forEach((id, i) => {
+    let i = 0;
+    const used: [HTMLElement, number][] = [];
+    for (const p of parts) {
+      const el = p.el ?? div('o-chunk');
+      if (el !== at) container.insertBefore(el, at);
+      this.place(el, p.ids, i, numbered, deep);
+      i += p.ids.length;
+      used.push([el, p.ids.length]);
+      at = el.nextElementSibling;
+    }
+    removeFrom(at);
+    for (const [el, n] of used) removeFrom(el.children[n] ?? null);
+  }
+
+  /**
+   * Put the rows of `ids` first in `box`, in order, creating or updating them; returns the element after them.
+   * `at` is the element at position j. Recursing may pull later rows out of `box` (e.g. after zoom out), so it
+   * is read again after each recursion; indexing `box.children` instead is quadratic (every insert invalidates
+   * the live collection's cache).
+   */
+  private place(box: HTMLElement, ids: NodeId[], first: number, numbered: boolean, deep: boolean): Element | null {
+    let at = box.firstElementChild;
+    ids.forEach((id, j) => {
       let r = this.rows.get(id);
       const fresh = !r || r === this.title;
       if (fresh) {
         r = this.makeRow(id);
         this.rows.set(id, r);
       }
-      if (r!.el !== at) container.insertBefore(r!.el, at);
-      const num = numbered ? i + 1 : 0;
+      if (r!.el !== at) box.insertBefore(r!.el, at);
+      const num = numbered ? first + j + 1 : 0;
       // touched rows are updated by patch(); others only when their number moved
       if (fresh || deep || r!.num !== num) this.updateRow(r!, num);
       if (fresh || deep) this.reconcile(id, r!.kids, deep);
       at = r!.el.nextElementSibling;
     });
-    while (at) {
-      const next = at.nextElementSibling;
-      at.remove();
-      at = next;
-    }
+    return at;
   }
 
   private updateRow(r: Row, num: number) {
@@ -1790,6 +1844,21 @@ const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '
 function parentIfNotZoom(t: DocSession['live'], id: NodeId, v: View): NodeId | null {
   const p = t.get(id)?.parent;
   return p && p !== v.zoom ? p : null;
+}
+
+/** Remove `el` and the elements after it. */
+function removeFrom(el: Element | null) {
+  while (el) {
+    const next = el.nextElementSibling;
+    el.remove();
+    el = next;
+  }
+}
+
+/** The children container a row element is in (looking through its chunk). */
+function containerOf(el: HTMLElement): HTMLElement | null {
+  const p = el.parentElement;
+  return p?.classList.contains('o-chunk') ? p.parentElement : p;
 }
 
 function kidsKey(children: NodeId[], collapsed: boolean, num: unknown): string {

@@ -11,6 +11,7 @@
     "start": "OUTLINER_STATIC=${OUTLINER_STATIC:-apps/web/dist} node apps/server/src/main.ts",
     "test": "vitest run",
     "test:render": "node apps/web/e2e/render.mjs",
+    "test:perf": "sh apps/web/e2e/snapshot.sh && node apps/web/e2e/perf-budget.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "qa:serve": "sh apps/web/e2e/snapshot.sh",
     "qa": "node qa/all.mjs --replay",

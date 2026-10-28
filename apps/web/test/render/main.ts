@@ -56,11 +56,12 @@ const host: EditorHost = {
 const stage = document.getElementById('stage')!;
 let ed: Editor | null = null;
 
-function freshEditor(session: DocSession): Editor {
+function freshEditor(session: DocSession, chunkSize = 100): Editor {
   ed?.dispose();
   stage.textContent = '';
   backlinks.clear();
   ed = new Editor(host);
+  ed.chunkSize = chunkSize;
   ed.applyPrefs({ bulletThreading: true, highlightCurrent: true });
   stage.append(ed.el);
   ed.setDoc(session);
@@ -96,6 +97,7 @@ function compareFresh(e: Editor): string[] {
   box.append(f.el);
   document.body.append(box);
   try {
+    f.chunkSize = e.chunkSize;
     f.applyPrefs(e.prefs);
     f.setDoc(e.docSession, e.view.zoom);
     f.view = { ...e.view };
@@ -398,6 +400,8 @@ export interface FuzzOptions {
   shape?: Shape;
   /** compare with a from-scratch render every N steps */
   freshEvery?: number;
+  /** rows per chunk (default: a small random size, so small documents exercise chunking) */
+  chunkSize?: number;
 }
 
 export interface Failure {
@@ -424,10 +428,11 @@ async function fuzz(seed: number, o: FuzzOptions = {}): Promise<Failure | null> 
   const size = o.size ?? pick(r, [0, 3, 20, 60, 200]);
   const steps = o.steps ?? 200;
   const freshEvery = o.freshEvery ?? 10;
+  const chunkSize = o.chunkSize ?? pick(r, [2, 3, 5, 8, 100]);
   const s = new DocSession();
   buildDoc(s, r, size, shape);
-  const e = freshEditor(s);
-  const log = [`seed ${seed}: ${shape} doc of ${size}`];
+  const e = freshEditor(s, chunkSize);
+  const log = [`seed ${seed}: ${shape} doc of ${size}, chunks of ${chunkSize}`];
   let errs = check(e, s, true);
   if (errs.length) return { name: `fuzz ${seed}`, step: 0, errors: errs, log };
   for (let step = 1; step <= steps; step++) {
@@ -684,9 +689,9 @@ scenario('long sibling lists', '', async (c) => {
   await c.step('show', () => c.e.setShowChecked(true));
 });
 
-async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<void>): Promise<Failure | null> {
+async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<void>, chunkSize: number): Promise<Failure | null> {
   const { s, ids } = docFromSpec(spec);
-  const e = freshEditor(s);
+  const e = freshEditor(s, chunkSize);
   const log: string[] = [];
   let failure: Failure | null = null;
   const c: Ctx = {
@@ -721,21 +726,32 @@ async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<v
   return failure;
 }
 
+/** Every scenario with unchunked lists (the app's chunk size, larger than these documents) and with tiny chunks. */
 async function scenarios(only?: string): Promise<{ ran: number; failures: Failure[] }> {
   const failures: Failure[] = [];
   let ran = 0;
-  for (const [name, spec, fn] of SCENARIOS) {
-    if (only && !name.includes(only)) continue;
-    ran++;
-    const f = await runScenario(name, spec, fn);
-    if (f) failures.push(f);
+  for (const chunkSize of [100, 2, 3]) {
+    for (const [name, spec, fn] of SCENARIOS) {
+      if (only && !name.includes(only)) continue;
+      ran++;
+      const f = await runScenario(`${name} [chunks of ${chunkSize}]`, spec, fn, chunkSize);
+      if (f) failures.push(f);
+    }
   }
   return { ran, failures };
 }
 
+/** For looking at things: show a spec document with the given chunk size and edit the item with text `edit`. */
+function show(spec: string, chunkSize: number, edit?: string): string[] {
+  const { s, ids } = docFromSpec(spec);
+  const e = freshEditor(s, chunkSize);
+  if (edit) e.applySel(caret(ids[edit]!, 0));
+  return verifyRender(e);
+}
+
 declare global {
   interface Window {
-    renderTests: { fuzz: typeof fuzz; scenarios: typeof scenarios; ready: boolean };
+    renderTests: { fuzz: typeof fuzz; scenarios: typeof scenarios; show: typeof show; ready: boolean };
   }
 }
-window.renderTests = { fuzz, scenarios, ready: true };
+window.renderTests = { fuzz, scenarios, show, ready: true };
