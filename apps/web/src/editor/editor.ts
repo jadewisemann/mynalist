@@ -72,7 +72,7 @@ export interface EditorPrefs {
   encodeTimezone?: boolean;
 }
 
-interface Row {
+export interface Row {
   id: NodeId;
   el: HTMLElement;
   row: HTMLElement;
@@ -91,7 +91,7 @@ interface Row {
   num: number;
 }
 
-interface Editing {
+export interface Editing {
   id: NodeId;
   f: 'c' | 'n';
   el: HTMLElement;
@@ -215,7 +215,31 @@ export class Editor {
       if (!this.block?.ids.includes(r.id) && r.id !== this.view.zoom) this.applySel({ k: 'block', ids: [r.id], anchor: r.id, focus: r.id });
       this.host.onItemMenu(r.id, e.clientX, e.clientY);
     });
-    document.addEventListener('selectionchange', () => this.trackSel());
+    document.addEventListener('selectionchange', this.onSelectionChange);
+  }
+
+  private onSelectionChange = () => this.trackSel();
+
+  /** Detach from the document session and global listeners (an editor that is thrown away). */
+  dispose() {
+    this.endAnims();
+    this.unsub?.();
+    this.unsub = null;
+    document.removeEventListener('selectionchange', this.onSelectionChange);
+  }
+
+  /** Rendering state, for the render checker (verify.ts) and tests only. */
+  debugInternals() {
+    return {
+      rows: this.rows as ReadonlyMap<NodeId, Readonly<Row>>,
+      title: this.title as Readonly<Row>,
+      items: this.items,
+      editing: this.editing as Readonly<Editing> | null,
+      block: this.block,
+      searchHl: this.searchHl,
+      backlinks: this.backlinks,
+      animating: this.anims.size,
+    };
   }
 
   get tree() {
@@ -232,9 +256,10 @@ export class Editor {
     this.unsub?.();
     this.session = session;
     this.unsub = session.onChange((kind, touched) => {
-      if (kind === 'remote' || !touched) this.render();
+      // the zoomed-in item was deleted (on another device, or by undo): back to the top
+      if (!this.tree.isAttached(this.view.zoom)) this.setZoom(ROOT);
+      else if (kind === 'remote' || !touched) this.render();
       else this.patch(touched);
-      if (kind === 'remote') this.revalidateSel();
       this.emitState();
     });
     this.block = null;
@@ -352,6 +377,7 @@ export class Editor {
       this.reconcile(zoom, this.items, true);
       this.el.classList.toggle('o-empty', visibleChildren(t, zoom, this.view).length === 0);
       for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
+      this.revalidateSel();
       this.paintBlock();
     } finally {
       this.mutating--;
@@ -414,6 +440,7 @@ export class Editor {
         this.renderCrumbs();
       }
       this.el.classList.toggle('o-empty', visibleChildren(t, this.view.zoom, this.view).length === 0);
+      this.revalidateSel();
       if (this.block) this.paintBlock();
     } finally {
       this.mutating--;
@@ -669,9 +696,10 @@ export class Editor {
     if (tx.ops.length) this.session.commit(tx, { before: null, after: null }, { undoable: false });
   }
 
+  /** Forget the parts of the selection that are no longer shown (hidden by a collapse, a filter, a remote change...). */
   private revalidateSel() {
-    if (this.editing && !this.rows.has(this.editing.id)) this.stopEdit();
-    if (this.block) {
+    if (this.editing && !this.rows.get(this.editing.id)?.el.isConnected) this.stopEdit();
+    if (this.block && this.block.ids.some((id) => !this.rows.has(id))) {
       this.block.ids = this.block.ids.filter((id) => this.rows.has(id));
       if (!this.block.ids.length) this.block = null;
       this.paintBlock();
