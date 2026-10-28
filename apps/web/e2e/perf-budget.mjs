@@ -1,5 +1,7 @@
-// Performance budgets: editing latency in large documents must not regress. Exits non-zero over budget.
-// Each edit is timed with the style recalc + layout it causes (median of 15). Needs the snapshot server (snapshot.sh).
+// Performance budgets: opening and editing large documents must not regress. Exits non-zero over budget.
+// load: reload until the first screen shows (no pending block in view); jump: scroll to the middle until it shows;
+// nodes: DOM elements once lazy rendering settled. Each edit is timed with the style recalc + layout it causes
+// (median of 15). Needs the snapshot server (snapshot.sh).
 //
 //   node apps/web/e2e/perf-budget.mjs           20k items, flat and grouped
 //   N=50000 node apps/web/e2e/perf-budget.mjs   bigger (budgets scale with N/20000)
@@ -9,7 +11,7 @@ const exe = `${process.env.HOME}/.cache/ms-playwright/chromium-1228/chrome-linux
 const N = Number(process.env.N ?? 20000);
 const scale = Math.max(1, N / 20000);
 // ms at 20k items, about 3x what this machine measures, so that only real regressions trip them
-const BUDGET = { load: 6000, type: 3, down: 30, up: 30, enter: 45, threadingOff: { down: 30 } };
+const BUDGET = { load: 1200, jump: 700, nodes: 150000, type: 3, down: 10, up: 10, enter: 45, threadingOff: { down: 10 } };
 // shapes: one flat list (the worst case for a single container) and 40 parents of 500 children (chunked
 // children blocks, where the bullet-threading selectors have the most to match)
 const SHAPES = {
@@ -38,13 +40,36 @@ for (const [shape, indent] of Object.entries(SHAPES)) {
     document.activeElement.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
   }, lines.join('\n'));
   await page.waitForTimeout(1500);
-  const t0 = Date.now();
+  // the screen shows rows, none of it is still pending (lazy rendering)
+  const shown = () => page.waitForFunction(() => {
+    if (document.querySelectorAll('.o-node').length < 10) return false;
+    return ![...document.querySelectorAll('.o-pending')].some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.bottom > 0 && r.top < innerHeight;
+    });
+  }, null, { timeout: 120000, polling: 'raf' });
+  let t0 = Date.now();
   await page.reload();
-  await page.waitForFunction((n) => document.querySelectorAll('.o-node').length >= n, N, { timeout: 120000 });
+  await shown();
   const load = Date.now() - t0;
-  const mid = `Item ${Math.floor(N / 2)} with`;
-  await page.evaluate((t) => [...document.querySelectorAll('.o-content')].find((e) => e.textContent.startsWith(t))?.scrollIntoView({ block: 'center' }), mid);
-  await page.click(`.o-content >> text=${mid}`);
+  await page.waitForTimeout(3000);
+  t0 = Date.now();
+  await page.evaluate(() => {
+    const sc = document.querySelector('.o-scroll');
+    sc.scrollTop = (sc.scrollHeight - sc.clientHeight) / 2;
+  });
+  await shown();
+  const jump = Date.now() - t0;
+  await page.waitForTimeout(2000);
+  const nodes = await page.evaluate(() => document.getElementsByTagName('*').length);
+  // edit the item in the middle of the screen
+  const box = await page.evaluate(() => {
+    const el = document.elementFromPoint(innerWidth / 2, innerHeight / 2)?.closest('.o-node')?.querySelector(':scope > .o-row .o-content');
+    const r = el?.getBoundingClientRect();
+    return r && { x: r.left + 5, y: r.top + r.height / 2 };
+  });
+  if (!box) throw new Error(`${shape}: nothing in the middle of the screen`);
+  await page.mouse.click(box.x, box.y);
   await page.keyboard.press('End');
   const measure = () => page.evaluate(() => {
     if (!document.activeElement?.isContentEditable) throw new Error('perf: no item is being edited');
@@ -61,11 +86,11 @@ for (const [shape, indent] of Object.entries(SHAPES)) {
     const key = (k) => () => document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: k, code: k, bubbles: true, cancelable: true }));
     return { type: m(() => document.execCommand('insertText', false, 'x')), down: m(key('ArrowDown')), up: m(key('ArrowUp')), enter: m(key('Enter')) };
   });
-  const on = { load, ...(await measure()) };
+  const on = { load, jump, nodes, ...(await measure()) };
   await page.evaluate(() => document.querySelector('.o-editor').classList.remove('o-thread'));
   const off = await measure();
   console.log(`${shape.padEnd(8)} ${N} items: ${JSON.stringify(on)}  threading off: ${JSON.stringify(off)}`);
-  for (const k of ['load', 'type', 'down', 'up', 'enter']) {
+  for (const k of ['load', 'jump', 'nodes', 'type', 'down', 'up', 'enter']) {
     if (on[k] > BUDGET[k] * scale) over.push(`${shape}: ${k} ${on[k]}ms > ${BUDGET[k] * scale}ms`);
   }
   if (off.down > BUDGET.threadingOff.down * scale) over.push(`${shape}: down without threading ${off.down}ms > ${BUDGET.threadingOff.down * scale}ms`);

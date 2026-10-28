@@ -7,8 +7,8 @@ import {
   DocSession, type NodeId, type Op, ROOT, type Sel, Tx, backspaceAtStart, caret, compileQuery, enter, flatten,
   searchTree, selectBetween, visibleChildren, type Tree,
 } from '@outliner/core';
-import { Editor, type EditorHost } from '../../src/editor/editor.ts';
-import { serializeRender, verifyRender } from '../../src/editor/verify.ts';
+import { Editor, type EditorHost, type LazyOpts } from '../../src/editor/editor.ts';
+import { sameLine, serializeRender, verifyRender } from '../../src/editor/verify.ts';
 
 // ---- deterministic randomness ----------------------------------------------------------------------------
 
@@ -55,13 +55,20 @@ const host: EditorHost = {
 
 const stage = document.getElementById('stage')!;
 let ed: Editor | null = null;
+/** the "visible" band lazy rendering works around (client coordinates); moved by the scroll action */
+let band: [number, number] = [0, 60];
 
-function freshEditor(session: DocSession, chunkSize = 100): Editor {
+/** Lazy rendering for tests: no timers (steps call lazyTick), around `band`. */
+type Lazy = Partial<Pick<LazyOpts, 'first' | 'keep'>>;
+
+function freshEditor(session: DocSession, chunkSize = 100, lazy: Lazy = {}): Editor {
   ed?.dispose();
   stage.textContent = '';
   backlinks.clear();
+  band = [0, 60];
   ed = new Editor(host);
   ed.chunkSize = chunkSize;
+  ed.lazy = { ...ed.lazy, ...lazy, auto: false, zone: () => band };
   ed.applyPrefs({ bulletThreading: true, highlightCurrent: true });
   stage.append(ed.el);
   ed.setDoc(session);
@@ -98,6 +105,7 @@ function compareFresh(e: Editor): string[] {
   document.body.append(box);
   try {
     f.chunkSize = e.chunkSize;
+    f.lazy = { ...e.lazy, first: Infinity, keep: Infinity, auto: false };
     f.applyPrefs(e.prefs);
     f.setDoc(e.docSession, e.view.zoom);
     f.view = { ...e.view };
@@ -107,7 +115,7 @@ function compareFresh(e: Editor): string[] {
     const b = serializeRender(f).split('\n');
     const errs = verifyRender(f).map((m) => `fresh editor: ${m}`);
     for (let i = 0; i < Math.max(a.length, b.length) && errs.length < 6; i++) {
-      if (a[i] !== b[i]) errs.push(`line ${i}: incremental ${JSON.stringify(a[i])} != fresh ${JSON.stringify(b[i])}`);
+      if (!sameLine(a[i] ?? '', b[i] ?? '') || (a[i] === undefined) !== (b[i] === undefined)) errs.push(`line ${i}: incremental ${JSON.stringify(a[i])} != fresh ${JSON.stringify(b[i])}`);
     }
     return errs;
   } finally {
@@ -219,6 +227,20 @@ function someIds(r: Rng, e: Editor): NodeId[] {
 
 type Action = (r: Rng, e: Editor, s: DocSession) => string | Promise<string>;
 
+/** How much of the lazy-rendering machinery the fuzz exercised (printed by render.mjs, so it can't quietly drop). */
+const stats = { steps: 0, pendingSteps: 0, evictions: 0, madeOnDemand: 0 };
+/** Editing `before` (the field), and the item is still shown: it must still be edited (moves keep the caret). */
+function keepsEditing(e: Editor, before: { id: NodeId; f: 'c' | 'n' } | null, what: string) {
+  if (!before || (before.id !== e.view.zoom && !visible(e).includes(before.id))) return;
+  const now = e.debugInternals().editing;
+  if (now?.id !== before.id || now.f !== before.f) throw new Error(`${what}: was editing ${before.id}.${before.f}, still shown, now editing ${now ? `${now.id}.${now.f}` : 'nothing'}`);
+}
+const editingNow = (e: Editor) => {
+  const x = e.debugInternals().editing;
+  return x && { id: x.id, f: x.f };
+};
+const pendingNow = (e: Editor) => [...e.debugInternals().pending].filter((el) => el.isConnected).length;
+
 const ACTIONS: [number, string, Action][] = [
   [16, 'command', (r, e) => {
     const ids = someIds(r, e);
@@ -232,8 +254,13 @@ const ACTIONS: [number, string, Action][] = [
     const id = vis.length && chance(r, 0.95) ? pick(r, vis) : e.view.zoom;
     const f = id !== e.view.zoom && chance(r, 0.15) ? 'n' : 'c';
     const len = String(e.tree.get(id)?.props[f] ?? '').length;
+    const had = e.debugInternals().rows.has(id);
     e.applySel(caret(id, int(r, len + 1), f));
-    return `edit ${id}.${f}`;
+    const now = e.debugInternals().editing;
+    // any shown item can be edited, whether or not its row was made
+    if (!e.readOnly && (now?.id !== id || now.f !== f)) throw new Error(`edit ${id}.${f}: editing ${now ? `${now.id}.${now.f}` : 'nothing'}`);
+    if (!had && now) stats.madeOnDemand++;
+    return `edit ${id}.${f}${had ? '' : ' (row made on demand)'}`;
   }],
   [14, 'type', (r, e) => {
     if (e.editState().f === null) return 'type: not editing';
@@ -244,8 +271,12 @@ const ACTIONS: [number, string, Action][] = [
   [14, 'key', (r, e) => {
     const [key, mods] = pick(r, KEYS);
     const target = document.activeElement && e.el.contains(document.activeElement) ? document.activeElement : e.el;
+    const before = editingNow(e);
     target.dispatchEvent(new KeyboardEvent('keydown', { key, code: key, bubbles: true, cancelable: true, ...mods }));
-    return `key ${Object.keys(mods).join('+')}${Object.keys(mods).length ? '+' : ''}${key}`;
+    const name = `key ${Object.keys(mods).join('+')}${Object.keys(mods).length ? '+' : ''}${key}`;
+    // moving the edited item (indent, outdent, swap) keeps editing it
+    if (key === 'Tab' || (mods.ctrlKey && !mods.shiftKey)) keepsEditing(e, before, name);
+    return name;
   }],
   [6, 'enter-split', (r, e) => {
     const vis = visible(e);
@@ -331,7 +362,12 @@ const ACTIONS: [number, string, Action][] = [
     return 'backlinks + full render';
   }],
   [5, 'remote', (r, e, s) => {
-    // another client's ops, generated against our live tree, arriving with the sync response
+    // another client's ops, generated against our live tree, arriving with the sync response; half the time our
+    // own changes reached the server first (else theirs apply before ours, and some of them miss our new items)
+    if (chance(r, 0.5)) {
+      s.beginSync();
+      s.endSync({ version: s.version + 1, remote: [] });
+    }
     const t = s.live.clone();
     const tx = new Tx(t);
     const all = [...flattenAll(t)];
@@ -347,8 +383,10 @@ const ACTIONS: [number, string, Action][] = [
       else tx.collapse(id, !t.get(id)?.collapsed);
     }
     const ops: Op[] = tx.ops.filter((o) => o.t !== 'collapse');
+    const before = editingNow(e);
     s.beginSync();
     s.endSync({ version: s.version + 1, remote: ops });
+    keepsEditing(e, before, 'remote change');
     return `remote ${ops.map((o) => `${o.t}:${o.id}`).join(' ')}`;
   }],
   [4, 'paste', (r, e) => {
@@ -378,6 +416,19 @@ const ACTIONS: [number, string, Action][] = [
     else e.render();
     return 'full render';
   }],
+  [10, 'tick', (r, e) => {
+    const before = e.debugInternals().rows.size;
+    const more = e.lazyTick(Infinity);
+    if (e.debugInternals().rows.size < before) stats.evictions++;
+    return `lazy tick: ${e.debugInternals().rows.size} rows, ${more ? 'more to do' : 'done'}`;
+  }],
+  [6, 'scroll', (r, e) => {
+    const box = e.el.getBoundingClientRect();
+    // somewhere in the document, or far away from it (everything is evictable then)
+    const top = chance(r, 0.25) ? Math.round(box.bottom + 5000) : Math.round(box.top + int(r, Math.max(1, box.height) + 200) - 100);
+    band = [top, top + pick(r, [10, 30, 100, 400])];
+    return `scroll: band ${band.join('..')}`;
+  }],
   [3, 'wait', async (r) => {
     const ms = pick(r, [0, 50, 250]);
     await sleep(ms);
@@ -402,6 +453,8 @@ export interface FuzzOptions {
   freshEvery?: number;
   /** rows per chunk (default: a small random size, so small documents exercise chunking) */
   chunkSize?: number;
+  /** lazy rendering budgets (default: random, mostly tiny so small documents exercise it) */
+  lazy?: Lazy;
 }
 
 export interface Failure {
@@ -429,10 +482,11 @@ async function fuzz(seed: number, o: FuzzOptions = {}): Promise<Failure | null> 
   const steps = o.steps ?? 200;
   const freshEvery = o.freshEvery ?? 10;
   const chunkSize = o.chunkSize ?? pick(r, [2, 3, 5, 8, 100]);
+  const lazy = o.lazy ?? pick<Lazy>(r, [{}, { first: 0, keep: 0 }, { first: 0, keep: 6 }, { first: 0, keep: 20 }, { first: 3, keep: 12 }, { first: 1, keep: 40 }, { first: 10, keep: Infinity }]);
   const s = new DocSession();
   buildDoc(s, r, size, shape);
-  const e = freshEditor(s, chunkSize);
-  const log = [`seed ${seed}: ${shape} doc of ${size}, chunks of ${chunkSize}`];
+  const e = freshEditor(s, chunkSize, lazy);
+    const log = [`seed ${seed}: ${shape} doc of ${size}, chunks of ${chunkSize}, lazy ${JSON.stringify(lazy)}`];
   let errs = check(e, s, true);
   if (errs.length) return { name: `fuzz ${seed}`, step: 0, errors: errs, log };
   for (let step = 1; step <= steps; step++) {
@@ -443,6 +497,8 @@ async function fuzz(seed: number, o: FuzzOptions = {}): Promise<Failure | null> 
       return { name: `fuzz ${seed}`, step, errors: [`${label} threw: ${(err as Error).stack ?? err}`], log: log.slice(-25) };
     }
     errs = check(e, s, step % freshEvery === 0 || step === steps);
+    stats.steps++;
+    if (pendingNow(e)) stats.pendingSteps++;
     if (errs.length) return { name: `fuzz ${seed}`, step, errors: errs, log: log.slice(-25) };
   }
   return null;
@@ -462,6 +518,19 @@ interface Ctx {
 }
 
 const SCENARIOS: [string, string, (c: Ctx) => Promise<void>][] = [];
+
+/**
+ * Another client's change arriving with a sync response. Everything local is confirmed first (a sync round),
+ * so that the ops apply against a server state that has the scenario's items.
+ */
+function remoteChange(s: DocSession, fn: (tx: Tx) => void) {
+  s.beginSync();
+  s.endSync({ version: s.version + 1, remote: [] });
+  const tx = new Tx(s.live.clone());
+  fn(tx);
+  s.beginSync();
+  s.endSync({ version: s.version + 1, remote: tx.ops });
+}
 const scenario = (name: string, spec: string, fn: (c: Ctx) => Promise<void>) => SCENARIOS.push([name, spec, fn]);
 
 const SPEC = `
@@ -579,14 +648,10 @@ scenario('typing keeps the edited element', SPEC, async (c) => {
 });
 
 scenario('remote changes while editing', SPEC, async (c) => {
-  const remote = (fn: (tx: Tx) => void) => {
-    const tx = new Tx(c.s.live.clone());
-    fn(tx);
-    c.s.beginSync();
-    c.s.endSync({ version: c.s.version + 1, remote: tx.ops });
-  };
+  const remote = (fn: (tx: Tx) => void) => remoteChange(c.s, fn);
   await c.step('edit b31', () => c.e.applySel(caret(c.ids.b31!, 1)));
   await c.step('remote edits b31 text', () => remote((tx) => tx.set(c.ids.b31!, { c: 'remote text' })));
+  c.expect(c.e.tree.get(c.ids.b31!)?.props.c === 'remote text', 'the remote change was not applied');
   await c.step('remote moves b3 to top', () => remote((tx) => tx.move(c.ids.b3!, ROOT, null)));
   await c.step('remote adds items', () => remote((tx) => {
     tx.create(ROOT, null, { c: 'r1' });
@@ -689,9 +754,75 @@ scenario('long sibling lists', '', async (c) => {
   await c.step('show', () => c.e.setShowChecked(true));
 });
 
-async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<void>, chunkSize: number): Promise<Failure | null> {
+scenario('lazy rendering: the edited item keeps its row', `
+a
+  a1
+  a2
+  a3
+b
+  b1
+    b11
+c
+d`, async (c) => {
+  const key = (k: string, o: Partial<KeyboardEventInit> = {}) => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: k, code: k, bubbles: true, cancelable: true, ...o }));
+  const editing = (id: string, what: string) => c.expect(c.e.debugInternals().editing?.id === c.ids[id], `${what}: ${id} is no longer edited`);
+  const made = (id: string) => c.e.debugInternals().rows.has(c.ids[id]!);
+  const farTick = () => {
+    const box = c.e.el.getBoundingClientRect();
+    band = [box.bottom + 5000, box.bottom + 5010];
+    c.e.lazyTick(Infinity);
+  };
+  await c.step('nothing below the top list is made', () => {
+    c.e.lazy = { ...c.e.lazy, first: 0, keep: 0 };
+    farTick();
+    c.e.render();
+    if (made('a1') || made('b1')) throw new Error('children made despite a zero budget');
+  });
+  await c.step('edit c', () => c.e.applySel(caret(c.ids.c!, 1)));
+  await c.step('Tab: c moves under b, whose children are pending', () => key('Tab'));
+  editing('c', 'indent into a pending block');
+  await c.step('evict everything far away', farTick);
+  editing('c', 'eviction');
+  await c.step('Ctrl+Up: swap c above b1', () => key('ArrowUp', { ctrlKey: true }));
+  editing('c', 'swap');
+  await c.step('Shift+Tab: c back to the top', () => key('Tab', { shiftKey: true }));
+  editing('c', 'outdent');
+  await c.step('edit a2 (its row is made on demand)', () => c.e.applySel(caret(c.ids.a2!, 0)));
+  editing('a2', 'edit on demand');
+  await c.step('evict around it', () => {
+    farTick();
+    if (made('b1')) throw new Error('b1 still made after eviction');
+  });
+  editing('a2', 'eviction');
+  await c.step('remote: a moves under b1 (not made), and a gets a child', () => {
+    remoteChange(c.s, (tx) => {
+      tx.move(c.ids.a!, c.ids.b1!, null);
+      tx.create(c.ids.a!, c.ids.a3!, { c: 'a4' });
+      tx.set(c.ids.a1!, { c: 'a1 changed' });
+    });
+    if (c.e.tree.get(c.ids.a!)?.parent !== c.ids.b1) throw new Error('the remote change was not applied');
+  });
+  editing('a2', 'remote move of its parent into a pending block');
+  await c.step('evict again', farTick);
+  await c.step('fill everything near', () => {
+    band = [0, 4000];
+    c.e.lazyTick(Infinity);
+  });
+  await c.step('evict again, then print: everything is made, and stays so until printing is done', () => {
+    farTick();
+    window.dispatchEvent(new Event('beforeprint'));
+    if (c.e.debugInternals().pending.size && [...c.e.debugInternals().pending].some((el) => el.isConnected)) throw new Error('pending blocks while printing');
+    farTick();
+    if ([...c.e.debugInternals().pending].some((el) => el.isConnected)) throw new Error('emptied while printing');
+    window.dispatchEvent(new Event('afterprint'));
+  });
+  await c.step('after printing, far blocks are emptied again', farTick);
+});
+
+async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<void>, chunkSize: number, lazy?: Lazy): Promise<Failure | null> {
   const { s, ids } = docFromSpec(spec);
-  const e = freshEditor(s, chunkSize);
+  const e = freshEditor(s, chunkSize, lazy);
+  let k = 0;
   const log: string[] = [];
   let failure: Failure | null = null;
   const c: Ctx = {
@@ -707,7 +838,15 @@ async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<v
         failure = { name, step: log.length, errors: [`threw: ${(err as Error).stack ?? err}`], log };
         return;
       }
-      const errs = check(e, s, true);
+      let errs = check(e, s, true);
+      if (!errs.length && lazy) {
+        // and after a round of lazy filling / emptying around a band that moves down the document step by step
+        const box = e.el.getBoundingClientRect();
+        const top = box.top + ((k++ * 97) % Math.max(1, box.height));
+        band = [top, top + 40];
+        e.lazyTick(Infinity);
+        errs = check(e, s, true).map((m) => `after lazy tick at ${Math.round(top)}: ${m}`);
+      }
       if (errs.length) failure = { name, step: log.length, errors: errs, log };
     },
     expect(cond, msg) {
@@ -726,32 +865,124 @@ async function runScenario(name: string, spec: string, fn: (c: Ctx) => Promise<v
   return failure;
 }
 
-/** Every scenario with unchunked lists (the app's chunk size, larger than these documents) and with tiny chunks. */
+/**
+ * Every scenario with unchunked lists (the app's chunk size, larger than these documents), with tiny chunks, and
+ * with tiny lazy-rendering budgets (most of the document pending, filled and emptied between steps).
+ */
+const VARIANTS: [number, Lazy | undefined][] = [[100, undefined], [2, undefined], [3, undefined], [2, { first: 1, keep: 6 }], [100, { first: 0, keep: 4 }]];
 async function scenarios(only?: string): Promise<{ ran: number; failures: Failure[] }> {
   const failures: Failure[] = [];
   let ran = 0;
-  for (const chunkSize of [100, 2, 3]) {
+  for (const [chunkSize, lazy] of VARIANTS) {
     for (const [name, spec, fn] of SCENARIOS) {
       if (only && !name.includes(only)) continue;
       ran++;
-      const f = await runScenario(`${name} [chunks of ${chunkSize}]`, spec, fn, chunkSize);
+      const f = await runScenario(`${name} [chunks of ${chunkSize}${lazy ? `, lazy ${JSON.stringify(lazy)}` : ''}]`, spec, fn, chunkSize, lazy);
       if (f) failures.push(f);
     }
   }
   return { ran, failures };
 }
 
+/**
+ * Lazy rendering as the app runs it (timers, frames, window scrolling) on a document of a few thousand items:
+ * the first render makes about a screenful, what scrolls into view gets filled within frames, idle time fills
+ * up to the limit, far-away blocks are emptied, and the DOM matches the model at every stage.
+ */
+async function lazyAuto(): Promise<{ failures: Failure[]; report: string[] }> {
+  const failures: Failure[] = [];
+  const report: string[] = [];
+  const frames = async (n: number) => {
+    for (let i = 0; i < n; i++) await new Promise((r) => requestAnimationFrame(r));
+  };
+  for (const shape of ['flat', 'mixed', 'deep'] as const) {
+    const log: string[] = [];
+    const fail = (m: string) => failures.push({ name: `lazy auto (${shape})`, step: log.length, errors: [m], log: [...log] });
+    const s = new DocSession();
+    buildDoc(s, rng(7), 4000, shape);
+    const open = new Tx(s.live);
+    for (const id of flattenAll(s.live)) if (s.live.get(id)!.collapsed) open.collapse(id, false);
+    s.commit(open, { before: null, after: null }, { undoable: false });
+    window.scrollTo(0, 0);
+    stage.textContent = '';
+    ed?.dispose();
+    const e = (ed = new Editor(host));
+    e.lazy = { ...e.lazy, first: 150, keep: 1500, auto: true, zone: null };
+    stage.append(e.el);
+    e.setDoc(s);
+    const x = () => e.debugInternals();
+    const pend = () => [...x().pending].filter((el) => el.isConnected);
+    // nothing pending may show in the viewport once the frames for it ran
+    const blank = () => pend().filter((el) => {
+      const r = el.getBoundingClientRect();
+      return r.bottom > 0 && r.top < window.innerHeight;
+    }).length;
+    const verify = (what: string) => {
+      log.push(what);
+      const errs = [...verifyRender(e), ...compareFresh(e)];
+      if (errs.length) fail(`${what}: ${errs.slice(0, 5).join('; ')}`);
+    };
+    // frames until nothing pending shows (at most 60)
+    const untilShown = async () => {
+      let n = 0;
+      while (blank() && n < 60) {
+        await frames(1);
+        n++;
+      }
+      return n;
+    };
+    const made0 = x().rows.size;
+    log.push(`first render: ${made0} rows, ${pend().length} pending blocks`);
+    if (made0 > 150 + 2 * e.chunkSize) fail(`first render made ${made0} rows (budget 150)`);
+    if (!pend().length) fail('nothing pending after the first render of 4000 items');
+    verify('first render');
+    let n = await untilShown();
+    log.push(`first screen shown after ${n} frames`);
+    if (n > 3) fail(`pending blocks in view for ${n} frames after the first render`);
+    verify('after a few frames');
+    for (const at of [0.5, 0.25, 0.9, 1, 0.6, 0.1]) {
+      window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) * at);
+      await frames(1); // the scroll event
+      n = await untilShown();
+      log.push(`scrolled to ${at}: shown after ${n} frames`);
+      if (n > 8) fail(`scrolled to ${at}: pending blocks in view for ${n} frames`);
+      verify(`scrolled to ${at}`);
+    }
+    // idle time: fill until 3/4 of keep, empty far blocks above keep
+    for (let i = 0; i < 100 && e.lazyTick(0) !== false; i++) await sleep(60);
+    await sleep(300);
+    log.push(`settled: ${x().rows.size} rows, ${pend().length} pending blocks`);
+    if (x().rows.size > e.lazy.keep + 150 + 2 * e.chunkSize) fail(`settled at ${x().rows.size} rows (keep ${e.lazy.keep})`);
+    verify('settled');
+    // edit something far away: its row is made on demand, kept while far from the viewport
+    const far = visible(e)[Math.floor(visible(e).length * 0.1)]!;
+    window.scrollTo(0, document.documentElement.scrollHeight);
+    await frames(2);
+    e.applySel(caret(far, 0));
+    if (e.debugInternals().editing?.id !== far) fail('could not edit a far-away item');
+    await frames(4);
+    await sleep(200);
+    if (e.debugInternals().editing?.id !== far || document.activeElement !== e.debugInternals().editing?.el) fail('lost the edited far-away item');
+    verify('editing far away');
+    report.push(`${shape}: ${log.filter((l) => /frames|render:|settled:/.test(l)).join('; ')}`);
+    e.dispose();
+    stage.textContent = '';
+    window.scrollTo(0, 0);
+  }
+  return { failures, report };
+}
+
 /** For looking at things: show a spec document with the given chunk size and edit the item with text `edit`. */
-function show(spec: string, chunkSize: number, edit?: string): string[] {
+function show(spec: string, chunkSize: number, edit?: string, lazy?: Lazy): string[] {
   const { s, ids } = docFromSpec(spec);
-  const e = freshEditor(s, chunkSize);
+  const e = freshEditor(s, chunkSize, lazy);
   if (edit) e.applySel(caret(ids[edit]!, 0));
   return verifyRender(e);
 }
 
 declare global {
   interface Window {
-    renderTests: { fuzz: typeof fuzz; scenarios: typeof scenarios; show: typeof show; ready: boolean };
+    renderTests: { fuzz: typeof fuzz; scenarios: typeof scenarios; lazyAuto: typeof lazyAuto; show: typeof show; stats: typeof stats; ready: boolean };
   }
 }
-window.renderTests = { fuzz, scenarios, show, ready: true };
+window.renderTests = { fuzz, scenarios, lazyAuto, show, stats, ready: true };

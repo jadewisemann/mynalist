@@ -160,6 +160,9 @@ button { font: inherit; color: inherit; }
 /* long children lists are grouped into chunks (editor.ts reconcile): layout and hit-testing skip whole off-screen
    chunks; same gutter extension as rows, its rows then sit exactly where they would without it */
 .o-chunk { content-visibility: auto; contain-intrinsic-size: auto 3000px; margin-left: -50px; padding-left: 50px; position: relative; }
+/* lazy rendering (editor.ts): a block whose rows aren't made yet stands in for them with their (estimated or last
+   measured) height, set inline */
+.o-pending { box-sizing: border-box; }
 /* guide line under the parent's bullet center (bullet spans -18..0); children keep their 30px indent */
 .o-editor { --kid-pad: 38px; }
 .o-kids { margin-left: -9px; padding-left: var(--kid-pad); border-left: 1px solid var(--guide); }
@@ -234,31 +237,26 @@ button { font: inherit; color: inherit; }
    to the current item is drawn in the accent color — ancestor bullets, the guide from each ancestor's bullet down
    to the branch holding the current item, and a curved elbow into that branch's bullet. Coordinates are in a
    child node's box: its content starts 50px in (gutter), the parent's guide sits 1px left of the --kid-pad indent.
-   :has() can't nest, so "contains the current item" is spelled out per rule. Selectors are written out in full on
-   purpose: an :is() in front of a :has() subject made every caret move re-match whole documents (30x slower). */
+   The editor marks the path (o-path: the current item and its ancestors) and, in each children block on it, the
+   rows and chunks above it (o-above); see Editor.paintThread. */
 .o-editor { --thread: var(--accent); --thread-w: 2px; }
 .o-node { --bh: var(--row-h); --elbow-end: 37px; }
 .o-h1 { --bh: calc(var(--efs) * 1.5556); } .o-h2 { --bh: calc(var(--efs) * 1.4444); } .o-h3 { --bh: calc(var(--efs) * 1.3333); }
 .o-numbered { --elbow-end: 22px; }
-.o-thread:not([dir='rtl'], .o-article) .o-current > .o-row > .o-bullet,
-.o-thread:not([dir='rtl'], .o-article) .o-node:has(.o-current) > .o-row > .o-bullet { color: var(--thread); }
+.o-thread:not([dir='rtl'], .o-article) .o-path > .o-row > .o-bullet { color: var(--thread); }
 /* parent: from its bullet down to its children block */
-.o-thread:not([dir='rtl'], .o-article) .o-node:has(> .o-kids .o-current) > .o-row::after {
+.o-thread:not([dir='rtl'], .o-article) .o-path:not(.o-current) > .o-row::after {
   content: ''; position: absolute; pointer-events: none; left: calc(-8.5px - var(--thread-w) / 2); width: var(--thread-w);
   top: calc(var(--pad) + var(--bh) / 2); bottom: 0; background: var(--thread);
 }
-/* siblings above the active branch (in its chunk, and whole chunks before it): straight segment over their whole height */
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-node:has(~ .o-current, ~ .o-node .o-current)::before,
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-node:has(~ .o-current, ~ .o-node .o-current)::before,
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk:has(~ .o-chunk .o-current)::before {
+/* rows and chunks above the active branch: straight segment over their whole height */
+.o-thread:not([dir='rtl'], .o-article) .o-above::before {
   content: ''; position: absolute; pointer-events: none; left: calc(49.5px - var(--kid-pad) - var(--thread-w) / 2);
   width: var(--thread-w); top: 0; bottom: 0; background: var(--thread);
 }
 /* the active branch: down to its bullet, then a rounded turn into it */
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-current::before,
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-node:has(.o-current)::before,
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-current::before,
-.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-node:has(.o-current)::before {
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-path::before,
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-chunk > .o-path::before {
   content: ''; position: absolute; pointer-events: none; box-sizing: border-box;
   left: calc(49.5px - var(--kid-pad) - var(--thread-w) / 2); top: 0;
   width: calc(var(--elbow-end) - 49.5px + var(--kid-pad) + var(--thread-w) / 2);

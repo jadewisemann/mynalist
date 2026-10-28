@@ -102,6 +102,18 @@ const ANIM_MS = 180;
 /** Subtrees with more rows than this toggle without animation. */
 const ANIM_MAX_ROWS = 200;
 
+/** Lazy rendering knobs (see Editor.lazy). */
+export interface LazyOpts {
+  /** new rows a render pass may make before leaving the rest pending */
+  first: number;
+  /** rows to hold at most: pending blocks fill in idle time below this, far-off blocks are emptied above it */
+  keep: number;
+  /** schedule the filling / emptying (frames, idle time, scrolling); off: only lazyTick() does it */
+  auto: boolean;
+  /** the visible band in client coordinates (default: the window) */
+  zone: (() => [number, number]) | null;
+}
+
 interface KidsAnim {
   a: Animation;
   /** what is animating: the real children container (expand) or a copy of the old one (collapse) */
@@ -161,6 +173,35 @@ export class Editor {
   private menuBtn = div('o-menu-btn');
   private zoomBtn = div('o-zoom-btn');
 
+  /**
+   * Lazy rendering: rows are made when they are needed, so opening a big document costs about a screenful.
+   * - A render pass makes at most `first` new rows; past that, children blocks and chunks are left *pending*
+   *   (`.o-pending`: empty, holding an estimated height) in place of their rows.
+   * - Pending blocks near the viewport are filled on the next frame; the others in idle time while the editor holds
+   *   fewer than `keep` rows. Above `keep`, filled blocks far from the viewport are emptied again (evicted).
+   * - Whatever needs the row of an item (editing it, scrolling to it) fills the blocks above it first (rowFor).
+   * The block selection, navigation and commands work on the model, so they don't care what is filled.
+   */
+  lazy: LazyOpts = { first: 400, keep: 6000, auto: true, zone: null };
+  /** new rows the current render pass may still make */
+  private budget = Infinity;
+  /** pending blocks (some may have left the DOM since: dropped by lazyTick) */
+  private pending = new Set<HTMLElement>();
+  /** the items a pending chunk stands for */
+  private chunkIds = new WeakMap<HTMLElement, NodeId[]>();
+  /** the pending block being filled (any other stays pending) */
+  private filling: HTMLElement | null = null;
+  /** average row height seen so far, for the height of pending blocks */
+  private rowH = 30;
+  private lazyFrame = 0;
+  private lazyIdle = 0;
+  /** printing shows the DOM: everything is made, nothing emptied until it is done */
+  private printing = false;
+  /** fillAll() is rendering: nothing stays pending */
+  private fillingAll = false;
+  /** elements marked for bullet threading (paintThread) */
+  private threadEls = new Set<HTMLElement>();
+
   private host: EditorHost;
 
   constructor(host: EditorHost) {
@@ -216,9 +257,22 @@ export class Editor {
       this.host.onItemMenu(r.id, e.clientX, e.clientY);
     });
     document.addEventListener('selectionchange', this.onSelectionChange);
+    document.addEventListener('scroll', this.onScroll, { capture: true, passive: true });
+    window.addEventListener('resize', this.onScroll);
+    window.addEventListener('beforeprint', this.onBeforePrint);
+    window.addEventListener('afterprint', this.onAfterPrint);
   }
 
   private onSelectionChange = () => this.trackSel();
+  private onScroll = () => this.scheduleLazy();
+  private onBeforePrint = () => {
+    this.printing = true;
+    this.fillAll();
+  };
+  private onAfterPrint = () => {
+    this.printing = false;
+    this.scheduleLazy();
+  };
 
   /** Detach from the document session and global listeners (an editor that is thrown away). */
   dispose() {
@@ -226,6 +280,12 @@ export class Editor {
     this.unsub?.();
     this.unsub = null;
     document.removeEventListener('selectionchange', this.onSelectionChange);
+    document.removeEventListener('scroll', this.onScroll, { capture: true });
+    window.removeEventListener('resize', this.onScroll);
+    window.removeEventListener('beforeprint', this.onBeforePrint);
+    window.removeEventListener('afterprint', this.onAfterPrint);
+    cancelAnimationFrame(this.lazyFrame);
+    this.lazy = { ...this.lazy, auto: false };
   }
 
   /** Rendering state, for the render checker (verify.ts) and tests only. */
@@ -240,6 +300,8 @@ export class Editor {
       backlinks: this.backlinks,
       animating: this.anims.size,
       chunkSize: this.chunkSize,
+      pending: this.pending as ReadonlySet<HTMLElement>,
+      pendingIds: (chunk: HTMLElement) => this.chunkIds.get(chunk) as readonly NodeId[] | undefined,
     };
   }
 
@@ -308,6 +370,7 @@ export class Editor {
     this.el.classList.toggle('o-bullet-zoom', this.prefs.bulletZoom);
     this.el.classList.toggle('o-hl-current', this.prefs.highlightCurrent);
     this.el.classList.toggle('o-thread', !!this.prefs.bulletThreading);
+    this.paintThread();
     if (this.editing) this.editing.el.spellcheck = this.prefs.spellcheck;
     this.el.dataset.notes = this.prefs.showNotes;
     if (p.showChecked !== undefined) this.setShowChecked(p.showChecked);
@@ -360,6 +423,7 @@ export class Editor {
     if (!this.session) return;
     this.endAnims();
     this.mutating++;
+    this.budget = this.lazy.first;
     const focus = this.focusMark();
     try {
       const t = this.tree;
@@ -377,14 +441,18 @@ export class Editor {
       this.renderCrumbs();
       this.updateRow(this.title, 0);
       this.reconcile(zoom, this.items, true);
+      this.keepEdited();
       this.el.classList.toggle('o-empty', visibleChildren(t, zoom, this.view).length === 0);
       for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
       this.revalidateSel();
       this.paintBlock();
+      this.paintThread();
     } finally {
+      this.budget = Infinity;
       this.restoreFocus(focus);
       this.mutating--;
     }
+    this.scheduleLazy();
   }
 
   /** Patch rows for touched nodes only. */
@@ -392,6 +460,7 @@ export class Editor {
     const animate = this.animateNext;
     this.animateNext = false;
     this.mutating++;
+    this.budget = this.lazy.first;
     const focus = this.focusMark();
     try {
       const t = this.tree;
@@ -439,6 +508,7 @@ export class Editor {
         removed = true;
       }
       if (flip?.kids && (ghost || (!closing && fewRows(flip.kids)))) this.animateKids(flip, ghost, from);
+      this.keepEdited();
       if (removed) for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
       if (touched.has(this.view.zoom) || (this.view.zoom !== ROOT && [...touched].some((id) => t.ancestors(this.view.zoom).includes(id)))) {
         this.renderCrumbs();
@@ -446,10 +516,13 @@ export class Editor {
       this.el.classList.toggle('o-empty', visibleChildren(t, this.view.zoom, this.view).length === 0);
       this.revalidateSel();
       if (this.block) this.paintBlock();
+      this.paintThread();
     } finally {
+      this.budget = Infinity;
       this.restoreFocus(focus);
       this.mutating--;
     }
+    this.scheduleLazy();
   }
 
   private numberOf(id: NodeId): number {
@@ -478,10 +551,20 @@ export class Editor {
       if (!want.length || !pr) return;
       container = this.kidsEl(pr);
     }
+    // a children block stays pending (or becomes so, out of budget) unless it is to show rows that exist (moved items)
+    if (container !== this.items && container !== this.filling && !this.fillingAll && want.length && (isPending(container) || (this.budget <= 0 && !container.firstElementChild))) {
+      if (!want.some((id) => this.rows.has(id))) return this.setPending(container, null, want);
+    }
+    if (isPending(container)) this.unpend(container);
     const max = Math.max(1, this.chunkSize);
     const chunked = !!container.firstElementChild?.classList.contains('o-chunk');
     if (want.length <= max) {
-      if (chunked) for (const ch of [...container.children]) ch.replaceWith(...ch.children);
+      if (chunked) {
+        for (const ch of [...container.children]) {
+          if (isPending(ch)) this.unpend(ch);
+          ch.replaceWith(...ch.children);
+        }
+      }
       removeFrom(this.place(container, want, 0, numbered, deep));
       return;
     }
@@ -496,7 +579,7 @@ export class Editor {
     const min = Math.max(1, max >> 2);
     const starts = new Map<NodeId, HTMLElement>();
     for (const ch of container.children) {
-      const first = (ch.firstElementChild as HTMLElement | null)?.dataset.id;
+      const first = isPending(ch) ? this.chunkIds.get(ch as HTMLElement)?.[0] : (ch.firstElementChild as HTMLElement | null)?.dataset.id;
       if (first) starts.set(first, ch as HTMLElement);
     }
     const parts: { ids: NodeId[]; el: HTMLElement | null }[] = [];
@@ -515,13 +598,257 @@ export class Editor {
     for (const p of parts) {
       const el = p.el ?? div('o-chunk');
       if (el !== at) container.insertBefore(el, at);
-      this.place(el, p.ids, i, numbered, deep);
+      const lazy = !this.fillingAll && (p.el ? isPending(el) && el !== this.filling : this.budget <= 0);
+      if (lazy && !p.ids.some((id) => this.rows.has(id))) {
+        this.setPending(el, p.ids, p.ids);
+        used.push([el, 0]);
+      } else {
+        if (isPending(el)) this.unpend(el);
+        this.place(el, p.ids, i, numbered, deep);
+        used.push([el, p.ids.length]);
+      }
       i += p.ids.length;
-      used.push([el, p.ids.length]);
       at = el.nextElementSibling;
     }
     removeFrom(at);
     for (const [el, n] of used) removeFrom(el.children[n] ?? null);
+  }
+
+  /** Make `el` (a children block or a chunk, standing for `ids`) pending: empty, as high as `want` would be. */
+  private setPending(el: HTMLElement, ids: NodeId[] | null, want: NodeId[], height?: number) {
+    const was = ids && this.chunkIds.get(el);
+    if (ids) this.chunkIds.set(el, ids);
+    if (isPending(el) && height === undefined && was && sameIds(was, ids)) return;
+    el.textContent = '';
+    el.classList.add('o-pending');
+    el.style.height = `${Math.round(height ?? this.estimate(want))}px`;
+    this.pending.add(el);
+  }
+
+  private unpend(el: Element) {
+    el.classList.remove('o-pending');
+    (el as HTMLElement).style.height = '';
+    this.chunkIds.delete(el as HTMLElement);
+    this.pending.delete(el as HTMLElement);
+  }
+
+  /** Height the rows of `ids` and their shown descendants would take. */
+  private estimate(ids: readonly NodeId[]): number {
+    const t = this.tree;
+    let n = 0;
+    const count = (id: NodeId) => {
+      n++;
+      for (const c of visibleChildren(t, id, this.view)) count(c);
+    };
+    ids.forEach(count);
+    return n * this.rowH;
+  }
+
+  /** Is the item shown in the current view (whether or not its row is made)? */
+  private isShown(id: NodeId): boolean {
+    const t = this.tree;
+    const v = this.view;
+    for (let x = id; x !== v.zoom; ) {
+      const n = t.get(x);
+      const p = n?.parent;
+      if (!n || !p) return false;
+      if (v.filter ? !v.filter.has(x) : (p !== v.zoom && t.get(p)!.collapsed) || (!v.showChecked && n.props.ck)) return false;
+      x = p;
+    }
+    return true;
+  }
+
+  /** The row of a shown item, filling the pending blocks above it first (null: the item isn't shown). */
+  private rowFor(id: NodeId): Row | null {
+    const live = (x: NodeId) => {
+      const r = this.rows.get(x);
+      return r?.el.isConnected ? r : null;
+    };
+    const have = live(id);
+    if (have || !this.isShown(id)) return have;
+    const t = this.tree;
+    const path: NodeId[] = [];
+    for (let x = id; x !== this.view.zoom; x = t.get(x)!.parent!) path.push(x);
+    for (const x of path.reverse()) {
+      while (!live(x)) {
+        const p = t.get(x)!.parent!;
+        const box = p === this.view.zoom ? this.items : live(p)?.kids;
+        if (!box) return null;
+        const el = isPending(box) ? box : [...box.children].find((c) => isPending(c) && this.chunkIds.get(c as HTMLElement)?.includes(x));
+        if (!el || !this.fill(el as HTMLElement, 0)) return null;
+      }
+    }
+    return live(id);
+  }
+
+  /** The edited item was moved into a pending block (e.g. indented under an item whose children aren't made): fill it. */
+  private keepEdited() {
+    const ed = this.editing;
+    if (ed && !this.rows.get(ed.id)?.el.isConnected && this.isShown(ed.id)) this.rowFor(ed.id);
+  }
+
+  /** Fill a pending block, making at most `budget` rows below its own list; false if it wasn't pending. */
+  private fill(el: HTMLElement, budget: number): boolean {
+    if (!this.pending.has(el) || !el.isConnected) {
+      this.pending.delete(el);
+      return false;
+    }
+    const box = el.classList.contains('o-chunk') ? el.parentElement! : el;
+    const owner = box === this.items ? this.view.zoom : (box.parentElement?.dataset.id ?? null);
+    if (!owner) return false;
+    const outer = [this.budget, this.filling] as const;
+    this.mutating++;
+    this.budget = budget;
+    this.filling = el;
+    const focus = this.focusMark();
+    try {
+      this.reconcile(owner, box, false);
+      if (this.block) this.paintBlock();
+      this.paintThread();
+    } finally {
+      [this.budget, this.filling] = outer;
+      this.restoreFocus(focus);
+      this.mutating--;
+    }
+    return true;
+  }
+
+  /** The visible band (client coordinates) and its height. */
+  private band(): { top: number; bottom: number; h: number } {
+    const [top, bottom] = this.lazy.zone?.() ?? [0, window.innerHeight];
+    return { top, bottom, h: Math.max(1, bottom - top) };
+  }
+
+  /** Pending blocks still in the document, with their distance from the visible band (0: in view), nearest first. */
+  private pendingByDistance(): [HTMLElement, number][] {
+    const { top, bottom } = this.band();
+    for (const el of this.pending) if (!el.isConnected) this.pending.delete(el);
+    return [...this.pending].map((el) => [el, away(el, top, bottom)] as [HTMLElement, number]).sort((a, b) => a[1] - b[1]);
+  }
+
+  /**
+   * Fill the pending blocks within a screen of the visible band, nearest first, until `end`. In rounds: filling a
+   * block may leave blocks pending below its own list, the near ones are filled in the next round. Returns whether
+   * it filled anything.
+   */
+  private fillNear(end: number): boolean {
+    const { h } = this.band();
+    let filled = false;
+    while (performance.now() <= end) {
+      const near = this.pendingByDistance().filter(([, d]) => d <= h);
+      if (!near.length) break;
+      for (const [el] of near) {
+        if (performance.now() > end) break;
+        this.fill(el, this.lazy.first);
+      }
+      filled = true;
+    }
+    return filled;
+  }
+
+  /** Fill the other pending blocks, nearest first, while there are fewer than 3/4 `keep` rows, until `end`. */
+  private fillFar(end: number): boolean {
+    let filled = false;
+    while (performance.now() <= end && this.rows.size < this.lazy.keep * 0.75) {
+      const next = this.pendingByDistance()[0];
+      if (!next) break;
+      this.fill(next[0], 0);
+      filled = true;
+    }
+    return filled;
+  }
+
+  /**
+   * One slice of lazy-rendering work (what the timers do, at once): fill the pending blocks near the viewport, then
+   * (below 3/4 `keep` rows) the others; above `keep` rows, empty blocks far from the viewport. Returns whether
+   * there is more to do.
+   *
+   * Emptying waits for a round that filled nothing: what was filled above the viewport pushes the rest down until
+   * scroll anchoring moves the scroll position along (at the next layout), so until then what is in view can look
+   * far away.
+   */
+  lazyTick(ms = 8): boolean {
+    if (!this.session || !this.el.isConnected) return false;
+    const end = performance.now() + ms;
+    if (this.fillNear(end) || this.fillFar(end)) return true;
+    if (this.rows.size > this.lazy.keep) this.evictFar();
+    const { h } = this.band();
+    return this.pendingByDistance().some(([, d]) => d <= h || this.rows.size < this.lazy.keep * 0.75);
+  }
+
+  /** Make every row now (e.g. for printing). */
+  fillAll() {
+    this.fillingAll = true;
+    try {
+      this.render();
+    } finally {
+      this.fillingAll = false;
+    }
+  }
+
+  /** Empty filled blocks beyond three screens of the visible band, farthest first, down to 90% `keep` rows. */
+  private evictFar() {
+    if (this.printing || document.body.classList.contains('o-dragging')) return;
+    const { top, bottom, h } = this.band();
+    const out: [HTMLElement, number, number][] = [];
+    // what is edited or animating stays
+    const pinned = (el: HTMLElement) => (!!this.editing && el.contains(this.editing.el)) || [...this.anims.values()].some((a) => el.contains(a.el));
+    const visit = (box: HTMLElement) => {
+      for (const c of box.children as HTMLCollectionOf<HTMLElement>) {
+        const blk = c.classList.contains('o-chunk') ? c : this.rows.get(c.dataset.id!)?.kids;
+        if (!blk || isPending(blk) || !blk.firstElementChild) continue;
+        const d = away(blk, top - 3 * h, bottom + 3 * h);
+        if (d > 0 && !pinned(blk)) out.push([blk, d, blk.getBoundingClientRect().height]);
+        else visit(blk);
+      }
+    };
+    visit(this.items);
+    // measured before any is emptied: emptying keeps each block's height, so nothing moves, no layout in between
+    out.sort((a, b) => b[1] - a[1]);
+    for (const [el, , height] of out) {
+      if (this.rows.size <= this.lazy.keep * 0.9) break;
+      this.evict(el, height);
+    }
+  }
+
+  /** Make a filled block pending again (its rows are dropped; it keeps its height). */
+  private evict(el: HTMLElement, height: number) {
+    const nodes = [...el.getElementsByClassName('o-node')] as HTMLElement[];
+    if (nodes.length) this.rowH = Math.max(12, Math.min(200, (this.rowH * 3 + height / nodes.length) / 4));
+    for (const n of nodes) {
+      const id = n.dataset.id;
+      if (id && this.rows.get(id)?.el === n) this.rows.delete(id);
+    }
+    const chunk = el.classList.contains('o-chunk');
+    const ids = chunk ? [...el.children].map((c) => (c as HTMLElement).dataset.id!) : null;
+    this.setPending(el, ids, [], height);
+  }
+
+  /**
+   * Lazy work on the next frame: fill what is near the viewport (and look again on the frame after, once scroll
+   * anchoring has settled), empty far blocks; the rest is filled in idle time.
+   */
+  private scheduleLazy() {
+    if (!this.lazy.auto || this.lazyFrame || (!this.pending.size && this.rows.size <= this.lazy.keep)) return;
+    this.lazyFrame = requestAnimationFrame(() => {
+      this.lazyFrame = 0;
+      if (!this.session || !this.el.isConnected) return;
+      // a blank in view is worse than a long frame
+      const blank = this.pendingByDistance()[0]?.[1] === 0;
+      if (this.fillNear(performance.now() + (blank ? 30 : 8))) return this.scheduleLazy();
+      if (this.rows.size > this.lazy.keep) this.evictFar();
+      if (this.pending.size && this.rows.size < this.lazy.keep * 0.75) this.idleLater();
+    });
+  }
+
+  private idleLater() {
+    if (this.lazyIdle) return;
+    const run = (deadline?: IdleDeadline) => {
+      this.lazyIdle = 0;
+      if (!this.lazy.auto || !this.session || !this.el.isConnected) return;
+      if (this.fillFar(performance.now() + Math.max(4, deadline?.timeRemaining() ?? 8))) this.scheduleLazy();
+    };
+    this.lazyIdle = typeof requestIdleCallback === 'function' ? requestIdleCallback(run, { timeout: 1000 }) : window.setTimeout(run, 50);
   }
 
   /**
@@ -538,12 +865,16 @@ export class Editor {
       if (fresh) {
         r = this.makeRow(id);
         this.rows.set(id, r);
+        this.budget--;
       }
+      // a row out of the document (taken out earlier in this pass, or left under a block that went pending) may
+      // have missed updates: bring all of it up to date
+      const stale = !fresh && !r!.el.isConnected;
       if (r!.el !== at) box.insertBefore(r!.el, at);
       const num = numbered ? first + j + 1 : 0;
       // touched rows are updated by patch(); others only when their number moved
-      if (fresh || deep || r!.num !== num) this.updateRow(r!, num);
-      if (fresh || deep) this.reconcile(id, r!.kids, deep);
+      if (fresh || deep || stale || r!.num !== num) this.updateRow(r!, num);
+      if (fresh || deep || stale) this.reconcile(id, r!.kids, deep || stale);
       at = r!.el.nextElementSibling;
     });
     return at;
@@ -725,13 +1056,13 @@ export class Editor {
       return;
     }
     if (sel.k === 'block') {
-      const ids = sel.ids.filter((id) => this.rows.has(id));
+      const ids = sel.ids.filter((id) => this.isShown(id));
       if (!ids.length) return;
       this.stopEdit();
       this.block = { ids, anchor: sel.anchor, focus: sel.focus };
       this.paintBlock();
       this.el.focus({ preventScroll: true });
-      this.rows.get(sel.focus)?.row.scrollIntoView({ block: 'nearest' });
+      this.rowFor(sel.focus)?.row.scrollIntoView({ block: 'nearest' });
       return;
     }
     this.block = null;
@@ -772,11 +1103,41 @@ export class Editor {
   /** Forget the parts of the selection that are no longer shown (hidden by a collapse, a filter, a remote change...). */
   private revalidateSel() {
     if (this.editing && !this.rows.get(this.editing.id)?.el.isConnected) this.stopEdit();
-    if (this.block && this.block.ids.some((id) => !this.rows.has(id))) {
-      this.block.ids = this.block.ids.filter((id) => this.rows.has(id));
+    if (this.block && this.block.ids.some((id) => !this.isShown(id))) {
+      this.block.ids = this.block.ids.filter((id) => this.isShown(id));
       if (!this.block.ids.length) this.block = null;
       this.paintBlock();
     }
+  }
+
+  /**
+   * Bullet threading: mark the current row and its ancestors (`o-path`) and, in each children block on the path,
+   * the rows and chunks above the path (`o-above`); styles.css draws the line from these. Marked by the editor
+   * rather than matched with :has() in CSS, which made every change in a long list re-match its siblings.
+   * Only what changed is touched (a caret move to the next item: one class).
+   */
+  private paintThread() {
+    const want = new Map<HTMLElement, boolean>(); // element → on the path (else above it)
+    const ed = this.editing;
+    const cur = ed && this.prefs.bulletThreading ? this.rows.get(ed.id)?.el : null;
+    if (cur?.isConnected) {
+      want.set(cur, true);
+      for (let el: HTMLElement | null = cur; el?.classList.contains('o-node'); ) {
+        want.set(el, true);
+        const box: HTMLElement | null = el.parentElement;
+        const kids: HTMLElement | null = box?.classList.contains('o-chunk') ? box.parentElement : box;
+        if (!kids?.classList.contains('o-kids')) break;
+        for (let s = el.previousElementSibling; s; s = s.previousElementSibling) want.set(s as HTMLElement, false);
+        if (box !== kids) for (let c = box!.previousElementSibling; c; c = c.previousElementSibling) want.set(c as HTMLElement, false);
+        el = kids.parentElement;
+      }
+    }
+    for (const el of this.threadEls) if (!want.has(el)) el.classList.remove('o-path', 'o-above');
+    for (const [el, path] of want) {
+      el.classList.toggle('o-path', path);
+      el.classList.toggle('o-above', !path);
+    }
+    this.threadEls = new Set(want.keys());
   }
 
   private painted: HTMLElement[] = [];
@@ -798,11 +1159,11 @@ export class Editor {
   // ---- editing -----------------------------------------------------------------
 
   startEdit(id: NodeId, f: 'c' | 'n', s: number, e = s) {
-    const r = this.rows.get(id);
+    const r = this.rowFor(id);
     if (!r) return;
     const el = f === 'c' ? r.content : this.noteEl(r);
     if (this.editing?.el !== el) {
-      this.stopEdit();
+      this.stopEdit(true);
       this.editing = { id, f, el };
       this.noteEl(r).hidden = false;
       el.contentEditable = PLAINTEXT_ONLY ? 'plaintext-only' : 'true';
@@ -810,6 +1171,7 @@ export class Editor {
       setText(el, (this.tree.get(id)?.props[f] as string | undefined) ?? '');
       el.classList.add('o-editing');
       r.el.classList.add('o-current');
+      this.paintThread();
     }
     this.mutating++;
     el.focus({ preventScroll: true });
@@ -821,7 +1183,8 @@ export class Editor {
     this.emitState();
   }
 
-  stopEdit() {
+  /** `switching`: another field is edited right after (the thread is repainted then, not cleared in between). */
+  stopEdit(switching = false) {
     const ed = this.editing;
     if (!ed) return;
     this.editing = null;
@@ -831,6 +1194,7 @@ export class Editor {
     ed.el.classList.remove('o-editing');
     const r = this.rows.get(ed.id);
     r?.el.classList.remove('o-current');
+    if (!switching) this.paintThread();
     const value = (this.tree.get(ed.id)?.props[ed.f] as string | undefined) ?? '';
     renderInto(ed.el, value, this.renderOptsFor(ed.id));
     if (r) {
@@ -1322,7 +1686,7 @@ export class Editor {
     }
 
     if (!ed) {
-      if (combo === 'Escape' && this.lastSel.k === 'text' && this.rows.has(this.lastSel.id)) {
+      if (combo === 'Escape' && this.lastSel.k === 'text' && this.isShown(this.lastSel.id)) {
         this.applySel(this.lastSel);
         return true;
       }
@@ -1844,6 +2208,20 @@ const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '
 function parentIfNotZoom(t: DocSession['live'], id: NodeId, v: View): NodeId | null {
   const p = t.get(id)?.parent;
   return p && p !== v.zoom ? p : null;
+}
+
+/** How far `el` is outside the band [top, bottom] (client coordinates; 0: it overlaps it). */
+function away(el: Element, top: number, bottom: number): number {
+  const r = el.getBoundingClientRect();
+  return r.bottom < top ? top - r.bottom : r.top > bottom ? r.top - bottom : 0;
+}
+
+function isPending(el: Element): boolean {
+  return el.classList.contains('o-pending');
+}
+
+function sameIds(a: readonly NodeId[], b: readonly NodeId[]): boolean {
+  return a.length === b.length && a.every((x, i) => x === b[i]);
 }
 
 /** Remove `el` and the elements after it. */

@@ -61,10 +61,19 @@ if (!env.SEED) {
   r.failures.forEach(show);
   failures.push(...r.failures);
 }
+if (!env.SEED && !env.ONLY) {
+  const p = await page({});
+  const { failures: f, report } = await p.evaluate(() => window.renderTests.lazyAuto());
+  console.log(`lazy rendering with timers and scrolling: ${f.length ? 'FAILED' : 'ok'}`);
+  for (const l of report) console.log(`  ${l}`);
+  f.forEach(show);
+  failures.push(...f);
+}
 if (!env.ONLY) {
   const seeds = env.SEED ? [Number(env.SEED)] : Array.from({ length: SEEDS }, (_, i) => 1000 + i);
   const variants = [{}, { reducedMotion: true }, { phone: true }];
   let ok = 0;
+  const stats = {};
   for (const v of variants) {
     const p = await page(v);
     for (const seed of seeds.filter((s) => env.SEED || s % variants.length === variants.indexOf(v))) {
@@ -75,8 +84,10 @@ if (!env.ONLY) {
         failures.push(f);
       } else ok++;
     }
+    for (const [k, n] of Object.entries(await p.evaluate(() => window.renderTests.stats))) stats[k] = (stats[k] ?? 0) + n;
   }
   console.log(`fuzz: ${ok}/${seeds.length} seeds ok, ${STEPS} steps each`);
+  console.log(`  lazy rendering: pending blocks in ${((100 * stats.pendingSteps) / Math.max(1, stats.steps)).toFixed(0)}% of steps, ${stats.evictions} evicting ticks, ${stats.madeOnDemand} rows made on demand for editing`);
 }
 if (pageErrors.length) console.log(`page errors:\n  ${[...new Set(pageErrors)].slice(0, 10).join('\n  ')}`);
 console.log(`${failures.length ? 'FAILED' : 'passed'} in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
