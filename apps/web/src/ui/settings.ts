@@ -78,6 +78,7 @@ export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'keymap' | 'da
       row('Theme', sel('theme', 'auto', THEMES)),
       row('List density', sel('density', 'cozy', [['comfortable', 'Comfortable'], ['cozy', 'Cozy'], ['compact', 'Compact']])),
       row('Highlight current item', chk('current_highlight', false)),
+      row('Bullet threading', chk('bullet_threading', true)),
       row('Narrow document layout', chk('center_doc', true)),
       row('Display images inline', chk('display_images_inline', false)),
       row('Right-to-left', chk('right_to_left', false)),

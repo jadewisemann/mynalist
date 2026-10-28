@@ -158,7 +158,8 @@ button { font: inherit; color: inherit; }
 /* content-visibility clips overflow: extend each node's box over the bullet/menu gutter */
 .o-node { margin-left: -50px; padding-left: 50px; }
 /* guide line under the parent's bullet center (bullet spans -18..0); children keep their 30px indent */
-.o-kids { margin-left: -9px; padding-left: 38px; border-left: 1px solid var(--guide); }
+.o-editor { --kid-pad: 38px; }
+.o-kids { margin-left: -9px; padding-left: var(--kid-pad); border-left: 1px solid var(--guide); }
 .o-node.o-collapsed > .o-kids { display: none; }
 /* collapse/expand animation (editor.ts animateKids): the block's height is animated, its content clipped
    vertically only (bullets and numbers hang into the left padding); the collapsing copy is inert */
@@ -225,6 +226,35 @@ button { font: inherit; color: inherit; }
 .o-selected > .o-row, .o-selected > .o-kids { background: var(--sel); }
 .o-selected > .o-kids { border-left-color: transparent; }
 .o-select-mode .o-row { user-select: none; -webkit-user-select: none; }
+
+/* bullet threading (after the Logseq bullet-threading plugin): while editing, the path from the top level down
+   to the current item is drawn in the accent color — ancestor bullets, the guide from each ancestor's bullet down
+   to the branch holding the current item, and a curved elbow into that branch's bullet. Coordinates are in a
+   child node's box: its content starts 50px in (gutter), the parent's guide sits 1px left of the --kid-pad indent.
+   :has() can't nest, so "contains the current item" is spelled out per rule. */
+.o-editor { --thread: var(--accent); --thread-w: 2px; }
+.o-node { --bh: var(--row-h); --elbow-end: 37px; }
+.o-h1 { --bh: calc(var(--efs) * 1.5556); } .o-h2 { --bh: calc(var(--efs) * 1.4444); } .o-h3 { --bh: calc(var(--efs) * 1.3333); }
+.o-numbered { --elbow-end: 22px; }
+.o-thread:not([dir='rtl'], .o-article) :is(.o-current, .o-node:has(.o-current)) > .o-row > .o-bullet { color: var(--thread); }
+/* parent: from its bullet down to its children block */
+.o-thread:not([dir='rtl'], .o-article) .o-node:has(> .o-kids .o-current) > .o-row::after {
+  content: ''; position: absolute; pointer-events: none; left: calc(-8.5px - var(--thread-w) / 2); width: var(--thread-w);
+  top: calc(var(--pad) + var(--bh) / 2); bottom: 0; background: var(--thread);
+}
+/* siblings above the active branch: straight segment over their whole height */
+.o-thread:not([dir='rtl'], .o-article) .o-kids > .o-node:has(~ .o-current, ~ .o-node .o-current)::before {
+  content: ''; position: absolute; pointer-events: none; left: calc(49.5px - var(--kid-pad) - var(--thread-w) / 2);
+  width: var(--thread-w); top: 0; bottom: 0; background: var(--thread);
+}
+/* the active branch: down to its bullet, then a rounded turn into it */
+.o-thread:not([dir='rtl'], .o-article) .o-kids > :is(.o-current, .o-node:has(.o-current))::before {
+  content: ''; position: absolute; pointer-events: none; box-sizing: border-box;
+  left: calc(49.5px - var(--kid-pad) - var(--thread-w) / 2); top: 0;
+  width: calc(var(--elbow-end) - 49.5px + var(--kid-pad) + var(--thread-w) / 2);
+  height: calc(var(--pad) + var(--bh) / 2 + var(--thread-w) / 2);
+  border: 0 solid var(--thread); border-width: 0 0 var(--thread-w) var(--thread-w); border-bottom-left-radius: 8px;
+}
 .o-editor ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
 
 /* inline syntax (classes from core renderInline) */
@@ -650,7 +680,7 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 /* phones (measured against Dynalist's mobile layout, qa/layout.mjs --mobile): narrower indent,
    checkbox with a 28px touch target around the same visible box */
 @media (max-width: 760px) {
-  .o-kids { padding-left: 29px; }
+  .o-editor { --kid-pad: 29px; }
   .o-check { width: 28px; height: 28px; margin-top: calc((var(--row-h) - 28px) / 2); border: 0; border-radius: 0; background: none; }
   .o-check::before {
     content: ''; position: absolute; left: 6px; top: 6px; width: 16px; height: 16px; box-sizing: border-box;

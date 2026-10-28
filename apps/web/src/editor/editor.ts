@@ -66,6 +66,8 @@ export interface EditorPrefs {
   unindentInPlace: boolean;
   spellcheck: boolean;
   highlightCurrent: boolean;
+  /** draw the path from the root to the current item (Logseq's bullet threading) */
+  bulletThreading?: boolean;
   /** write the local UTC offset into inserted times */
   encodeTimezone?: boolean;
 }
@@ -266,6 +268,7 @@ export class Editor {
     this.prefs = { ...this.prefs, ...p };
     this.el.classList.toggle('o-bullet-zoom', this.prefs.bulletZoom);
     this.el.classList.toggle('o-hl-current', this.prefs.highlightCurrent);
+    this.el.classList.toggle('o-thread', !!this.prefs.bulletThreading);
     if (this.editing) this.editing.el.spellcheck = this.prefs.spellcheck;
     this.el.dataset.notes = this.prefs.showNotes;
     if (p.showChecked !== undefined) this.setShowChecked(p.showChecked);

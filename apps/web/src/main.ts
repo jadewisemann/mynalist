@@ -1246,6 +1246,7 @@ class App {
       encodeTimezone: p('show_timezone', false),
       spellcheck: p('spellcheck', false),
       highlightCurrent: p('current_highlight', false),
+      bulletThreading: p('bullet_threading', true),
     });
     this.editor.checkOptions = { recurring: p<string>('recurrence_check_behavior', 'new_instance') === 'update' ? 'update' : 'new_instance' };
     const before = this.editor.prefs.showChecked;
