@@ -21,7 +21,7 @@ await page.keyboard.type('Second child !(2026-10-23)');
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 const outline = await page.evaluate(() => {
-  const walk = (el, d) => [...el.children].map((n) => '  '.repeat(d) + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
+  const walk = (el, d) => [...(el?.children ?? [])].map((n) => '  '.repeat(d) + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
   return walk(document.querySelector('.o-items'), 0);
 });
 console.log(outline);

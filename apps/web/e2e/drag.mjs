@@ -8,7 +8,7 @@ await page.goto(process.env.URL ?? 'http://localhost:5174/');
 await page.waitForSelector('.o-editor');
 const K = (k) => page.keyboard.press(k), T = (t) => page.keyboard.type(t);
 const outline = () => page.evaluate(() => {
-  const walk = (el, d) => [...el.children].map((n) => '  '.repeat(d) + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
+  const walk = (el, d) => [...(el?.children ?? [])].map((n) => '  '.repeat(d) + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
   return walk(document.querySelector('.o-items'), 0);
 });
 await page.click('.pane-head button[title^="New"]'); await page.click('text=New document'); await T('Drag'); await K('Enter');

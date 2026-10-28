@@ -26,15 +26,19 @@ const t1 = Date.now();
 await page.reload();
 await page.waitForFunction((n) => document.querySelectorAll('.o-node').length >= n, N);
 console.log(`reload + full render: ${Date.now() - t1} ms`);
-// typing latency in the middle of the doc
-await page.click('.o-content >> text=Item 5000 with', { timeout: 5000 }).catch(async () => page.click('.o-node:nth-child(10) .o-content'));
+// typing latency in the middle of the doc; timings include the style recalc + layout they cause
+const mid = `Item ${Math.floor(N / 2)} with`;
+await page.evaluate((t) => [...document.querySelectorAll('.o-content')].find((e) => e.textContent.startsWith(t))?.scrollIntoView({ block: 'center' }), mid);
+await page.click(`.o-content >> text=${mid}`);
 await page.keyboard.press('End');
+if (!(await page.evaluate(() => document.activeElement?.isContentEditable))) throw new Error('perf: no item is being edited');
 const lat = await page.evaluate(async () => {
   const el = document.activeElement;
   const times = [];
   for (let i = 0; i < 50; i++) {
     const s = performance.now();
     document.execCommand('insertText', false, 'x');
+    document.body.getBoundingClientRect();
     times.push(performance.now() - s);
   }
   times.sort((a, b) => a - b);
@@ -46,6 +50,7 @@ const enterLat = await page.evaluate(async () => {
   for (let i = 0; i < 20; i++) {
     const s = performance.now();
     document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }));
+    document.body.getBoundingClientRect();
     times.push(performance.now() - s);
   }
   times.sort((a, b) => a - b);
@@ -57,6 +62,7 @@ const tabLat = await page.evaluate(async () => {
   for (let i = 0; i < 10; i++) {
     const s = performance.now();
     document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', code: 'Tab', shiftKey: i % 2 === 1, bubbles: true, cancelable: true }));
+    document.body.getBoundingClientRect();
     times.push(performance.now() - s);
   }
   times.sort((a, b) => a - b);

@@ -143,9 +143,15 @@ export class Tree {
       parent.children.unshift(id);
       return;
     }
-    const i = parent.children.indexOf(after);
-    if (i < 0) parent.children.push(id);
-    else parent.children.splice(i + 1, 0, id);
+    const ch = parent.children;
+    // appending is the common case (loading a document, typing down a list): skip the linear search
+    if (ch[ch.length - 1] === after) {
+      ch.push(id);
+      return;
+    }
+    const i = ch.indexOf(after);
+    if (i < 0) ch.push(id);
+    else ch.splice(i + 1, 0, id);
   }
 
   private detach(n: TNode) {

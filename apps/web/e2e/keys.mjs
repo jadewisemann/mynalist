@@ -10,7 +10,7 @@ await page.waitForSelector('.o-editor');
 const K = (k) => page.keyboard.press(k);
 const T = (t) => page.keyboard.type(t);
 const outline = () => page.evaluate(() => {
-  const walk = (el, d) => [...el.children].map((n) => '  '.repeat(d) + (n.classList.contains('o-collapsed') ? '+' : '') + (n.classList.contains('o-checked') ? '[x]' : '') + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
+  const walk = (el, d) => [...(el?.children ?? [])].map((n) => '  '.repeat(d) + (n.classList.contains('o-collapsed') ? '+' : '') + (n.classList.contains('o-checked') ? '[x]' : '') + n.querySelector(':scope > .o-row .o-content').textContent + '\n' + walk(n.querySelector(':scope > .o-kids'), d + 1)).join('');
   return walk(document.querySelector('.o-items'), 0);
 });
 let fails = 0;

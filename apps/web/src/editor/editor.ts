@@ -77,11 +77,13 @@ interface Row {
   el: HTMLElement;
   row: HTMLElement;
   bullet: HTMLAnchorElement;
-  badge: HTMLElement;
-  check: HTMLElement;
+  body: HTMLElement;
   content: HTMLElement;
-  note: HTMLElement;
-  kids: HTMLElement;
+  // created on first use (most items have no backlinks, checkbox, note or children): see badgeEl() etc.
+  badge: HTMLElement | null;
+  check: HTMLElement | null;
+  note: HTMLElement | null;
+  kids: HTMLElement | null;
   c: string | null;
   n: string | null;
   /** children/collapse/numbering signature at last reconcile */
@@ -155,6 +157,9 @@ export class Editor {
   selectMode = false;
   private stateListeners = new Set<() => void>();
   private stateQueued = false;
+  /** the hover controls (menu, zoom) exist once and move into the row under the mouse */
+  private menuBtn = div('o-menu-btn');
+  private zoomBtn = div('o-zoom-btn');
 
   private host: EditorHost;
 
@@ -180,7 +185,15 @@ export class Editor {
       e.preventDefault();
       this.animated(() => this.run((tx) => toggleCollapse(tx, this.view, [r.id], true)));
     });
+    this.menuBtn.textContent = '⋮';
+    this.zoomBtn.title = 'Zoom in';
     this.el.addEventListener('mouseover', (e) => {
+      const row = (e.target as HTMLElement).closest<HTMLElement>('.o-row');
+      if (row && this.menuBtn.parentElement !== row) {
+        row.prepend(this.menuBtn);
+        if (row.parentElement?.classList.contains('o-title')) this.zoomBtn.remove();
+        else this.menuBtn.after(this.zoomBtn);
+      }
       const b = (e.target as HTMLElement).closest<HTMLElement>('.o-bullet');
       const r = b && this.rowFromEvent(e);
       if (!r) return;
@@ -282,26 +295,38 @@ export class Editor {
     const bullet = document.createElement('a');
     bullet.className = 'o-bullet';
     bullet.draggable = false;
-    const check = div('o-check');
     const body = div('o-body');
     const content = div('o-content');
-    const note = div('o-note');
-    const kids = div('o-kids');
-    body.append(content, note);
-    const menuBtn = div('o-menu-btn');
-    menuBtn.textContent = '⋮';
-    const badge = div('o-backlinks');
-    badge.hidden = true;
-    row.append(menuBtn, badge, bullet, check, body);
-    if (!isTitle) {
-      const zoomBtn = div('o-zoom-btn');
-      zoomBtn.title = 'Zoom in';
-      menuBtn.after(zoomBtn);
-    }
+    body.append(content);
+    row.append(bullet, body);
     el.append(row);
-    if (!isTitle) el.append(kids);
     el.dataset.id = id;
-    return { id, el, row, bullet, badge, check, content, note, kids, c: null, n: null, kidsKey: '', num: -1 };
+    return { id, el, row, bullet, body, content, badge: null, check: null, note: null, kids: null, c: null, n: null, kidsKey: '', num: -1 };
+  }
+
+  // the optional parts of a row, in their fixed DOM order: [menu, zoom,] badge, bullet, check, body(content, note); kids
+
+  private badgeEl(r: Row): HTMLElement {
+    if (!r.badge) r.bullet.before((r.badge = div('o-backlinks')));
+    return r.badge;
+  }
+
+  private checkEl(r: Row): HTMLElement {
+    if (!r.check) r.bullet.after((r.check = div('o-check')));
+    return r.check;
+  }
+
+  private noteEl(r: Row): HTMLElement {
+    if (!r.note) {
+      r.body.append((r.note = div('o-note')));
+      r.n = null;
+    }
+    return r.note;
+  }
+
+  private kidsEl(r: Row): HTMLElement {
+    if (!r.kids) r.el.append((r.kids = div('o-kids')));
+    return r.kids;
   }
 
   /** Full render (reuses existing rows). */
@@ -374,8 +399,8 @@ export class Editor {
       const flip = animate && flips.length === 1 && this.motionOk() ? flips[0]! : null;
       const closing = !!flip && this.isShut(flip.id);
       // collapsing: copy the children before they are removed, so the copy can shrink in their place
-      const ghost = closing && fewRows(flip!.kids) ? ghostOf(flip!.kids) : null;
-      const from = flip ? (reached.get(flip.id) ?? (ghost ? flip.kids.offsetHeight : 0)) : 0;
+      const ghost = closing && flip!.kids && fewRows(flip!.kids) ? ghostOf(flip!.kids) : null;
+      const from = flip ? (reached.get(flip.id) ?? (ghost ? flip.kids!.offsetHeight : 0)) : 0;
       for (const p of parents) {
         const r = this.rows.get(p);
         if (!r) continue;
@@ -383,7 +408,7 @@ export class Editor {
         this.updateRow(r, this.numberOf(p));
         removed = true;
       }
-      if (flip && (ghost || (!closing && fewRows(flip.kids)))) this.animateKids(flip, ghost, from);
+      if (flip?.kids && (ghost || (!closing && fewRows(flip.kids)))) this.animateKids(flip, ghost, from);
       if (removed) for (const [id, r] of this.rows) if (!r.el.isConnected) this.rows.delete(id);
       if (touched.has(this.view.zoom) || (this.view.zoom !== ROOT && [...touched].some((id) => t.ancestors(this.view.zoom).includes(id)))) {
         this.renderCrumbs();
@@ -402,14 +427,22 @@ export class Editor {
     return visibleChildren(t, p, this.view).indexOf(id) + 1;
   }
 
-  private reconcile(parent: NodeId, container: HTMLElement, deep: boolean) {
+  /** `container` is null for an item whose children block was never needed yet. */
+  private reconcile(parent: NodeId, container: HTMLElement | null, deep: boolean) {
     const t = this.tree;
     const want = visibleChildren(t, parent, this.view);
     const pn = t.get(parent);
     const numbered = !!pn?.props.num;
     const pr = this.rows.get(parent);
     if (pr && pn) pr.kidsKey = kidsKey(pn.children, pn.collapsed, pn.props.num);
-    // index-based: recursing may pull rows out of this container (e.g. after zoom out)
+    if (!container) {
+      if (!want.length || !pr) return;
+      container = this.kidsEl(pr);
+    }
+    // `at` is the element at position i. Recursing may pull later rows out of this container (e.g. after
+    // zoom out), so it is read again after each recursion; indexing `container.children` instead is
+    // quadratic (every insert invalidates the live collection's cache)
+    let at = container.firstElementChild;
     want.forEach((id, i) => {
       let r = this.rows.get(id);
       const fresh = !r || r === this.title;
@@ -417,14 +450,18 @@ export class Editor {
         r = this.makeRow(id);
         this.rows.set(id, r);
       }
-      const at = container.children[i] ?? null;
       if (r!.el !== at) container.insertBefore(r!.el, at);
       const num = numbered ? i + 1 : 0;
       // touched rows are updated by patch(); others only when their number moved
       if (fresh || deep || r!.num !== num) this.updateRow(r!, num);
       if (fresh || deep) this.reconcile(id, r!.kids, deep);
+      at = r!.el.nextElementSibling;
     });
-    while (container.children.length > want.length) container.lastElementChild!.remove();
+    while (at) {
+      const next = at.nextElementSibling;
+      at.remove();
+      at = next;
+    }
   }
 
   private updateRow(r: Row, num: number) {
@@ -442,19 +479,27 @@ export class Editor {
     cls.toggle('o-numbered', num > 0);
     for (const h of [1, 2, 3]) cls.toggle(`o-h${h}`, p.h === h);
     for (const c of [1, 2, 3, 4, 5, 6]) r.content.classList.toggle(`o-cl${c}`, p.cl === c);
-    r.check.hidden = !p.cb;
-    r.check.classList.toggle('o-on', !!p.ck);
+    if (p.cb || r.check) {
+      const ch = this.checkEl(r);
+      ch.hidden = !p.cb;
+      ch.classList.toggle('o-on', !!p.ck);
+    }
     r.bullet.textContent = num > 0 ? `${num}.` : '';
     const refs = this.backlinks?.get(r.id) ?? 0;
-    r.badge.hidden = !refs;
-    if (refs) r.badge.textContent = String(refs);
+    if (refs || r.badge) {
+      const bd = this.badgeEl(r);
+      bd.hidden = !refs;
+      if (refs) bd.textContent = String(refs);
+    }
     r.bullet.href = `#z=${r.id}`;
 
     const c = (p.c as string | undefined) ?? '';
     const nt = (p.n as string | undefined) ?? '';
     this.syncField(r, 'c', c);
-    this.syncField(r, 'n', nt);
-    r.note.hidden = !nt && !(this.editing?.id === r.id && this.editing.f === 'n');
+    if (nt || r.note) {
+      this.syncField(r, 'n', nt);
+      r.note!.hidden = !nt && !(this.editing?.id === r.id && this.editing.f === 'n');
+    }
   }
 
   /** Does the item render collapsed? */
@@ -489,9 +534,10 @@ export class Editor {
 
   /** Animate `r`'s children block from height `from` to its final height (0 when collapsing). */
   private animateKids(r: Row, ghost: HTMLElement | null, from: number) {
-    const el = ghost ?? r.kids;
-    if (ghost) r.kids.after(ghost);
-    const to = ghost ? 0 : r.kids.offsetHeight;
+    const kids = r.kids!; // the caller checked
+    const el = ghost ?? kids;
+    if (ghost) kids.after(ghost);
+    const to = ghost ? 0 : kids.offsetHeight;
     if (Math.abs(to - from) < 1) {
       ghost?.remove();
       return;
@@ -526,7 +572,7 @@ export class Editor {
   }
 
   private syncField(r: Row, f: 'c' | 'n', value: string) {
-    const el = f === 'c' ? r.content : r.note;
+    const el = f === 'c' ? r.content : this.noteEl(r);
     if (this.editing && this.editing.el === el) {
       if (getText(el) !== value) {
         const s = getSel(el);
@@ -653,11 +699,11 @@ export class Editor {
   startEdit(id: NodeId, f: 'c' | 'n', s: number, e = s) {
     const r = this.rows.get(id);
     if (!r) return;
-    const el = f === 'c' ? r.content : r.note;
+    const el = f === 'c' ? r.content : this.noteEl(r);
     if (this.editing?.el !== el) {
       this.stopEdit();
       this.editing = { id, f, el };
-      r.note.hidden = false;
+      this.noteEl(r).hidden = false;
       el.contentEditable = PLAINTEXT_ONLY ? 'plaintext-only' : 'true';
       el.spellcheck = this.prefs.spellcheck;
       setText(el, (this.tree.get(id)?.props[f] as string | undefined) ?? '');
@@ -688,7 +734,7 @@ export class Editor {
     renderInto(ed.el, value, this.renderOptsFor(ed.id));
     if (r) {
       r[ed.f] = value;
-      r.note.hidden = !((this.tree.get(ed.id)?.props.n as string | undefined) ?? '');
+      if (r.note) r.note.hidden = !((this.tree.get(ed.id)?.props.n as string | undefined) ?? '');
     }
   }
 
