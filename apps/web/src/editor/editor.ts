@@ -359,6 +359,7 @@ export class Editor {
     if (!this.session) return;
     this.endAnims();
     this.mutating++;
+    const focus = this.focusMark();
     try {
       const t = this.tree;
       const zoom = this.view.zoom;
@@ -380,6 +381,7 @@ export class Editor {
       this.revalidateSel();
       this.paintBlock();
     } finally {
+      this.restoreFocus(focus);
       this.mutating--;
     }
   }
@@ -389,6 +391,7 @@ export class Editor {
     const animate = this.animateNext;
     this.animateNext = false;
     this.mutating++;
+    const focus = this.focusMark();
     try {
       const t = this.tree;
       const parents = new Set<NodeId>();
@@ -443,6 +446,7 @@ export class Editor {
       this.revalidateSel();
       if (this.block) this.paintBlock();
     } finally {
+      this.restoreFocus(focus);
       this.mutating--;
     }
   }
@@ -694,6 +698,21 @@ export class Editor {
     const tx = new Tx(t);
     for (const a of t.ancestors(id)) if (t.get(a)!.collapsed) tx.collapse(a, false);
     if (tx.ops.length) this.session.commit(tx, { before: null, after: null }, { undoable: false });
+  }
+
+  /** The edited field and its caret, if it has focus (see restoreFocus). */
+  private focusMark(): { ed: Editing; s: number; e: number } | null {
+    const ed = this.editing;
+    if (!ed || document.activeElement !== ed.el) return null;
+    const sel = getSel(ed.el);
+    return sel && { ed, s: sel.s, e: sel.e };
+  }
+
+  /** Moving the edited row (or an ancestor) in the DOM blurs it: give the caret back if it's still the edited field. */
+  private restoreFocus(m: { ed: Editing; s: number; e: number } | null) {
+    if (!m || this.editing !== m.ed || !m.ed.el.isConnected || document.activeElement === m.ed.el) return;
+    m.ed.el.focus({ preventScroll: true });
+    setSel(m.ed.el, m.s, m.e);
   }
 
   /** Forget the parts of the selection that are no longer shown (hidden by a collapse, a filter, a remote change...). */

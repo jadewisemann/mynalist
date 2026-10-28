@@ -409,6 +409,11 @@ export interface Failure {
 
 function check(e: Editor, s: DocSession, fresh: boolean): string[] {
   const errs = [...verifyTree(s.live), ...verifyRender(e)];
+  // DOM rearrangements must not take the caret away from the item being edited
+  const ed$ = e.debugInternals().editing;
+  if (ed$ && document.hasFocus() && document.activeElement !== ed$.el) {
+    errs.push(`editing ${ed$.id}.${ed$.f} but focus is on ${document.activeElement?.className || document.activeElement?.tagName}`);
+  }
   if (!errs.length && fresh) errs.push(...compareFresh(e));
   return errs;
 }
