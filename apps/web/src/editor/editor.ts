@@ -914,8 +914,16 @@ export class Editor {
     this.syncField(r, 'c', c);
     if (nt || r.note) {
       this.syncField(r, 'n', nt);
-      r.note!.hidden = !nt && !(this.editing?.id === r.id && this.editing.f === 'n');
+      r.note!.hidden = !this.noteShows(r.id, nt);
     }
+  }
+
+  /** A note is shown when it has text (spaces alone don't count) or while it is the edited field. */
+  private noteShows(id: NodeId, note?: string): boolean {
+    const ed = this.editing;
+    if (ed && ed.id === id && ed.f === 'n') return true;
+    const text = note ?? ((this.tree.get(id)?.props.n as string | undefined) ?? '');
+    return text.trim() !== '';
   }
 
   /** Does the item render collapsed? */
@@ -1165,7 +1173,9 @@ export class Editor {
     if (this.editing?.el !== el) {
       this.stopEdit(true);
       this.editing = { id, f, el };
-      this.noteEl(r).hidden = false;
+      // an empty note is shown only while the note itself is the edited field: editing the item text must not
+      // leave a blank note line between the row and its children
+      this.noteEl(r).hidden = !this.noteShows(id);
       el.contentEditable = PLAINTEXT_ONLY ? 'plaintext-only' : 'true';
       el.spellcheck = this.prefs.spellcheck;
       setText(el, (this.tree.get(id)?.props[f] as string | undefined) ?? '');
@@ -1199,7 +1209,8 @@ export class Editor {
     renderInto(ed.el, value, this.renderOptsFor(ed.id));
     if (r) {
       r[ed.f] = value;
-      if (r.note) r.note.hidden = !((this.tree.get(ed.id)?.props.n as string | undefined) ?? '');
+      // an emptied (or whitespace-only) note stops taking a line once it is no longer edited
+      if (r.note) r.note.hidden = !this.noteShows(ed.id);
     }
   }
 

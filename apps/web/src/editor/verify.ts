@@ -118,16 +118,16 @@ export function verifyRender(ed: Editor, limit = 40): string[] {
     if (body[0] !== r.content || body.length > 2 || (body.length === 2 && body[1] !== r.note)) bad(`${name(id)}: body parts`);
     field(r, id, 'c', r.content, r.c);
     const nt = str(p.n);
-    if (nt) {
+    // a note takes a line when it has text (spaces alone don't) or while the note is the edited field
+    const noteShown = nt.trim() !== '' || (!!ed$ && ed$.id === id && ed$.f === 'n');
+    if (noteShown) {
       if (!r.note) bad(`${name(id)}: note missing`);
       else {
         if (r.note.hidden) bad(`${name(id)}: note hidden`);
         field(r, id, 'n', r.note, r.n);
       }
     } else if (r.note && !r.note.hidden) {
-      // an empty note shows only while its item is being edited
-      if (!ed$ || ed$.id !== id) bad(`${name(id)}: empty note shown`);
-      else if (ed$.el !== r.note && r.note.textContent) bad(`${name(id)}: empty note has text`);
+      bad(`${name(id)}: empty note shown`);
     }
 
     // node children: row, kids?, collapse-animation copy?

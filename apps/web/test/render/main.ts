@@ -722,6 +722,52 @@ scenario('enter and backspace', SPEC, async (c) => {
   await c.step('Tab the block', () => key('Tab'));
 });
 
+scenario('an empty note takes no line', SPEC, async (c) => {
+  const noteOf = (id: NodeId) => c.e.debugInternals().rows.get(id)?.note ?? null;
+  const noteShown = (id: NodeId) => {
+    const n = noteOf(id);
+    return !!n && !n.hidden && getComputedStyle(n).display !== 'none';
+  };
+  const key = (k: string, o: Partial<KeyboardEventInit> = {}) => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: k, code: k, bubbles: true, cancelable: true, ...o }));
+  // opening the note makes room for it; leaving it empty must give the room back
+  await c.step('edit a3 text', () => c.e.applySel(caret(c.ids.a3!, 2)));
+  await c.step('Shift+Enter opens an empty note', () => key('Enter', { shiftKey: true }));
+  c.expect(c.e.debugInternals().editing?.f === 'n', 'Shift+Enter did not focus the note');
+  c.expect(noteShown(c.ids.a3!), 'the note being edited is not shown');
+  await c.step('Shift+Enter back to the text', () => key('Enter', { shiftKey: true }));
+  c.expect(!noteShown(c.ids.a3!), 'an empty note still takes a line after leaving it');
+  await c.step('Escape out of an empty note', () => {
+    c.e.applySel(caret(c.ids.a3!, 0, 'n'));
+  });
+  await c.step('Escape', () => key('Escape'));
+  c.expect(!noteShown(c.ids.a3!), 'an empty note still takes a line after Escape');
+  // whitespace alone is not a note either (Dynalist only shows a note with text)
+  await c.step('note with a space', () => c.e.run((tx) => {
+    tx.set(c.ids.a3!, { n: ' ' });
+    return { sel: { k: 'none' } };
+  }));
+  c.expect(!noteShown(c.ids.a3!), 'a whitespace-only note takes a line');
+  await c.step('note with a newline', () => c.e.run((tx) => {
+    tx.set(c.ids.a3!, { n: '\n' });
+    return { sel: { k: 'none' } };
+  }));
+  c.expect(!noteShown(c.ids.a3!), 'a newline-only note takes a line');
+  // ... but its text is kept, and a real note shows again
+  await c.step('type into the whitespace note', () => c.e.run((tx) => {
+    tx.set(c.ids.a3!, { n: '\nreal' });
+    return { sel: { k: 'none' } };
+  }));
+  c.expect(noteShown(c.ids.a3!), 'a note with text is not shown');
+  // editing the item text of an item whose note is blank must not reveal the note
+  await c.step('blank note again', () => c.e.run((tx) => {
+    tx.set(c.ids.a3!, { n: '  ' });
+    return { sel: { k: 'none' } };
+  }));
+  await c.step('edit its text', () => c.e.applySel(caret(c.ids.a3!, 0)));
+  c.expect(!noteShown(c.ids.a3!), 'editing the item text revealed a blank note');
+  await c.step('leave', () => c.e.applySel({ k: 'none' }));
+});
+
 scenario('long sibling lists', '', async (c) => {
   await c.step('300 top-level items', () => c.e.run((tx) => {
     let after: NodeId | null = null;
