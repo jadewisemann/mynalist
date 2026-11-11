@@ -70,3 +70,35 @@ describe('DocSession sync', () => {
     expect(s.live.get('a')!.props.c).toBe('hel');
   });
 });
+
+describe('kidsRev', () => {
+  it('changes when the children change, and with collapse and numbering', () => {
+    const t = new Tree();
+    t.apply(c('a'));
+    const before = t.kidsRev(ROOT);
+    expect(t.kidsRev(ROOT)).toBe(before); // stable while nothing changes
+    t.apply(c('b', ROOT, 'a'));
+    const added = t.kidsRev(ROOT);
+    expect(added).not.toBe(before);
+    t.apply({ t: 'move', id: 'b', parent: 'a', after: null, ts: 2 });
+    expect(t.kidsRev(ROOT)).not.toBe(added);
+    // collapse and numbering are part of the stamp: they change how the children block is drawn
+    const plain = t.kidsRev('a');
+    t.apply({ t: 'collapse', id: 'a', v: true });
+    expect(t.kidsRev('a')).not.toBe(plain);
+    const shut = t.kidsRev('a');
+    t.apply({ t: 'set', id: 'a', props: { num: true }, ts: 4 });
+    expect(t.kidsRev('a')).not.toBe(shut);
+  });
+
+  it('never repeats a stamp for the same node', () => {
+    const t = new Tree();
+    const seen = new Set<number>();
+    for (let i = 0; i < 50; i++) {
+      t.apply(c(`n${i}`));
+      const r = t.kidsRev(ROOT);
+      expect(seen.has(r)).toBe(false);
+      seen.add(r);
+    }
+  });
+});

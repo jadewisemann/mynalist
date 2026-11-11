@@ -42,6 +42,10 @@ export interface SerializedTree {
 
 export class Tree {
   readonly nodes = new Map<NodeId, TNode>();
+  /** stamp of the last children change per node (see kidsRev); not serialized */
+  private revs = new Map<NodeId, number>();
+  /** strictly increasing: a stamp is never reused, so a stale one can't compare equal to a fresh one */
+  private stamp = 0;
 
   constructor(rootProps: Props = {}, ts = 0) {
     this.nodes.set(ROOT, {
@@ -138,7 +142,23 @@ export class Tree {
     return p.children[Math.min(index, p.children.length) - 1] ?? null;
   }
 
+  /**
+   * A stamp that changes whenever the children list of `id` changes, and with the collapsed/numbered flags (which
+   * the children block shows too). Lets a renderer tell in O(1) whether the block it drew is still current, instead
+   * of comparing ids — that cost grows with a 20k-item list and ran on every keystroke.
+   */
+  kidsRev(id: NodeId): number {
+    const n = this.nodes.get(id);
+    if (!n) return 0;
+    return (this.revs.get(id) ?? 0) * 4 + (n.collapsed ? 1 : 0) + (n.props.num ? 2 : 0);
+  }
+
+  private bumpRev(id: NodeId) {
+    this.revs.set(id, ++this.stamp);
+  }
+
   private insert(parent: TNode, id: NodeId, after: NodeId | null) {
+    this.bumpRev(parent.id);
     if (after === null) {
       parent.children.unshift(id);
       return;
@@ -160,6 +180,7 @@ export class Tree {
     if (p) {
       const i = p.children.indexOf(n.id);
       if (i >= 0) p.children.splice(i, 1);
+      this.bumpRev(p.id);
     }
     n.parent = null;
   }

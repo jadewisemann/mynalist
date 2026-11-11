@@ -86,8 +86,8 @@ export interface Row {
   kids: HTMLElement | null;
   c: string | null;
   n: string | null;
-  /** children/collapse/numbering signature at last reconcile */
-  kidsKey: string;
+  /** tree.kidsRev() of the children block last drawn here: an O(1) "is this block still current?" */
+  kidsRev: number;
   num: number;
 }
 
@@ -390,7 +390,7 @@ export class Editor {
     row.append(bullet, body);
     el.append(row);
     el.dataset.id = id;
-    return { id, el, row, bullet, body, content, badge: null, check: null, note: null, kids: null, c: null, n: null, kidsKey: '', num: -1 };
+    return { id, el, row, bullet, body, content, badge: null, check: null, note: null, kids: null, c: null, n: null, kidsRev: -1, num: -1 };
   }
 
   // the optional parts of a row, in their fixed DOM order: [menu, zoom,] badge, bullet, check, body(content, note); kids
@@ -472,13 +472,13 @@ export class Editor {
         const r = this.rows.get(id);
         if (r) {
           // children list may have changed (collapse, check filter, moves)
-          if (r.kidsKey !== kidsKey(n.children, n.collapsed, n.props.num)) parents.add(id);
+          if (r.kidsRev !== t.kidsRev(id)) parents.add(id);
           else this.updateRow(r, this.numberOf(id));
         }
         const p = n.parent;
         if (p) {
           const pr = this.rows.get(p);
-          if (!pr || !r || containerOf(r.el) !== (p === this.view.zoom ? this.items : pr.kids) || pr.kidsKey !== kidsKey(t.get(p)!.children, t.get(p)!.collapsed, t.get(p)!.props.num)) {
+          if (!pr || !r || containerOf(r.el) !== (p === this.view.zoom ? this.items : pr.kids) || pr.kidsRev !== t.kidsRev(p)) {
             parents.add(p);
           }
           // checked state affects visibility in the parent when hiding checked items
@@ -546,7 +546,7 @@ export class Editor {
     const pn = t.get(parent);
     const numbered = !!pn?.props.num;
     const pr = this.rows.get(parent);
-    if (pr && pn) pr.kidsKey = kidsKey(pn.children, pn.collapsed, pn.props.num);
+    if (pr && pn) pr.kidsRev = t.kidsRev(parent);
     if (!container) {
       if (!want.length || !pr) return;
       container = this.kidsEl(pr);
@@ -2248,10 +2248,6 @@ function removeFrom(el: Element | null) {
 function containerOf(el: HTMLElement): HTMLElement | null {
   const p = el.parentElement;
   return p?.classList.contains('o-chunk') ? p.parentElement : p;
-}
-
-function kidsKey(children: NodeId[], collapsed: boolean, num: unknown): string {
-  return `${collapsed ? 1 : 0}${num ? 1 : 0}${children.join(',')}`;
 }
 
 function fewRows(kids: HTMLElement): boolean {
