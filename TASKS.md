@@ -8,7 +8,6 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
   - `packages/core`: 트리/op 엔진, undo, sync, 에디터 명령, 인라인 문법, 날짜, 검색, 붙여넣기/내보내기. 런타임 의존성 없음.
   - `apps/server`: Node 24, node:sqlite, ws.
   - `apps/web`: Vite, vanilla TS.
-  - `apps/shell`: Tauri 2 셸 (macOS/Linux/Android). Rust 네이티브 앱으로 대체할 예정이다.
   - `deploy/`: systemd 파일.
   - `qa/`: Dynalist 비교 QA.
 - 스펙: `docs/01-data-model-sync.md`, `docs/02-editor-keyboard.md`, `docs/03-features-ui.md`, `docs/ARCHITECTURE.md`.
@@ -246,8 +245,10 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
 
 ### 4. 모바일·macOS: Rust 네이티브 앱
 - [x] Capacitor 셸(`apps/android`) 제거 (2026-11-13).
+- [x] Tauri 셸(`apps/shell`, `shell.yml`) 제거 (2026-11-13). 네이티브 앱이 나올 때까지 macOS와 Android는 웹(PWA)을 쓴다.
 - [ ] 웹(`apps/web`)은 TS/DOM 그대로 둔다. Android와 macOS는 Rust 네이티브 앱으로 새로 만든다. 기존 서버 동기화 프로토콜과 호환해야 한다.
-- [ ] UI 스택 결정과 한글 IME 검증.
+- [ ] UI 스택: macOS는 GPUI로 한다. 모바일은 GPUI와 코드를 최대한 공유할 수 있는 방향으로 정한다.
+- [ ] 한글 IME 검증.
 
 ## 자주 쓰는 명령
 
