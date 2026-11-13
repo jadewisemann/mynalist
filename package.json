@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "!apps/shell"
   ],
   "scripts": {
     "prestart": "test -f apps/web/dist/index.html || npm run build -w @outliner/web",
