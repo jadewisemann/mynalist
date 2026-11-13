@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Rust build output
+src-tauri/target/
+
+# Generated Android Gradle build products (the project itself is kept: it holds
+# the manifest, icons and MainActivity that are part of this shell)
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/build/
+src-tauri/gen/android/buildSrc/.gradle/
+src-tauri/gen/android/buildSrc/build/
+src-tauri/gen/android/app/build/
+src-tauri/gen/android/local.properties
+
+# Generated schemas are produced by tauri-build; keep them out of the tree.
+src-tauri/gen/schemas/
+
+# Built bundles
+src-tauri/target/release/bundle/
