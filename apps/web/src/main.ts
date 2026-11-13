@@ -1,4 +1,3 @@
-import { Capacitor } from '@capacitor/core';
 import {
   ROOT, escapeInline, Tx, backlinkCounts, compileQuery, extractTags, findBacklinks, fuzzyFilter, inlineToPlain, insertPortable, parseItemUrl,
   replaceTag, searchTree, toPortable, type NodeId, type Sel, type SortMode, type Tree,
@@ -32,7 +31,6 @@ import '@fontsource/fira-sans/400-italic.css';
 import '@fontsource/fira-sans/700.css';
 import '@fontsource/fira-sans/700-italic.css';
 import '@fontsource/fira-mono/400.css';
-import './platform.ts';
 import { qaSnapshot } from './qa.ts';
 
 interface Route {
@@ -1447,8 +1445,7 @@ function formatHash(r: Route): string {
 const app = new App();
 void app.start();
 
-// offline app shell for the browser build (needs a secure context: https or localhost;
-// Capacitor bundles its assets itself)
-if ('serviceWorker' in navigator && import.meta.env.PROD && !Capacitor.isNativePlatform()) {
+// offline app shell for the browser build (needs a secure context: https or localhost)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   void navigator.serviceWorker.register('./sw.js').catch(() => {});
 }

@@ -4,4 +4,3 @@
 **/*.db-*
 .git
 .env
-apps/android/android

@@ -3,7 +3,6 @@ dist
 *.db
 *.db-*
 .env
-apps/android/android/app/build
 qa/out
 *.jks
 *.keystore

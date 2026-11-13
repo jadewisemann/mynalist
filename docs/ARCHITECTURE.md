@@ -8,7 +8,6 @@ packages/core     shared TS (no deps): tree + ops, session/undo/sync client, edi
                   inline parser, dates, search, paste/import/export
 apps/server       Node 24 (type-stripping, no build) + node:sqlite + ws. Single user.
 apps/web          Vite + vanilla TS editor (no framework; keyed DOM patching)
-apps/android      Capacitor shell around apps/web build
 ```
 
 All TS is "erasable syntax only" and imports use explicit `.ts` extensions so Node can run it directly.

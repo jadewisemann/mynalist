@@ -9,7 +9,6 @@ packages/core   shared logic: tree + ops, undo, sync client, editor commands, in
                 paste/import/export (no runtime deps; unit-tested)
 apps/server     Node 24 + node:sqlite + ws — op-log sync server (single user)
 apps/web        Vite + vanilla TS editor
-apps/android    Capacitor shell around apps/web
 deploy/         systemd user service + install script
 ```
 
@@ -73,11 +72,6 @@ Open that URL on any device and connect to the same URL in Settings → Sync & d
   `/cal/<HMAC of the token>.ics` (changes when the token changes). Anyone you give one to can read that thing only.
   Files are served with `nosniff` and a `sandbox` CSP (HTML or SVG uploads can't run script in the app's origin),
   and only images, PDF, plain text, audio and video open inline; share pages have a no-script CSP.
-
-## Android
-
-See `apps/android/README.md`. `npm run build -w @outliner/android` → `apps/android/android/app/build/outputs/apk/debug/app-debug.apk`.
-Install it, then Settings → server URL (`http://<tailscale-ip>:8080`) + password.
 
 ## Tests
 

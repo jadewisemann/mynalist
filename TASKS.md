@@ -8,7 +8,7 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
   - `packages/core`: 트리/op 엔진, undo, sync, 에디터 명령, 인라인 문법, 날짜, 검색, 붙여넣기/내보내기. 런타임 의존성 없음.
   - `apps/server`: Node 24, node:sqlite, ws.
   - `apps/web`: Vite, vanilla TS.
-  - `apps/android`: Capacitor 8.
+  - `apps/shell`: Tauri 2 셸 (macOS/Linux/Android). Rust 네이티브 앱으로 대체할 예정이다.
   - `deploy/`: systemd 파일.
   - `qa/`: Dynalist 비교 QA.
 - 스펙: `docs/01-data-model-sync.md`, `docs/02-editor-keyboard.md`, `docs/03-features-ui.md`, `docs/ARCHITECTURE.md`.
@@ -45,7 +45,7 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
 5. **에디터:**
    - 성능: 불필요한 row 업데이트 생략, content-visibility.
    - bullet 드래그앤드롭, 항목 컨텍스트 메뉴.
-6. **Android:** Capacitor 8 셸. debug APK 빌드가 되고, 서버 URL은 설정 화면에서 입력한다. → `apps/android/README.md`
+6. **Android:** Capacitor 8 셸이었으나 2026-11-13에 제거했다. 모바일과 macOS는 Rust 네이티브 앱으로 새로 만든다.
 7. **PWA:** manifest, 아이콘, service worker. systemd 배포 파일.
 8. **반복 날짜:**
    - 반복 날짜 체크 처리(new_instance / update).
@@ -90,7 +90,6 @@ Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이
       - 이미지 미리보기, 튜토리얼, What's new
       - 파일 붙여넣기/드롭 업로드
       - 공유 대화상자, 업로드/공유/캘린더 관리 화면
-    - **Android:** release 서명 설정. 키스토어는 레포 밖에 두고 `scripts/make-keystore.sh`로 만든다.
 
 ### 배포 (이 머신, oci-agent)
 
@@ -245,16 +244,10 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
 - [x] 온보딩 튜토리얼과 What's new: 메인 메뉴에서 연다. QA에 방해되지 않게 자동으로 열지 않는다.
 - [x] 읽기 전용 잠금 모드: 문서별 보기 옵션에서 켠다.
 
-### 4. Android
-- [ ] 실제 기기에서 debug APK를 테스트한다 (사용자). 테스트 항목:
-  - 서버 URL 입력
-  - 동기화
-  - 키보드
-  - 파일 업로드
-- [x] release 서명 빌드 준비:
-  - `apps/android/scripts/make-keystore.sh`로 `~/.config/outliner`에 키스토어와 속성 파일을 만든다.
-  - 빌드는 `npm run build:release -w @outliner/android`.
-- [ ] 키스토어를 만들어 release APK를 빌드하고, 키스토어를 안전한 곳에 백업한다 (사용자 판단).
+### 4. 모바일·macOS: Rust 네이티브 앱
+- [x] Capacitor 셸(`apps/android`) 제거 (2026-11-13).
+- [ ] 웹(`apps/web`)은 TS/DOM 그대로 둔다. Android와 macOS는 Rust 네이티브 앱으로 새로 만든다. 기존 서버 동기화 프로토콜과 호환해야 한다.
+- [ ] UI 스택 결정과 한글 IME 검증.
 
 ## 자주 쓰는 명령
 
