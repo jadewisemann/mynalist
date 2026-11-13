@@ -1,0 +1,31 @@
+# Android cross-compilation on this aarch64 host.
+#
+# The NDK's own clang is an x86-64 binary. qemu-user binfmt
+# (/proc/sys/fs/binfmt_misc/qemu-x86_64) plus an x86-64 glibc make it runnable
+# unmodified, which is better than the host-clang + NDK-sysroot shim used in the
+# GPUI spike: this is the toolchain the NDK and AGP expect, so C/C++ runtimes
+# and linker flags match.
+#
+# `source scripts/android-env.sh` first; it puts the NDK bin dir on PATH and
+# exports ANDROID_NDK_HOME.
+#
+# NOTE: the Tauri CLI exports CARGO_TARGET_<TRIPLE>_LINKER and _RUSTFLAGS, which
+# override both `linker` and `rustflags` here. The flag that actually matters for
+# a shippable APK -- 16 KB page alignment, required on Android 15's 16 KB-page
+# devices -- is therefore emitted from build.rs (`cargo:rustc-link-arg`), which
+# applies to both `tauri android build` and a plain `cargo build`.
+[target.aarch64-linux-android]
+linker = "aarch64-linux-android24-clang"
+ar = "llvm-ar"
+
+[target.armv7-linux-androideabi]
+linker = "armv7a-linux-androideabi24-clang"
+ar = "llvm-ar"
+
+[target.i686-linux-android]
+linker = "i686-linux-android24-clang"
+ar = "llvm-ar"
+
+[target.x86_64-linux-android]
+linker = "x86_64-linux-android24-clang"
+ar = "llvm-ar"

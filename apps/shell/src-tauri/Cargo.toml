@@ -1,0 +1,30 @@
+[package]
+name = "outliner"
+version = "0.1.0"
+description = "Outliner desktop shell (Tauri 2)"
+authors = ["Outliner"]
+edition = "2021"
+rust-version = "1.82"
+publish = false
+
+# The library is what the mobile entry points link against; the binary is the
+# desktop entry point. This split is what `tauri android`/`tauri ios` expect.
+[lib]
+name = "outliner_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

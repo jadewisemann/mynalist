@@ -1,0 +1,124 @@
+# tauri-shell verification log — 2026-11-12T11:07:49Z
+
+## host
+Linux 6.17.0-1020-oracle aarch64
+rustc 1.99.1 (58cf8f9c3 2026-10-13)
+v24.22.0
+
+## 1. linux cargo build (debug)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
+
+## 2. linux tauri build (release bundles)
+80857608 src-tauri/target/release/bundle/appimage/Outliner_0.1.0_aarch64.AppImage
+4035878 src-tauri/target/release/bundle/deb/Outliner_0.1.0_arm64.deb
+6363640 src-tauri/target/release/outliner
+
+## 3. web repo untouched
+$ git -C repository/outliner status --short
+(no output = clean)
+$ git -C repository/outliner rev-parse HEAD
+1cc2b6931a15e74304ec047fd145f09da82a9043
+
+## 4. headless smoke tests
+
+### scripts/smoke-linux.sh
+binary:  /home/ubuntu/code/work/outliner-native/shell/src-tauri/target/debug/outliner
+window:  2097155 Outliner
+geometry: WINDOW=2097155 X=40 Y=40 WIDTH=1200 HEIGHT=820 SCREEN=0 
+webview: "{\"title\":\"Welcome — Outliner\",\"app\":true,\"text\":\"\\nLocal only\\n\\n\\n\\nFiles\\nBookmarks\\nTags\\nMY FILES\\n\\n\\n\\n\\nWelcome\\n\\n\\nWelcome\\nBasics\\nEnter for a new item, Tab / Shift+Tab to indent\\nCtrl+] zooms in, Ctrl+[ zooms out, Ctrl+. collapses\\nShift+Enter adds a note\\nLike this one.\\nCtrl+Enter completes an item\\nFormatting\\nbold, italic, strike, highlight, code\\nTags like #idea and dates like Thu, December 31st 2026\\nPress Ctrl+/ for all shortcuts\"}"
+--- relevant stderr ---
+outliner: shell ready
+outliner: eval "{\"title\":\"Welcome — Outliner\",\"app\":true,\"text\":\"\\nLocal only\\n\\n\\n\\nFiles\\nBookmarks\\nTags\\nMY FILES\\n\\n\\n\\n\\nWelcome\\n\\n\\nWelcome\\nBasics\\nEnter for a new item, Tab / Shift+Tab to indent\\nCtrl+] zooms in, Ctrl+[ zooms out, Ctrl+. collapses\\nShift+Enter adds a note\\nLike this one.\\nCtrl+Enter completes an item\\nFormatting\\nbold, italic, strike, highlight, code\\nTags like #idea and dates like Thu, December 31st 2026\\nPress Ctrl+/ for all shortcuts\"}"
+-----------------------
+OK: web bundle booted (document.title set by the app)
+OK: app root mounted
+PASS
+(negative control: deleting dist/index.html must fail this test)
+
+### scripts/smoke-menu.sh
+eval: "{\"isMac\":false,\"before\":0,\"settings\":1,\"closed\":0,\"help\":1,\"settingsOk\":true,\"helpOk\":true}"
+--- stderr ---
+outliner: shell ready
+outliner: eval "{\"isMac\":false,\"before\":0,\"settings\":1,\"closed\":0,\"help\":1,\"settingsOk\":true,\"helpOk\":true}"
+--------------
+OK: Mod+, opened the settings dialog
+OK: the dialog is the settings dialog
+OK: Escape closed it (the overlay teardown path works)
+OK: Mod+/ opened the shortcuts panel
+OK: the panel lists shortcuts and formatting
+PASS
+
+### scripts/smoke-links.sh
+eval: "{\"externalNull\":true,\"internalNull\":true,\"linkPrevented\":true,\"stayed\":true}"
+--- stderr (link-related) ---
+outliner: shell ready
+outliner: eval "{\"externalNull\":true,\"internalNull\":true,\"linkPrevented\":true,\"stayed\":true}"
+-----------------------------
+OK: window.open(https://…) was intercepted
+OK: the app did not navigate away
+OK: target="_blank" click was prevented
+OK: the window still exists after the probes
+PASS
+
+### scripts/smoke-menu-keys.sh
+OK:   Mod+/ is a live binding
+OK:   Mod+F is a live binding
+OK:   Mod+O is a live binding
+OK:   Mod+S is a live binding
+OK:   Mod+Shift+. is a live binding
+OK:   Mod+Shift+B is a live binding
+OK:   Mod+Shift+F is a live binding
+OK:   Mod+Shift+I is a live binding
+OK:   Mod+Shift+O is a live binding
+OK:   Mod+Shift+Z is a live binding
+OK:   Mod+Z is a live binding
+PASS
+
+## 5. android APK build + verify
+$ source scripts/android-env.sh && npx tauri android build --apk
+produced:
+650371026 src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
+26541686 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+
+$ scripts/android-verify.sh <release apk>
+size: 26M
+
+OK:   package dev.outliner.app
+OK:   label 'Outliner'
+       minSdk=24 targetSdk=37
+OK:   INTERNET permission (server sync is optional, but the app must be able to talk to one)
+OK:   ABIs: arm64-v8a armeabi-v7a x86 x86_64
+OK:   arm64-v8a: liboutliner_lib.so present
+OK:   arm64-v8a: ELF machine 'AArch64'
+OK:   arm64-v8a: JNI entry point Java_dev_outliner_app_Rust_onCreate exported
+OK:   arm64-v8a: PT_LOAD alignment 16 KB (0x4000 )
+OK:   arm64-v8a: web build embedded (assets/index-CNHuKIsL.js)
+OK:   armeabi-v7a: liboutliner_lib.so present
+OK:   armeabi-v7a: ELF machine 'ARM'
+OK:   armeabi-v7a: JNI entry point Java_dev_outliner_app_Rust_onCreate exported
+OK:   armeabi-v7a: PT_LOAD alignment 16 KB (0x4000 )
+OK:   armeabi-v7a: web build embedded (assets/index-CNHuKIsL.js)
+OK:   x86: liboutliner_lib.so present
+OK:   x86: ELF machine 'Intel 80386'
+OK:   x86: JNI entry point Java_dev_outliner_app_Rust_onCreate exported
+OK:   x86: PT_LOAD alignment 16 KB (0x4000 )
+OK:   x86: web build embedded (assets/index-CNHuKIsL.js)
+OK:   x86_64: liboutliner_lib.so present
+OK:   x86_64: ELF machine 'Advanced Micro Devices X86-64'
+OK:   x86_64: JNI entry point Java_dev_outliner_app_Rust_onCreate exported
+OK:   x86_64: PT_LOAD alignment 16 KB (0x4000 )
+OK:   x86_64: web build embedded (assets/index-CNHuKIsL.js)
+INFO: release APK is unsigned (pass a keystore to tauri android build to sign it)
+
+PASS
+
+## 6. file download (backup/export path)
+probe: <a download href=blob:> click must write a file
+outliner: eval "clicked"
+OK: dl-probe.txt written, contents: download-probe
+
+## 7. negative controls
+smoke-links: in-app link must NOT be prevented
+OK: an in-app link was left alone (negative control)
+smoke-menu-keys: renamed combo must fail
+  (verified earlier: Mod+Shift+Q -> FAIL, restored -> PASS)

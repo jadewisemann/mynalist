@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+// The generated Gradle project shells out to `node tauri android
+// android-studio-script` with the Rust crate directory as its cwd
+// (RustPlugin passes rootDirRel = "../../../"). Node resolves a bare script
+// argument as a path relative to the cwd, so a file named `tauri` must exist
+// here. The workspace package.json is `"type": "module"`, so this file is ESM
+// and loads the CLI (CommonJS) with a dynamic import.
+import('../node_modules/@tauri-apps/cli/tauri.js');
