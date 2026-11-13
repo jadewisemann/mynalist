@@ -16,8 +16,10 @@ name: shell
 #     right-click > Open, or:
 #         xattr -d com.apple.quarantine /Applications/Outliner.app
 #     They are NOT notarized, so this prompt appears every download.
-#   * the Android APK is a debug build (signed with the throwaway debug key),
-#     installable via `adb install` but not uploadable to Play.
+#   * the Android APK is a RELEASE build with no release keystore, so it comes
+#     out UNSIGNED — `adb install` refuses it and it cannot go to Play. The job
+#     still proves the release path compiles; the verify step prints whether the
+#     APK happens to be signed instead of requiring a signature.
 # Real signing is a product decision, not a build detail, so it is left out.
 # See "Enabling signing" at the bottom of this file for where it would go.
 
@@ -208,11 +210,13 @@ jobs:
           retention-days: 14
 
   # ---------------------------------------------------------------------------
-  # Android: debug APK. Not signed for release (no keystore), so this is for
-  # device testing, not distribution.
+  # Android: release APK. Still test-only: no release keystore is configured,
+  # so the APK comes out UNSIGNED (adb install will refuse it). The point of
+  # this job is to prove the release build compiles and to hand back the
+  # artifact; signing is a separate decision (see the bottom of this file).
   # ---------------------------------------------------------------------------
   android:
-    name: Android (debug APK)
+    name: Android (release APK, unsigned)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -281,33 +285,57 @@ jobs:
       # arm64 only: the APK that actually runs on phones. Building all four
       # ABIs takes 4x as long for images nobody installs.
       #
-      # --debug, not --release: without a release keystore, `--release` produces
-      # an *unsigned* APK that `adb install` refuses. The debug build is signed
-      # with the throwaway debug key, so it installs for device testing. Swap to
-      # --release once signing is configured (see the bottom of this file).
+      # No --debug: release is `tauri android build`'s DEFAULT (there is no
+      # --release flag — passing one is a CLI error), so this is the real
+      # optimized/proguard'd build path. There is no release keystore in this
+      # repo, so Gradle emits an *unsigned* APK — the verify step below reports
+      # the signature state instead of requiring one.
       - name: Build the APK
         working-directory: apps/shell
-        run: npm run tauri android build -- --debug --apk --target aarch64
+        run: npm run tauri android build -- --apk --target aarch64
 
       - name: Verify the APK
         working-directory: apps/shell
         run: |
           set -eu
           SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          APK=$(find src-tauri/gen/android -name '*.apk' | head -1)
+          # Prefer the release output if both a debug and a release APK exist.
+          APK=$(find src-tauri/gen/android -path '*/release/*.apk' | head -1)
+          [ -n "$APK" ] || APK=$(find src-tauri/gen/android -name '*.apk' | head -1)
           [ -n "$APK" ] || { echo "FAIL: no APK"; exit 1; }
           echo "apk: $APK ($(du -h "$APK" | cut -f1))"
           BT=$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)
+
           # `application-label:` with the colon only matches the default label;
           # without it the per-locale lines (application-label-af:, ...) flood the log.
-          "$BT/aapt2" dump badging "$APK" \
-            | grep -E '^(package:|minSdkVersion:|targetSdkVersion:|application-label:|native-code:)'
+          BADGING="$("$BT/aapt2" dump badging "$APK")"
+          grep -E '^(package:|minSdkVersion:|targetSdkVersion:|application-label:|native-code:)' <<<"$BADGING"
+
+          # aapt2 only emits `application-debuggable` when the flag is set, so
+          # its absence means false. Informational: a release build is expected
+          # to be non-debuggable, but signing/config work is out of scope here.
+          if grep -q '^application-debuggable' <<<"$BADGING"; then
+            echo "debuggable: true  (WARN: expected false for a release build)"
+          else
+            echo "debuggable: false"
+          fi
+
           # 16 KB page alignment is mandatory on Android 15's 16 KB-page devices;
           # build.rs passes -Wl,-z,max-page-size=16384 for that reason.
           "$BT/zipalign" -c -P 16 4 "$APK" >/dev/null || { echo "FAIL: not 16 KB aligned"; exit 1; }
           echo "OK: 16 KB aligned"
-          # A debug APK must be signed, or adb install refuses it.
-          "$BT/apksigner" verify "$APK" >/dev/null && echo "OK: signed (debug key)"
+
+          # Signature: reported, not required. No release keystore is configured,
+          # so `--release` emits an unsigned APK that adb install will refuse.
+          # That is accepted for now — this job's value is the build itself.
+          if "$BT/apksigner" verify "$APK" >/dev/null 2>&1; then
+            SIGNED=yes
+            "$BT/apksigner" verify --print-certs "$APK" | grep -E '^(Signer #1 certificate DN|Signer #1 certificate SHA-256 digest):' || true
+          else
+            SIGNED=no
+          fi
+          echo "signed: $SIGNED"
+          echo "NOTE: unsigned APK cannot be installed with adb install."
 
       - uses: actions/upload-artifact@v7
         with:
