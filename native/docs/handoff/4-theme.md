@@ -8,6 +8,9 @@ and density (compact / normal / comfortable row padding). `style.rs` holds the l
 them come from the current theme, reactively. A settings screen (the top bar's gear on desktop, the menu on phones)
 with these options; keep the choices on the device (NSH storage).
 
+Build it on area 6's token modes (themes, sizes, densities, fonts come from `design/tokens.json`) and apply the
+custom-CSS subset of area 6 from the settings screen, listing the ignored rules as "web only".
+
 ## Done when
 
 Each theme matches the web app (structural snapshot, area 5; the offscreen PNGs are for looking only), changing settings applies at once and survives a restart, headless

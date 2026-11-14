@@ -5,6 +5,10 @@ Two tools, both in CI. This comes right after area 1; areas 2-4 then use them as
 comparison of any kind (no pixel diffs against reference images): the structural snapshot is the only check, and
 the offscreen render only produces pictures for people to look at.
 
+Order of areas: 1 (inline) → 5 (this) → 6 (one design source) → 2 → 3 → 4. Shape the snapshot as the render
+model area 6 shares with the web app (rows with depth, bullet center x, text left, top, height, spans with their
+resolved style; title; top bar; toolbar), so area 6 only adds a web measurer for the same model.
+
 ## 1. Structural snapshot
 
 A headless NSH test (`nsh-testing` 0.5.0) that renders fixed documents and dumps what is on screen in a stable text
