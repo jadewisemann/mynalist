@@ -13,6 +13,7 @@ pub mod fixture;
 mod icons;
 pub mod inline;
 mod outline;
+mod sidebar;
 pub mod store;
 pub mod style;
 mod toolbar;
@@ -42,15 +43,17 @@ fn native(registry: &mut Registry) {
 
 #[component]
 pub fn App() -> impl IntoElement {
-    if store::peek(|s| s.rows.is_empty()) {
-        // `OUTLINER_DEMO=inline`: the inline showcase instead of the large demo
+    if store::is_blank() {
+        // `OUTLINER_DEMO=inline`: the inline showcase instead of the large demo; an empty document beside it
         let inline = std::env::var("OUTLINER_DEMO").is_ok_and(|d| d == "inline");
-        store::open(if inline { store::showcase() } else { store::demo(DEMO_ITEMS) });
+        let first = if inline { store::showcase() } else { store::demo(DEMO_ITEMS) };
+        store::open_all(vec![("doc1".into(), first), ("doc2".into(), store::named("Untitled"))]);
     }
     screen()
 }
 
-/// The app's screen over the open document: the top bar, the outline and the phone toolbar.
+/// The app's screen over the open document: the top bar, the sidebar's panel (desktops) beside the outline, the
+/// phone toolbar, and the sidebar's drawer over all of it (phones).
 fn screen() -> View {
     view()
         .flex_1()
@@ -59,8 +62,9 @@ fn screen() -> View {
         .pb_keyboard()
         .bg(style::color::bg())
         .child(toolbar::topbar())
-        .child(outline::outline())
+        .child(view().flex_1().flex_row().child(sidebar::panel()).child(outline::outline()))
         .child(toolbar::mobile_bar())
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
+        .child(sidebar::drawer())
 }

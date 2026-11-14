@@ -36,16 +36,17 @@ const PHONE: Device = Device { name: "phone", os: Os::Ios, width: 390.0, height:
 
 type Styles = Arc<Mutex<HashMap<NodeId, ViewStyle>>>;
 
-fn start(doc: &str, editing: bool, device: Device, appearance: &str) -> (Headless, Styles) {
-    start_with(doc, editing, device, "", appearance)
+fn start(doc: &str, editing: bool, device: Device, appearance: &str, side: &str) -> (Headless, Styles) {
+    start_with(doc, editing, device, "", appearance, side)
 }
 
 /// [`start`] in `modes` (`group=mode` words).
-fn start_with(doc: &str, editing: bool, device: Device, modes: &str, appearance: &str) -> (Headless, Styles) {
+fn start_with(doc: &str, editing: bool, device: Device, modes: &str, appearance: &str, side: &str) -> (Headless, Styles) {
     // the dates' local zone (every snapshot sets the same)
     std::env::set_var("TZ", "UTC");
     let edited = editing.then(|| outliner_app::fixture::edited_item(doc));
-    let mut config = EngineConfig::new(outliner_app::fixture::root_with(doc, edited, modes, appearance));
+    let root = outliner_app::fixture::root_side(doc, edited, modes, appearance, side);
+    let mut config = EngineConfig::new(root);
     config.clock = Clock::manual(SystemTime::UNIX_EPOCH + Duration::from_millis(NOW_MS));
     config.viewport = Size { width: Points(device.width), height: Points(device.height) };
     config.environment.os = device.os;
@@ -383,6 +384,53 @@ fn model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
     for bar in tree.with_id("toolbar") {
         let b = bar.bounds;
         let _ = writeln!(out, "toolbar top={} height={}", len(b.origin.y.0), len(b.size.height.0));
+    }    sidebar_model(out, app, tree, styles);
+}
+
+/// The sidebar's part of the model: its box, then its tabs, section heads, file rows and tag rows in order, each
+/// with its texts; the phone drawer's scrim.
+fn sidebar_model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId, ViewStyle>) {
+    let bg = |id: NodeId| styles.get(&id).map(|s| s.background_color).filter(|c| !transparent(*c));
+    for side in tree.with_id("sidebar") {
+        let b = side.bounds;
+        let _ = write!(
+            out,
+            "sidebar x={} top={} width={} height={}",
+            len(b.origin.x.0),
+            len(b.origin.y.0),
+            len(b.size.width.0),
+            len(b.size.height.0)
+        );
+        if let Some(c) = bg(side.id) {
+            let _ = write!(out, " bg={}", color(c));
+        }
+        let _ = writeln!(out);
+        for n in tree.inside(side.id) {
+            let kind = match n.test_id.as_deref() {
+                Some("tab") => "tab",
+                Some("pane-head") => "head",
+                Some("file") => "file",
+                Some("tag") => "tag",
+                _ => continue,
+            };
+            let b = n.bounds;
+            let _ = write!(out, "  {kind} top={} height={}", len(b.origin.y.0), len(b.size.height.0));
+            // the active tab's underline, the open file's background
+            let s = styles.get(&n.id);
+            if kind == "tab" && s.is_some_and(|s| s.borders.widths.bottom.0 > 0.0 && !transparent(s.borders.colors[2])) {
+                let _ = write!(out, " active");
+            }
+            if let Some(c) = bg(n.id) {
+                let _ = write!(out, " bg={}", color(c));
+            }
+            let _ = writeln!(out);
+            write_texts(out, app, tree, n.id, "    ");
+        }
+    }
+    for scrim in tree.with_id("scrim") {
+        let b = scrim.bounds;
+        let c = bg(scrim.id).map(color).unwrap_or_default();
+        let _ = writeln!(out, "scrim width={} height={} bg={c}", len(b.size.width.0), len(b.size.height.0));
     }
 }
 
@@ -437,11 +485,14 @@ fn views(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
     }
 }
 
-fn snapshot(doc: &str, editing: bool, device: Device, appearance: &str) -> String {
-    let (app, styles) = start(doc, editing, device, appearance);
+fn snapshot(doc: &str, editing: bool, device: Device, appearance: &str, side: &str) -> String {
+    let (app, styles) = start(doc, editing, device, appearance, side);
     let tree = Tree::new(shown(&app));
     let mut out = String::new();
-    let state = if editing { format!("editing {}", outliner_app::fixture::edited_item(doc)) } else { "at rest".into() };
+    let mut state = if editing { format!("editing {}", outliner_app::fixture::edited_item(doc)) } else { "at rest".into() };
+    if !side.is_empty() {
+        let _ = write!(state, ", the sidebar on {side}");
+    }
     let _ = writeln!(
         out,
         "# {doc}, {} {}x{} ({:?}), {state}; clock 2024-06-15 12:00 UTC",
@@ -529,7 +580,7 @@ fn structural_snapshots() {
         for device in [DESKTOP, PHONE] {
             for editing in [false, true] {
                 let name = format!("{doc}-{}-{}.txt", device.name, if editing { "edit" } else { "rest" });
-                let got = snapshot(doc, editing, device, "");
+                let got = snapshot(doc, editing, device, "", "");
                 let path = dir.join(&name);
                 if update {
                     std::fs::create_dir_all(&dir).unwrap();
@@ -548,7 +599,22 @@ fn structural_snapshots() {
     let custom = std::fs::read_to_string(custom_toml()).unwrap();
     for device in [DESKTOP, PHONE] {
         let name = format!("looks-{}-custom.txt", device.name);
-        let got = snapshot("looks", false, device, &custom);
+        let got = snapshot("looks", false, device, &custom, "");
+        let path = dir.join(&name);
+        if update {
+            std::fs::write(&path, &got).unwrap();
+            continue;
+        }
+        let want = std::fs::read_to_string(&path).unwrap_or_default();
+        if want != got {
+            eprintln!("snapshot {name} differs (- golden, + now):\n{}", diff(&want, &got));
+            failed.push(name);
+        }
+    }
+    // the sidebar: the phone drawer open on its files, the Tags tab beside the inline showcase's tags
+    for (doc, device, side) in [("looks", PHONE, "files"), ("inline", DESKTOP, "tags"), ("inline", PHONE, "tags")] {
+        let name = format!("{doc}-{}-{side}.txt", device.name);
+        let got = snapshot(doc, false, device, "", side);
         let path = dir.join(&name);
         if update {
             std::fs::write(&path, &got).unwrap();
@@ -693,8 +759,10 @@ fn goldens_hold_the_web_values() {
     want(looks, "checkbox", format!("{check}x{check} bg={} r={cr} border={cb} {}", var("--bg"), var("--check")));
     want(looks, "checked checkbox", format!("{check}x{check} bg={muted} r={cr} border={cb} {muted}"));
     want(looks, "guide", format!("{}x{} bg={}", len(n("--space-guide-w")), len(line + 2.0 * pad), var("--guide")));
-    // the document's padding (`.doc-wrap`), the indent (`--kid-pad` less the guide's offset), `.o-body` gap
-    let doc_left = n("--space-doc-left");
+    // the document's padding (`.doc-wrap`), the indent (`--kid-pad` less the guide's offset), `.o-body` gap; on
+    // desktops right of the sidebar (`.sidebar`, its border included) and the half of its handle over the document
+    // (`.splitter`)
+    let doc_left = n("--space-sidebar") + n("--space-splitter") / 2.0 + n("--space-doc-left");
     // the children block's guide line is its left border
     let indent = n("--kid-pad") - n("--space-guide") + n("--space-guide-w");
     let gap = n("--space-body-gap");
@@ -727,6 +795,14 @@ fn goldens_hold_the_web_values() {
     let phone_left = num(&phone("--space-doc-left")) + gap;
     want("inline-phone-rest.txt", "phone text left", format!("text={}", len(phone_left)));
 
+    // the sidebar (`.sidebar`, `.tab`, `.file-row`, the active file; on phones the drawer and its scrim)
+    let side_bg = var("--side-bg");
+    want(looks, "sidebar", format!("sidebar x=0 top={bar} width={} height={} bg={side_bg}", len(n("--space-sidebar")), len(800.0 - num(&bar))));
+    want(looks, "file row height", format!(" height={} bg={}", len(n("--space-file-row")), var("--sel")));
+    let drawer = (390.0 * n("--space-drawer")).min(n("--space-sidebar-max"));
+    want("looks-phone-files.txt", "drawer", format!("sidebar x=0 top=0 width={} height=844 bg={side_bg}", len(drawer)));
+    want("looks-phone-files.txt", "scrim", format!("scrim width=390 height=844 bg={}", rgba_hex(&var("--scrim"))));
+
     assert!(missing.is_empty(), "the goldens do not hold these values of the design tokens:\n{}", missing.join("\n"));
 }
 
@@ -734,7 +810,7 @@ fn goldens_hold_the_web_values() {
 
 /// The `[model]` of `doc` at rest in `modes` on `device`.
 fn model_in(doc: &str, device: Device, modes: &str) -> String {
-    let (app, styles) = start_with(doc, false, device, modes, "");
+    let (app, styles) = start_with(doc, false, device, modes, "", "");
     let tree = Tree::new(shown(&app));
     let mut out = String::new();
     model(&mut out, &app, &tree, &styles.lock().unwrap());
@@ -787,6 +863,10 @@ fn parse_model(text: &str) -> Model {
     for line in text.lines() {
         let t = line.trim_start();
         let l = format!(" {t}");
+        // the sidebar's part comes last; the relations are about the document
+        if t.starts_with("sidebar ") || t.starts_with("scrim ") {
+            break;
+        }
         if t.starts_with("topbar ") {
             m.topbar = attr_num(&l, "height").unwrap();
         } else if t.starts_with("title ") {

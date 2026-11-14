@@ -9,8 +9,11 @@ import '@fontsource/fira-sans/400-italic.css';
 import '@fontsource/fira-sans/700.css';
 import '@fontsource/fira-sans/700-italic.css';
 import '@fontsource/fira-mono/400.css';
-import { DocSession, ROOT, Tx } from '@outliner/core';
+import { DocSession, ROOT, Tx, extractTags, type Tree } from '@outliner/core';
 import { Editor, type EditorHost } from '../../src/editor/editor.ts';
+import { Sidebar, type PaneName, type SidebarHost } from '../../src/ui/sidebar.ts';
+import { Workspace } from '../../src/store/workspace.ts';
+import type { SyncClient } from '../../src/store/sync.ts';
 import { applyAppearance, parseAppearance } from '../../src/design/appearance.ts';
 import inline from '../../../../native/crates/outliner-app/tests/snapshots/inline.items.jsonl?raw';
 import looks from '../../../../native/crates/outliner-app/tests/snapshots/looks.items.jsonl?raw';
@@ -29,7 +32,7 @@ const host: EditorHost = {
 const stage = document.getElementById('stage')!;
 let ed: Editor | null = null;
 
-function show(doc: string) {
+function show(doc: string): DocSession {
   const s = new DocSession();
   const tx = new Tx(s.live);
   const last = new Map<string, string>();
@@ -54,6 +57,62 @@ function show(doc: string) {
   ed.applyPrefs({ bulletThreading: true });
   stage.append(ed.el);
   ed.setDoc(s);
+  return s;
+}
+
+// ---- the sidebar: the app's, over a workspace of the fixture's document and an empty one (as the native fixture) ----
+
+const main = document.querySelector('.main')!;
+let side: { el: HTMLElement; splitter: HTMLElement; scrim: HTMLElement } | null = null;
+
+/** App.tagCounts over `trees`: each tag as first written, how often it is used, most used first, then by name. */
+function tagCounts(trees: Tree[]): [string, number][] {
+  const m = new Map<string, [string, number]>();
+  for (const t of trees) {
+    for (const n of t.nodes.values()) {
+      if (!t.isAttached(n.id)) continue;
+      for (const src of [n.props.c, n.props.n]) {
+        if (typeof src !== 'string' || !src) continue;
+        for (const tag of extractTags(src)) {
+          const k = tag.toLowerCase();
+          const cur = m.get(k);
+          m.set(k, [cur?.[0] ?? tag, (cur?.[1] ?? 0) + 1]);
+        }
+      }
+    }
+  }
+  return [...m.values()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+
+function showSidebar(doc: DocSession, pane: PaneName | '') {
+  if (side) for (const el of Object.values(side)) el.remove();
+  const sessions = new Map<string, DocSession>();
+  const sync = {
+    sessions,
+    doc(id: string) {
+      if (!sessions.has(id)) sessions.set(id, new DocSession());
+      return sessions.get(id)!;
+    },
+  } as unknown as SyncClient;
+  const ws = new Workspace(sync);
+  ws.ensureStructure();
+  const open = ws.create('doc', null, String(doc.live.root().props.c ?? ''));
+  const empty = ws.create('doc', null, 'Untitled');
+  const nop = () => {};
+  const host: SidebarHost = {
+    currentDoc: () => open,
+    openDoc: nop, openBookmark: nop, exportDoc: nop, importOpml: nop, searchTag: nop, renameTag: nop, bookmarkCurrent: nop,
+    findFile: nop, gotoInbox: nop, copyDoc: nop, versionHistory: nop, share: nop, cleanNewlines: nop, dropItems: nop,
+    tags: () => ({ doc: tagCounts([doc.live]), all: tagCounts([doc.live, sync.doc(empty).live]) }),
+  };
+  const bar = new Sidebar(ws, host);
+  bar.show(pane || 'files');
+  side = { el: bar.el, splitter: Object.assign(document.createElement('div'), { className: 'splitter' }), scrim: Object.assign(document.createElement('div'), { className: 'scrim' }) };
+  // the drawer slides in on phones: measured where it stops
+  side.el.style.transition = 'none';
+  main.prepend(side.el, side.splitter, side.scrim);
+  // shown on desktops from the start; on phones only when asked (the drawer)
+  document.querySelector('.app')!.classList.toggle('side-open', pane !== '');
 }
 
 // ---- measuring ----
@@ -95,6 +154,7 @@ function spanStyle(el: Element, top: Element): string {
   }
   if (lines.has('underline')) out += ' underline';
   if (lines.has('line-through')) out += ' strike';
+  if (px(s.letterSpacing)) out += ` spacing=${len(px(s.letterSpacing))}`;
   if (bg) out += ` bg=${bg}`;
   return out;
 }
@@ -197,6 +257,45 @@ function writePiece(out: string[], p: Piece) {
   out.push(p.elbow ? `  elbow ${head} right=${len(p.elbow.right)} w=${len(p.w)} r=${len(p.elbow.r)} ${p.color}` : `  thread ${head} w=${len(p.w)} ${p.color}`);
 }
 
+/** The sidebar's part of the model, as the native snapshot writes it: its box, its tabs, section heads, file rows
+ * and tag rows with their texts (a text's box: a flex item's, or a button's content box), and the phone scrim. */
+function sidebarModel(out: string[]) {
+  const el = document.querySelector('.sidebar');
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (!r.width || r.right <= 0) return;
+  const bgOf = (e: Element) => hex(getComputedStyle(e).backgroundColor);
+  let head = `sidebar x=${len(r.left)} top=${len(r.top)} width=${len(r.width)} height=${len(r.height)}`;
+  if (bgOf(el)) head += ` bg=${bgOf(el)}`;
+  out.push(head);
+  const kinds: [string, string][] = [['tab', 'tab'], ['pane-head', 'head'], ['file-row', 'file'], ['tag-row', 'tag']];
+  for (const item of el.querySelectorAll('.tab, .pane-head, .file-row, .tag-row')) {
+    const kind = kinds.find(([c]) => item.classList.contains(c))![1];
+    const ir = item.getBoundingClientRect();
+    let line = `  ${kind} top=${len(ir.top)} height=${len(ir.height)}`;
+    if (kind === 'tab' && item.classList.contains('active')) line += ' active';
+    if (bgOf(item)) line += ` bg=${bgOf(item)}`;
+    out.push(line);
+    const texts = kind === 'tab' ? [item] : kind === 'file' ? [item.querySelector('.name')!] : [...item.children].filter((c) => c.textContent);
+    for (const t of texts) {
+      const c = getComputedStyle(t);
+      const tr = t.getBoundingClientRect();
+      let s = t.textContent ?? '';
+      if (c.textTransform === 'uppercase') s = s.toUpperCase();
+      const x = tr.left + px(c.borderLeftWidth) + px(c.paddingLeft);
+      const top = tr.top + px(c.borderTopWidth) + px(c.paddingTop);
+      out.push(`    text x=${len(x)} top=${len(top)} ${JSON.stringify(s)}`);
+      out.push(`      ${JSON.stringify(s)} ${spanStyle(t, t)}`);
+    }
+  }
+  // the scrim shows on phones only (it has no look elsewhere)
+  const scrim = document.querySelector('.app.side-open .scrim');
+  if (scrim && bgOf(scrim)) {
+    const sr = scrim.getBoundingClientRect();
+    out.push(`scrim width=${len(sr.width)} height=${len(sr.height)} bg=${bgOf(scrim)}`);
+  }
+}
+
 function model(): string {
   const out = ['[model]'];
   const thread = threadPieces();
@@ -248,19 +347,21 @@ function model(): string {
     // the thread's pieces that start in this row (its node's row and the note in it)
     for (const p of thread) if (p.top >= rr.top - 0.25 && p.top < rr.bottom - 0.25) writePiece(out, p);
   }
+  sidebarModel(out);
   return out.join('\n') + '\n';
 }
 
 /** Shows `doc` in `modes` (`{ theme: 'dark', size: 'large' }`) with a user's appearance TOML, editing the item
- * `editing` (its caret at the end) when given; its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string) => {
+ * `editing` (its caret at the end) when given, the sidebar on pane `side` (or as the device starts it: shown on
+ * desktops, closed on phones); its model. */
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: PaneName | '' = '') => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
   const look = parseAppearance(toml);
   if ('error' in look) throw new Error(`line ${look.error.line}: ${look.error.message}`);
   applyAppearance(root, look.values);
-  show(doc);
+  showSidebar(show(doc), side);
   if (editing) ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);
   await document.fonts.ready;
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));

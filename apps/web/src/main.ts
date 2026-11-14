@@ -231,7 +231,8 @@ class App {
     const splitter = h('div.splitter');
     splitter.addEventListener('pointerdown', (e) => {
       splitter.setPointerCapture(e.pointerId);
-      const move = (ev: PointerEvent) => document.documentElement.style.setProperty('--side-w', `${Math.max(160, Math.min(520, ev.clientX))}px`);
+      // the width the sidebar takes is clamped by styles.css (.sidebar)
+      const move = (ev: PointerEvent) => document.documentElement.style.setProperty('--side-w', `${ev.clientX}px`);
       splitter.addEventListener('pointermove', move);
       splitter.addEventListener('pointerup', () => splitter.removeEventListener('pointermove', move), { once: true });
     });

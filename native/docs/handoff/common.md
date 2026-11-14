@@ -10,8 +10,10 @@ Read this first. Area notes in this folder say what each piece of work is.
   sync), history, tx, view, commands, text16 (UTF-16 offsets). Not yet: inline, dates, search, paste, export, refs,
   calendar.
 - `crates/outliner-app`: the UI on NSH (Native Shell, https://github.com/longbridge/nsh, crates pinned `=0.5.0`).
-  `store.rs` (open document, rows, editing caret, view), `commands.rs` (app commands over core commands),
-  `outline.rs` (virtual list, rows, row input, key bindings), `toolbar.rs` (top bar, phone toolbar), `style.rs`
+  `store.rs` (the local documents and the open one: rows, editing caret, view; `switch`, `create`, `rename`,
+  `tags_in`), `commands.rs` (app commands over core commands), `outline.rs` (virtual list, rows, row input, key
+  bindings), `toolbar.rs` (top bar, phone toolbar), `sidebar.rs` (tabs, files, tags; desktop panel, phone drawer;
+  its open/tab/width state is a global signal, not in the store), `style.rs`
   (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (a
   temporary subset parser, to be replaced by the core port).
 - `crates/outliner-mac`: macOS binary, NSH's GPUI backend. Builds on Linux too (GPUI dev libs).
@@ -75,6 +77,16 @@ Read this first. Area notes in this folder say what each piece of work is.
 
 ## Gotchas found so far
 
+- Desktop headless tests: set `config.viewport` to 1100x800 (as the snapshot). The default viewport is 390 wide, and
+  the sidebar's 260pt panel then leaves the outline too narrow for the tests' rows.
+- `nsh_base::button()` takes no test id: wrap it in a view with the id, or select it by
+  `.accessibility_label(Some(..))` (`label:Toggle sidebar`).
+- nsh-testing's approximate text engine makes a text 1.2 × its size tall whatever its line height: give UI texts
+  `min_h(line)` (see `sidebar::ui_text`) so their boxes are a line tall, as the web's are.
+- The web's `<button>` does not inherit `text-transform` or `letter-spacing` (UA styles): a button in an uppercase
+  head is not in capitals.
+- Render model: the sidebar's part comes after the rows (`sidebar`, then `tab`/`head`/`file`/`tag` lines with
+  their texts, then `scrim`); `qa/lib/model.mjs` compares it from the sidebar's box.
 - Hover: `.group()` on the view and `.group_hover(|s| ...)` on what changes inside it (desktop only; nsh-testing
   cannot move a pointer, so hover looks are not in the snapshot).
 - The row input is `multiline(true)` with `SubmitBehavior::Submit`: a plain Return submits (splits the row), and

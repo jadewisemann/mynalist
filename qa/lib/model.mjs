@@ -22,12 +22,27 @@ export function parseStyle(s) {
 const styleKey = (st) => (st.raw ? st.raw : `${st.family} ${st.size}/${st.line} w${st.weight} ${st.color}${st.rest ? ' ' + st.rest : ''}`);
 
 export function parseModel(text) {
-  const model = { topbar: null, title: null, rows: [], toolbar: null };
+  const model = { topbar: null, title: null, rows: [], toolbar: null, sidebar: null, scrim: null };
   let texts = null;
   let curText = null;
   for (const line of text.split('\n')) {
     if (line.startsWith('[views]')) break;
     const t = line.trimStart();
+    if (t.startsWith('sidebar ')) {
+      model.sidebar = { x: num(t, 'x'), top: num(t, 'top'), width: num(t, 'width'), height: num(t, 'height'), bg: /bg=(\S+)/.exec(t)?.[1], items: [] };
+      continue;
+    }
+    if (t.startsWith('scrim ')) {
+      model.scrim = { width: num(t, 'width'), height: num(t, 'height'), bg: /bg=(\S+)/.exec(t)?.[1] };
+      continue;
+    }
+    const item = /^(tab|head|file|tag) top=/.exec(t);
+    if (item && model.sidebar) {
+      const it = { kind: item[1], top: num(t, 'top'), height: num(t, 'height'), active: / active\b/.test(t), bg: /bg=(\S+)/.exec(t)?.[1], texts: [] };
+      model.sidebar.items.push(it);
+      texts = it.texts;
+      continue;
+    }
     if (t.startsWith('topbar ')) model.topbar = { top: num(t, 'top'), height: num(t, 'height') };
     else if (t.startsWith('toolbar ')) model.toolbar = { top: num(t, 'top'), height: num(t, 'height') };
     else if (t.startsWith('title ')) {
@@ -129,15 +144,56 @@ export function compareModels(a, b, tol = { pos: 1.5, size: 1 }) {
       sameTexts(`${w} note`, n.texts, y.notes[k].texts, n.top, y.notes[k].top);
     });
   });
+  compareSidebar(a, b, tol, out);
   return out;
+}
+
+/** Differences in the sidebar's part (positions from its box; a text's x only for the first text of an item that
+ * is not a tab: centered and later texts depend on glyph widths), as lines. */
+function compareSidebar(a, b, tol, out) {
+  if (!a.sidebar !== !b.sidebar) return out.push(`sidebar: native ${a.sidebar ? 'shown' : 'none'}, web ${b.sidebar ? 'shown' : 'none'}`);
+  if (a.sidebar) {
+    const [sa, sb] = [a.sidebar, b.sidebar];
+    const near = (what, x, y, t) => {
+      if (x === undefined && y === undefined) return;
+      if (x === undefined || y === undefined || Math.abs(x - y) > t) out.push(`${what}: native ${x}, web ${y}`);
+    };
+    near('sidebar x', sa.x, sb.x, tol.pos);
+    near('sidebar width', sa.width, sb.width, tol.size);
+    if (sa.bg !== sb.bg) out.push(`sidebar bg: native ${sa.bg}, web ${sb.bg}`);
+    const kinds = (s) => s.items.map((i) => i.kind).join(' ');
+    if (kinds(sa) !== kinds(sb)) return out.push(`sidebar items: native ${kinds(sa)}; web ${kinds(sb)}`);
+    sa.items.forEach((x, i) => {
+      const y = sb.items[i];
+      const w = `sidebar ${x.kind} ${i}`;
+      near(`${w} top`, x.top - sa.top, y.top - sb.top, tol.pos);
+      near(`${w} height`, x.height, y.height, tol.size);
+      if (x.active !== y.active) out.push(`${w} active: native ${x.active}, web ${y.active}`);
+      if (x.bg !== y.bg) out.push(`${w} bg: native ${x.bg}, web ${y.bg}`);
+      if (x.texts.length !== y.texts.length) return out.push(`${w}: ${x.texts.length} texts native, ${y.texts.length} web`);
+      x.texts.forEach((p, k) => {
+        const q = y.texts[k];
+        if (p.text !== q.text) return out.push(`${w} text ${k}: native ${p.text}, web ${q.text}`);
+        if (k === 0 && x.kind !== 'tab') near(`${w} text x`, p.x - sa.x, q.x - sb.x, tol.pos);
+        near(`${w} text ${k} top`, p.top - x.top, q.top - y.top, tol.pos);
+        const st = (t) => t.spans.map((s) => `${s.text} ${styleKey(s.style)}`).join(' | ');
+        if (st(p) !== st(q)) out.push(`${w} text ${k} spans: native ${st(p)}; web ${st(q)}`);
+      });
+    });
+  }
+  if (!a.scrim !== !b.scrim) return out.push(`scrim: native ${a.scrim ? 'shown' : 'none'}, web ${b.scrim ? 'shown' : 'none'}`);
+  if (a.scrim) {
+    if (a.scrim.bg !== b.scrim.bg) out.push(`scrim bg: native ${a.scrim.bg}, web ${b.scrim.bg}`);
+    if (Math.abs(a.scrim.width - b.scrim.width) > tol.size) out.push(`scrim width: native ${a.scrim.width}, web ${b.scrim.width}`);
+  }
 }
 
 /** Differences that are known and not this check's to fix: each says why. */
 export const KNOWN = [
   { re: /row \d+ spans: native "const a = 1;/, why: 'the native app has no syntax highlighting in code blocks yet' },
   { re: /e\^\{i\\\\pi\}\+1=0.*Latin Modern Math|Latin Modern Math.*e\^\{i/, why: 'the native app shows LaTeX source in the mono font; the web typesets it (KaTeX)' },
-  { re: /^inline-\w+-(rest|edit): row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
-  { re: /^inline-phone-(rest|edit): row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
+  { re: /^inline-\w+-(rest|edit|tags): row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
+  { re: /^inline-phone-(rest|edit|tags): row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
   { re: /^looks-phone-edit: row (18 height|19 top):/, why: 'the edited row\'s source (its ** marks shown) wraps on a phone in the snapshot\'s approximate text engine, whose glyphs are wider than Fira Sans' },
   { re: /"(highlight|mark)" .* #222222 bg=#ffdd0061 r=2; web .*"(highlight|mark)" .* #000000 bg=#ffdd0061/, why: 'the web\'s <mark> takes the browser\'s black text (a web quirk to decide on)' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));

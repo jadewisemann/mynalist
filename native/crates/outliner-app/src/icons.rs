@@ -25,6 +25,12 @@ fn path(name: &str) -> &'static str {
         "up" => "M12 19V5M6 11l6-6 6 6",
         "down" => "M12 5v14M6 13l6 6 6-6",
         "send" => "M21 3L3 11l7 3 3 7zM10 14L21 3",
+        "doc" => "M6 2h9l5 5v15H6zM14 2v6h6",
+        "folder" => "M3 6h6l2 2h10v12H3z",
+        "plus" => "M12 5v14M5 12h14",
+        "star" => "M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z",
+        "inbox" => "M3 13l3-8h12l3 8v6H3zM3 13h5l1 3h6l1-3h5",
+        "fold" => "M7 4l5 5 5-5M7 20l5-5 5 5",
         _ => "",
     }
 }

@@ -54,6 +54,7 @@ pub fn outline() -> impl IntoElement {
         .keys(|| store::read(|s| s.rows.iter().map(|r| r.id.clone()).collect::<Vec<_>>()))
         .estimated_item_size(px(style::line() + 2.0 * style::pad()))
         .header(title())
+        .footer(doc_end())
         .test_id("outline")
         .flex_1()
         .bg(color::bg())
@@ -105,6 +106,15 @@ fn title() -> impl IntoElement {
             Some(n) => note_text(&n, false).mt(px(num("space.title_note"))).into_element(),
             None => view().into_element(),
         }))
+}
+
+/// The room below the rows, a row tall: a press there edits the last row, or gives an empty document its first
+/// item (the web: a click below the document).
+fn doc_end() -> impl IntoElement {
+    view()
+        .test_id("doc-end")
+        .h(px(style::line() + 2.0 * style::pad()))
+        .on_press(cmd::focus_end)
 }
 
 /// A note (`.o-note`): 5/6 of the text in the note color, on 1.2 lines; formatted as the content is.

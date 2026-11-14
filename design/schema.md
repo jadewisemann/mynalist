@@ -147,6 +147,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | number | ratio | 0.5..1.5 | `--type-number` | `0.85` | Numbered list numbers' size, times the text size. |
 | math | ratio | 0.5..2 | `--type-math` | `1.05` | LaTeX size, times the text size. |
 | toolbar | length | 8..32 | `--type-toolbar` | `15` | Phone toolbar buttons' text. |
+| head_tracking | ratio | 0..0.5 | `--type-head-tracking` | `0.04` | Section heads' letter spacing, times their size. |
 
 ## [space]
 
@@ -198,6 +199,30 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | sidebar | length | 160..520 | `--space-sidebar` | `260` | The sidebar's width (until it is dragged). |
 | sidebar_max | length | 160..520 | `--space-sidebar-max` | `320` | The phone sidebar's widest. |
 | file_row | length | 16..60 | `--space-file-row` | `28` | Sidebar rows' height. |
+| sidebar_min | length | 100..400 | `--space-sidebar-min` | `160` | The narrowest the sidebar can be dragged. |
+| sidebar_drag_max | length | 200..1000 | `--space-sidebar-drag-max` | `520` | The widest the sidebar can be dragged. |
+| splitter | length | 2..20 | `--space-splitter` | `6` | The sidebar's drag handle's width (half of it over the sidebar). |
+| drawer | ratio | 0.3..1 | `--space-drawer` | `0.82` | The phone sidebar's width, of the screen's. |
+| drawer_shadow | length | 0..80 | `--space-drawer-shadow` | `40` | The blur of the phone sidebar's shadow. |
+| side_tab_y | length | 0..20 | `--space-side-tab-y` | `8` | Sidebar tabs' padding above and below. |
+| side_tab_bar | length | 0..6 | `--space-side-tab-bar` | `2` | The active sidebar tab's underline. |
+| pane_head_left | length | 0..30 | `--space-pane-head-left` | `12` | Sidebar section heads' padding left. |
+| pane_head_right | length | 0..30 | `--space-pane-head-right` | `8` | Sidebar section heads' padding right. |
+| pane_head_y | length | 0..20 | `--space-pane-head-y` | `6` | Sidebar section heads' padding above and below. |
+| pane_top | length | 0..30 | `--space-pane-top` | `4` | Space above the sidebar's list. |
+| pane_bottom | length | 0..60 | `--space-pane-bottom` | `24` | Space below the sidebar's list. |
+| file_pad | length | 0..30 | `--space-file-pad` | `8` | Sidebar rows' padding left (top level) and right. |
+| file_indent | length | 0..40 | `--space-file-indent` | `16` | Sidebar rows' indent per folder level. |
+| file_gap | length | 0..20 | `--space-file-gap` | `6` | Space between a sidebar row's toggle, icon and name. |
+| file_box | length | 8..30 | `--space-file-box` | `16` | A sidebar row's toggle and icon columns' width. |
+| file_icon | length | 8..30 | `--space-file-icon` | `15` | A sidebar row's icon's size. |
+| tag_row_x | length | 0..30 | `--space-tag-row-x` | `12` | Tag rows' padding left and right. |
+| tag_row_y | length | 0..20 | `--space-tag-row-y` | `3` | Tag rows' padding above and below. |
+| pane_empty_x | length | 0..30 | `--space-pane-empty-x` | `14` | An empty sidebar list's hint: padding left and right. |
+| pane_empty_y | length | 0..30 | `--space-pane-empty-y` | `8` | An empty sidebar list's hint: padding above and below. |
+| link_y | length | 0..20 | `--space-link-y` | `4` | Link buttons' padding above and below. |
+| rename_x | length | 0..20 | `--space-rename-x` | `4` | A sidebar row's rename field: padding left and right. |
+| rename_y | length | 0..10 | `--space-rename-y` | `1` | A sidebar row's rename field: padding above and below. |
 | doc_max | length | 400..2000 | `--space-doc-max` | `860` | The narrow document layout's widest. |
 | doc_top | length | 0..80 | `--space-doc-top` | `18` | Space above the document. |
 | doc_right | length | 0..120 | `--space-doc-right` | `40` | Space right of the document. |

@@ -6,7 +6,7 @@
 //   node qa/model.mjs            measure, compare, check; exits 1 on a difference or a broken relation
 //
 // Positions are compared from the title's text (the web has a search row and breadcrumbs above the title, the
-// native app not yet), widths not at all: glyph widths differ between the engines. Writes qa/out/model/.
+// native app not yet), the sidebar's from its box; widths not at all: glyph widths differ between the engines. Writes qa/out/model/.
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -51,8 +51,8 @@ for (const [device, d] of Object.entries(DEVICES)) {
   page.on('pageerror', (e) => problems.push(`${device}: page error: ${e.message}`));
   await page.goto(url);
   await page.waitForFunction(() => '__model' in window);
-  const measure = (doc, modes, toml, editing) =>
-    page.evaluate(([doc, modes, toml, editing]) => window.__model(doc, modes, toml, editing), [doc, modes, toml, editing]);
+  const measure = (doc, modes, toml, editing, side = '') =>
+    page.evaluate(([doc, modes, toml, editing, side]) => window.__model(doc, modes, toml, editing, side), [doc, modes, toml, editing, side]);
 
   // the same fixture and look on both apps; at rest, and with the item `fixture::edited_item` names being edited
   // (the bullet thread: `looks` edits an item at depth 2)
@@ -60,6 +60,19 @@ for (const [device, d] of Object.entries(DEVICES)) {
   for (const [doc, look, toml] of [['inline', 'rest', ''], ['looks', 'rest', ''], ['looks', 'custom', custom], ['inline', 'edit', ''], ['looks', 'edit', '']]) {
     const name = `${doc}-${device}-${look}`;
     const web = await measure(doc, {}, toml, look === 'edit' ? EDITED[doc] : undefined);
+    writeFileSync(join(outDir, `${name}.web.txt`), web);
+    const native = readFileSync(join(goldens, `${name}.txt`), 'utf8');
+    for (const p of compareModels(parseModel(native), parseModel(web))) {
+      const k = KNOWN.find((k) => k.test(`${name}: ${p}`));
+      (k ? known : problems).push(`${name}: ${p}${k ? `  (known: ${k.why})` : ''}`);
+    }
+    checked++;
+  }
+  // the sidebar on a pane (native `structural_snapshots`): the phone drawer on its files, the Tags tab
+  const SIDES = { phone: [['looks', 'files'], ['inline', 'tags']], desktop: [['inline', 'tags']] };
+  for (const [doc, side] of SIDES[device]) {
+    const name = `${doc}-${device}-${side}`;
+    const web = await measure(doc, {}, '', undefined, side);
     writeFileSync(join(outDir, `${name}.web.txt`), web);
     const native = readFileSync(join(goldens, `${name}.txt`), 'utf8');
     for (const p of compareModels(parseModel(native), parseModel(web))) {

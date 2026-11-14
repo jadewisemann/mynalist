@@ -12,7 +12,7 @@ use crate::style::{self, color, num};
 
 /// An icon button of the top bar (`.icon-btn`): 30×30 with a rounded hover on desktops, 44×46 edge to edge on
 /// phones.
-fn top_button(name: &'static str, _label: &'static str, run: impl Fn() + 'static) -> impl IntoElement {
+fn top_button(name: &'static str, label: &'static str, run: impl Fn() + 'static) -> impl IntoElement {
     let hover = color::hover();
     button()
         .h(px(num("space.topbar_tool")))
@@ -22,6 +22,7 @@ fn top_button(name: &'static str, _label: &'static str, run: impl Fn() + 'static
         .items_center()
         .justify_center()
         .text_color(color::topbar_fg())
+        .accessibility_label(Some(label.into()))
         .active(move |s| s.bg(hover))
         .on_press(run)
         .child(icon(name, num("space.topbar_icon")))
@@ -44,7 +45,7 @@ pub fn topbar() -> impl IntoElement {
         .border_b(px(num("space.border")))
         .border_color(color::topbar_border())
         .bg(color::topbar_bg())
-        .child(top_button("side", "Toggle sidebar", none));
+        .child(top_button("side", "Toggle sidebar", || crate::sidebar::toggle(None)));
     if phone {
         bar.child(view().flex_1())
             .child(top_button("undo", "Undo", || cmd::undo(false)))

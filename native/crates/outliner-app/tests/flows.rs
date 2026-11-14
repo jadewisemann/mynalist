@@ -15,7 +15,9 @@ fn start(os: Os) -> Headless {
     let mut config = EngineConfig::new(Root::of::<outliner_app::App>());
     config.environment.os = os;
     if os == Os::MacOs {
+        // a desktop window, as the snapshot's: the sidebar's panel shows beside the document
         config.environment.idiom = Idiom::Desktop;
+        config.viewport = nsh_core::Size { width: nsh_core::Points(1100.0), height: nsh_core::Points(800.0) };
     }
     let mut app = Headless::start(config).unwrap();
     app.wait_for("text:Plain item 1").unwrap();

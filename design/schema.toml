@@ -113,6 +113,7 @@ date = { kind = "ratio", min = 0.5, max = 1.5, doc = "Date chip size, times the 
 number = { kind = "ratio", min = 0.5, max = 1.5, doc = "Numbered list numbers' size, times the text size." }
 math = { kind = "ratio", min = 0.5, max = 2, doc = "LaTeX size, times the text size." }
 toolbar = { kind = "length", min = 8, max = 32, doc = "Phone toolbar buttons' text." }
+head_tracking = { kind = "ratio", min = 0, max = 0.5, doc = "Section heads' letter spacing, times their size." }
 
 [space]
 pad = { kind = "length", min = 0, max = 20, css = "--pad", doc = "Space above and below each row's text (density)." }
@@ -161,6 +162,30 @@ toolbar_icon = { kind = "length", min = 10, max = 40, doc = "Icons' size in the 
 sidebar = { kind = "length", min = 160, max = 520, doc = "The sidebar's width (until it is dragged)." }
 sidebar_max = { kind = "length", min = 160, max = 520, doc = "The phone sidebar's widest." }
 file_row = { kind = "length", min = 16, max = 60, doc = "Sidebar rows' height." }
+sidebar_min = { kind = "length", min = 100, max = 400, doc = "The narrowest the sidebar can be dragged." }
+sidebar_drag_max = { kind = "length", min = 200, max = 1000, doc = "The widest the sidebar can be dragged." }
+splitter = { kind = "length", min = 2, max = 20, doc = "The sidebar's drag handle's width (half of it over the sidebar)." }
+drawer = { kind = "ratio", min = 0.3, max = 1, doc = "The phone sidebar's width, of the screen's." }
+drawer_shadow = { kind = "length", min = 0, max = 80, doc = "The blur of the phone sidebar's shadow." }
+side_tab_y = { kind = "length", min = 0, max = 20, doc = "Sidebar tabs' padding above and below." }
+side_tab_bar = { kind = "length", min = 0, max = 6, doc = "The active sidebar tab's underline." }
+pane_head_left = { kind = "length", min = 0, max = 30, doc = "Sidebar section heads' padding left." }
+pane_head_right = { kind = "length", min = 0, max = 30, doc = "Sidebar section heads' padding right." }
+pane_head_y = { kind = "length", min = 0, max = 20, doc = "Sidebar section heads' padding above and below." }
+pane_top = { kind = "length", min = 0, max = 30, doc = "Space above the sidebar's list." }
+pane_bottom = { kind = "length", min = 0, max = 60, doc = "Space below the sidebar's list." }
+file_pad = { kind = "length", min = 0, max = 30, doc = "Sidebar rows' padding left (top level) and right." }
+file_indent = { kind = "length", min = 0, max = 40, doc = "Sidebar rows' indent per folder level." }
+file_gap = { kind = "length", min = 0, max = 20, doc = "Space between a sidebar row's toggle, icon and name." }
+file_box = { kind = "length", min = 8, max = 30, doc = "A sidebar row's toggle and icon columns' width." }
+file_icon = { kind = "length", min = 8, max = 30, doc = "A sidebar row's icon's size." }
+tag_row_x = { kind = "length", min = 0, max = 30, doc = "Tag rows' padding left and right." }
+tag_row_y = { kind = "length", min = 0, max = 20, doc = "Tag rows' padding above and below." }
+pane_empty_x = { kind = "length", min = 0, max = 30, doc = "An empty sidebar list's hint: padding left and right." }
+pane_empty_y = { kind = "length", min = 0, max = 30, doc = "An empty sidebar list's hint: padding above and below." }
+link_y = { kind = "length", min = 0, max = 20, doc = "Link buttons' padding above and below." }
+rename_x = { kind = "length", min = 0, max = 20, doc = "A sidebar row's rename field: padding left and right." }
+rename_y = { kind = "length", min = 0, max = 10, doc = "A sidebar row's rename field: padding above and below." }
 doc_max = { kind = "length", min = 400, max = 2000, doc = "The narrow document layout's widest." }
 doc_top = { kind = "length", min = 0, max = 80, doc = "Space above the document." }
 doc_right = { kind = "length", min = 0, max = 120, doc = "Space right of the document." }

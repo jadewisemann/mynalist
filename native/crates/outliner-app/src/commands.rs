@@ -186,6 +186,19 @@ pub fn start_editing(id: &str, at: Option<u32>) {
     });
 }
 
+/// A press below the rows (`Editor.focusEnd`): the caret at the end of the last row, or the first item of an
+/// empty document, made and edited.
+pub fn focus_end() {
+    if let Some(last) = store::peek(|s| s.rows.last().map(|r| r.id.clone())) {
+        start_editing(&last, None);
+        return;
+    }
+    run(None, |tx, v| {
+        let id = tx.create(&v.zoom, None, outliner_core::Props::new());
+        Some(CmdResult { sel: text_sel(&id, 0), zoom: None })
+    });
+}
+
 pub fn undo(redo: bool) {
     store::edit(|s| {
         let (sel, change) = if redo { s.session.redo() } else { s.session.undo() };

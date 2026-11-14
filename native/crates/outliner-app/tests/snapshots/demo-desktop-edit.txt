@@ -2,277 +2,296 @@
 [model]
 topbar top=0 height=45
 title top=45 height=66
-  text x=50 top=65 "Demo"
+  text x=313 top=65 "Demo"
     "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
-row depth=0 top=111 height=30 bullet=61 dot=6 bg=#2f8cf0 r=3 text=76
-  text x=76 top=115 "Plain item 1"
+row depth=0 top=111 height=30 bullet=324 dot=6 bg=#2f8cf0 r=3 text=339
+  text x=339 top=115 "Plain item 1"
     "Plain item 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-  thread x=61.5 top=126 bottom=141 w=2 #2f8cf0
-row depth=1 top=141 height=30 bullet=91 dot=6 bg=#2f8cf0 r=3 text=106 current
-  input x=106 "**Bold** and __italic__ and `code` 2"
-  elbow x=61.5 top=141 bottom=157 right=87 w=2 r=8 #2f8cf0
-row depth=1 top=171 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=175 "A link and a #tag 3"
+  thread x=324.5 top=126 bottom=141 w=2 #2f8cf0
+row depth=1 top=141 height=30 bullet=354 dot=6 bg=#2f8cf0 r=3 text=369 current
+  input x=369 "**Bold** and __italic__ and `code` 2"
+  elbow x=324.5 top=141 bottom=157 right=350 w=2 r=8 #2f8cf0
+row depth=1 top=171 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=175 "A link and a #tag 3"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=2 top=201 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 text=136
-  text x=136 top=205 "한글 항목: 입력 테스트 4"
+row depth=2 top=201 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 text=399
+  text x=399 top=205 "한글 항목: 입력 테스트 4"
     "한글 항목: 입력 테스트 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=231 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=235 "Mixed 굵게 코드 text 5"
+row depth=1 top=231 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=235 "Mixed 굵게 코드 text 5"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=261 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=265 "Plain item 6"
+row depth=1 top=261 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=265 "Plain item 6"
     "Plain item 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=291 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=295 "Bold and italic and code 7"
+row depth=1 top=291 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=295 "Bold and italic and code 7"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 7" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=0 top=321 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
-  text x=76 top=325 "A link and a #tag 8"
+row depth=0 top=321 height=30 bullet=324 dot=6 bg=#8b8f97 r=3 text=339
+  text x=339 top=325 "A link and a #tag 8"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 8" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=351 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=355 "한글 항목: 입력 테스트 9"
+row depth=1 top=351 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=355 "한글 항목: 입력 테스트 9"
     "한글 항목: 입력 테스트 9" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=381 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=385 "Mixed 굵게 코드 text 10"
+row depth=1 top=381 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=385 "Mixed 굵게 코드 text 10"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #a7a7a7 strike
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
     " text 10" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-row depth=2 top=411 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 text=136
-  text x=136 top=415 "Plain item 11"
+row depth=2 top=411 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 text=399
+  text x=399 top=415 "Plain item 11"
     "Plain item 11" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=441 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=445 "Bold and italic and code 12"
+row depth=1 top=441 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=445 "Bold and italic and code 12"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 12" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=471 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 checkbox=102 text=122
-  text x=122 top=475 "A link and a #tag 13"
+row depth=1 top=471 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 checkbox=365 text=385
+  text x=385 top=475 "A link and a #tag 13"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 13" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=501 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=505 "한글 항목: 입력 테스트 14"
+row depth=1 top=501 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=505 "한글 항목: 입력 테스트 14"
     "한글 항목: 입력 테스트 14" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=0 top=531 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
-  text x=76 top=535 "Mixed 굵게 코드 text 15"
+row depth=0 top=531 height=30 bullet=324 dot=6 bg=#8b8f97 r=3 text=339
+  text x=339 top=535 "Mixed 굵게 코드 text 15"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 15" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=561 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106 label=#c8e3c0
-  text x=106 top=565 "Plain item 16"
+row depth=1 top=561 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369 label=#c8e3c0
+  text x=369 top=565 "Plain item 16"
     "Plain item 16" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=591 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=595 "Bold and italic and code 17"
+row depth=1 top=591 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=595 "Bold and italic and code 17"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 17" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=2 top=621 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 text=136
-  text x=136 top=625 "A link and a #tag 18"
+row depth=2 top=621 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 text=399
+  text x=399 top=625 "A link and a #tag 18"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 18" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=651 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=655 "한글 항목: 입력 테스트 19"
+row depth=1 top=651 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=655 "한글 항목: 입력 테스트 19"
     "한글 항목: 입력 테스트 19" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=681 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=685 "Mixed 굵게 코드 text 20"
+row depth=1 top=681 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=685 "Mixed 굵게 코드 text 20"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 20" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=711 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=715 "Plain item 21"
+row depth=1 top=711 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=715 "Plain item 21"
     "Plain item 21" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=0 top=741 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
-  text x=76 top=745 "Bold and italic and code 22"
+row depth=0 top=741 height=30 bullet=324 dot=6 bg=#8b8f97 r=3 text=339
+  text x=339 top=745 "Bold and italic and code 22"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 22" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=771 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=775 "A link and a #tag 23"
+row depth=1 top=771 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=775 "A link and a #tag 23"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 23" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=801 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=805 "한글 항목: 입력 테스트 24"
+row depth=1 top=801 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=805 "한글 항목: 입력 테스트 24"
     "한글 항목: 입력 테스트 24" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=2 top=831 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 text=136
-  text x=136 top=835 "Mixed 굵게 코드 text 25"
+row depth=2 top=831 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 text=399
+  text x=399 top=835 "Mixed 굵게 코드 text 25"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 25" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=861 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=865 "Plain item 26"
+row depth=1 top=861 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=865 "Plain item 26"
     "Plain item 26" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=891 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=895 "Bold and italic and code 27"
+row depth=1 top=891 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=895 "Bold and italic and code 27"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #a7a7a7 strike
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 italic strike
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
     " 27" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-row depth=1 top=921 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=925 "A link and a #tag 28"
+row depth=1 top=921 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=925 "A link and a #tag 28"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 28" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=0 top=951 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
-  text x=76 top=955 "한글 항목: 입력 테스트 29"
+row depth=0 top=951 height=30 bullet=324 dot=6 bg=#8b8f97 r=3 text=339
+  text x=339 top=955 "한글 항목: 입력 테스트 29"
     "한글 항목: 입력 테스트 29" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=981 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=985 "Mixed 굵게 코드 text 30"
+row depth=1 top=981 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=985 "Mixed 굵게 코드 text 30"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 30" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1011 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1015 "Plain item 31"
+row depth=1 top=1011 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1015 "Plain item 31"
     "Plain item 31" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=2 top=1041 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 checkbox=132 text=152
-  text x=152 top=1045 "Bold and italic and code 32"
+row depth=2 top=1041 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 checkbox=395 text=415
+  text x=415 top=1045 "Bold and italic and code 32"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 32" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1071 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1075 "A link and a #tag 33"
+row depth=1 top=1071 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1075 "A link and a #tag 33"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 33" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1101 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1105 "한글 항목: 입력 테스트 34"
+row depth=1 top=1101 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1105 "한글 항목: 입력 테스트 34"
     "한글 항목: 입력 테스트 34" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1131 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1135 "Mixed 굵게 코드 text 35"
+row depth=1 top=1131 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1135 "Mixed 굵게 코드 text 35"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 35" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=0 top=1161 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
-  text x=76 top=1165 "Plain item 36"
+row depth=0 top=1161 height=30 bullet=324 dot=6 bg=#8b8f97 r=3 text=339
+  text x=339 top=1165 "Plain item 36"
     "Plain item 36" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1191 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1195 "Bold and italic and code 37"
+row depth=1 top=1191 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1195 "Bold and italic and code 37"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 37" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1221 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1225 "A link and a #tag 38"
+row depth=1 top=1221 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1225 "A link and a #tag 38"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 38" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=2 top=1251 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 text=136 label=#c8e3c0
-  text x=136 top=1255 "한글 항목: 입력 테스트 39"
+row depth=2 top=1251 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 text=399 label=#c8e3c0
+  text x=399 top=1255 "한글 항목: 입력 테스트 39"
     "한글 항목: 입력 테스트 39" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1281 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1285 "Mixed 굵게 코드 text 40"
+row depth=1 top=1281 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1285 "Mixed 굵게 코드 text 40"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 40" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1311 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1315 "Plain item 41"
+row depth=1 top=1311 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1315 "Plain item 41"
     "Plain item 41" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1341 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1345 "Bold and italic and code 42"
+row depth=1 top=1341 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1345 "Bold and italic and code 42"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 42" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=0 top=1371 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
-  text x=76 top=1375 "A link and a #tag 43"
+row depth=0 top=1371 height=30 bullet=324 dot=6 bg=#8b8f97 r=3 text=339
+  text x=339 top=1375 "A link and a #tag 43"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 43" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1401 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1405 "한글 항목: 입력 테스트 44"
+row depth=1 top=1401 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1405 "한글 항목: 입력 테스트 44"
     "한글 항목: 입력 테스트 44" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-row depth=1 top=1431 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1435 "Mixed 굵게 코드 text 45"
+row depth=1 top=1431 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1435 "Mixed 굵게 코드 text 45"
     "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " text 45" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=2 top=1461 height=30 bullet=121 dot=6 bg=#8b8f97 r=3 text=136
-  text x=136 top=1465 "Plain item 46"
+row depth=2 top=1461 height=30 bullet=384 dot=6 bg=#8b8f97 r=3 text=399
+  text x=399 top=1465 "Plain item 46"
     "Plain item 46" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1491 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1495 "Bold and italic and code 47"
+row depth=1 top=1491 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1495 "Bold and italic and code 47"
     "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
     " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
     " 47" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1521 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1525 "A link and a #tag 48"
+row depth=1 top=1521 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1525 "A link and a #tag 48"
     "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
     " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
     " 48" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=1551 height=30 bullet=91 dot=6 bg=#8b8f97 r=3 text=106
-  text x=106 top=1555 "한글 항목: 입력 테스트 49"
+row depth=1 top=1551 height=30 bullet=354 dot=6 bg=#8b8f97 r=3 text=369
+  text x=369 top=1555 "한글 항목: 입력 테스트 49"
     "한글 항목: 입력 테스트 49" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+sidebar x=0 top=45 width=260 height=755 bg=#f7f8fa
+  tab top=45 height=37.5 active
+    text x=25 top=53 "Files"
+      "Files" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+  tab top=45 height=37.5
+    text x=97.5 top=53 "Bookmarks"
+      "Bookmarks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #8b8f97
+  tab top=45 height=37.5
+    text x=201.5 top=53 "Tags"
+      "Tags" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #8b8f97
+  head top=87.5 height=42
+    text x=12 top=99.5 "MY FILES"
+      "MY FILES" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97 spacing=0.5
+  file top=129.5 height=28 bg=#d9eafd
+    text x=52 top=133 "Demo"
+      "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+  file top=157.5 height=28
+    text x=52 top=161 "Untitled"
+      "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
 [views]
 view 0,0 1100x800 bg=#ffffff
   view#topbar 0,0 1100x45 bg=#ffffff border-b=1 #eceef1
@@ -291,591 +310,638 @@ view 0,0 1100x800 bg=#ffffff
       canvas 1032,13 18x18
     view 1060,7 30x30 r=6
       canvas 1066,13 18x18
-  scroll#outline 0,45 1100x755 bg=#ffffff scroll 1100x300080
-    view 0,45 1100x66
-      view#title 0,45 1100x66
-        view 50,65 1010x34
-          text 50,65 1010x34
-            "Demo"
-              "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
-    view 0,111 1100x30
-      view#row 0,111 1100x30
-        view#thread 60.5,126 2x15 bg=#2f8cf0
-        view 52,115 18x22
-          view 58,123 6x6
-            view#bullet 58,123 6x6 bg=#2f8cf0 r=3
-        view 70,115 990x22
-          text#row-text 76,115 119x22
-            "Plain item 1"
-              "Plain item 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,141 1100x30
-      view#row 0,141 1100x30
-        view#guide 61,141 1x30 bg=#e3e5e8
-        view#elbow 60.5,141 26.5x16 r-bl=8 border-b=2 #2f8cf0 border-l=2 #2f8cf0
-        view 82,145 18x22
-          view#bullet 88,153 6x6 bg=#2f8cf0 r=3
-        view 100,145 960x22
-          input#row-input 106,145 954x22
-            "**Bold** and __italic__ and `code` 2"
-    view 0,171 1100x30
-      view#row 0,171 1100x30
-        view#guide 61,171 1x30 bg=#e3e5e8
-        view 82,175 18x22
-          view 88,183 6x6
-            view#bullet 88,183 6x6 bg=#8b8f97 r=3
-        view 100,175 960x22
-          text#row-text 106,175 188.5x22
-            "A link and a #tag 3"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,201 1100x30
-      view#row 0,201 1100x30
-        view#guide 61,201 1x30 bg=#e3e5e8
-        view#guide 91,201 1x30 bg=#e3e5e8
-        view 112,205 18x22
-          view#bullet 118,213 6x6 bg=#8b8f97 r=3
-        view 130,205 930x22
-          text#row-text 136,205 148.5x22
-            "한글 항목: 입력 테스트 4"
-              "한글 항목: 입력 테스트 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,231 1100x30
-      view#row 0,231 1100x30
-        view#guide 61,231 1x30 bg=#e3e5e8
-        view 82,235 18x22
-          view#bullet 88,243 6x6 bg=#8b8f97 r=3
-        view 100,235 960x22
-          text#row-text 106,235 178.5x22
-            "Mixed 굵게 코드 text 5"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,261 1100x30
-      view#row 0,261 1100x30
-        view#guide 61,261 1x30 bg=#e3e5e8
-        view 82,265 18x22
-          view#bullet 88,273 6x6 bg=#8b8f97 r=3
-        view 100,265 960x22
-          text#row-text 106,265 119x22
-            "Plain item 6"
-              "Plain item 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,291 1100x30
-      view#row 0,291 1100x30
-        view#guide 61,291 1x30 bg=#e3e5e8
-        view 82,295 18x22
-          view#bullet 88,303 6x6 bg=#8b8f97 r=3
-        view 100,295 960x22
-          text#row-text 106,295 257.5x22
-            "Bold and italic and code 7"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 7" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,321 1100x30
-      view#row 0,321 1100x30
-        view 52,325 18x22
-          view 58,333 6x6
-            view#bullet 58,333 6x6 bg=#8b8f97 r=3
-        view 70,325 990x22
-          text#row-text 76,325 188.5x22
-            "A link and a #tag 8"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 8" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,351 1100x30
-      view#row 0,351 1100x30
-        view#guide 61,351 1x30 bg=#e3e5e8
-        view 82,355 18x22
-          view#bullet 88,363 6x6 bg=#8b8f97 r=3
-        view 100,355 960x22
-          text#row-text 106,355 148.5x22
-            "한글 항목: 입력 테스트 9"
-              "한글 항목: 입력 테스트 9" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,381 1100x30
-      view#row 0,381 1100x30
-        view#guide 61,381 1x30 bg=#e3e5e8
-        view 82,385 18x22
-          view 88,393 6x6
-            view#bullet 88,393 6x6 bg=#8b8f97 r=3
-        view 100,385 960x22
-          text#row-text 106,385 188.5x22
-            "Mixed 굵게 코드 text 10"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #a7a7a7 strike
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
-              " text 10" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-    view 0,411 1100x30
-      view#row 0,411 1100x30
-        view#guide 61,411 1x30 bg=#e3e5e8
-        view#guide 91,411 1x30 bg=#e3e5e8
-        view 112,415 18x22
-          view#bullet 118,423 6x6 bg=#8b8f97 r=3
-        view 130,415 930x22
-          text#row-text 136,415 129x22
-            "Plain item 11"
-              "Plain item 11" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,441 1100x30
-      view#row 0,441 1100x30
-        view#guide 61,441 1x30 bg=#e3e5e8
-        view 82,445 18x22
-          view#bullet 88,453 6x6 bg=#8b8f97 r=3
-        view 100,445 960x22
-          text#row-text 106,445 267.5x22
-            "Bold and italic and code 12"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 12" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,471 1100x30
-      view#row 0,471 1100x30
-        view#guide 61,471 1x30 bg=#e3e5e8
-        view 82,475 18x22
-          view#bullet 88,483 6x6 bg=#8b8f97 r=3
-        view#checkbox 102,478 16x16
-          view 102,478 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
-        view 118,475 942x22
-          text#row-text 122,475 198x22
-            "A link and a #tag 13"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 13" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,501 1100x30
-      view#row 0,501 1100x30
-        view#guide 61,501 1x30 bg=#e3e5e8
-        view 82,505 18x22
-          view#bullet 88,513 6x6 bg=#8b8f97 r=3
-        view 100,505 960x22
-          text#row-text 106,505 158.5x22
-            "한글 항목: 입력 테스트 14"
-              "한글 항목: 입력 테스트 14" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,531 1100x30
-      view#row 0,531 1100x30
-        view 52,535 18x22
-          view 58,543 6x6
-            view#bullet 58,543 6x6 bg=#8b8f97 r=3
-        view 70,535 990x22
-          text#row-text 76,535 188.5x22
-            "Mixed 굵게 코드 text 15"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 15" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,561 1100x30
-      view#row 0,561 1100x30
-        view#guide 61,561 1x30 bg=#e3e5e8
-        view 82,565 18x22
-          view#bullet 88,573 6x6 bg=#8b8f97 r=3
-        view 100,565 960x22
-          text#row-text 106,565 129x22 bg=#c8e3c0 r=3
-            "Plain item 16"
-              "Plain item 16" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,591 1100x30
-      view#row 0,591 1100x30
-        view#guide 61,591 1x30 bg=#e3e5e8
-        view 82,595 18x22
-          view 88,603 6x6
-            view#bullet 88,603 6x6 bg=#8b8f97 r=3
-        view 100,595 960x22
-          text#row-text 106,595 267.5x22
-            "Bold and italic and code 17"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 17" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,621 1100x30
-      view#row 0,621 1100x30
-        view#guide 61,621 1x30 bg=#e3e5e8
-        view#guide 91,621 1x30 bg=#e3e5e8
-        view 112,625 18x22
-          view#bullet 118,633 6x6 bg=#8b8f97 r=3
-        view 130,625 930x22
-          text#row-text 136,625 198x22
-            "A link and a #tag 18"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 18" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,651 1100x30
-      view#row 0,651 1100x30
-        view#guide 61,651 1x30 bg=#e3e5e8
-        view 82,655 18x22
-          view#bullet 88,663 6x6 bg=#8b8f97 r=3
-        view 100,655 960x22
-          text#row-text 106,655 158.5x22
-            "한글 항목: 입력 테스트 19"
-              "한글 항목: 입력 테스트 19" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,681 1100x30
-      view#row 0,681 1100x30
-        view#guide 61,681 1x30 bg=#e3e5e8
-        view 82,685 18x22
-          view#bullet 88,693 6x6 bg=#8b8f97 r=3
-        view 100,685 960x22
-          text#row-text 106,685 188.5x22
-            "Mixed 굵게 코드 text 20"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 20" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,711 1100x30
-      view#row 0,711 1100x30
-        view#guide 61,711 1x30 bg=#e3e5e8
-        view 82,715 18x22
-          view#bullet 88,723 6x6 bg=#8b8f97 r=3
-        view 100,715 960x22
-          text#row-text 106,715 129x22
-            "Plain item 21"
-              "Plain item 21" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,741 1100x30
-      view#row 0,741 1100x30
-        view 52,745 18x22
-          view 58,753 6x6
-            view#bullet 58,753 6x6 bg=#8b8f97 r=3
-        view 70,745 990x22
-          text#row-text 76,745 267.5x22
-            "Bold and italic and code 22"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 22" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,771 1100x30
-      view#row 0,771 1100x30
-        view#guide 61,771 1x30 bg=#e3e5e8
-        view 82,775 18x22
-          view#bullet 88,783 6x6 bg=#8b8f97 r=3
-        view 100,775 960x22
-          text#row-text 106,775 198x22
-            "A link and a #tag 23"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 23" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,801 1100x30
-      view#row 0,801 1100x30
-        view#guide 61,801 1x30 bg=#e3e5e8
-        view 82,805 18x22
-          view 88,813 6x6
-            view#bullet 88,813 6x6 bg=#8b8f97 r=3
-        view 100,805 960x22
-          text#row-text 106,805 158.5x22
-            "한글 항목: 입력 테스트 24"
-              "한글 항목: 입력 테스트 24" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,831 1100x30
-      view#row 0,831 1100x30
-        view#guide 61,831 1x30 bg=#e3e5e8
-        view#guide 91,831 1x30 bg=#e3e5e8
-        view 112,835 18x22
-          view#bullet 118,843 6x6 bg=#8b8f97 r=3
-        view 130,835 930x22
-          text#row-text 136,835 188.5x22
-            "Mixed 굵게 코드 text 25"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 25" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,861 1100x30
-      view#row 0,861 1100x30
-        view#guide 61,861 1x30 bg=#e3e5e8
-        view 82,865 18x22
-          view#bullet 88,873 6x6 bg=#8b8f97 r=3
-        view 100,865 960x22
-          text#row-text 106,865 129x22
-            "Plain item 26"
-              "Plain item 26" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,891 1100x30
-      view#row 0,891 1100x30
-        view#guide 61,891 1x30 bg=#e3e5e8
-        view 82,895 18x22
-          view#bullet 88,903 6x6 bg=#8b8f97 r=3
-        view 100,895 960x22
-          text#row-text 106,895 267.5x22
-            "Bold and italic and code 27"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #a7a7a7 strike
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 italic strike
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
-              " 27" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-    view 0,921 1100x30
-      view#row 0,921 1100x30
-        view#guide 61,921 1x30 bg=#e3e5e8
-        view 82,925 18x22
-          view#bullet 88,933 6x6 bg=#8b8f97 r=3
-        view 100,925 960x22
-          text#row-text 106,925 198x22
-            "A link and a #tag 28"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 28" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,951 1100x30
-      view#row 0,951 1100x30
-        view 52,955 18x22
-          view 58,963 6x6
-            view#bullet 58,963 6x6 bg=#8b8f97 r=3
-        view 70,955 990x22
-          text#row-text 76,955 158.5x22
-            "한글 항목: 입력 테스트 29"
-              "한글 항목: 입력 테스트 29" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,981 1100x30
-      view#row 0,981 1100x30
-        view#guide 61,981 1x30 bg=#e3e5e8
-        view 82,985 18x22
-          view#bullet 88,993 6x6 bg=#8b8f97 r=3
-        view 100,985 960x22
-          text#row-text 106,985 188.5x22
-            "Mixed 굵게 코드 text 30"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 30" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1011 1100x30
-      view#row 0,1011 1100x30
-        view#guide 61,1011 1x30 bg=#e3e5e8
-        view 82,1015 18x22
-          view 88,1023 6x6
-            view#bullet 88,1023 6x6 bg=#8b8f97 r=3
-        view 100,1015 960x22
-          text#row-text 106,1015 129x22
-            "Plain item 31"
-              "Plain item 31" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1041 1100x30
-      view#row 0,1041 1100x30
-        view#guide 61,1041 1x30 bg=#e3e5e8
-        view#guide 91,1041 1x30 bg=#e3e5e8
-        view 112,1045 18x22
-          view#bullet 118,1053 6x6 bg=#8b8f97 r=3
-        view#checkbox 132,1048 16x16
-          view 132,1048 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
-        view 148,1045 912x22
-          text#row-text 152,1045 267.5x22
-            "Bold and italic and code 32"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 32" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1071 1100x30
-      view#row 0,1071 1100x30
-        view#guide 61,1071 1x30 bg=#e3e5e8
-        view 82,1075 18x22
-          view#bullet 88,1083 6x6 bg=#8b8f97 r=3
-        view 100,1075 960x22
-          text#row-text 106,1075 198x22
-            "A link and a #tag 33"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 33" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1101 1100x30
-      view#row 0,1101 1100x30
-        view#guide 61,1101 1x30 bg=#e3e5e8
-        view 82,1105 18x22
-          view#bullet 88,1113 6x6 bg=#8b8f97 r=3
-        view 100,1105 960x22
-          text#row-text 106,1105 158.5x22
-            "한글 항목: 입력 테스트 34"
-              "한글 항목: 입력 테스트 34" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1131 1100x30
-      view#row 0,1131 1100x30
-        view#guide 61,1131 1x30 bg=#e3e5e8
-        view 82,1135 18x22
-          view#bullet 88,1143 6x6 bg=#8b8f97 r=3
-        view 100,1135 960x22
-          text#row-text 106,1135 188.5x22
-            "Mixed 굵게 코드 text 35"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 35" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1161 1100x30
-      view#row 0,1161 1100x30
-        view 52,1165 18x22
-          view 58,1173 6x6
-            view#bullet 58,1173 6x6 bg=#8b8f97 r=3
-        view 70,1165 990x22
-          text#row-text 76,1165 129x22
-            "Plain item 36"
-              "Plain item 36" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1191 1100x30
-      view#row 0,1191 1100x30
-        view#guide 61,1191 1x30 bg=#e3e5e8
-        view 82,1195 18x22
-          view#bullet 88,1203 6x6 bg=#8b8f97 r=3
-        view 100,1195 960x22
-          text#row-text 106,1195 267.5x22
-            "Bold and italic and code 37"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 37" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1221 1100x30
-      view#row 0,1221 1100x30
-        view#guide 61,1221 1x30 bg=#e3e5e8
-        view 82,1225 18x22
-          view 88,1233 6x6
-            view#bullet 88,1233 6x6 bg=#8b8f97 r=3
-        view 100,1225 960x22
-          text#row-text 106,1225 198x22
-            "A link and a #tag 38"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 38" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1251 1100x30
-      view#row 0,1251 1100x30
-        view#guide 61,1251 1x30 bg=#e3e5e8
-        view#guide 91,1251 1x30 bg=#e3e5e8
-        view 112,1255 18x22
-          view#bullet 118,1263 6x6 bg=#8b8f97 r=3
-        view 130,1255 930x22
-          text#row-text 136,1255 158.5x22 bg=#c8e3c0 r=3
-            "한글 항목: 입력 테스트 39"
-              "한글 항목: 입력 테스트 39" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1281 1100x30
-      view#row 0,1281 1100x30
-        view#guide 61,1281 1x30 bg=#e3e5e8
-        view 82,1285 18x22
-          view#bullet 88,1293 6x6 bg=#8b8f97 r=3
-        view 100,1285 960x22
-          text#row-text 106,1285 188.5x22
-            "Mixed 굵게 코드 text 40"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 40" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1311 1100x30
-      view#row 0,1311 1100x30
-        view#guide 61,1311 1x30 bg=#e3e5e8
-        view 82,1315 18x22
-          view#bullet 88,1323 6x6 bg=#8b8f97 r=3
-        view 100,1315 960x22
-          text#row-text 106,1315 129x22
-            "Plain item 41"
-              "Plain item 41" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1341 1100x30
-      view#row 0,1341 1100x30
-        view#guide 61,1341 1x30 bg=#e3e5e8
-        view 82,1345 18x22
-          view#bullet 88,1353 6x6 bg=#8b8f97 r=3
-        view 100,1345 960x22
-          text#row-text 106,1345 267.5x22
-            "Bold and italic and code 42"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 42" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1371 1100x30
-      view#row 0,1371 1100x30
-        view 52,1375 18x22
-          view 58,1383 6x6
-            view#bullet 58,1383 6x6 bg=#8b8f97 r=3
-        view 70,1375 990x22
-          text#row-text 76,1375 198x22
-            "A link and a #tag 43"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 43" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1401 1100x30
-      view#row 0,1401 1100x30
-        view#guide 61,1401 1x30 bg=#e3e5e8
-        view 82,1405 18x22
-          view#bullet 88,1413 6x6 bg=#8b8f97 r=3
-        view 100,1405 960x22
-          text#row-text 106,1405 158.5x22
-            "한글 항목: 입력 테스트 44"
-              "한글 항목: 입력 테스트 44" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-    view 0,1431 1100x30
-      view#row 0,1431 1100x30
-        view#guide 61,1431 1x30 bg=#e3e5e8
-        view 82,1435 18x22
-          view 88,1443 6x6
-            view#bullet 88,1443 6x6 bg=#8b8f97 r=3
-        view 100,1435 960x22
-          text#row-text 106,1435 188.5x22
-            "Mixed 굵게 코드 text 45"
-              "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " text 45" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1461 1100x30
-      view#row 0,1461 1100x30
-        view#guide 61,1461 1x30 bg=#e3e5e8
-        view#guide 91,1461 1x30 bg=#e3e5e8
-        view 112,1465 18x22
-          view#bullet 118,1473 6x6 bg=#8b8f97 r=3
-        view 130,1465 930x22
-          text#row-text 136,1465 129x22
-            "Plain item 46"
-              "Plain item 46" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1491 1100x30
-      view#row 0,1491 1100x30
-        view#guide 61,1491 1x30 bg=#e3e5e8
-        view 82,1495 18x22
-          view#bullet 88,1503 6x6 bg=#8b8f97 r=3
-        view 100,1495 960x22
-          text#row-text 106,1495 267.5x22
-            "Bold and italic and code 47"
-              "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
-              " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
-              " 47" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1521 1100x30
-      view#row 0,1521 1100x30
-        view#guide 61,1521 1x30 bg=#e3e5e8
-        view 82,1525 18x22
-          view#bullet 88,1533 6x6 bg=#8b8f97 r=3
-        view 100,1525 960x22
-          text#row-text 106,1525 198x22
-            "A link and a #tag 48"
-              "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
-              " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-              "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
-              " 48" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-    view 0,1551 1100x30
-      view#row 0,1551 1100x30
-        view#guide 61,1551 1x30 bg=#e3e5e8
-        view 82,1555 18x22
-          view#bullet 88,1563 6x6 bg=#8b8f97 r=3
-        view 100,1555 960x22
-          text#row-text 106,1555 158.5x22
-            "한글 항목: 입력 테스트 49"
-              "한글 항목: 입력 테스트 49" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+  view 0,45 1100x755
+    view 0,45 263x755
+      view#sidebar 0,45 260x755 bg=#f7f8fa border-r=1 #eceef1
+        view#tabs 0,45 259x38.5 border-b=1 #eceef1
+          view#tab 0,45 86.5x37.5 border-b=2 #2f8cf0
+            text 25,53 36x19.5
+              "Files"
+                "Files" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+          view#tab 86.5,45 86x37.5 border-b=2 #00000000
+            text 97.5,53 64.5x19.5
+              "Bookmarks"
+                "Bookmarks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #8b8f97
+          view#tab 172.5,45 86.5x37.5 border-b=2 #00000000
+            text 201.5,53 29x19.5
+              "Tags"
+                "Tags" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #8b8f97
+        scroll#pane 0,83.5 259x716.5 scroll 259x716.5
+          view 0,83.5 259x126
+            view 0,87.5 259x98
+              view#pane-head 0,87.5 259x42
+                text 12,99.5 53x18
+                  "MY FILES"
+                    "MY FILES" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97 spacing=0.5
+                view#search 131,93.5 30x30 r=6
+                  canvas 137,99.5 18x18
+                view#inbox 161,93.5 30x30 r=6
+                  canvas 167,99.5 18x18
+                view#fold 191,93.5 30x30 r=6
+                  canvas 197,99.5 18x18
+                view#plus 221,93.5 30x30 r=6
+                  canvas 227,99.5 18x18
+              view 0,129.5 259x56
+                view#file 0,129.5 259x28 bg=#d9eafd
+                  view 30,136 16x15
+                    canvas 30,136 15x15
+                  text 52,133 199x21
+                    "Demo"
+                      "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                view#file 0,157.5 259x28
+                  view 30,164 16x15
+                    canvas 30,164 15x15
+                  text 52,161 199x21
+                    "Untitled"
+                      "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+      view#splitter 257,45 6x755
+    scroll#outline 263,45 837x755 bg=#ffffff scroll 837x300110
+      view 263,45 837x66
+        view#title 263,45 837x66
+          view 313,65 747x34
+            text 313,65 747x34
+              "Demo"
+                "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
+      view 263,300125 837x30
+        view#doc-end 263,300125 837x30
+      view 263,111 837x30
+        view#row 263,111 837x30
+          view#thread 323.5,126 2x15 bg=#2f8cf0
+          view 315,115 18x22
+            view 321,123 6x6
+              view#bullet 321,123 6x6 bg=#2f8cf0 r=3
+          view 333,115 727x22
+            text#row-text 339,115 119x22
+              "Plain item 1"
+                "Plain item 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,141 837x30
+        view#row 263,141 837x30
+          view#guide 324,141 1x30 bg=#e3e5e8
+          view#elbow 323.5,141 26.5x16 r-bl=8 border-b=2 #2f8cf0 border-l=2 #2f8cf0
+          view 345,145 18x22
+            view#bullet 351,153 6x6 bg=#2f8cf0 r=3
+          view 363,145 697x22
+            input#row-input 369,145 691x22
+              "**Bold** and __italic__ and `code` 2"
+      view 263,171 837x30
+        view#row 263,171 837x30
+          view#guide 324,171 1x30 bg=#e3e5e8
+          view 345,175 18x22
+            view 351,183 6x6
+              view#bullet 351,183 6x6 bg=#8b8f97 r=3
+          view 363,175 697x22
+            text#row-text 369,175 188.5x22
+              "A link and a #tag 3"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,201 837x30
+        view#row 263,201 837x30
+          view#guide 324,201 1x30 bg=#e3e5e8
+          view#guide 354,201 1x30 bg=#e3e5e8
+          view 375,205 18x22
+            view#bullet 381,213 6x6 bg=#8b8f97 r=3
+          view 393,205 667x22
+            text#row-text 399,205 148.5x22
+              "한글 항목: 입력 테스트 4"
+                "한글 항목: 입력 테스트 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,231 837x30
+        view#row 263,231 837x30
+          view#guide 324,231 1x30 bg=#e3e5e8
+          view 345,235 18x22
+            view#bullet 351,243 6x6 bg=#8b8f97 r=3
+          view 363,235 697x22
+            text#row-text 369,235 178.5x22
+              "Mixed 굵게 코드 text 5"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,261 837x30
+        view#row 263,261 837x30
+          view#guide 324,261 1x30 bg=#e3e5e8
+          view 345,265 18x22
+            view#bullet 351,273 6x6 bg=#8b8f97 r=3
+          view 363,265 697x22
+            text#row-text 369,265 119x22
+              "Plain item 6"
+                "Plain item 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,291 837x30
+        view#row 263,291 837x30
+          view#guide 324,291 1x30 bg=#e3e5e8
+          view 345,295 18x22
+            view#bullet 351,303 6x6 bg=#8b8f97 r=3
+          view 363,295 697x22
+            text#row-text 369,295 257.5x22
+              "Bold and italic and code 7"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 7" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,321 837x30
+        view#row 263,321 837x30
+          view 315,325 18x22
+            view 321,333 6x6
+              view#bullet 321,333 6x6 bg=#8b8f97 r=3
+          view 333,325 727x22
+            text#row-text 339,325 188.5x22
+              "A link and a #tag 8"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 8" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,351 837x30
+        view#row 263,351 837x30
+          view#guide 324,351 1x30 bg=#e3e5e8
+          view 345,355 18x22
+            view#bullet 351,363 6x6 bg=#8b8f97 r=3
+          view 363,355 697x22
+            text#row-text 369,355 148.5x22
+              "한글 항목: 입력 테스트 9"
+                "한글 항목: 입력 테스트 9" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,381 837x30
+        view#row 263,381 837x30
+          view#guide 324,381 1x30 bg=#e3e5e8
+          view 345,385 18x22
+            view 351,393 6x6
+              view#bullet 351,393 6x6 bg=#8b8f97 r=3
+          view 363,385 697x22
+            text#row-text 369,385 188.5x22
+              "Mixed 굵게 코드 text 10"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #a7a7a7 strike
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
+                " text 10" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+      view 263,411 837x30
+        view#row 263,411 837x30
+          view#guide 324,411 1x30 bg=#e3e5e8
+          view#guide 354,411 1x30 bg=#e3e5e8
+          view 375,415 18x22
+            view#bullet 381,423 6x6 bg=#8b8f97 r=3
+          view 393,415 667x22
+            text#row-text 399,415 129x22
+              "Plain item 11"
+                "Plain item 11" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,441 837x30
+        view#row 263,441 837x30
+          view#guide 324,441 1x30 bg=#e3e5e8
+          view 345,445 18x22
+            view#bullet 351,453 6x6 bg=#8b8f97 r=3
+          view 363,445 697x22
+            text#row-text 369,445 267.5x22
+              "Bold and italic and code 12"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 12" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,471 837x30
+        view#row 263,471 837x30
+          view#guide 324,471 1x30 bg=#e3e5e8
+          view 345,475 18x22
+            view#bullet 351,483 6x6 bg=#8b8f97 r=3
+          view#checkbox 365,478 16x16
+            view 365,478 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
+          view 381,475 679x22
+            text#row-text 385,475 198x22
+              "A link and a #tag 13"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 13" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,501 837x30
+        view#row 263,501 837x30
+          view#guide 324,501 1x30 bg=#e3e5e8
+          view 345,505 18x22
+            view#bullet 351,513 6x6 bg=#8b8f97 r=3
+          view 363,505 697x22
+            text#row-text 369,505 158.5x22
+              "한글 항목: 입력 테스트 14"
+                "한글 항목: 입력 테스트 14" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,531 837x30
+        view#row 263,531 837x30
+          view 315,535 18x22
+            view 321,543 6x6
+              view#bullet 321,543 6x6 bg=#8b8f97 r=3
+          view 333,535 727x22
+            text#row-text 339,535 188.5x22
+              "Mixed 굵게 코드 text 15"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 15" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,561 837x30
+        view#row 263,561 837x30
+          view#guide 324,561 1x30 bg=#e3e5e8
+          view 345,565 18x22
+            view#bullet 351,573 6x6 bg=#8b8f97 r=3
+          view 363,565 697x22
+            text#row-text 369,565 129x22 bg=#c8e3c0 r=3
+              "Plain item 16"
+                "Plain item 16" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,591 837x30
+        view#row 263,591 837x30
+          view#guide 324,591 1x30 bg=#e3e5e8
+          view 345,595 18x22
+            view 351,603 6x6
+              view#bullet 351,603 6x6 bg=#8b8f97 r=3
+          view 363,595 697x22
+            text#row-text 369,595 267.5x22
+              "Bold and italic and code 17"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 17" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,621 837x30
+        view#row 263,621 837x30
+          view#guide 324,621 1x30 bg=#e3e5e8
+          view#guide 354,621 1x30 bg=#e3e5e8
+          view 375,625 18x22
+            view#bullet 381,633 6x6 bg=#8b8f97 r=3
+          view 393,625 667x22
+            text#row-text 399,625 198x22
+              "A link and a #tag 18"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 18" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,651 837x30
+        view#row 263,651 837x30
+          view#guide 324,651 1x30 bg=#e3e5e8
+          view 345,655 18x22
+            view#bullet 351,663 6x6 bg=#8b8f97 r=3
+          view 363,655 697x22
+            text#row-text 369,655 158.5x22
+              "한글 항목: 입력 테스트 19"
+                "한글 항목: 입력 테스트 19" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,681 837x30
+        view#row 263,681 837x30
+          view#guide 324,681 1x30 bg=#e3e5e8
+          view 345,685 18x22
+            view#bullet 351,693 6x6 bg=#8b8f97 r=3
+          view 363,685 697x22
+            text#row-text 369,685 188.5x22
+              "Mixed 굵게 코드 text 20"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 20" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,711 837x30
+        view#row 263,711 837x30
+          view#guide 324,711 1x30 bg=#e3e5e8
+          view 345,715 18x22
+            view#bullet 351,723 6x6 bg=#8b8f97 r=3
+          view 363,715 697x22
+            text#row-text 369,715 129x22
+              "Plain item 21"
+                "Plain item 21" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,741 837x30
+        view#row 263,741 837x30
+          view 315,745 18x22
+            view 321,753 6x6
+              view#bullet 321,753 6x6 bg=#8b8f97 r=3
+          view 333,745 727x22
+            text#row-text 339,745 267.5x22
+              "Bold and italic and code 22"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 22" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,771 837x30
+        view#row 263,771 837x30
+          view#guide 324,771 1x30 bg=#e3e5e8
+          view 345,775 18x22
+            view#bullet 351,783 6x6 bg=#8b8f97 r=3
+          view 363,775 697x22
+            text#row-text 369,775 198x22
+              "A link and a #tag 23"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 23" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,801 837x30
+        view#row 263,801 837x30
+          view#guide 324,801 1x30 bg=#e3e5e8
+          view 345,805 18x22
+            view 351,813 6x6
+              view#bullet 351,813 6x6 bg=#8b8f97 r=3
+          view 363,805 697x22
+            text#row-text 369,805 158.5x22
+              "한글 항목: 입력 테스트 24"
+                "한글 항목: 입력 테스트 24" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,831 837x30
+        view#row 263,831 837x30
+          view#guide 324,831 1x30 bg=#e3e5e8
+          view#guide 354,831 1x30 bg=#e3e5e8
+          view 375,835 18x22
+            view#bullet 381,843 6x6 bg=#8b8f97 r=3
+          view 393,835 667x22
+            text#row-text 399,835 188.5x22
+              "Mixed 굵게 코드 text 25"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 25" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,861 837x30
+        view#row 263,861 837x30
+          view#guide 324,861 1x30 bg=#e3e5e8
+          view 345,865 18x22
+            view#bullet 351,873 6x6 bg=#8b8f97 r=3
+          view 363,865 697x22
+            text#row-text 369,865 129x22
+              "Plain item 26"
+                "Plain item 26" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,891 837x30
+        view#row 263,891 837x30
+          view#guide 324,891 1x30 bg=#e3e5e8
+          view 345,895 18x22
+            view#bullet 351,903 6x6 bg=#8b8f97 r=3
+          view 363,895 697x22
+            text#row-text 369,895 267.5x22
+              "Bold and italic and code 27"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #a7a7a7 strike
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 italic strike
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
+                " 27" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+      view 263,921 837x30
+        view#row 263,921 837x30
+          view#guide 324,921 1x30 bg=#e3e5e8
+          view 345,925 18x22
+            view#bullet 351,933 6x6 bg=#8b8f97 r=3
+          view 363,925 697x22
+            text#row-text 369,925 198x22
+              "A link and a #tag 28"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 28" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,951 837x30
+        view#row 263,951 837x30
+          view 315,955 18x22
+            view 321,963 6x6
+              view#bullet 321,963 6x6 bg=#8b8f97 r=3
+          view 333,955 727x22
+            text#row-text 339,955 158.5x22
+              "한글 항목: 입력 테스트 29"
+                "한글 항목: 입력 테스트 29" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,981 837x30
+        view#row 263,981 837x30
+          view#guide 324,981 1x30 bg=#e3e5e8
+          view 345,985 18x22
+            view#bullet 351,993 6x6 bg=#8b8f97 r=3
+          view 363,985 697x22
+            text#row-text 369,985 188.5x22
+              "Mixed 굵게 코드 text 30"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 30" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1011 837x30
+        view#row 263,1011 837x30
+          view#guide 324,1011 1x30 bg=#e3e5e8
+          view 345,1015 18x22
+            view 351,1023 6x6
+              view#bullet 351,1023 6x6 bg=#8b8f97 r=3
+          view 363,1015 697x22
+            text#row-text 369,1015 129x22
+              "Plain item 31"
+                "Plain item 31" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1041 837x30
+        view#row 263,1041 837x30
+          view#guide 324,1041 1x30 bg=#e3e5e8
+          view#guide 354,1041 1x30 bg=#e3e5e8
+          view 375,1045 18x22
+            view#bullet 381,1053 6x6 bg=#8b8f97 r=3
+          view#checkbox 395,1048 16x16
+            view 395,1048 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
+          view 411,1045 649x22
+            text#row-text 415,1045 267.5x22
+              "Bold and italic and code 32"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 32" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1071 837x30
+        view#row 263,1071 837x30
+          view#guide 324,1071 1x30 bg=#e3e5e8
+          view 345,1075 18x22
+            view#bullet 351,1083 6x6 bg=#8b8f97 r=3
+          view 363,1075 697x22
+            text#row-text 369,1075 198x22
+              "A link and a #tag 33"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 33" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1101 837x30
+        view#row 263,1101 837x30
+          view#guide 324,1101 1x30 bg=#e3e5e8
+          view 345,1105 18x22
+            view#bullet 351,1113 6x6 bg=#8b8f97 r=3
+          view 363,1105 697x22
+            text#row-text 369,1105 158.5x22
+              "한글 항목: 입력 테스트 34"
+                "한글 항목: 입력 테스트 34" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1131 837x30
+        view#row 263,1131 837x30
+          view#guide 324,1131 1x30 bg=#e3e5e8
+          view 345,1135 18x22
+            view#bullet 351,1143 6x6 bg=#8b8f97 r=3
+          view 363,1135 697x22
+            text#row-text 369,1135 188.5x22
+              "Mixed 굵게 코드 text 35"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 35" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1161 837x30
+        view#row 263,1161 837x30
+          view 315,1165 18x22
+            view 321,1173 6x6
+              view#bullet 321,1173 6x6 bg=#8b8f97 r=3
+          view 333,1165 727x22
+            text#row-text 339,1165 129x22
+              "Plain item 36"
+                "Plain item 36" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1191 837x30
+        view#row 263,1191 837x30
+          view#guide 324,1191 1x30 bg=#e3e5e8
+          view 345,1195 18x22
+            view#bullet 351,1203 6x6 bg=#8b8f97 r=3
+          view 363,1195 697x22
+            text#row-text 369,1195 267.5x22
+              "Bold and italic and code 37"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 37" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1221 837x30
+        view#row 263,1221 837x30
+          view#guide 324,1221 1x30 bg=#e3e5e8
+          view 345,1225 18x22
+            view 351,1233 6x6
+              view#bullet 351,1233 6x6 bg=#8b8f97 r=3
+          view 363,1225 697x22
+            text#row-text 369,1225 198x22
+              "A link and a #tag 38"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 38" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1251 837x30
+        view#row 263,1251 837x30
+          view#guide 324,1251 1x30 bg=#e3e5e8
+          view#guide 354,1251 1x30 bg=#e3e5e8
+          view 375,1255 18x22
+            view#bullet 381,1263 6x6 bg=#8b8f97 r=3
+          view 393,1255 667x22
+            text#row-text 399,1255 158.5x22 bg=#c8e3c0 r=3
+              "한글 항목: 입력 테스트 39"
+                "한글 항목: 입력 테스트 39" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1281 837x30
+        view#row 263,1281 837x30
+          view#guide 324,1281 1x30 bg=#e3e5e8
+          view 345,1285 18x22
+            view#bullet 351,1293 6x6 bg=#8b8f97 r=3
+          view 363,1285 697x22
+            text#row-text 369,1285 188.5x22
+              "Mixed 굵게 코드 text 40"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 40" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1311 837x30
+        view#row 263,1311 837x30
+          view#guide 324,1311 1x30 bg=#e3e5e8
+          view 345,1315 18x22
+            view#bullet 351,1323 6x6 bg=#8b8f97 r=3
+          view 363,1315 697x22
+            text#row-text 369,1315 129x22
+              "Plain item 41"
+                "Plain item 41" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1341 837x30
+        view#row 263,1341 837x30
+          view#guide 324,1341 1x30 bg=#e3e5e8
+          view 345,1345 18x22
+            view#bullet 351,1353 6x6 bg=#8b8f97 r=3
+          view 363,1345 697x22
+            text#row-text 369,1345 267.5x22
+              "Bold and italic and code 42"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 42" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1371 837x30
+        view#row 263,1371 837x30
+          view 315,1375 18x22
+            view 321,1383 6x6
+              view#bullet 321,1383 6x6 bg=#8b8f97 r=3
+          view 333,1375 727x22
+            text#row-text 339,1375 198x22
+              "A link and a #tag 43"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 43" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1401 837x30
+        view#row 263,1401 837x30
+          view#guide 324,1401 1x30 bg=#e3e5e8
+          view 345,1405 18x22
+            view#bullet 351,1413 6x6 bg=#8b8f97 r=3
+          view 363,1405 697x22
+            text#row-text 369,1405 158.5x22
+              "한글 항목: 입력 테스트 44"
+                "한글 항목: 입력 테스트 44" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+      view 263,1431 837x30
+        view#row 263,1431 837x30
+          view#guide 324,1431 1x30 bg=#e3e5e8
+          view 345,1435 18x22
+            view 351,1443 6x6
+              view#bullet 351,1443 6x6 bg=#8b8f97 r=3
+          view 363,1435 697x22
+            text#row-text 369,1435 188.5x22
+              "Mixed 굵게 코드 text 45"
+                "Mixed " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "굵게" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "코드" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " text 45" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1461 837x30
+        view#row 263,1461 837x30
+          view#guide 324,1461 1x30 bg=#e3e5e8
+          view#guide 354,1461 1x30 bg=#e3e5e8
+          view 375,1465 18x22
+            view#bullet 381,1473 6x6 bg=#8b8f97 r=3
+          view 393,1465 667x22
+            text#row-text 399,1465 129x22
+              "Plain item 46"
+                "Plain item 46" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1491 837x30
+        view#row 263,1491 837x30
+          view#guide 324,1491 1x30 bg=#e3e5e8
+          view 345,1495 18x22
+            view#bullet 351,1503 6x6 bg=#8b8f97 r=3
+          view 363,1495 697x22
+            text#row-text 369,1495 267.5x22
+              "Bold and italic and code 47"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 italic
+                " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "code" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+                " 47" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1521 837x30
+        view#row 263,1521 837x30
+          view#guide 324,1521 1x30 bg=#e3e5e8
+          view 345,1525 18x22
+            view#bullet 351,1533 6x6 bg=#8b8f97 r=3
+          view 363,1525 697x22
+            text#row-text 369,1525 198x22
+              "A link and a #tag 48"
+                "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 underline
+                " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
+                " 48" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+      view 263,1551 837x30
+        view#row 263,1551 837x30
+          view#guide 324,1551 1x30 bg=#e3e5e8
+          view 345,1555 18x22
+            view#bullet 351,1563 6x6 bg=#8b8f97 r=3
+          view 363,1555 697x22
+            text#row-text 369,1555 158.5x22
+              "한글 항목: 입력 테스트 49"
+                "한글 항목: 입력 테스트 49" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222

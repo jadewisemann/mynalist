@@ -84,6 +84,21 @@ pub mod color {
     pub fn hover() -> Rgba {
         of("color.hover")
     }
+    /// Selected items and the active file.
+    pub fn sel() -> Rgba {
+        of("color.sel")
+    }
+    pub fn side_bg() -> Rgba {
+        of("color.side_bg")
+    }
+    /// Behind sheets and the phone sidebar.
+    pub fn scrim() -> Rgba {
+        of("color.scrim")
+    }
+    /// The phone sidebar's shadow.
+    pub fn shadow_strong() -> Rgba {
+        of("color.shadow_strong")
+    }
     pub fn note() -> Rgba {
         of("color.note")
     }
@@ -206,6 +221,17 @@ pub fn thread_x(depth: u16) -> f32 {
 pub fn elbow_end(depth: u16, numbered: bool) -> f32 {
     let end = num(if numbered { "space.elbow_end_numbered" } else { "space.elbow_end" });
     doc_pad().0 + indent() * f32::from(depth) - num("space.gutter") + end
+}
+
+/// The app's text size (bars, menus, the sidebar) and its line height.
+pub fn ui() -> (f32, f32) {
+    ui_sized("type.ui")
+}
+
+/// A size entry of the app's text (`type.ui_small`) and its line height (the app's line height ratio).
+pub fn ui_sized(id: &str) -> (f32, f32) {
+    let size = num(id);
+    (size, size * num("type.ui_line"))
 }
 
 /// Text size and line box of a heading level (`.o-h1` .. `.o-h3`; 0 for plain text).

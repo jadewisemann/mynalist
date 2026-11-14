@@ -842,6 +842,16 @@ export const SCHEMA: Entry[] = [
     "max": 32
   },
   {
+    "table": "type",
+    "key": "head_tracking",
+    "id": "type.head_tracking",
+    "kind": "ratio",
+    "doc": "Section heads' letter spacing, times their size.",
+    "css": "--type-head-tracking",
+    "min": 0,
+    "max": 0.5
+  },
+  {
     "table": "space",
     "key": "pad",
     "id": "space.pad",
@@ -1303,6 +1313,246 @@ export const SCHEMA: Entry[] = [
   },
   {
     "table": "space",
+    "key": "sidebar_min",
+    "id": "space.sidebar_min",
+    "kind": "length",
+    "doc": "The narrowest the sidebar can be dragged.",
+    "css": "--space-sidebar-min",
+    "min": 100,
+    "max": 400
+  },
+  {
+    "table": "space",
+    "key": "sidebar_drag_max",
+    "id": "space.sidebar_drag_max",
+    "kind": "length",
+    "doc": "The widest the sidebar can be dragged.",
+    "css": "--space-sidebar-drag-max",
+    "min": 200,
+    "max": 1000
+  },
+  {
+    "table": "space",
+    "key": "splitter",
+    "id": "space.splitter",
+    "kind": "length",
+    "doc": "The sidebar's drag handle's width (half of it over the sidebar).",
+    "css": "--space-splitter",
+    "min": 2,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "drawer",
+    "id": "space.drawer",
+    "kind": "ratio",
+    "doc": "The phone sidebar's width, of the screen's.",
+    "css": "--space-drawer",
+    "min": 0.3,
+    "max": 1
+  },
+  {
+    "table": "space",
+    "key": "drawer_shadow",
+    "id": "space.drawer_shadow",
+    "kind": "length",
+    "doc": "The blur of the phone sidebar's shadow.",
+    "css": "--space-drawer-shadow",
+    "min": 0,
+    "max": 80
+  },
+  {
+    "table": "space",
+    "key": "side_tab_y",
+    "id": "space.side_tab_y",
+    "kind": "length",
+    "doc": "Sidebar tabs' padding above and below.",
+    "css": "--space-side-tab-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "side_tab_bar",
+    "id": "space.side_tab_bar",
+    "kind": "length",
+    "doc": "The active sidebar tab's underline.",
+    "css": "--space-side-tab-bar",
+    "min": 0,
+    "max": 6
+  },
+  {
+    "table": "space",
+    "key": "pane_head_left",
+    "id": "space.pane_head_left",
+    "kind": "length",
+    "doc": "Sidebar section heads' padding left.",
+    "css": "--space-pane-head-left",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "pane_head_right",
+    "id": "space.pane_head_right",
+    "kind": "length",
+    "doc": "Sidebar section heads' padding right.",
+    "css": "--space-pane-head-right",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "pane_head_y",
+    "id": "space.pane_head_y",
+    "kind": "length",
+    "doc": "Sidebar section heads' padding above and below.",
+    "css": "--space-pane-head-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "pane_top",
+    "id": "space.pane_top",
+    "kind": "length",
+    "doc": "Space above the sidebar's list.",
+    "css": "--space-pane-top",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "pane_bottom",
+    "id": "space.pane_bottom",
+    "kind": "length",
+    "doc": "Space below the sidebar's list.",
+    "css": "--space-pane-bottom",
+    "min": 0,
+    "max": 60
+  },
+  {
+    "table": "space",
+    "key": "file_pad",
+    "id": "space.file_pad",
+    "kind": "length",
+    "doc": "Sidebar rows' padding left (top level) and right.",
+    "css": "--space-file-pad",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "file_indent",
+    "id": "space.file_indent",
+    "kind": "length",
+    "doc": "Sidebar rows' indent per folder level.",
+    "css": "--space-file-indent",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "file_gap",
+    "id": "space.file_gap",
+    "kind": "length",
+    "doc": "Space between a sidebar row's toggle, icon and name.",
+    "css": "--space-file-gap",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "file_box",
+    "id": "space.file_box",
+    "kind": "length",
+    "doc": "A sidebar row's toggle and icon columns' width.",
+    "css": "--space-file-box",
+    "min": 8,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "file_icon",
+    "id": "space.file_icon",
+    "kind": "length",
+    "doc": "A sidebar row's icon's size.",
+    "css": "--space-file-icon",
+    "min": 8,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "tag_row_x",
+    "id": "space.tag_row_x",
+    "kind": "length",
+    "doc": "Tag rows' padding left and right.",
+    "css": "--space-tag-row-x",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "tag_row_y",
+    "id": "space.tag_row_y",
+    "kind": "length",
+    "doc": "Tag rows' padding above and below.",
+    "css": "--space-tag-row-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "pane_empty_x",
+    "id": "space.pane_empty_x",
+    "kind": "length",
+    "doc": "An empty sidebar list's hint: padding left and right.",
+    "css": "--space-pane-empty-x",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "pane_empty_y",
+    "id": "space.pane_empty_y",
+    "kind": "length",
+    "doc": "An empty sidebar list's hint: padding above and below.",
+    "css": "--space-pane-empty-y",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "link_y",
+    "id": "space.link_y",
+    "kind": "length",
+    "doc": "Link buttons' padding above and below.",
+    "css": "--space-link-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "rename_x",
+    "id": "space.rename_x",
+    "kind": "length",
+    "doc": "A sidebar row's rename field: padding left and right.",
+    "css": "--space-rename-x",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "rename_y",
+    "id": "space.rename_y",
+    "kind": "length",
+    "doc": "A sidebar row's rename field: padding above and below.",
+    "css": "--space-rename-y",
+    "min": 0,
+    "max": 10
+  },
+  {
+    "table": "space",
     "key": "doc_max",
     "id": "space.doc_max",
     "kind": "length",
@@ -1543,7 +1793,7 @@ export const SCHEMA: Entry[] = [
   }
 ];
 
-export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
+export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["type.head_tracking",0.04],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.sidebar_min",160],["space.sidebar_drag_max",520],["space.splitter",6],["space.drawer",0.82],["space.drawer_shadow",40],["space.side_tab_y",8],["space.side_tab_bar",2],["space.pane_head_left",12],["space.pane_head_right",8],["space.pane_head_y",6],["space.pane_top",4],["space.pane_bottom",24],["space.file_pad",8],["space.file_indent",16],["space.file_gap",6],["space.file_box",16],["space.file_icon",15],["space.tag_row_x",12],["space.tag_row_y",3],["space.pane_empty_x",14],["space.pane_empty_y",8],["space.link_y",4],["space.rename_x",4],["space.rename_y",1],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
 
 export const GROUPS: Group[] = [
   {

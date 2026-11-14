@@ -1,8 +1,10 @@
-//! The open document: a [`DocSession`] and the rows it shows, kept outside the reactive graph (a session is
-//! large and not `Clone`) and announced through one revision signal. Views read with [`read`] (tracked) and
-//! change it with [`edit`], which bumps the revision.
+//! The local documents and the open one: a [`DocSession`] per document and the rows the open one shows, kept
+//! outside the reactive graph (a session is large and not `Clone`) and announced through one revision signal.
+//! Views read with [`read`] (tracked) and change it with [`edit`], which bumps the revision. Until sync exists
+//! the documents live here only; a document's name is its root's text, as the web keeps them equal.
 
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 use nsh_core::prelude::*;
@@ -37,13 +39,108 @@ pub struct State {
     pub caret_rev: u64,
     /// The zoom root and the visibility options.
     pub view: View,
+    /// The open document's id.
+    pub doc: String,
+    /// The local documents' ids, in the sidebar's order.
+    pub files: Vec<String>,
+    /// The documents that are not open, with the view each was left in.
+    shelved: HashMap<String, (DocSession<Option<Caret>>, View)>,
+    /// The number in the next new document's id.
+    next_doc: u32,
 }
 
 impl State {
-    fn new(session: DocSession<Option<Caret>>) -> Self {
-        let mut s = State { session, rows: Vec::new(), editing: None, caret_rev: 0, view: View::default() };
+    fn new(mut docs: Vec<(String, DocSession<Option<Caret>>)>) -> Self {
+        assert!(!docs.is_empty(), "a workspace holds a document");
+        let files: Vec<String> = docs.iter().map(|(id, _)| id.clone()).collect();
+        let (doc, session) = docs.remove(0);
+        let shelved = docs.into_iter().map(|(id, s)| (id, (s, View::default()))).collect();
+        let next_doc = files.len() as u32 + 1;
+        let mut s = State {
+            session,
+            rows: Vec::new(),
+            editing: None,
+            caret_rev: 0,
+            view: View::default(),
+            doc,
+            files,
+            shelved,
+            next_doc,
+        };
         s.reflow();
         s
+    }
+
+    /// The tree of document `id` (open or not).
+    pub fn tree_of(&self, id: &str) -> Option<&Tree> {
+        if id == self.doc {
+            Some(&self.session.live)
+        } else {
+            self.shelved.get(id).map(|(s, _)| &s.live)
+        }
+    }
+
+    /// A document's name: its root's text, "Untitled" while that is empty (`Workspace.title`).
+    pub fn title(&self, id: &str) -> String {
+        let t = self.tree_of(id).map(|t| item::content(t.get(ROOT)).trim().to_owned()).unwrap_or_default();
+        if t.is_empty() { "Untitled".to_owned() } else { t }
+    }
+
+    /// Open document `id`: the open one is shelved with its view, `id`'s view comes back; nothing is edited.
+    pub fn switch(&mut self, id: &str) {
+        if id == self.doc {
+            return;
+        }
+        let Some((session, view)) = self.shelved.remove(id) else { return };
+        let old = std::mem::replace(&mut self.session, session);
+        let old_view = std::mem::replace(&mut self.view, view);
+        self.shelved.insert(std::mem::replace(&mut self.doc, id.to_owned()), (old, old_view));
+        self.editing = None;
+        self.caret_rev += 1;
+        self.reflow();
+    }
+
+    /// A new empty document named "Untitled", last in the list, opened (`Workspace.create`); its id.
+    pub fn create(&mut self) -> String {
+        let id = format!("doc{}", self.next_doc);
+        self.next_doc += 1;
+        self.shelved.insert(id.clone(), (named("Untitled"), View::default()));
+        self.files.push(id.clone());
+        self.switch(&id);
+        id
+    }
+
+    /// Rename document `id`: its root's text (`Workspace.rename`), not undoable.
+    pub fn rename(&mut self, id: &str, title: &str) {
+        let session = if id == self.doc { Some(&mut self.session) } else { self.shelved.get_mut(id).map(|(s, _)| s) };
+        if let Some(session) = session {
+            let op = Op::Set { id: ROOT.to_owned(), props: text_props(title), ts: now() };
+            session.transact(vec![op], None, None, false);
+        }
+    }
+
+    /// The tags in documents `docs` (`App.tagCounts`): each tag as first written and how often it is used in
+    /// the items' texts and notes (ignoring case), most used first, then by name.
+    pub fn tags_in(&self, docs: &[String]) -> Vec<(String, usize)> {
+        let mut counts: Vec<(String, String, usize)> = Vec::new();
+        for t in docs.iter().filter_map(|d| self.tree_of(d)) {
+            let mut stack = vec![ROOT.to_owned()];
+            while let Some(id) = stack.pop() {
+                let Some(n) = t.get(&id) else { continue };
+                for src in [item::content(Some(n)), item::note(Some(n))] {
+                    for tag in outliner_core::inline::extract_tags(src) {
+                        let key = tag.to_lowercase();
+                        match counts.iter_mut().find(|c| c.0 == key) {
+                            Some(c) => c.2 += 1,
+                            None => counts.push((key, tag, 1)),
+                        }
+                    }
+                }
+                stack.extend(n.children.iter().rev().cloned());
+            }
+        }
+        counts.sort_by(|a, b| b.2.cmp(&a.2).then_with(|| a.0.cmp(&b.0)).then_with(|| a.1.cmp(&b.1)));
+        counts.into_iter().map(|(_, tag, n)| (tag, n)).collect()
     }
 
     pub fn tree(&self) -> &Tree {
@@ -142,7 +239,7 @@ struct Shared(Rc<RefCell<State>>);
 
 impl Default for Shared {
     fn default() -> Self {
-        Shared(Rc::new(RefCell::new(State::new(DocSession::default()))))
+        Shared(Rc::new(RefCell::new(State::new(vec![("doc1".to_owned(), DocSession::default())]))))
     }
 }
 
@@ -172,9 +269,22 @@ pub fn edit<R>(f: impl FnOnce(&mut State) -> R) -> R {
     out
 }
 
-/// Replace the open document (a fresh session, e.g. from a snapshot or for a test).
-pub fn open(session: DocSession<Option<Caret>>) {
-    edit(|s| *s = State::new(session));
+/// Replace the documents (fresh sessions with their ids, e.g. for a test); the first is opened.
+pub fn open_all(docs: Vec<(String, DocSession<Option<Caret>>)>) {
+    edit(|s| *s = State::new(docs));
+}
+
+/// Whether the documents are still the empty one the store starts with.
+pub fn is_blank() -> bool {
+    peek(|s| s.files.len() == 1 && s.rows.is_empty() && s.tree().get(ROOT).is_some_and(|n| n.props.is_empty()))
+}
+
+/// An empty document named `title`, as a new one is made (the name goes in as an op, as on the web).
+pub fn named(title: &str) -> DocSession<Option<Caret>> {
+    let mut s = DocSession::default();
+    let op = Op::Set { id: ROOT.to_owned(), props: text_props(title), ts: now() };
+    s.transact(vec![op], None, None, false);
+    s
 }
 
 pub fn now() -> i64 {

@@ -146,7 +146,7 @@ export class Sidebar {
     const row = h(
       'div.file-row',
       {
-        style: `padding-left:${8 + depth * 16}px`,
+        style: `--depth:${depth}`,
         'data-id': e.id,
         'data-kind': e.kind,
         draggable: this.renaming !== e.id,
@@ -294,7 +294,7 @@ export class Sidebar {
     list.forEach((b, i) => {
       const kind = b.global ? 'search' : b.q ? 'search' : b.zoom ? 'zoom' : 'doc';
       const row = h('div.file-row', {
-        style: 'padding-left:12px',
+        style: 'padding-left:var(--space-tag-row-x)',
         draggable: true,
         title: `${this.ws.title(b.doc)}${b.q ? ` — "${b.q}"` : ''}${b.flat ? ' (flat)' : ''}`,
         onclick: () => this.host.openBookmark(b),
