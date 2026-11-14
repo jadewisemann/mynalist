@@ -1,0 +1,19 @@
+[package]
+name = "outliner-app"
+description = "The outliner's UI for Android and macOS, on Native Shell (NSH)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+outliner-core = { path = "../outliner-core" }
+nsh-core = "=0.5.0"
+nsh-base = "=0.5.0"
+serde_json.workspace = true
+
+[dev-dependencies]
+nsh-engine = "=0.5.0"
+nsh-testing = "=0.5.0"

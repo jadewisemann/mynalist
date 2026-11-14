@@ -1,0 +1,7 @@
+{
+  "name": "Outliner",
+  "id": "dev.outliner.app",
+  "appearance": "system",
+  "rust": ".",
+  "root": "App"
+}
