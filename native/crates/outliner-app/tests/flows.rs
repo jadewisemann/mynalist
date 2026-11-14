@@ -5,7 +5,11 @@ use std::time::{Duration, Instant};
 
 use nsh_core::platform::{Idiom, Os};
 use nsh_engine::{EngineConfig, Root};
-use nsh_testing::Headless;
+use nsh_testing::{Headless, Screen};
+
+/// How long a step's outcome may take to show. A key's batches can come after `press_key` settled when the
+/// machine is busy (the whole suite at once), so the tests wait for what they check instead of reading it once.
+const SHOWS: Duration = Duration::from_secs(10);
 
 fn start(os: Os) -> Headless {
     let mut config = EngineConfig::new(Root::of::<outliner_app::App>());
@@ -20,24 +24,43 @@ fn start(os: Os) -> Headless {
 
 /// The left edge of the row input (its row's indentation). A list keeps spare cells out of view, sized 0, with
 /// the last row they showed: only the input that shows counts.
-fn input_left(app: &Headless) -> f32 {
-    let node = app
-        .screen()
+fn input_left_on(screen: &Screen) -> Option<f32> {
+    let node = screen
         .layout_nodes()
         .into_iter()
         .find(|n| n.test_id.as_deref() == Some("row-input") && n.bounds.size.height.0 > 0.0);
-    node.expect("the row input is laid out").bounds.origin.x.0
+    node.map(|n| n.bounds.origin.x.0)
+}
+
+fn input_left(app: &Headless) -> f32 {
+    input_left_on(app.screen()).expect("the row input is laid out")
+}
+
+fn editing_on(screen: &Screen) -> String {
+    screen.input_text("id:row-input").ok().flatten().unwrap_or_default().to_owned()
 }
 
 fn editing(app: &Headless) -> String {
-    app.screen().input_text("id:row-input").unwrap().unwrap_or_default().to_owned()
+    editing_on(app.screen())
+}
+
+/// Waits until the row input holds `source`; fails with what it holds then.
+fn expect_editing(app: &mut Headless, source: &str) {
+    let waited = app.wait_until(&format!("editing `{source}`"), SHOWS, |s| editing_on(s) == source);
+    assert!(waited.is_ok(), "editing `{}`, not `{source}`", editing(app));
+}
+
+/// Waits until the row input's left edge satisfies `ok`; fails with where it is then.
+fn expect_left(app: &mut Headless, what: &str, ok: impl Fn(f32) -> bool) {
+    let waited = app.wait_until(what, SHOWS, |s| input_left_on(s).is_some_and(&ok));
+    assert!(waited.is_ok(), "{what}: the row input's left is {:?}", input_left_on(app.screen()));
 }
 
 /// Press a row's text (as shown) to edit it; the input holds its source, markup included.
 fn edit_row(app: &mut Headless, shown: &str, source: &str) {
     app.press(&format!("text:{shown}")).unwrap();
     app.wait_for("id:row-input").unwrap();
-    assert_eq!(editing(app), source);
+    expect_editing(app, source);
 }
 
 #[test]
@@ -55,7 +78,7 @@ fn typing_edits_the_item() {
     let mut app = start(Os::Ios);
     edit_row(&mut app, "Plain item 1", "Plain item 1");
     app.type_text("id:row-input", "! 한글").unwrap();
-    assert_eq!(editing(&app), "Plain item 1! 한글");
+    expect_editing(&mut app, "Plain item 1! 한글");
     // leaving the row shows the edited text
     app.press("text:Bold and italic and code 2").unwrap();
     app.wait_for("text:Plain item 1! 한글").unwrap();
@@ -67,7 +90,7 @@ fn return_splits_into_a_new_row_below() {
     edit_row(&mut app, "Plain item 1", "Plain item 1");
     app.submit("id:row-input").unwrap();
     // the caret was at the end: an empty row below takes it
-    assert_eq!(editing(&app), "");
+    expect_editing(&mut app, "");
     app.type_text("id:row-input", "new row").unwrap();
     app.press("text:Bold and italic and code 2").unwrap();
     app.wait_for("text:new row").unwrap();
@@ -82,31 +105,31 @@ fn desktop_keys_indent_outdent_move_and_undo() {
     edit_row(&mut app, "Bold and italic and code 2", "**Bold** and __italic__ and `code` 2");
     let nested = input_left(&app);
     app.press_key("shift+tab").unwrap();
-    let outdented = input_left(&app);
-    assert!(outdented < nested, "{outdented} < {nested}");
+    expect_left(&mut app, "outdented", |x| x < nested);
     app.press_key("tab").unwrap();
-    assert_eq!(input_left(&app), nested);
+    expect_left(&mut app, "indented again", |x| x == nested);
     // Dynalist's rules: outdenting left its siblings below under the old parent, so indenting again made it
     // that parent's last child; the row below is now the parent's next sibling
     app.press_key("down").unwrap();
-    assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 8");
+    expect_editing(&mut app, "A [link](https://example.com) and a #tag 8");
     app.press_key("up").unwrap();
-    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 2");
+    expect_editing(&mut app, "**Bold** and __italic__ and `code` 2");
     // Mod+Down moves it past the next row; Mod+Up brings it back
     app.press_key("mod+down").unwrap();
     app.press_key("mod+up").unwrap();
     app.press_key("up").unwrap();
-    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 7");
+    expect_editing(&mut app, "**Bold** and __italic__ and `code` 7");
     app.press_key("down").unwrap();
+    expect_editing(&mut app, "**Bold** and __italic__ and `code` 2");
     // undo both moves, the indent and the outdent
     for _ in 0..4 {
         app.press_key("mod+z").unwrap();
     }
-    // undo puts the caret back where the change was made
-    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 2");
-    assert_eq!(input_left(&app), nested);
+    // undo puts the caret back where the change was made, at the row's first place
+    expect_editing(&mut app, "**Bold** and __italic__ and `code` 2");
+    expect_left(&mut app, "back where it was", |x| x == nested);
     app.press_key("down").unwrap();
-    assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 3");
+    expect_editing(&mut app, "A [link](https://example.com) and a #tag 3");
 }
 
 #[test]
@@ -115,11 +138,12 @@ fn zoom_in_and_out() {
     edit_row(&mut app, "Plain item 1", "Plain item 1");
     app.press_key("mod+]").unwrap();
     // only its children show; the caret is on the first one
-    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 2");
-    assert!(!app.screen().shows("A link and a #tag 8"));
+    expect_editing(&mut app, "**Bold** and __italic__ and `code` 2");
+    let gone = app.wait_until("the parent's next sibling gone", SHOWS, |s| !s.shows("A link and a #tag 8"));
+    assert!(gone.is_ok(), "{gone:?}");
     app.press_key("mod+[").unwrap();
     app.wait_for("text:A link and a #tag 8").unwrap();
-    assert_eq!(editing(&app), "Plain item 1");
+    expect_editing(&mut app, "Plain item 1");
 }
 
 #[test]
@@ -128,7 +152,8 @@ fn scrolling_far_down_stays_fast() {
     let t = Instant::now();
     app.scroll("id:outline", px(20_000.0)).unwrap();
     assert!(t.elapsed() < Duration::from_secs(20), "scrolled in {:?}", t.elapsed());
-    assert!(!app.screen().shows("Plain item 1"));
+    let gone = app.wait_until("the first row gone", SHOWS, |s| !s.shows("Plain item 1"));
+    assert!(gone.is_ok(), "{gone:?}");
 }
 
 fn px(v: f32) -> nsh_core::geometry::Points {
