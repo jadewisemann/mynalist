@@ -1,2 +1,3 @@
-/target
+target/
 /crates/outliner-core/fixtures/core.json
+/crates/outliner-app/.nsh

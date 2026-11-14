@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/outliner-core", "crates/outliner-app"]
+members = ["crates/outliner-core", "crates/outliner-app", "crates/outliner-mac"]
+# The macOS app (GPUI) builds on a Mac only: `cargo build -p outliner-mac` there.
+default-members = ["crates/outliner-core", "crates/outliner-app"]
 
 [workspace.package]
 version = "0.1.0"

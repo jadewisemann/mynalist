@@ -1,0 +1,101 @@
+name: native
+
+# The Rust app (native/): the macOS app drawn by GPUI and the Android APK, both on NSH.
+# The artifacts are unsigned test builds:
+#   * Outliner-macos.zip: Outliner.app, ad-hoc signed and not notarized. macOS asks before the first launch:
+#     right-click > Open, or `xattr -d com.apple.quarantine Outliner.app`.
+#   * Outliner-android.apk: signed with NSH's debug key; `adb install Outliner-android.apk`.
+
+on:
+  push:
+    paths:
+      - 'native/**'
+      - '.github/workflows/native.yml'
+  pull_request:
+    paths:
+      - 'native/**'
+      - '.github/workflows/native.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The CLI that packages Android; the app's NSH crates are pinned to the same version.
+  NSH_VERSION: v0.5.0
+
+jobs:
+  macos:
+    name: macOS app (GPUI)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native
+      # GPUI compiles its Metal shaders ahead of time with Xcode's Metal Toolchain; without it they are compiled
+      # when the app starts.
+      - name: Metal Toolchain
+        id: metal
+        run: |
+          xcodebuild -downloadComponent MetalToolchain || true
+          if xcrun -f metal >/dev/null 2>&1; then echo "features=" >> "$GITHUB_OUTPUT"; else echo "features=--features runtime-shaders" >> "$GITHUB_OUTPUT"; fi
+      - name: Build
+        working-directory: native
+        run: cargo build --release -p outliner-mac ${{ steps.metal.outputs.features }}
+      - name: Bundle Outliner.app
+        working-directory: native
+        run: |
+          app=target/Outliner.app
+          rm -rf "$app" && mkdir -p "$app/Contents/MacOS"
+          cp target/release/outliner "$app/Contents/MacOS/Outliner"
+          cp crates/outliner-mac/macos/Info.plist "$app/Contents/Info.plist"
+          codesign --force --deep --sign - "$app"
+          ditto -c -k --keepParent "$app" target/Outliner-macos.zip
+          du -h target/release/outliner target/Outliner-macos.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Outliner-macos
+          path: native/target/Outliner-macos.zip
+          retention-days: 14
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native
+      # The runner has the Android SDK and NDKs; add the platform and build tools NSH packages with.
+      - name: Android SDK
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-35" "build-tools;35.0.1" "platform-tools" > /dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME" >> "$GITHUB_ENV"
+      - name: Install nsh
+        run: |
+          mkdir -p "$HOME/nsh"
+          curl -fsSL "https://github.com/longbridge/nsh/releases/download/$NSH_VERSION/nsh-linux-x86_64.tar.gz" | tar -xz -C "$HOME/nsh"
+          bin=$(dirname "$(find "$HOME/nsh" -type f -name nsh -perm -u+x | head -1)")
+          echo "$bin" >> "$GITHUB_PATH"
+          "$bin/nsh" --version
+      - name: Package
+        working-directory: native/crates/outliner-app
+        run: |
+          nsh package --target android
+          find .nsh/out -name '*.apk' -exec cp {} "$GITHUB_WORKSPACE/Outliner-android.apk" \;
+          du -h "$GITHUB_WORKSPACE/Outliner-android.apk"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Outliner-android
+          path: Outliner-android.apk
+          retention-days: 14

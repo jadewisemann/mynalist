@@ -1,0 +1,20 @@
+[package]
+name = "outliner-mac"
+description = "The macOS app: the outliner's NSH root drawn by GPUI in a window of its own."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "outliner"
+path = "src/main.rs"
+
+[dependencies]
+outliner-app = { path = "../outliner-app" }
+nsh-base = "=0.5.0"
+# No JS engine and no web views: the app is Rust only.
+nsh-platform-gpui = { version = "=0.5.0", default-features = false }
+
+[features]
+# Compile GPUI's Metal shaders when the app starts, for a Mac without Xcode's Metal Toolchain.
+runtime-shaders = ["nsh-platform-gpui/runtime-shaders"]
