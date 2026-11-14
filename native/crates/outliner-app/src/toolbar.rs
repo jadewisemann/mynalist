@@ -8,25 +8,29 @@ use nsh_core::prelude::*;
 use crate::commands as cmd;
 use crate::icons::icon;
 use crate::store;
-use crate::style::{self, color};
+use crate::style::{self, color, num};
 
-/// An icon button of the top bar: 30×30 with a rounded hover on desktops, 44×46 edge to edge on phones.
+/// An icon button of the top bar (`.icon-btn`): 30×30 with a rounded hover on desktops, 44×46 edge to edge on
+/// phones.
 fn top_button(name: &'static str, _label: &'static str, run: impl Fn() + 'static) -> impl IntoElement {
-    let phone = style::phone();
+    let hover = color::hover();
     button()
-        .h(px(if phone { 46.0 } else { 30.0 }))
-        .min_w(px(if phone { 44.0 } else { 30.0 }))
-        .px(px(if phone { 12.0 } else { 6.0 }))
-        .rounded(px(if phone { 0.0 } else { 6.0 }))
+        .h(px(num("space.topbar_tool")))
+        .min_w(px(num("space.topbar_tool_min")))
+        .px(px(num("space.topbar_tool_pad")))
+        .rounded(px(num("radius.topbar_tool")))
         .items_center()
         .justify_center()
-        .text_color(color::muted())
-        .active(|s| s.bg(rgb(0xeef5fe)))
+        .text_color(color::topbar_fg())
+        .active(move |s| s.bg(hover))
         .on_press(run)
-        .child(icon(name, if phone { 20.0 } else { 18.0 }))
+        .child(icon(name, num("space.topbar_icon")))
 }
 
 fn none() {}
+
+/// The sync status's padding left and right (`.sync-status`, a web-only metric there).
+const SYNC_PAD: f32 = 8.0;
 
 pub fn topbar() -> impl IntoElement {
     let phone = style::phone();
@@ -35,11 +39,11 @@ pub fn topbar() -> impl IntoElement {
         .flex_row()
         .items_center()
         .h(px(style::topbar_h()))
-        .px(px(if phone { 0.0 } else { 10.0 }))
-        .gap(px(if phone { 0.0 } else { 4.0 }))
-        .border_b(px(1.0))
-        .border_color(color::line())
-        .bg(color::bg())
+        .px(px(num("space.topbar_pad")))
+        .gap(px(num("space.topbar_gap")))
+        .border_b(px(num("space.border")))
+        .border_color(color::topbar_border())
+        .bg(color::topbar_bg())
         .child(top_button("side", "Toggle sidebar", none));
     if phone {
         bar.child(view().flex_1())
@@ -53,7 +57,11 @@ pub fn topbar() -> impl IntoElement {
             .child(top_button("fwd", "Forward", none))
             .child(view().flex_1())
             .child(
-                text("Local only").font_family(style::FONT).text_size(px(13.0)).text_color(color::muted()).px(px(8.0)),
+                text("Local only")
+                    .font_family(style::font())
+                    .text_size(px(num("type.ui_small")))
+                    .text_color(color::topbar_fg())
+                    .px(px(SYNC_PAD)),
             )
             .child(top_button("search", "Search", none))
             .child(top_button("gear", "Settings", none))
@@ -64,8 +72,8 @@ pub fn topbar() -> impl IntoElement {
 /// A button of the phone toolbar: 40×41, a 20pt icon in the muted color. It acts on the item being edited.
 fn tool(name: &'static str, _label: &'static str, run: impl Fn(&str, u32) + 'static) -> impl IntoElement {
     button()
-        .w(px(40.0))
-        .h(px(41.0))
+        .w(px(num("space.toolbar_button")))
+        .h(px(num("space.toolbar")))
         .items_center()
         .justify_center()
         .text_color(color::muted())
@@ -75,7 +83,7 @@ fn tool(name: &'static str, _label: &'static str, run: impl Fn(&str, u32) + 'sta
                 run(&c.id, c.at);
             }
         })
-        .child(icon(name, 20.0))
+        .child(icon(name, num("space.toolbar_icon")))
 }
 
 /// The editing toolbar of phones, shown while an item is being edited, right above the keyboard.
@@ -86,8 +94,8 @@ pub fn mobile_bar() -> impl IntoElement {
             scroll()
                 .test_id("toolbar")
                 .horizontal()
-                .h(px(41.0))
-                .border_t(px(1.0))
+                .h(px(num("space.toolbar")))
+                .border_t(px(num("space.border")))
                 .border_color(color::line())
                 .bg(color::bg())
                 .child(

@@ -1,0 +1,22 @@
+# Phones (the web's `max-width: 760px` layout), measured against Dynalist's mobile layout (qa/layout.mjs --mobile):
+# a 46px header with edge-to-edge touch targets and 20px icons, a narrower indent, a checkbox with a 28px touch
+# target around the same visible box.
+
+[space]
+indent = 29
+check_hit = 28
+check_mark_x = 12
+check_mark_y = 6
+topbar = 46
+topbar_pad = 0
+topbar_gap = 0
+topbar_tool = 46
+topbar_tool_min = 44
+topbar_tool_pad = 12
+topbar_icon = 20
+doc_top = 12
+doc_right = 14
+doc_left = 30
+
+[radius]
+topbar_tool = 0

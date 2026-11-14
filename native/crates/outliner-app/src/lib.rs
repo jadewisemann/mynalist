@@ -4,13 +4,17 @@
 //! native input with the outliner's keys, and a toolbar for touch screens. The document model, undo and sync are
 //! `outliner-core`, the Rust port of `packages/core`.
 
+pub mod appearance;
 pub mod commands;
+/// Generated from `design/*.toml` by `design/build.mjs`.
+#[allow(clippy::excessive_precision, clippy::approx_constant, clippy::unreadable_literal)]
+pub mod design;
 pub mod fixture;
 mod icons;
 pub mod inline;
 mod outline;
 pub mod store;
-mod style;
+pub mod style;
 mod toolbar;
 
 use nsh_core::prelude::*;

@@ -1,0 +1,178 @@
+# The base look: the light theme, medium size, cozy density, Fira Sans, a desktop screen. Every entry of
+# `schema.toml` has its value here; the files in `modes/` change some of them. Values measured against Dynalist
+# (qa/layout.mjs); the palettes are our own (docs/03-features-ui.md §8.1).
+
+[color]
+scheme = "light"
+bg = "#ffffff"
+paper = "#fff"
+fg = "#222222"
+muted = "#8b8f97"
+faint = "#c9ccd1"
+line = "#eceef1"
+guide = "#e3e5e8"
+accent = "#2f8cf0"
+hover = "#eef5fe"
+sel = "#d9eafd"
+side_bg = "#f7f8fa"
+chip = "#f1f2f4"
+chip_border = "#dfe1e5"
+check = "#a7a7a7"
+note = "#4e4e4e"
+tag = "#7a7a7a"
+code_fg = "#c7254e"
+code_bg = "#f5f5f5"
+date_border = "#cccccc"
+danger = "#d9534f"
+danger_strong = "#c0392b"
+on_accent = "#fff"
+toast_bg = "#333"
+toast_fg = "#fff"
+overlay = "rgba(0,0,0,.25)"
+scrim = "rgba(0,0,0,.3)"
+highlight = "rgba(255, 221, 0, .38)"
+match = "rgba(255, 221, 0, .45)"
+overdue_bg = "rgba(217, 83, 79, .12)"
+overdue_border = "rgba(217, 83, 79, .5)"
+hist_added = "rgba(60, 180, 90, .22)"
+hist_removed = "rgba(217, 83, 79, .22)"
+hist_edited = "rgba(230, 180, 40, .2)"
+topbar_bg = "transparent"
+topbar_border = "{color.line}"
+topbar_fg = "{color.muted}"
+topbar_fg_hover = "{color.fg}"
+topbar_fg_on = "{color.accent}"
+topbar_error = "{color.danger}"
+shadow_strong = "rgba(0,0,0,.3)"
+shadow_modal = "rgba(0,0,0,.25)"
+shadow_float = "rgba(0,0,0,.2)"
+shadow_menu = "rgba(0,0,0,.18)"
+shadow_tips = "rgba(0,0,0,.14)"
+shadow_bar = "rgba(0,0,0,.12)"
+shadow_toolbar = "rgba(0,0,0,.06)"
+
+[label]
+1 = "#f9d0c4"
+2 = "#fed8b1"
+3 = "#fef2c0"
+4 = "#c8e3c0"
+5 = "#c5def5"
+6 = "#d4c5f9"
+
+[syntax]
+keyword = "#a626a4"
+string = "#50a14f"
+number = "#986801"
+comment = "#a0a1a7"
+
+[font]
+# Fira Sans (OFL, bundled) is the closest open match to Dynalist's Whitney metrics
+ui = "'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+editor = "{font.ui}"
+mono = "'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+math = "'Latin Modern Math', 'STIX Two Math', serif"
+
+[type]
+ui = 14
+ui_line = 1.5
+ui_small = 13
+ui_tiny = 12
+ui_micro = 11
+ui_icon = 14
+# editor type: 18px text on a 22px line, 30px row pitch
+size = 18
+line = 1.2223
+title = 1.5556
+title_line = 1.2143
+title_weight = 400
+h1 = 1.3333
+h1_line = 1.1667
+h1_box = 1.5556
+h2 = 1.2222
+h2_line = 1.1818
+h2_box = 1.4444
+h3 = 1.1111
+h3_line = 1.2
+h3_box = 1.3333
+heading_weight = 700
+bold_weight = 700
+note = 0.8333
+note_line = 1.2
+code = 0.8889
+codeblock = 0.85
+date = 0.8889
+number = 0.85
+math = 1.05
+toolbar = 15
+
+[space]
+pad = 4
+indent = 38
+guide = 9
+guide_w = 1
+gutter = 50
+bullet = 18
+dot = 6
+fold_ring = 4
+number = 28
+number_gap = 6
+body_gap = 6
+check = 16
+check_border = 1.5
+check_left = 2
+check_gap = 4
+check_hit = 16
+check_mark_x = 4
+check_mark_y = 0
+title_offset = 26
+title_top = 2
+title_bottom = 12
+title_note = 2
+label_pad = 4
+thread = 2
+elbow_end = 37
+elbow_end_numbered = 22
+article = 5
+topbar = 44
+topbar_pad = 10
+topbar_gap = 4
+topbar_tool = 30
+topbar_tool_min = 30
+topbar_tool_pad = 6
+topbar_icon = 18
+tool = 30
+tool_min = 30
+tool_pad = 6
+tool_icon = 18
+toolbar = 41
+toolbar_button = 40
+toolbar_icon = 20
+sidebar = 260
+sidebar_max = 320
+file_row = 28
+doc_max = 860
+doc_top = 18
+doc_right = 40
+doc_left = 70
+code_pad = 5
+date_pad = 2
+codeblock_x = 10
+codeblock_y = 8
+codeblock_margin = 2
+tag_pad = 6
+row_estimate = 30
+border = 1
+
+[radius]
+row = 3
+label = 3
+check = 3
+mark = 2
+code = 4
+block = 6
+menu = 8
+modal = 10
+tag = 10
+tool = 6
+topbar_tool = 6
+elbow = 8

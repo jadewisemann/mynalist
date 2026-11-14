@@ -4,6 +4,7 @@ import { COMMANDS, comboOf, prettyCombo, type Keymap } from '../editor/keymap.ts
 import type { Workspace } from '../store/workspace.ts';
 import { h, toast } from './dom.ts';
 import { modal } from './overlay.ts';
+import { appearanceEditor } from './appearance.ts';
 
 export interface SettingsHost {
   ws: Workspace;
@@ -34,7 +35,7 @@ export const EA_FONTS: [string, string][] = [
   ['batang', 'Batang'], ['yahei', 'Microsoft YaHei'], ['kaiti', 'KaiTi'], ['meiryo', 'Meiryo'], ['hiragino', 'Hiragino Kaku Gothic'],
 ];
 
-export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'keymap' | 'data' = 'prefs') {
+export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'look' | 'keymap' | 'data' = 'prefs') {
   const ws = host.ws;
   const sel = (key: string, def: string, opts: [string, string][]) => {
     const s = h('select', { onchange: () => ws.setPref(key, s.value) },
@@ -67,11 +68,6 @@ export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'keymap' | 'da
         'Also used when dropping onto a collapsed item.'),
       row('Show "Clean up newlines" in document menu', chk('show_cleanup_newlines_option', false)),
       row('Export visible items only (default)', chk('export_visible_only', false)),
-      row('Custom CSS', (() => {
-        const ta = h('textarea.css-input', { placeholder: '.o-tag { color: teal; }', onchange: () => ws.setPref('custom_css', ta.value || undefined) });
-        ta.value = ws.pref('custom_css', '');
-        return ta;
-      })()),
     ));
   const prefs = h('div', {},
     section('Appearance',
@@ -129,14 +125,14 @@ export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'keymap' | 'da
       h('p.hint', {}, 'From WorkFlowy: export as OPML there, then import the file here.')),
   );
 
-  const panes = { prefs, keymap: keymapEditor(host), data };
+  const panes = { prefs, look: appearanceEditor(ws), keymap: keymapEditor(host), data };
   const tabs = h('div.set-tabs');
   const body = h('div.settings', {}, tabs);
   const show = (k: keyof typeof panes) => {
     for (const b of tabs.children) b.classList.toggle('active', (b as HTMLElement).dataset.k === k);
     body.replaceChildren(tabs, panes[k]);
   };
-  for (const [k, l] of [['prefs', 'Preferences'], ['keymap', 'Keymap'], ['data', 'Sync & data']] as const) {
+  for (const [k, l] of [['prefs', 'Preferences'], ['look', 'Look'], ['keymap', 'Keymap'], ['data', 'Sync & data']] as const) {
     tabs.append(h('button.tab', { 'data-k': k, onclick: () => show(k) }, l));
   }
   show(tab);

@@ -1,0 +1,20 @@
+{"collapsed":false,"id":"root","parent":null,"props":{"c":"Looks"}}
+{"collapsed":false,"id":"l0","parent":"root","props":{"c":"Heading one","h":1}}
+{"collapsed":false,"id":"l1","parent":"root","props":{"c":"Heading two","h":2}}
+{"collapsed":false,"id":"l2","parent":"root","props":{"c":"Heading three","h":3}}
+{"collapsed":false,"id":"l3","parent":"root","props":{"c":"A checked item","ck":true,"n":"Its note is checked too."}}
+{"collapsed":false,"id":"l4","parent":"root","props":{"c":"A checkbox, off","cb":true}}
+{"collapsed":false,"id":"l5","parent":"root","props":{"c":"A checkbox, on","cb":true,"ck":true}}
+{"collapsed":false,"id":"l6","parent":"root","props":{"c":"Color labels"}}
+{"collapsed":false,"id":"l7","parent":"l6","props":{"c":"Label 1","cl":1}}
+{"collapsed":false,"id":"l8","parent":"l6","props":{"c":"Label 2","cl":2}}
+{"collapsed":false,"id":"l9","parent":"l6","props":{"c":"Label 3","cl":3}}
+{"collapsed":false,"id":"l10","parent":"l6","props":{"c":"Label 4","cl":4}}
+{"collapsed":false,"id":"l11","parent":"l6","props":{"c":"Label 5","cl":5}}
+{"collapsed":false,"id":"l12","parent":"l6","props":{"c":"Label 6","cl":6}}
+{"collapsed":true,"id":"l13","parent":"root","props":{"c":"A folded item","cl":5}}
+{"collapsed":false,"id":"l14","parent":"l13","props":{"c":"Hidden under the fold"}}
+{"collapsed":false,"id":"l15","parent":"root","props":{"c":"Levels"}}
+{"collapsed":false,"id":"l16","parent":"l15","props":{"c":"Second level"}}
+{"collapsed":false,"id":"l17","parent":"l16","props":{"c":"Third level with a **bold** word"}}
+{"collapsed":false,"id":"l18","parent":"l17","props":{"c":"Fourth level"}}

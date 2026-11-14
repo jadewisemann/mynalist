@@ -1,0 +1,184 @@
+# Every entry the look has: its kind, what it changes, and its range. `base.toml`, the mode files and a user's
+# appearance TOML hold values for these entries only (any subset; the base holds all of them).
+#
+# Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)" or "transparent"), `length` (CSS pixels;
+# "10pt" also allowed), `ratio` (a plain number: a factor of a size, or a line height), `weight` (100..900),
+# `font` (a CSS font-family list), `choice` (one of `choices`). A color or font may hold `{table.key}` to use
+# another entry's value ("{color.line}", "{font.ui}, Pretendard, sans-serif").
+#
+# `css` is the web's custom property (default `--<table>-<key>`, `_` as `-`). `design/build.mjs` writes
+# `apps/web/src/design/tokens.css`, `apps/web/src/design/tokens.ts`, `native/crates/outliner-app/src/design.rs`
+# and `design/schema.md` from these files.
+
+[color]
+scheme = { kind = "choice", choices = ["light", "dark"], css = "color-scheme", doc = "Light or dark form controls and scrollbars." }
+bg = { kind = "color", css = "--bg", doc = "Page background." }
+paper = { kind = "color", css = "--paper", doc = "Page background when printed." }
+fg = { kind = "color", css = "--fg", doc = "Text." }
+muted = { kind = "color", css = "--muted", doc = "Secondary text, bullets, icons." }
+faint = { kind = "color", css = "--faint", doc = "Placeholder text, the ring of a folded bullet, hover icons." }
+line = { kind = "color", css = "--line", doc = "Separators and bar borders." }
+guide = { kind = "color", css = "--guide", doc = "The vertical guide line of a children block." }
+accent = { kind = "color", css = "--accent", doc = "Links on hover, primary buttons, the bullet thread, focus." }
+hover = { kind = "color", css = "--hover", doc = "Background under the pointer." }
+sel = { kind = "color", css = "--sel", doc = "Selected items and the active file." }
+side_bg = { kind = "color", css = "--side-bg", doc = "Sidebar background." }
+chip = { kind = "color", css = "--chip", doc = "Chips: code blocks, keys, counts." }
+chip_border = { kind = "color", css = "--chip-border", doc = "Borders of chips, inputs, menus and buttons." }
+check = { kind = "color", css = "--check", doc = "Checked items' text and the checkbox border." }
+note = { kind = "color", css = "--note", doc = "Notes." }
+tag = { kind = "color", css = "--tag", doc = "Tags." }
+code_fg = { kind = "color", css = "--code-fg", doc = "Inline code text." }
+code_bg = { kind = "color", css = "--code-bg", doc = "Inline code and date background." }
+date_border = { kind = "color", css = "--date-border", doc = "Date chips' border." }
+danger = { kind = "color", css = "--danger", doc = "Errors, the delete action." }
+danger_strong = { kind = "color", css = "--danger-strong", doc = "Dangerous buttons." }
+on_accent = { kind = "color", css = "--on-accent", doc = "Text on the accent color." }
+toast_bg = { kind = "color", css = "--toast-bg", doc = "Toast background." }
+toast_fg = { kind = "color", css = "--toast-fg", doc = "Toast text." }
+overlay = { kind = "color", css = "--overlay", doc = "Behind dialogs." }
+scrim = { kind = "color", css = "--scrim", doc = "Behind sheets and the phone sidebar." }
+highlight = { kind = "color", css = "--highlight", doc = "Highlighted text (==text==)." }
+match = { kind = "color", css = "--match", doc = "Search matches." }
+overdue_bg = { kind = "color", css = "--overdue-bg", doc = "Overdue dates' background." }
+overdue_border = { kind = "color", css = "--overdue-border", doc = "Overdue dates' border." }
+hist_added = { kind = "color", css = "--hist-added", doc = "Version history: added items." }
+hist_removed = { kind = "color", css = "--hist-removed", doc = "Version history: removed items." }
+hist_edited = { kind = "color", css = "--hist-edited", doc = "Version history: edited items." }
+topbar_bg = { kind = "color", css = "--topbar-bg", doc = "Top bar background." }
+topbar_border = { kind = "color", css = "--topbar-border", doc = "Top bar bottom border." }
+topbar_fg = { kind = "color", css = "--topbar-fg", doc = "Top bar icons and sync status." }
+topbar_fg_hover = { kind = "color", css = "--topbar-fg-hover", doc = "Top bar icons under the pointer." }
+topbar_fg_on = { kind = "color", css = "--topbar-fg-on", doc = "Top bar icons switched on." }
+topbar_error = { kind = "color", css = "--topbar-error", doc = "Sync status when sync failed." }
+shadow_strong = { kind = "color", css = "--shadow-strong", doc = "Shadow of the phone sidebar." }
+shadow_modal = { kind = "color", css = "--shadow-modal", doc = "Shadow of dialogs." }
+shadow_float = { kind = "color", css = "--shadow-float", doc = "Shadow of the image preview." }
+shadow_menu = { kind = "color", css = "--shadow-menu", doc = "Shadow of menus and popups." }
+shadow_tips = { kind = "color", css = "--shadow-tips", doc = "Shadow of the search tips." }
+shadow_bar = { kind = "color", css = "--shadow-bar", doc = "Shadow of the hover toolbar." }
+shadow_toolbar = { kind = "color", css = "--shadow-toolbar", doc = "Shadow above the phone toolbar." }
+
+[label]
+1 = { kind = "color", css = "--cl1", doc = "Color label 1 (red)." }
+2 = { kind = "color", css = "--cl2", doc = "Color label 2 (orange)." }
+3 = { kind = "color", css = "--cl3", doc = "Color label 3 (yellow)." }
+4 = { kind = "color", css = "--cl4", doc = "Color label 4 (green)." }
+5 = { kind = "color", css = "--cl5", doc = "Color label 5 (blue)." }
+6 = { kind = "color", css = "--cl6", doc = "Color label 6 (purple)." }
+
+[syntax]
+keyword = { kind = "color", doc = "Code blocks: keywords." }
+string = { kind = "color", doc = "Code blocks: strings." }
+number = { kind = "color", doc = "Code blocks: numbers." }
+comment = { kind = "color", doc = "Code blocks: comments." }
+
+[font]
+ui = { kind = "font", css = "--font", doc = "The app's font." }
+editor = { kind = "font", css = "--editor-font", doc = "The editor's font (the app's, then an East Asian font)." }
+mono = { kind = "font", css = "--mono", doc = "Code and keys." }
+math = { kind = "font", css = "--math-font", doc = "LaTeX." }
+
+[type]
+ui = { kind = "length", min = 10, max = 24, css = "--fs", doc = "The app's text size (bars, menus, sidebar)." }
+ui_line = { kind = "ratio", min = 1, max = 2.5, doc = "The app's line height." }
+ui_small = { kind = "length", min = 8, max = 24, doc = "Small app text: breadcrumbs, sync status, hints." }
+ui_tiny = { kind = "length", min = 8, max = 24, doc = "Tiny app text: section heads, shortcuts." }
+ui_micro = { kind = "length", min = 8, max = 24, doc = "The smallest app text: counts." }
+ui_icon = { kind = "length", min = 8, max = 32, doc = "Icon buttons' text." }
+size = { kind = "length", min = 10, max = 40, css = "--efs", doc = "Editor text size." }
+line = { kind = "ratio", min = 1, max = 2.5, css = "--lh", doc = "Editor line height." }
+title = { kind = "ratio", min = 0.5, max = 3, doc = "Document title size, times the editor size." }
+title_line = { kind = "ratio", min = 1, max = 2.5, doc = "Document title line height." }
+title_weight = { kind = "weight", doc = "Document title weight." }
+h1 = { kind = "ratio", min = 0.5, max = 3, doc = "Heading 1 size, times the editor size." }
+h1_line = { kind = "ratio", min = 1, max = 2.5, doc = "Heading 1 line height." }
+h1_box = { kind = "ratio", min = 1, max = 4, doc = "Heading 1 bullet box height, times the editor size (its size times its line height)." }
+h2 = { kind = "ratio", min = 0.5, max = 3, doc = "Heading 2 size, times the editor size." }
+h2_line = { kind = "ratio", min = 1, max = 2.5, doc = "Heading 2 line height." }
+h2_box = { kind = "ratio", min = 1, max = 4, doc = "Heading 2 bullet box height, times the editor size." }
+h3 = { kind = "ratio", min = 0.5, max = 3, doc = "Heading 3 size, times the editor size." }
+h3_line = { kind = "ratio", min = 1, max = 2.5, doc = "Heading 3 line height." }
+h3_box = { kind = "ratio", min = 1, max = 4, doc = "Heading 3 bullet box height, times the editor size." }
+heading_weight = { kind = "weight", doc = "Headings' weight." }
+bold_weight = { kind = "weight", doc = "Bold text's weight." }
+note = { kind = "ratio", min = 0.5, max = 1.5, doc = "Note size, times the editor size." }
+note_line = { kind = "ratio", min = 1, max = 2.5, doc = "Note line height." }
+code = { kind = "ratio", min = 0.5, max = 1.5, doc = "Inline code size, times the text size." }
+codeblock = { kind = "ratio", min = 0.5, max = 1.5, doc = "Code block size, times the text size." }
+date = { kind = "ratio", min = 0.5, max = 1.5, doc = "Date chip size, times the text size." }
+number = { kind = "ratio", min = 0.5, max = 1.5, doc = "Numbered list numbers' size, times the text size." }
+math = { kind = "ratio", min = 0.5, max = 2, doc = "LaTeX size, times the text size." }
+toolbar = { kind = "length", min = 8, max = 32, doc = "Phone toolbar buttons' text." }
+
+[space]
+pad = { kind = "length", min = 0, max = 20, css = "--pad", doc = "Space above and below each row's text (density)." }
+indent = { kind = "length", min = 10, max = 80, css = "--kid-pad", doc = "Children's indent from their guide line." }
+guide = { kind = "length", min = 0, max = 30, doc = "The guide line's distance left of the children block (half the bullet)." }
+guide_w = { kind = "length", min = 0, max = 4, doc = "The guide line's width." }
+gutter = { kind = "length", min = 20, max = 120, doc = "Room left of each row for its bullet and hover buttons." }
+bullet = { kind = "length", min = 8, max = 40, doc = "The bullet column's width." }
+dot = { kind = "length", min = 2, max = 16, doc = "The bullet dot's diameter." }
+fold_ring = { kind = "length", min = 0, max = 10, doc = "The ring around a folded item's dot." }
+number = { kind = "length", min = 10, max = 60, doc = "The number column's width (numbered lists)." }
+number_gap = { kind = "length", min = 0, max = 20, doc = "Space right of a list number." }
+body_gap = { kind = "length", min = 0, max = 30, doc = "Space between the bullet column and the text." }
+check = { kind = "length", min = 8, max = 32, doc = "The checkbox's size." }
+check_border = { kind = "length", min = 0, max = 4, doc = "The checkbox's border." }
+check_left = { kind = "length", min = 0, max = 20, doc = "Space left of the checkbox." }
+check_gap = { kind = "length", min = 0, max = 20, doc = "Space between the checkbox and the text." }
+check_hit = { kind = "length", min = 8, max = 60, doc = "The checkbox's touch target (phones)." }
+check_mark_x = { kind = "length", min = 0, max = 30, doc = "The check mark's left inside the checkbox." }
+check_mark_y = { kind = "length", min = 0, max = 30, doc = "The check mark's top inside the checkbox." }
+title_offset = { kind = "length", min = 0, max = 60, doc = "How far left of item text the title and breadcrumbs start." }
+title_top = { kind = "length", min = 0, max = 40, doc = "Space above the title." }
+title_bottom = { kind = "length", min = 0, max = 60, doc = "Space below the title." }
+title_note = { kind = "length", min = 0, max = 20, doc = "Space between the title and its note." }
+label_pad = { kind = "length", min = 0, max = 20, doc = "A color label's padding left and right of the text." }
+thread = { kind = "length", min = 1, max = 6, css = "--thread-w", doc = "The bullet thread's width." }
+elbow_end = { kind = "length", min = 0, max = 80, doc = "Where the thread's turn ends, from a node's box (bullets)." }
+elbow_end_numbered = { kind = "length", min = 0, max = 80, doc = "Where the thread's turn ends (numbered lists)." }
+article = { kind = "length", min = 0, max = 30, doc = "Extra space above and below rows in the article layout." }
+topbar = { kind = "length", min = 30, max = 80, doc = "The top bar's height." }
+topbar_pad = { kind = "length", min = 0, max = 40, doc = "The top bar's padding left and right." }
+topbar_gap = { kind = "length", min = 0, max = 20, doc = "Space between the top bar's buttons." }
+topbar_tool = { kind = "length", min = 20, max = 80, doc = "The top bar's buttons' height." }
+topbar_tool_min = { kind = "length", min = 20, max = 80, doc = "The top bar's buttons' least width." }
+topbar_tool_pad = { kind = "length", min = 0, max = 30, doc = "The top bar's buttons' padding left and right." }
+topbar_icon = { kind = "length", min = 10, max = 40, doc = "Icons' size in the top bar." }
+tool = { kind = "length", min = 20, max = 80, doc = "Icon buttons' height." }
+tool_min = { kind = "length", min = 20, max = 80, doc = "Icon buttons' least width." }
+tool_pad = { kind = "length", min = 0, max = 30, doc = "Icon buttons' padding left and right." }
+tool_icon = { kind = "length", min = 10, max = 40, doc = "Icons' size in icon buttons." }
+toolbar = { kind = "length", min = 30, max = 80, doc = "The phone toolbar's height (its top border apart)." }
+toolbar_button = { kind = "length", min = 30, max = 80, doc = "The phone toolbar buttons' width." }
+toolbar_icon = { kind = "length", min = 10, max = 40, doc = "Icons' size in the phone toolbar." }
+sidebar = { kind = "length", min = 160, max = 520, doc = "The sidebar's width (until it is dragged)." }
+sidebar_max = { kind = "length", min = 160, max = 520, doc = "The phone sidebar's widest." }
+file_row = { kind = "length", min = 16, max = 60, doc = "Sidebar rows' height." }
+doc_max = { kind = "length", min = 400, max = 2000, doc = "The narrow document layout's widest." }
+doc_top = { kind = "length", min = 0, max = 80, doc = "Space above the document." }
+doc_right = { kind = "length", min = 0, max = 120, doc = "Space right of the document." }
+doc_left = { kind = "length", min = 0, max = 160, doc = "Space left of the document (top-level bullets sit in it)." }
+code_pad = { kind = "length", min = 0, max = 20, doc = "Inline code's padding left and right." }
+date_pad = { kind = "length", min = 0, max = 20, doc = "Date chips' padding left and right." }
+codeblock_x = { kind = "length", min = 0, max = 40, doc = "Code blocks' padding left and right." }
+codeblock_y = { kind = "length", min = 0, max = 40, doc = "Code blocks' padding above and below." }
+codeblock_margin = { kind = "length", min = 0, max = 20, doc = "Space above and below code blocks." }
+tag_pad = { kind = "length", min = 0, max = 20, doc = "Tags' padding left and right (tag background on)." }
+row_estimate = { kind = "length", min = 10, max = 100, doc = "The height a row is taken to have before it is laid out (long documents)." }
+border = { kind = "length", min = 0, max = 4, doc = "Borders and separators." }
+
+[radius]
+row = { kind = "length", min = 0, max = 20, doc = "Rows (selection, current item)." }
+label = { kind = "length", min = 0, max = 20, doc = "Color labels." }
+check = { kind = "length", min = 0, max = 16, doc = "The checkbox." }
+mark = { kind = "length", min = 0, max = 10, doc = "Highlights and search matches." }
+code = { kind = "length", min = 0, max = 20, doc = "Inline code, dates, small buttons." }
+block = { kind = "length", min = 0, max = 20, doc = "Code blocks, inputs, buttons." }
+menu = { kind = "length", min = 0, max = 20, doc = "Menus, popups, cards." }
+modal = { kind = "length", min = 0, max = 30, doc = "Dialogs, sheets, the document border." }
+tag = { kind = "length", min = 0, max = 20, doc = "Tags (tag background on)." }
+tool = { kind = "length", min = 0, max = 20, doc = "Icon buttons." }
+topbar_tool = { kind = "length", min = 0, max = 20, doc = "The top bar's buttons." }
+elbow = { kind = "length", min = 0, max = 20, doc = "The bullet thread's turn." }

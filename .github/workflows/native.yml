@@ -10,10 +10,12 @@ on:
   push:
     paths:
       - 'native/**'
+      - 'design/**'
       - '.github/workflows/native.yml'
   pull_request:
     paths:
       - 'native/**'
+      - 'design/**'
       - '.github/workflows/native.yml'
   workflow_dispatch:
 

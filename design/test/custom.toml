@@ -1,0 +1,14 @@
+# A user's appearance the cross-checks render on both apps (qa/model.mjs, native tests/snapshot.rs): a color, a
+# reference, type and metrics changed over the light theme.
+[color]
+tag = "#008080"
+fg = "#102030"
+topbar_border = "{color.accent}"
+
+[type]
+size = 17
+heading_weight = 600
+
+[space]
+pad = 6
+indent = 44

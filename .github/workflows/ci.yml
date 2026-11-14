@@ -16,6 +16,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # the look's generated files (design/build.mjs) match design/*.toml
+      - run: node design/build.mjs --check
       - run: npm run typecheck
       - run: npm test
 

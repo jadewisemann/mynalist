@@ -32,6 +32,7 @@ import '@fontsource/fira-sans/700.css';
 import '@fontsource/fira-sans/700-italic.css';
 import '@fontsource/fira-mono/400.css';
 import { qaSnapshot } from './qa.ts';
+import { applyAppearance, parseAppearance } from './design/appearance.ts';
 
 interface Route {
   doc: string | null;
@@ -68,7 +69,6 @@ class App {
   private emptyState = h('div.empty-state');
   private backlinksEl = h('div.backlinks', { hidden: true });
   private statusBar = h('div.status-bar', { hidden: true });
-  private customCss = h('style', { id: 'custom-css' });
   private searchInput = h('input', { placeholder: 'Search… (is:completed, #tag, edited:3d)' });
   private searchTips = h('div.search-tips', { hidden: true });
   private searchBox = h('div.search-box', { hidden: true }, icon('search'), this.searchInput,
@@ -238,7 +238,6 @@ class App {
     const main = h('div.main', {}, this.sidebar.el, splitter, h('div.scrim', { onclick: () => this.toggleSidebar(false) }), scroll, this.help.el);
     this.root.append(h('div.app', {}, top, main, this.mobile.el), this.statusBar, this.mindmap.el);
     this.installImagePreview();
-    document.head.append(this.customCss);
 
     this.searchInput.addEventListener('input', () => {
       this.runSearch(true);
@@ -1234,7 +1233,9 @@ class App {
     root.dataset.eafont = p('eastern_asian_font', 'default');
     root.classList.toggle('tag-bg', p('tag_bg', false));
     root.classList.toggle('doc-border', p('doc_border', false));
-    this.customCss.textContent = p('custom_css', '');
+    // the user's appearance TOML over the modes above (stored only once valid: see the settings)
+    const look = parseAppearance(p('appearance', ''));
+    applyAppearance(root, 'values' in look ? look.values : []);
     this.docArea.classList.toggle('wide', !p('center_doc', true));
     setRenderOptions(this.renderOpts());
     this.editor.keymap = new Keymap({ overrides: p('shortcut_override', {}), workflowy: p('workflowy_shortcuts', false) });

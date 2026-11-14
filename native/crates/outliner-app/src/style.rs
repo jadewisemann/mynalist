@@ -1,113 +1,192 @@
-//! The look, from the web app's `apps/web/src/styles.css` (its values measured against Dynalist, `qa/layout.mjs`):
-//! colors, type and the outline's metrics, for desktops and phones.
+//! The look, as the web app's: every value comes from the design tokens (`design/*.toml`, generated into
+//! `crate::design`), resolved for the current modes, the user's appearance and the device by `crate::appearance`.
+//! Nothing here holds a color or a size of its own; what is here is how the native views use the tokens.
+//! Reading a value tracks the look: a view drawn from it is drawn again when the appearance changes.
+
+use std::rc::Rc;
 
 use nsh_core::platform::Os;
 use nsh_core::prelude::*;
 
-/// The light theme's colors (`:root` in styles.css).
-pub mod color {
-    use nsh_core::prelude::*;
+use crate::appearance::{self, Look, Looks};
 
-    pub fn bg() -> Rgba {
-        rgb(0xffffff)
-    }
-    pub fn fg() -> Rgba {
-        rgb(0x222222)
-    }
-    pub fn muted() -> Rgba {
-        rgb(0x8b8f97)
-    }
-    pub fn faint() -> Rgba {
-        rgb(0xc9ccd1)
-    }
-    pub fn line() -> Rgba {
-        rgb(0xeceef1)
-    }
-    pub fn guide() -> Rgba {
-        rgb(0xe3e5e8)
-    }
-    pub fn check() -> Rgba {
-        rgb(0xa7a7a7)
-    }
-    pub fn tag() -> Rgba {
-        rgb(0x7a7a7a)
-    }
-    pub fn code_fg() -> Rgba {
-        rgb(0xc7254e)
-    }
-    pub fn code_bg() -> Rgba {
-        rgb(0xf5f5f5)
-    }
-    pub fn accent() -> Rgba {
-        rgb(0x2f8cf0)
-    }
-    pub fn note() -> Rgba {
-        rgb(0x4e4e4e)
-    }
-    pub fn chip() -> Rgba {
-        rgb(0xf1f2f4)
-    }
-    pub fn chip_border() -> Rgba {
-        rgb(0xdfe1e5)
-    }
-    pub fn date_border() -> Rgba {
-        rgb(0xcccccc)
-    }
-    /// Color labels 1..6 (`--cl1` .. `--cl6`).
-    pub fn label(n: i64) -> Option<Rgba> {
-        Some(rgb(match n {
-            1 => 0xf9d0c4,
-            2 => 0xfed8b1,
-            3 => 0xfef2c0,
-            4 => 0xc8e3c0,
-            5 => 0xc5def5,
-            6 => 0xd4c5f9,
-            _ => return None,
-        }))
+/// The look of this device (tracked).
+pub struct Current(Rc<Looks>, bool);
+
+impl std::ops::Deref for Current {
+    type Target = Look;
+    fn deref(&self) -> &Look {
+        if self.1 { &self.0.phone } else { &self.0.desktop }
     }
 }
 
-/// Fira Sans, as the web app (bundled in `assets/fonts`, SIL OFL); the platform's font covers what it lacks
-/// (Hangul among others).
-pub const FONT: &str = "Fira Sans, system-ui, sans-serif";
-pub const MONO: &str = "Fira Mono, ui-monospace, monospace";
+pub fn look() -> Current {
+    Current(appearance::current(), phone())
+}
 
-/// Editor type: 18px text on a 22px line, rows 4px apart above and below (a 30px pitch).
-pub const EFS: f32 = 18.0;
-pub const LINE: f32 = 22.0;
-pub const PAD: f32 = 4.0;
+/// A length, ratio or weight entry of the current look (`space.pad`, `type.h1`).
+pub fn num(id: &str) -> f32 {
+    look().number(id)
+}
+
+/// The tokens' colors (`[color]`, `[label]`).
+pub mod color {
+    use nsh_core::prelude::*;
+
+    fn of(id: &str) -> Rgba {
+        rgba(super::look().color(id))
+    }
+
+    pub fn bg() -> Rgba {
+        of("color.bg")
+    }
+    pub fn fg() -> Rgba {
+        of("color.fg")
+    }
+    pub fn muted() -> Rgba {
+        of("color.muted")
+    }
+    pub fn faint() -> Rgba {
+        of("color.faint")
+    }
+    pub fn line() -> Rgba {
+        of("color.line")
+    }
+    pub fn guide() -> Rgba {
+        of("color.guide")
+    }
+    pub fn check() -> Rgba {
+        of("color.check")
+    }
+    pub fn tag() -> Rgba {
+        of("color.tag")
+    }
+    pub fn code_fg() -> Rgba {
+        of("color.code_fg")
+    }
+    pub fn code_bg() -> Rgba {
+        of("color.code_bg")
+    }
+    pub fn accent() -> Rgba {
+        of("color.accent")
+    }
+    pub fn hover() -> Rgba {
+        of("color.hover")
+    }
+    pub fn note() -> Rgba {
+        of("color.note")
+    }
+    pub fn chip() -> Rgba {
+        of("color.chip")
+    }
+    pub fn chip_border() -> Rgba {
+        of("color.chip_border")
+    }
+    pub fn date_border() -> Rgba {
+        of("color.date_border")
+    }
+    pub fn highlight() -> Rgba {
+        of("color.highlight")
+    }
+    pub fn overdue_bg() -> Rgba {
+        of("color.overdue_bg")
+    }
+    pub fn overdue_border() -> Rgba {
+        of("color.overdue_border")
+    }
+    pub fn topbar_border() -> Rgba {
+        of("color.topbar_border")
+    }
+    pub fn topbar_fg() -> Rgba {
+        of("color.topbar_fg")
+    }
+    /// The top bar's background: the page's where the bar has none of its own (the web's bar is transparent
+    /// over the page).
+    pub fn topbar_bg() -> Rgba {
+        let look = super::look();
+        let c = look.color("color.topbar_bg");
+        rgba(if c & 0xff == 0 { look.color("color.bg") } else { c })
+    }
+    /// Color labels 1..6 (`[label]`).
+    pub fn label(n: i64) -> Option<Rgba> {
+        (1..=6).contains(&n).then(|| of(&format!("label.{n}")))
+    }
+}
+
+/// The app's font (`font.ui`), the editor's (`font.editor`, East Asian font included) and the mono one, as CSS
+/// font-family lists (NSH reads them as the web does).
+pub fn font() -> String {
+    look().text("font.ui").to_owned()
+}
+pub fn editor_font() -> String {
+    look().text("font.editor").to_owned()
+}
+pub fn mono() -> String {
+    look().text("font.mono").to_owned()
+}
+
+/// Editor type: the text size, and its line (rounded to whole points: the text engines lay lines out on them).
+pub fn efs() -> f32 {
+    num("type.size")
+}
+pub fn line() -> f32 {
+    (efs() * num("type.line")).round()
+}
+/// Space above and below a row's text (density).
+pub fn pad() -> f32 {
+    num("space.pad")
+}
 /// The bullet's column, left of the text (`.o-bullet`), and the gap after it (`.o-body`).
-pub const BULLET_W: f32 = 18.0;
-pub const BODY_GAP: f32 = 6.0;
-pub const DOT: f32 = 6.0;
+pub fn bullet_w() -> f32 {
+    num("space.bullet")
+}
+pub fn body_gap() -> f32 {
+    num("space.body_gap")
+}
+pub fn dot() -> f32 {
+    num("space.dot")
+}
 
-/// Whether this runs as a phone (no hardware keys assumed; the web's `max-width: 760px` layout).
-/// `OUTLINER_PHONE=1` lays a desktop build out as a phone, to look at it without one.
+/// Whether this runs as a phone (no hardware keys assumed; the web's `max-width: 760px` layout, the `phone`
+/// device mode). `OUTLINER_PHONE=1` lays a desktop build out as a phone, to look at it without one.
 pub fn phone() -> bool {
     matches!(os(), Os::Ios | Os::Android) || std::env::var_os("OUTLINER_PHONE").is_some()
 }
 
-/// One level of indentation: the children block's `padding-left` minus its `margin-left`.
+/// One level of indentation: the children block's indent less the guide's offset (`.o-kids`).
 pub fn indent() -> f32 {
-    if phone() { 29.0 - 9.0 } else { 38.0 - 9.0 }
+    num("space.indent") - num("space.guide")
 }
 
 /// The document's left padding (where depth-0 rows start, bullet included) and right padding.
 pub fn doc_pad() -> (f32, f32) {
-    if phone() { (30.0, 14.0) } else { (70.0, 40.0) }
+    (num("space.doc_left"), num("space.doc_right"))
 }
 
 /// The top bar's height.
 pub fn topbar_h() -> f32 {
-    if phone() { 46.0 } else { 44.0 }
+    num("space.topbar")
 }
 
 /// Where a row's text starts, for `depth` (0 under the zoom root): the bullet column is just left of it.
 pub fn text_left(depth: u16) -> f32 {
-    doc_pad().0 + indent() * f32::from(depth) + BODY_GAP
+    doc_pad().0 + indent() * f32::from(depth) + body_gap()
 }
 
 /// The x of the bullet's center for `depth`, where the guide line of its children runs.
 pub fn bullet_center(depth: u16) -> f32 {
-    doc_pad().0 + indent() * f32::from(depth) - BULLET_W / 2.0
+    doc_pad().0 + indent() * f32::from(depth) - bullet_w() / 2.0
+}
+
+/// Text size and line box of a heading level (`.o-h1` .. `.o-h3`; 0 for plain text).
+pub fn heading(level: i64) -> (f32, f32) {
+    match level {
+        1..=3 => (efs() * num(&format!("type.h{level}")), efs() * num(&format!("type.h{level}_box"))),
+        _ => (efs(), line()),
+    }
+}
+
+/// A font weight entry (`type.heading_weight`).
+pub fn weight(id: &str) -> FontWeight {
+    FontWeight(num(id) as u16)
 }

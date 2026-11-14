@@ -13,7 +13,7 @@ use outliner_core::dates::{self, DateFormatOptions, DateSpec};
 use outliner_core::inline::{self as core, Kind, Token};
 
 use crate::icons;
-use crate::style::{color, FONT, MONO};
+use crate::style::{self, color, num};
 
 /// How a row's text is drawn: its type size and the display options of the web app's renderer.
 #[derive(Debug, Clone, PartialEq)]
@@ -94,26 +94,26 @@ fn em(look: &Look, k: f32) -> Length {
 fn span(t: &Token, look: &Look) -> AnyElement {
     match &t.kind {
         Kind::Text { text: s } | Kind::Escape { text: s } => text(s.clone()).into_element(),
-        Kind::Bold { children } => text("").font_weight(FontWeight::BOLD).children(spans(children, look)).into_element(),
+        Kind::Bold { children } => text("").font_weight(style::weight("type.bold_weight")).children(spans(children, look)).into_element(),
         Kind::Italic { children } => text("").italic().children(spans(children, look)).into_element(),
         Kind::Strike { children } => text("").line_through().children(spans(children, look)).into_element(),
         // `.o-highlight`: a translucent yellow behind the text
         Kind::Highlight { children } => text("")
-            .bg(rgba(0xffdd0061))
-            .rounded(px(2.0))
+            .bg(color::highlight())
+            .rounded(px(num("radius.mark")))
             .children(spans(children, look))
             .into_element(),
         // `.o-code`: Fira Mono at 8/9 of the text, red on a gray box. The web pads the box 5px each side; a span
         // here has no padding (narrow spaces would change the text that copies and screen readers get)
         Kind::Code { text: s, .. } => text(s.clone())
-            .font_family(MONO)
-            .text_size(em(look, 0.8889))
+            .font_family(style::mono())
+            .text_size(em(look, num("type.code")))
             .text_color(color::code_fg())
             .bg(color::code_bg())
-            .rounded(px(4.0))
+            .rounded(px(num("radius.code")))
             .into_element(),
         // `.o-latex`: no math typesetting here (the web uses KaTeX): the source, in the math font's place a mono one
-        Kind::Latex { text: s } => text(s.clone()).font_family(MONO).text_size(em(look, 0.8889)).into_element(),
+        Kind::Latex { text: s } => text(s.clone()).font_family(style::mono()).text_size(em(look, num("type.code"))).into_element(),
         // `.o-link` keeps the text's color, underlined
         Kind::Link { text: s, url, children, .. } => text(core::link_label(s, url, children, None)).underline().into_element(),
         Kind::Autolink { url } => match core::safe_url(url, false) {
@@ -125,7 +125,7 @@ fn span(t: &Token, look: &Look) -> AnyElement {
         Kind::Tag { tag } => text(tag.clone()).text_color(color::tag()).underline().into_element(),
         Kind::Date { date, .. } => date_chip(date, look).into_element(),
         // not inline: `blocks` takes code blocks out first; shown as their text if one gets here
-        Kind::Codeblock { text: s, .. } => text(s.clone()).font_family(MONO).into_element(),
+        Kind::Codeblock { text: s, .. } => text(s.clone()).font_family(style::mono()).into_element(),
     }
 }
 
@@ -156,17 +156,18 @@ pub fn date_label(spec: &DateSpec, look: &Look) -> (String, bool) {
 /// overdue. An inline view: its bottom at the bottom of the text's font, as the web's inline box sits.
 fn date_chip(spec: &DateSpec, look: &Look) -> impl IntoElement {
     let (label, overdue) = date_label(spec, look);
-    let size = look.size * 0.8889;
-    let (bg, border) = if overdue { (rgba(0xd9534f1f), rgba(0xd9534f80)) } else { (color::code_bg(), color::date_border()) };
+    let size = look.size * num("type.date");
+    let (bg, border) =
+        if overdue { (color::overdue_bg(), color::overdue_border()) } else { (color::code_bg(), color::date_border()) };
     view()
         .flex_row()
         .items_center()
         .align_text_bottom()
         .bg(bg)
-        .border(px(1.0))
+        .border(px(num("space.border")))
         .border_color(border)
-        .rounded(px(4.0))
-        .px(px(2.0))
+        .rounded(px(num("radius.code")))
+        .px(px(num("space.date_pad")))
         .child(
             // `::before`: a .8em calendar, 2px in and 4px before the label
             view().ml(px(2.0)).mr(px(4.0)).text_color(color::muted()).child(icons::calendar(size * 0.8)),
@@ -174,9 +175,9 @@ fn date_chip(spec: &DateSpec, look: &Look) -> impl IntoElement {
         .child({
             // the label inherits the text's color and strike, as the web's inline box does
             let t = text(label)
-                .font_family(FONT)
+                .font_family(style::editor_font())
                 .text_size(px(size))
-                .line_height(LineHeight::Points(px(size * 1.2223)))
+                .line_height(LineHeight::Points(px(size * num("type.line"))))
                 .text_color(look.color);
             if look.struck { t.line_through() } else { t }
         })
@@ -185,22 +186,22 @@ fn date_chip(spec: &DateSpec, look: &Look) -> impl IntoElement {
 /// A code block (`.o-codeblock`): mono at .85em in a bordered gray box. The web keeps its lines whole and scrolls
 /// them sideways; here long lines wrap (NSH has no `white-space: pre` from Rust).
 pub fn code_block(source: &str, look: &Look) -> impl IntoElement {
-    let size = look.size * 0.85;
+    let size = look.size * num("type.codeblock");
     view()
         .self_stretch()
-        .my(px(2.0))
-        .px(px(10.0))
-        .py(px(8.0))
+        .my(px(num("space.codeblock_margin")))
+        .px(px(num("space.codeblock_x")))
+        .py(px(num("space.codeblock_y")))
         .bg(color::chip())
-        .border(px(1.0))
+        .border(px(num("space.border")))
         .border_color(color::chip_border())
-        .rounded(px(6.0))
+        .rounded(px(num("radius.block")))
         .child({
             // the text's color, as the block inherits it (`.o-codeblock` sets none), struck on a checked item
             let t = text(source.to_owned())
-                .font_family(MONO)
+                .font_family(style::mono())
                 .text_size(px(size))
-                .line_height(LineHeight::Points(px(size * 1.2223)))
+                .line_height(LineHeight::Points(px(size * num("type.line"))))
                 .text_color(look.color);
             if look.struck { t.line_through() } else { t }
         })

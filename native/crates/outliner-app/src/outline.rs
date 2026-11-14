@@ -13,7 +13,7 @@ use outliner_core::item;
 use crate::commands as cmd;
 use crate::inline::{self, Block};
 use crate::store::{self, Row};
-use crate::style::{self, color, BODY_GAP, BULLET_W, DOT, EFS, FONT, LINE, PAD};
+use crate::style::{self, color, num};
 
 /// How an item is drawn, from its props.
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -29,12 +29,7 @@ struct Look {
 impl Look {
     /// Text size and line height (`.o-h1` .. `.o-h3`).
     fn type_size(&self) -> (f32, f32) {
-        match self.heading {
-            1 => (EFS * 1.3333, EFS * 1.5556),
-            2 => (EFS * 1.2222, EFS * 1.4444),
-            3 => (EFS * 1.1111, EFS * 1.3333),
-            _ => (EFS, LINE),
-        }
+        style::heading(self.heading)
     }
 }
 
@@ -54,7 +49,7 @@ fn look_of(id: &str) -> Look {
 pub fn outline() -> impl IntoElement {
     virtual_list(|| store::read(|s| s.rows.len()), row)
         .keys(|| store::read(|s| s.rows.iter().map(|r| r.id.clone()).collect::<Vec<_>>()))
-        .estimated_item_size(px(LINE + 2.0 * PAD))
+        .estimated_item_size(px(style::line() + 2.0 * style::pad()))
         .header(title())
         .test_id("outline")
         .flex_1()
@@ -64,26 +59,27 @@ pub fn outline() -> impl IntoElement {
 /// The zoom root's text above its items (`.o-title`): 28px, the document's name at the top level, formatted as
 /// rows are; its note under it.
 fn title() -> impl IntoElement {
-    let phone = style::phone();
-    let size = EFS * 1.5556;
+    let size = style::efs() * num("type.title");
+    let title_line = size * num("type.title_line");
     let content = computed(|| store::read(|s| store::content_of(s, &s.view.zoom)));
     let note = computed(|| {
         store::read(|s| Some(item::note(s.tree().get(&s.view.zoom)).to_owned()).filter(|t| !t.trim().is_empty()))
     });
     view()
         .test_id("title")
-        .pl(px(style::text_left(0) - 26.0))
+        .pl(px(style::text_left(0) - num("space.title_offset")))
         .pr(px(style::doc_pad().1))
-        .pt(px(if phone { 12.0 } else { 18.0 }) + px(2.0))
-        .pb(px(12.0))
+        .pt(px(num("space.doc_top") + num("space.title_top")))
+        .pb(px(num("space.title_bottom")))
         .child(dynamic(move || {
             let src = content.get();
             if src.is_empty() {
                 // `.o-title .o-content:empty::before`
                 return text("Untitled")
-                    .font_family(FONT)
+                    .font_family(style::editor_font())
                     .text_size(px(size))
-                    .line_height(LineHeight::Points(px(size * 1.2143)))
+                    .font_weight(style::weight("type.title_weight"))
+                    .line_height(LineHeight::Points(px(title_line)))
                     .text_color(color::faint())
                     .into_element();
             }
@@ -91,9 +87,10 @@ fn title() -> impl IntoElement {
             view()
                 .children(inline::blocks(&src).into_iter().map(|b| match b {
                     Block::Inline(tokens) => text("")
-                        .font_family(FONT)
+                        .font_family(style::editor_font())
                         .text_size(px(size))
-                        .line_height(LineHeight::Points(px(size * 1.2143)))
+                        .font_weight(style::weight("type.title_weight"))
+                        .line_height(LineHeight::Points(px(title_line)))
                         .text_color(color::fg())
                         .children(inline::spans(&tokens, &look))
                         .into_element(),
@@ -102,22 +99,23 @@ fn title() -> impl IntoElement {
                 .into_element()
         }))
         .child(dynamic(move || match note.get() {
-            Some(n) => note_text(&n, false).mt(px(2.0)).into_element(),
+            Some(n) => note_text(&n, false).mt(px(num("space.title_note"))).into_element(),
             None => view().into_element(),
         }))
 }
 
 /// A note (`.o-note`): 5/6 of the text in the note color, on 1.2 lines; formatted as the content is.
 fn note_text(src: &str, checked: bool) -> View {
-    let size = EFS * 0.8333;
+    let size = style::efs() * num("type.note");
+    let note_line = size * num("type.note_line");
     let fg = if checked { color::check() } else { color::note() };
     let look = inline::Look::new(size, store::now()).colored(fg, checked);
     view().test_id("note").children(inline::blocks(src).into_iter().map(move |b| match b {
         Block::Inline(tokens) => {
             let mut t = text("")
-                .font_family(FONT)
+                .font_family(style::editor_font())
                 .text_size(px(size))
-                .line_height(LineHeight::Points(px(size * 1.2)))
+                .line_height(LineHeight::Points(px(note_line)))
                 .text_color(fg)
                 .children(inline::spans(&tokens, &look));
             if checked {
@@ -144,10 +142,10 @@ fn row(at: Position) -> impl IntoElement {
         .test_id("row")
         .flex_row()
         .items_start()
-        .py(px(PAD))
+        .py(px(style::pad()))
         // the document's right padding: a list's padding does not reach its cells
         .pr(px(style::doc_pad().1))
-        .pl(move || px(style::text_left(depth()) - BODY_GAP - bullet_w(row.get().map_or(0, |r| r.num))))
+        .pl(move || px(style::text_left(depth()) - style::body_gap() - bullet_w(row.get().map_or(0, |r| r.num))))
         // the guides of the levels above: one line per ancestor, under its bullet (`.o-kids` border)
         .child(dynamic(move || {
             (0..depth())
@@ -158,7 +156,7 @@ fn row(at: Position) -> impl IntoElement {
                         .top(px(0.0))
                         .bottom(px(0.0))
                         .left(px(style::bullet_center(k)))
-                        .w(px(1.0))
+                        .w(px(num("space.guide_w")))
                         .bg(color::guide())
                 })
                 .collect::<Vec<_>>()
@@ -168,7 +166,7 @@ fn row(at: Position) -> impl IntoElement {
         .child(
             view()
                 .flex_1()
-                .pl(px(BODY_GAP))
+                .pl(px(style::body_gap()))
                 .child(dynamic(move || match editing.get() {
                     Some(_) => row_input(row.get_untracked()).into_element(),
                     None => row_text(row, look).into_element(),
@@ -184,9 +182,9 @@ fn row(at: Position) -> impl IntoElement {
         )
 }
 
-/// The bullet column's width: 18px, or 28px for a number (`.o-numbered > .o-row > .o-bullet`).
-fn bullet_w(num: u32) -> f32 {
-    if num > 0 { BULLET_W + 10.0 } else { BULLET_W }
+/// The bullet column's width: the bullet's, or the number's (`.o-numbered > .o-row > .o-bullet`).
+fn bullet_w(n: u32) -> f32 {
+    if n > 0 { num("space.number") } else { style::bullet_w() }
 }
 
 /// The bullet (`.o-bullet`): a 6px dot in its 18px column, as tall as the text's line; ringed while its
@@ -194,9 +192,9 @@ fn bullet_w(num: u32) -> f32 {
 /// text, in figures of one width, at .85em. A press folds or unfolds.
 fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
     let folded = move || row.get().is_some_and(|r| r.has_kids && r.collapsed);
-    let num = move || row.get().map_or(0, |r| r.num);
+    let number = move || row.get().map_or(0, |r| r.num);
     button()
-        .w(move || px(bullet_w(num())))
+        .w(move || px(bullet_w(number())))
         .h(move || px(look.get().type_size().1))
         .items_center()
         .justify_center()
@@ -206,7 +204,7 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
             }
         })
         .child(dynamic(move || {
-            let n = num();
+            let n = number();
             if n > 0 {
                 return view()
                     .test_id("bullet")
@@ -214,38 +212,45 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
                     .flex_row()
                     .items_center()
                     .justify_end()
-                    .pr(px(6.0))
+                    .pr(px(num("space.number_gap")))
                     .child(
                         text(format!("{n}."))
-                            .font_family(FONT)
-                            .text_size(px(EFS * 0.85))
+                            .font_family(style::editor_font())
+                            .text_size(px(style::efs() * num("type.number")))
                             .text_color(color::muted())
                             .tabular_nums(),
                     )
                     .into_element();
             }
+            // the ring of a folded item is a border around the dot (a box shadow on the web)
+            let ring = move || if folded() { num("space.fold_ring") } else { 0.0 };
+            let size = move || style::dot() + 2.0 * ring();
             view()
                 .test_id("bullet")
-                .w(move || px(if folded() { DOT + 8.0 } else { DOT }))
-                .h(move || px(if folded() { DOT + 8.0 } else { DOT }))
-                .rounded(move || px(if folded() { (DOT + 8.0) / 2.0 } else { DOT / 2.0 }))
+                .w(move || px(size()))
+                .h(move || px(size()))
+                .rounded(move || px(size() / 2.0))
                 .bg(color::muted())
-                .border(move || px(if folded() { 4.0 } else { 0.0 }))
+                .border(move || px(ring()))
                 .border_color(color::faint())
                 .into_element()
         }))
 }
 
+/// The check mark's size, of the checkbox's: the web draws it as a rotated border, here it is a character.
+const MARK: f32 = 0.75;
+
 /// The checkbox of an item that shows one (`.o-check`): 16px, centered on the first line; a press checks it.
 fn checkbox(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
     let on = move || look.get().checked;
     // the test id names the wrapper: a button takes none
-    view().test_id("checkbox").mt(move || px((look.get().type_size().1 - 16.0) / 2.0)).ml(px(2.0)).child(
+    let size = num("space.check");
+    view().test_id("checkbox").mt(move || px((look.get().type_size().1 - size) / 2.0)).ml(px(num("space.check_left"))).child(
         button()
-            .w(px(16.0))
-            .h(px(16.0))
-            .rounded(px(3.0))
-            .border(px(1.5))
+            .w(px(size))
+            .h(px(size))
+            .rounded(px(num("radius.check")))
+            .border(px(num("space.check_border")))
             .border_color(move || if on() { color::muted() } else { color::check() })
             .bg(move || if on() { color::muted() } else { color::bg() })
             .items_center()
@@ -255,7 +260,7 @@ fn checkbox(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
                     cmd::toggle_checked(&r.id, 0, true);
                 }
             })
-            .child(when(on, || text("✓").text_size(px(12.0)).text_color(color::bg()))),
+            .child(when(on, move || text("✓").text_size(px(size * MARK)).text_color(color::bg()))),
     )
 }
 
@@ -276,14 +281,14 @@ fn row_text(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
         };
         let paragraph = |tokens: &[outliner_core::inline::Token]| {
             let mut t = text("")
-                .font_family(FONT)
+                .font_family(style::editor_font())
                 .text_size(px(size))
                 .line_height(LineHeight::Points(px(line)))
                 .text_color(fg)
                 .children(inline::spans(tokens, &shown))
                 .on_press(edit);
             if l.heading > 0 {
-                t = t.font_weight(FontWeight::BOLD);
+                t = t.font_weight(style::weight("type.heading_weight"));
             }
             // checked items are struck through (`.o-checked`)
             if l.checked {
@@ -297,13 +302,13 @@ fn row_text(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
             let mut t = paragraph(tokens).self_start().test_id("row-text");
             // a color label is a rounded background behind the text (`.o-cl1` .. `.o-cl6`)
             if let Some(bg) = color::label(l.label) {
-                t = t.bg(bg).rounded(px(3.0));
+                t = t.bg(bg).rounded(px(num("radius.label")));
             }
             return t.into_element();
         }
         let mut v = view().test_id("row-text").on_press(edit);
         if let Some(bg) = color::label(l.label) {
-            v = v.bg(bg).rounded(px(3.0));
+            v = v.bg(bg).rounded(px(num("radius.label")));
         }
         v.children(blocks.drain(..).map(|b| match b {
             Block::Inline(tokens) => paragraph(&tokens).into_element(),
@@ -380,10 +385,10 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .p_0()
         .border(px(0.0))
         .bg(AdaptiveColor::TRANSPARENT)
-        .font_family(FONT)
-        .text_size(px(EFS))
-        .line_height(LineHeight::Points(px(LINE)))
-        .min_h(px(LINE))
+        .font_family(style::editor_font())
+        .text_size(px(style::efs()))
+        .line_height(LineHeight::Points(px(style::line())))
+        .min_h(px(style::line()))
         .text_color(color::fg())
         .on_change(move |t: &str| cmd::set_text(&change_id, t, sel.get_untracked()))
         .on_selection_change(move |s: &Selection| {

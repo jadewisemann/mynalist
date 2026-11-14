@@ -1,0 +1,14 @@
+{"collapsed":false,"id":"root","parent":null,"props":{"c":"Inline"}}
+{"collapsed":false,"id":"s0","parent":"root","props":{"c":"**Bold**, __italic__, ~~strike~~ and ==highlight=="}}
+{"collapsed":false,"id":"s1","parent":"root","props":{"c":"Code `let x = 1;`, an escaped \\*star\\* and $$e^{i\\pi}+1=0$$"}}
+{"collapsed":false,"id":"s2","parent":"root","props":{"c":"A [link](https://example.com), https://example.org/docs and #tag @me"}}
+{"collapsed":false,"id":"s3","parent":"root","props":{"c":"Due !(2024-01-05) and !(2024-03-10 15:30 - 2024-03-10 17:00)"}}
+{"collapsed":false,"id":"s4","parent":"root","props":{"c":"Every week !(2024-01-08 | 1w135) and ![a picture](https://example.com/a.png)"}}
+{"collapsed":false,"id":"s5","parent":"root","props":{"c":"Item with a note","n":"A note under the item, with **bold** and a #tag."}}
+{"collapsed":false,"id":"s6","parent":"root","props":{"c":"Code block:\n```js\nconst a = 1;\nconsole.log(a);\n```"}}
+{"collapsed":false,"id":"s7","parent":"root","props":{"c":"Numbered list","num":true}}
+{"collapsed":false,"id":"s8","parent":"s7","props":{"c":"First"}}
+{"collapsed":false,"id":"s9","parent":"s7","props":{"c":"Second with ==mark=="}}
+{"collapsed":false,"id":"s10","parent":"s7","props":{"c":"Third"}}
+{"collapsed":false,"id":"s11","parent":"root","props":{"c":"Checked with a date !(2024-01-05)","ck":true}}
+{"collapsed":false,"id":"s12","parent":"root","props":{"c":"Heading with ~~gone~~","h":2}}

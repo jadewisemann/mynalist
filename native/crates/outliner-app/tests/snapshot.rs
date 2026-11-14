@@ -35,11 +35,11 @@ const PHONE: Device = Device { name: "phone", os: Os::Ios, width: 390.0, height:
 
 type Styles = Arc<Mutex<HashMap<NodeId, ViewStyle>>>;
 
-fn start(doc: &str, editing: bool, device: Device) -> (Headless, Styles) {
+fn start(doc: &str, editing: bool, device: Device, appearance: &str) -> (Headless, Styles) {
     // the dates' local zone (every snapshot sets the same)
     std::env::set_var("TZ", "UTC");
     let edited = editing.then(|| outliner_app::fixture::edited_item(doc));
-    let mut config = EngineConfig::new(outliner_app::fixture::root(doc, edited));
+    let mut config = EngineConfig::new(outliner_app::fixture::root_with(doc, edited, "", appearance));
     config.clock = Clock::manual(SystemTime::UNIX_EPOCH + Duration::from_millis(NOW_MS));
     config.viewport = Size { width: Points(device.width), height: Points(device.height) };
     config.environment.os = device.os;
@@ -354,8 +354,8 @@ fn views(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
     }
 }
 
-fn snapshot(doc: &str, editing: bool, device: Device) -> String {
-    let (app, styles) = start(doc, editing, device);
+fn snapshot(doc: &str, editing: bool, device: Device, appearance: &str) -> String {
+    let (app, styles) = start(doc, editing, device, appearance);
     let tree = Tree::new(shown(&app));
     let mut out = String::new();
     let state = if editing { format!("editing {}", outliner_app::fixture::edited_item(doc)) } else { "at rest".into() };
@@ -368,6 +368,28 @@ fn snapshot(doc: &str, editing: bool, device: Device) -> String {
     model(&mut out, &app, &tree, &styles);
     views(&mut out, &app, &tree, &styles);
     out
+}
+
+/// The user appearance both apps' models are checked with.
+fn custom_toml() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../design/test/custom.toml")
+}
+
+/// The fixtures' documents as the web's model page reads them (`apps/web/test/model`): written next to the
+/// goldens, and checked to be current as they are.
+#[test]
+fn fixture_items() {
+    let update = std::env::var_os("UPDATE_SNAPSHOTS").is_some();
+    for doc in ["inline", "looks"] {
+        let path = golden_dir().join(format!("{doc}.items.jsonl"));
+        let got = outliner_app::fixture::items_json(doc);
+        if update {
+            std::fs::write(&path, &got).unwrap();
+        } else {
+            let want = std::fs::read_to_string(&path).unwrap_or_default();
+            assert!(want == got, "{} is stale: run with UPDATE_SNAPSHOTS=1", path.display());
+        }
+    }
 }
 
 fn golden_dir() -> PathBuf {
@@ -424,7 +446,7 @@ fn structural_snapshots() {
         for device in [DESKTOP, PHONE] {
             for editing in [false, true] {
                 let name = format!("{doc}-{}-{}.txt", device.name, if editing { "edit" } else { "rest" });
-                let got = snapshot(doc, editing, device);
+                let got = snapshot(doc, editing, device, "");
                 let path = dir.join(&name);
                 if update {
                     std::fs::create_dir_all(&dir).unwrap();
@@ -439,6 +461,22 @@ fn structural_snapshots() {
             }
         }
     }
+    // a user's appearance over the light theme (the same file the web's model is checked with, qa/model.mjs)
+    let custom = std::fs::read_to_string(custom_toml()).unwrap();
+    for device in [DESKTOP, PHONE] {
+        let name = format!("looks-{}-custom.txt", device.name);
+        let got = snapshot("looks", false, device, &custom);
+        let path = dir.join(&name);
+        if update {
+            std::fs::write(&path, &got).unwrap();
+            continue;
+        }
+        let want = std::fs::read_to_string(&path).unwrap_or_default();
+        if want != got {
+            eprintln!("snapshot {name} differs (- golden, + now):\n{}", diff(&want, &got));
+            failed.push(name);
+        }
+    }
     assert!(
         failed.is_empty(),
         "snapshots differ: {failed:?}; if the change is meant, run `UPDATE_SNAPSHOTS=1 cargo test --test snapshot` \
@@ -446,9 +484,10 @@ fn structural_snapshots() {
     );
 }
 
-/// The web app's stylesheet.
+/// The web app's design tokens as custom properties (`apps/web/src/design/tokens.css`, generated from
+/// `design/*.toml`: what `styles.css` uses).
 fn web_css() -> String {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../apps/web/src/styles.css");
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../apps/web/src/design/tokens.css");
     let css = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
     // without its comments
     let mut out = String::new();
@@ -460,15 +499,15 @@ fn web_css() -> String {
     out + rest
 }
 
-/// The value of declaration `prop` in the first rule whose selector starts with `selector` (`:root` for the light
-/// theme's custom properties).
+/// The value of declaration `prop` in the first block that starts with `selector` (`:root` for the base,
+/// `@media (max-width: 760px)` for phones).
 fn decl(css: &str, selector: &str, prop: &str) -> String {
-    let at = css.find(&format!("\n{selector}")).unwrap_or_else(|| panic!("no rule `{selector}` in styles.css"));
+    let at = css.find(&format!("\n{selector}")).unwrap_or_else(|| panic!("no block `{selector}` in tokens.css"));
     let body = &css[at..];
-    let body = &body[body.find('{').unwrap() + 1..body.find('}').unwrap()];
+    let body = &body[..body.find('}').unwrap()];
     let key = format!("{prop}:");
     let v = body
-        .split(';')
+        .split(['{', ';'])
         .find_map(|d| d.trim().strip_prefix(&key))
         .unwrap_or_else(|| panic!("no `{prop}` in `{selector}`"));
     v.trim().to_owned()
@@ -486,18 +525,19 @@ fn rgba_hex(v: &str) -> String {
     format!("#{:02x}{:02x}{:02x}{:02x}", p[0] as u8, p[1] as u8, p[2] as u8, (p[3] * 255.0).round() as u8)
 }
 
-/// Where the web app and the snapshot overlap (sizes, paddings, colors of `apps/web/src/styles.css`), the goldens
-/// hold the web's values: the snapshot pins the web's look, not only what the native app draws today.
+/// Where the web app and the snapshot overlap (sizes, paddings, colors of the design tokens the web's `styles.css`
+/// uses), the goldens hold the web's values: the snapshot pins the web's look, not only what the native app draws.
 #[test]
 fn goldens_hold_the_web_values() {
     let css = web_css();
     let var = |name: &str| decl(&css, ":root", name);
-    let efs = num(&var("--efs"));
-    let line = (efs * num(&var("--lh"))).round();
-    let pad = num(&var("--pad"));
-    let fira = "Fira Sans, system-ui, sans-serif";
-    let mono = "Fira Mono, ui-monospace, monospace";
-    let em = |sel: &str, prop: &str| num(&decl(&css, sel, prop));
+    let phone = |name: &str| decl(&css, "@media (max-width: 760px)", name);
+    let n = |name: &str| num(&var(name));
+    let efs = n("--efs");
+    let line = (efs * n("--lh")).round();
+    let pad = n("--pad");
+    let fira = var("--font");
+    let mono = var("--mono");
     let golden = |name: &str| std::fs::read_to_string(golden_dir().join(name)).unwrap();
     let mut missing = Vec::new();
     let mut want = |file: &str, what: &str, text: String| {
@@ -508,66 +548,87 @@ fn goldens_hold_the_web_values() {
 
     // type and colors of the content (`.o-editor`, `.o-content`, `--fg`), a row's pitch (`--pad`)
     let (fg, row) = (var("--fg"), "inline-desktop-rest.txt");
-    want(row, "text", format!("\"Bold\" {fira} {}/{} w700 {fg}", len(efs), len(line)));
+    let bold = n("--type-bold-weight");
+    want(row, "text", format!("\"Bold\" {fira} {}/{} w{bold} {fg}", len(efs), len(line)));
     want(row, "row pitch", format!("row depth=0 top=110 height={}", len(line + 2.0 * pad)));
     // `.o-title .o-content`
-    let title = efs * em(".o-title .o-content", "font-size");
-    let title_line = title * num(&decl(&css, ".o-title .o-content", "line-height"));
-    want(row, "title", format!("\"Inline\" {fira} {}/{} w400 {fg}", len(title), len(title_line)));
+    let title = efs * n("--type-title");
+    let title_line = title * n("--type-title-line");
+    let tw = n("--type-title-weight");
+    want(row, "title", format!("\"Inline\" {fira} {}/{} w{tw} {fg}", len(title), len(title_line)));
     // `.o-code`
-    let code = efs * em(".o-code", "font-size");
-    let code_look =
-        format!("{mono} {}/{} w400 {} bg={} r=4", len(code), len(line), var("--code-fg"), var("--code-bg"));
+    let code = efs * n("--type-code");
+    let code_look = format!(
+        "{mono} {}/{} w400 {} bg={} r={}",
+        len(code),
+        len(line),
+        var("--code-fg"),
+        var("--code-bg"),
+        len(n("--radius-code"))
+    );
     want(row, "code", format!("\"let x = 1;\" {code_look}"));
     // `.o-tag`, `.o-link`, `.o-image`
     want(row, "tag", format!("\"#tag\" {fira} {}/{} w400 {} underline", len(efs), len(line), var("--tag")));
     want(row, "link", format!("\"link\" {fira} {}/{} w400 {fg} underline", len(efs), len(line)));
     want(row, "image", format!("\"a picture\" {fira} {}/{} w400 {} underline", len(efs), len(line), var("--accent")));
     // `.o-highlight, .o-mark`
-    want(row, "highlight", format!("bg={} r=2", rgba_hex(&decl(&css, ".o-highlight, .o-mark", "background"))));
+    want(row, "highlight", format!("bg={} r={}", rgba_hex(&var("--highlight")), len(n("--radius-mark"))));
     // `.o-note`
-    let note = efs * em(".o-note {", "font-size");
-    let note_line = note * num(&decl(&css, ".o-note {", "line-height"));
+    let note = efs * n("--type-note");
+    let note_line = note * n("--type-note-line");
     want(row, "note", format!("{fira} {}/{} w400 {}", len(note), len(note_line), var("--note")));
     // `.o-checked`
     want(row, "checked", format!("w400 {} strike", var("--check")));
-    // `.o-codeblock`: .85em in the mono font, the text's color
-    let block = efs * em(".o-codeblock", "font-size");
-    want(row, "code block", format!("{mono} {}/", len(block)));
-    want(row, "code block color", format!("console.log(a);\" {mono} {}/18.5 w400 {fg}", len(block)));
+    // `.o-codeblock`: in the mono font, the text's color
+    let block = efs * n("--type-codeblock");
+    let block_line = block * n("--lh");
+    want(row, "code block color", format!("console.log(a);\" {mono} {}/{} w400 {fg}", len(block), len(block_line)));
 
     // `.o-h1` .. `.o-h3`, labels `--cl1` .. `--cl6`, bullets, checkboxes, guides
     let looks = "looks-desktop-rest.txt";
+    let hw = n("--type-heading-weight");
     for (h, name) in [(1, "one"), (2, "two"), (3, "three")] {
-        let sel = format!(".o-h{h} > .o-row .o-content");
-        let size = efs * em(&sel, "font-size");
-        let lh = size * num(&decl(&css, &sel, "line-height"));
-        want(looks, "heading", format!("\"Heading {name}\" {fira} {}/{} w700 {fg}", len(size), len(lh)));
+        let size = efs * n(&format!("--type-h{h}"));
+        let lh = size * n(&format!("--type-h{h}-line"));
+        want(looks, "heading", format!("\"Heading {name}\" {fira} {}/{} w{hw} {fg}", len(size), len(lh)));
     }
     for k in 1..=6 {
         want(looks, "color label", format!("label={}", var(&format!("--cl{k}"))));
     }
     let muted = var("--muted");
-    want(looks, "bullet", format!("dot=6 bg={muted} r=3"));
-    want(looks, "folded bullet", format!("dot=14 bg={muted} r=7 border=4 {}", var("--faint")));
-    want(looks, "checkbox", format!("16x16 bg={} r=3 border=1.5 {}", var("--bg"), var("--check")));
-    want(looks, "checked checkbox", format!("16x16 bg={muted} r=3 border=1.5 {muted}"));
-    want(looks, "guide", format!("1x30 bg={}", var("--guide")));
-    // the document's padding (`.doc-wrap`), the indent (`--kid-pad` less `.o-kids` margin), `.o-body` gap
-    let doc_left = num(decl(&css, ".doc-wrap {", "padding").split(' ').nth(3).unwrap());
-    let indent = num(&decl(&css, ".o-editor { --kid-pad", "--kid-pad")) - 9.0;
-    let gap = num(&decl(&css, ".o-body", "padding-left"));
+    let dot = n("--space-dot");
+    let ring = n("--space-fold-ring");
+    want(looks, "bullet", format!("dot={} bg={muted} r={}", len(dot), len(dot / 2.0)));
+    let folded = dot + 2.0 * ring;
+    want(
+        looks,
+        "folded bullet",
+        format!("dot={} bg={muted} r={} border={} {}", len(folded), len(folded / 2.0), len(ring), var("--faint")),
+    );
+    let check = len(n("--space-check"));
+    let (cr, cb) = (len(n("--radius-check")), len(n("--space-check-border")));
+    want(looks, "checkbox", format!("{check}x{check} bg={} r={cr} border={cb} {}", var("--bg"), var("--check")));
+    want(looks, "checked checkbox", format!("{check}x{check} bg={muted} r={cr} border={cb} {muted}"));
+    want(looks, "guide", format!("{}x{} bg={}", len(n("--space-guide-w")), len(line + 2.0 * pad), var("--guide")));
+    // the document's padding (`.doc-wrap`), the indent (`--kid-pad` less the guide's offset), `.o-body` gap
+    let doc_left = n("--space-doc-left");
+    let indent = n("--kid-pad") - n("--space-guide");
+    let gap = n("--space-body-gap");
     want(looks, "text left", format!("text={}", len(doc_left + gap)));
     want(looks, "indent", format!("text={}", len(doc_left + indent + gap)));
-    want(looks, "bullet center", format!("bullet={}", len(doc_left - 9.0)));
+    want(looks, "bullet center", format!("bullet={}", len(doc_left - n("--space-bullet") / 2.0)));
 
     // `.topbar`: 44px on desktops, 46px on phones; `.mobile-bar`: 41px with a top border
     let line_c = var("--line");
-    let bar = len(num(&decl(&css, ".topbar {", "height")));
-    want(looks, "top bar", format!("view#topbar 0,0 1100x{bar} bg={} border-b=1 {line_c}", var("--bg")));
-    want("looks-phone-rest.txt", "phone top bar", "view#topbar 0,0 390x46".into());
-    want("looks-phone-edit.txt", "phone toolbar", format!("390x41 bg=#ffffff border-t=1 {line_c}"));
-    want("inline-phone-rest.txt", "phone text left", "text=36".into());
+    let border = len(n("--space-border"));
+    let bar = len(n("--space-topbar"));
+    want(looks, "top bar", format!("view#topbar 0,0 1100x{bar} bg={} border-b={border} {line_c}", var("--bg")));
+    let phone_bar = len(num(&phone("--space-topbar")));
+    want("looks-phone-rest.txt", "phone top bar", format!("view#topbar 0,0 390x{phone_bar}"));
+    let toolbar = len(n("--space-toolbar"));
+    want("looks-phone-edit.txt", "phone toolbar", format!("390x{toolbar} bg={} border-t={border} {line_c}", var("--bg")));
+    let phone_left = num(&phone("--space-doc-left")) + gap;
+    want("inline-phone-rest.txt", "phone text left", format!("text={}", len(phone_left)));
 
-    assert!(missing.is_empty(), "the goldens do not hold these values of styles.css:\n{}", missing.join("\n"));
+    assert!(missing.is_empty(), "the goldens do not hold these values of the design tokens:\n{}", missing.join("\n"));
 }

@@ -1,0 +1,33 @@
+[color]
+scheme = "dark"
+bg = "#0d1214"
+fg = "#7fe7f2"
+muted = "#4f8f98"
+faint = "#2c4a50"
+line = "#16262a"
+guide = "#23393e"
+accent = "#2ed3e6"
+hover = "#12262b"
+sel = "#0f3a40"
+side_bg = "#0a0f11"
+chip = "#12262b"
+chip_border = "#23393e"
+check = "#3f6f76"
+note = "#5fb6c0"
+tag = "#4f8f98"
+code_fg = "#ffb86b"
+code_bg = "#12262b"
+date_border = "#23393e"
+
+[label]
+1 = "#4a1f1f"
+2 = "#4d3315"
+3 = "#47431a"
+4 = "#1d3d26"
+5 = "#13324a"
+6 = "#33264d"
+
+[syntax]
+keyword = "#c678dd"
+string = "#98c379"
+number = "#d19a66"

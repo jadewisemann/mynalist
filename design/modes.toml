@@ -1,0 +1,39 @@
+# The mode groups: each picks one of its modes, and a mode is a file `modes/<group>/<mode>.toml` holding what it
+# changes from the base (`base.toml`). The default mode of a group has no file: it is the base.
+# `attr`: the web selects the mode with this attribute on <html> (`data-theme="dark"`); `media`: the web applies the
+# mode inside this media query; the native app picks it from the platform (`phone` on phones).
+
+[theme]
+default = "light"
+attr = "data-theme"
+names = { light = "Light", dark = "Dark", black = "Black (dark, true black)", sepia = "Sepia", scifi = "Sci-Fi", sakura = "Sakura", darkgold = "Dark gold", christmas = "Christmas" }
+
+[size]
+default = "medium"
+attr = "data-size"
+names = { small = "Small", medium = "Medium", large = "Large" }
+
+[density]
+default = "cozy"
+attr = "data-density"
+names = { compact = "Compact", cozy = "Cozy", comfortable = "Comfortable" }
+
+[font]
+default = "default"
+attr = "data-font"
+names = { default = "Fira Sans (default)", system = "System font", inter = "Inter (if installed)", arial = "Arial", helvetica = "Helvetica", roboto = "Roboto (if installed)", serif = "Serif (Georgia)", mono = "Monospace", dyslexic = "OpenDyslexic (if installed)" }
+
+[eafont]
+default = "default"
+attr = "data-eafont"
+names = { default = "Default", pretendard = "Pretendard", notosanskr = "Noto Sans KR", malgun = "Malgun Gothic", batang = "Batang", yahei = "Microsoft YaHei", kaiti = "KaiTi", meiryo = "Meiryo", hiragino = "Hiragino Kaku Gothic" }
+
+[device]
+default = "desktop"
+media = { phone = "(max-width: 760px)" }
+names = { desktop = "Desktop", phone = "Phone" }
+
+[media]
+default = "screen"
+media = { print = "print" }
+names = { screen = "Screen", print = "Print" }
