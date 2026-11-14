@@ -260,7 +260,7 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   - `crates/outliner-mac`: macOS 실행 파일 (GPUI).
   - CI `.github/workflows/native.yml`: `Outliner-macos.zip`(ad-hoc 서명 .app)과 `Outliner-android.apk`(debug 서명)를 artifact로 올린다.
 - [x] core 1차 이식과 TS 대조 테스트.
-- [x] NSH 시험용 앱: 헤드리스 테스트 통과, Linux GPUI(Xvfb)에서 렌더링·클릭·입력·↓ 이동 확인.
+- [x] NSH 시험용 앱: 헤드리스 테스트 통과, Linux GPUI(Xvfb)에서 렌더링·클릭·입력·↓ 이동 확인 (이후 Xvfb 대신 아래 결정론적 검사를 쓴다).
 - [x] 외형을 웹에 맞춤 (2026-11-14): Fira Sans/Mono, 18px/22px 행(30px 간격), 불릿과 들여쓰기 안내선, 제목, 코드·링크·태그·완료·체크박스·색 라벨, 상단 바, 휴대폰 하단 툴바(웹 아이콘). 남은 차이: 사이드바, 코드 칸 좌우 여백, 편집 입력란의 글꼴(GPUI), 다크 테마.
 - [x] 인라인 문법·노트·번호 목록 (2026-11-14): `inline.ts`, `dates.ts` 이식(대조 테스트 약 14만 5천 건, 변이 검출 확인),
   반복 날짜 체크(`new_instance`)와 날짜 정렬 연결. 앱이 굵게·기울임·취소선·강조·코드·코드 블록·링크·자동 링크·이미지·태그·
@@ -269,6 +269,14 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   구문 강조가 없다, 날짜 칩 클릭(날짜 선택기)·반복 날짜 툴팁 없음, 노트 편집은 아직 없다(Shift+Enter), 칩의 날짜 표시는
   행이 다시 그려질 때만 갱신된다, `highlight_overdue`·`display_images_inline` 설정은 기본값(끔)으로 고정이다(코드는 있다),
   `[[` 항목 링크(`refs.ts`)와 검색 강조(`o-match`)는 해당 이식과 함께 한다.
+- [x] 결정론적 외형 검사 (2026-11-14): 구조 스냅샷과 GPUI 오프스크린 렌더. 고정 문서 3개(데모 첫 화면, 인라인 쇼케이스,
+  항목 모양 `looks`: 제목 3단계, 완료, 체크박스, 색 라벨 6개, 접힌 항목, 4단계 깊이)를 데스크톱(1100x800)·휴대폰(390x844),
+  평상시·편집 중으로 연다(`outliner_app::fixture`). 스냅샷(`tests/snapshot.rs`, 정답 `tests/snapshots/*.txt`)은 렌더 모델
+  (상단 바, 제목, 행의 깊이·불릿 중심·글자 시작·위치·높이·스타일별 구간, 툴바)과 화면의 모든 뷰를 글로 적어 바이트 단위로
+  비교하고(CI `native-core`), 정답이 겹치는 곳에서 `styles.css` 값을 담는지도 검사한다. 1pt 변경에 실패하고 되돌리면 통과함을 확인했다.
+  오프스크린 렌더(`outliner-mac`의 `shot`)는 PNG를 만들어 macOS 작업의 artifact `Outliner-shots`로만 올린다(비교 없음).
+  Linux에서도 화면 없이 동작한다(wgpu, Mesa lavapipe). 웹 대조 중 고친 차이: 코드 블록 글자색(검정 → 본문색), "Local only" 글꼴.
+  남은 차이(스냅샷에 기록됨): 편집 입력란이 한 줄이라 긴 행은 가로로 밀린다(웹은 줄바꿈).
 - [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
 - [ ] 남은 core 이식: `search.ts`, `paste.ts`, `export.ts`(HTML 렌더러 포함), `refs.ts`, `calendar.ts`.
 - [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌, 검색.
@@ -277,6 +285,8 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   ```sh
   for g in gen gen-commands gen-inline; do node native/crates/outliner-core/fixtures/$g.ts; done
   (cd native && cargo test)                                                      # core 대조 + 앱 헤드리스 테스트
+  (cd native && UPDATE_SNAPSHOTS=1 cargo test -p outliner-app --test snapshot)   # 구조 스냅샷 정답 갱신 (커밋에 이유)
+  (cd native && cargo run -p outliner-mac --features shot --bin shot -- /tmp/shots)  # 오프스크린 PNG
   cd native && cargo run -p outliner-mac                                         # 데스크톱 (Linux는 GPUI 개발 라이브러리 필요)
   cd native/crates/outliner-app && nsh package --target android                  # APK (Android SDK, NDK 필요)
   ```

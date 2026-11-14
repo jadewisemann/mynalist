@@ -29,9 +29,31 @@ Read this first. Area notes in this folder say what each piece of work is.
 - App behavior: headless tests in `crates/outliner-app/tests/flows.rs` (`nsh-testing` 0.5.0: `press`, `type_text`,
   `submit`, `press_key`, `scroll`, `screen()`; no IME `compose` step in 0.5.0; no access to app state, so assert on
   what the screen shows). Set `config.environment.os = Os::MacOs` (+ `Idiom::Desktop`) for desktop keys.
-- Look: the structural snapshot (area 5, `5-testing.md`) is how the look is checked; the offscreen GPUI render only
-  makes pictures to look at. No screenshot comparison of any kind, no Xvfb / xwd (the user asked for deterministic checks). Values to match come from
-  `apps/web/src/styles.css`.
+- Look: the structural snapshot is how the look is checked; the offscreen GPUI render only makes pictures to look at.
+  No screenshot comparison of any kind, no Xvfb / xwd (the user asked for deterministic checks). Values to match come
+  from `apps/web/src/styles.css`.
+  - Fixtures: `outliner_app::fixture::root(doc, editing)` opens the app on `demo` (first screen of the demo),
+    `inline` (the inline showcase) or `looks` (headings, checked items, checkboxes, the six labels, a folded item,
+    four levels), with `edited_item(doc)` being edited or not. Add a document there (and to `DOCS`) to cover more.
+  - Structural snapshot: `crates/outliner-app/tests/snapshot.rs` renders each fixture as a desktop (`Os::MacOs`,
+    1100x800) and a phone (`Os::Ios`, 390x844), at rest and editing, on a manual clock (2024-06-15 12:00), `TZ=UTC`,
+    reduced motion and nsh-testing's approximate text engine (no fonts involved), and writes
+    `tests/snapshots/<doc>-<device>-<rest|edit>.txt`: `[model]` (top bar, title, rows: depth, top, height, bullet
+    center, dot or number, checkbox, text left, label, texts with their styled spans, notes; phone toolbar: the
+    render model area 6 shares with the web) then `[views]` (every view with an area, in tree order: kind, test id,
+    bounds rounded to 0.5pt, background / radius / borders from the mount batches, texts with spans, inputs).
+    A mismatch prints a line diff per file. After a meant change: `UPDATE_SNAPSHOTS=1 cargo test -p outliner-app
+    --test snapshot`, read the diff of the goldens, and say why they changed in the commit message. The test ids
+    the model reads (`topbar`, `title`, `row`, `guide`, `bullet`, `checkbox`, `row-text`, `row-input`, `note`,
+    `toolbar`) are in `outline.rs` / `toolbar.rs`; keep them when restructuring views. `goldens_hold_the_web_values`
+    reads `styles.css` and checks the goldens hold its values (type, colors, pitch, indent, bars): when the web
+    changes a value, both that test and the snapshot tell you.
+  - Offscreen render: `cargo run -p outliner-mac --features shot --bin shot -- <dir>` (`src/bin/shot.rs`) draws the
+    same fixtures with GPUI's test platform (`HeadlessAppContext` + the platform's headless renderer: Metal on
+    macOS, wgpu on Linux) to PNGs at scale 2. No window, no X server; on Linux it needs a Vulkan driver (Mesa
+    `mesa-vulkan-drivers`, lavapipe) and GPUI's dev libs. CI (`native.yml`, macOS) uploads them as the artifact
+    `Outliner-shots`; nothing compares them. Phones are laid out with `OUTLINER_PHONE=1` there (the test platform
+    is a desktop), and the clock is the system's (the fixtures' dates are fixed days, so labels do not move).
 - Before committing: `cargo test` and `cargo clippy --all-targets -- -D warnings` in `native/`, `npm run typecheck`
   at the root if you touched TS.
 

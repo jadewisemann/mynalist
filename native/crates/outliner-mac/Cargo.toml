@@ -9,12 +9,26 @@ publish.workspace = true
 name = "outliner"
 path = "src/main.rs"
 
+# The offscreen render of the look fixtures: `cargo run -p outliner-mac --features shot --bin shot -- <dir>`.
+[[bin]]
+name = "shot"
+path = "src/bin/shot.rs"
+required-features = ["shot"]
+
 [dependencies]
 outliner-app = { path = "../outliner-app" }
 nsh-base = "=0.5.0"
 # No JS engine and no web views: the app is Rust only.
 nsh-platform-gpui = { version = "=0.5.0", default-features = false }
+# For `shot`: GPUI's offscreen renderer (Metal on macOS, wgpu on Linux) and PNG files.
+gpui_platform = { package = "gpui-fast-platform", version = "0.1.13", default-features = false, features = [
+    "test-support",
+], optional = true }
+image = { version = "0.25", default-features = false, features = ["png"], optional = true }
+anyhow = { version = "1", optional = true }
 
 [features]
 # Compile GPUI's Metal shaders when the app starts, for a Mac without Xcode's Metal Toolchain.
 runtime-shaders = ["nsh-platform-gpui/runtime-shaders"]
+# The offscreen render (`src/bin/shot.rs`): GPUI's test platform draws windows without a screen.
+shot = ["nsh-platform-gpui/shot", "dep:gpui_platform", "dep:image", "dep:anyhow"]

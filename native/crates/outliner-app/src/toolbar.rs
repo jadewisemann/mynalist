@@ -31,6 +31,7 @@ fn none() {}
 pub fn topbar() -> impl IntoElement {
     let phone = style::phone();
     let bar = view()
+        .test_id("topbar")
         .flex_row()
         .items_center()
         .h(px(style::topbar_h()))
@@ -51,7 +52,9 @@ pub fn topbar() -> impl IntoElement {
         bar.child(top_button("back", "Back", cmd::zoom_out))
             .child(top_button("fwd", "Forward", none))
             .child(view().flex_1())
-            .child(text("Local only").text_size(px(13.0)).text_color(color::muted()).px(px(8.0)))
+            .child(
+                text("Local only").font_family(style::FONT).text_size(px(13.0)).text_color(color::muted()).px(px(8.0)),
+            )
             .child(top_button("search", "Search", none))
             .child(top_button("gear", "Settings", none))
             .child(top_button("menu", "Menu", none))
@@ -81,6 +84,7 @@ pub fn mobile_bar() -> impl IntoElement {
         || style::phone() && store::read(|s| s.editing.is_some()),
         || {
             scroll()
+                .test_id("toolbar")
                 .horizontal()
                 .h(px(41.0))
                 .border_t(px(1.0))

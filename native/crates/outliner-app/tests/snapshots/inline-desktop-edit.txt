@@ -1,0 +1,264 @@
+# inline, desktop 1100x800 (MacOs), editing s0; clock 2024-06-15 12:00 UTC
+[model]
+topbar top=0 height=44
+title top=44 height=66
+  text x=50 top=64 "Inline"
+    "Inline" Fira Sans, system-ui, sans-serif 28/34 w400 #222222
+row depth=0 top=110 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  input x=76 "**Bold**, __italic__, ~~strike~~ and ==highlight=="
+row depth=0 top=140 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=144 "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
+    "Code " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "let x = 1;" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    ", an escaped *star* and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "e^{i\\pi}+1=0" Fira Mono, ui-monospace, monospace 16/22 w400 #222222
+row depth=0 top=170 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=174 "A link, https://example.org/docs and #tag @me"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    ", " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "https://example.org/docs" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "@me" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+row depth=0 top=200 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=204 "Due ￼ and ￼"
+    "Due ￼ and ￼" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+  text x=137.5 top=205 "Fri, January 5th 2024"
+    "Fri, January 5th 2024" Fira Sans, system-ui, sans-serif 16/19.5 w400 #222222
+  text x=197 top=205 "Sun, March 10th 2024, 3:30 pm - 5 pm"
+    "Sun, March 10th 2024, 3:30 pm - 5 pm" Fira Sans, system-ui, sans-serif 16/19.5 w400 #222222
+row depth=0 top=230 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=234 "Every week ￼ and a picture"
+    "Every week ￼ and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "a picture" Fira Sans, system-ui, sans-serif 18/22 w400 #2f8cf0 underline
+  text x=207 top=235 "Mon, January 8th 2024, every week on Mon, Wed, Fri"
+    "Mon, January 8th 2024, every week on Mon, Wed, Fri" Fira Sans, system-ui, sans-serif 16/19.5 w400 #222222
+row depth=0 top=260 height=48 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=264 "Item with a note"
+    "Item with a note" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+  note top=286
+    text x=76 top=286 "A note under the item, with bold and a #tag."
+      "A note under the item, with " Fira Sans, system-ui, sans-serif 15/18 w400 #4e4e4e
+      "bold" Fira Sans, system-ui, sans-serif 15/18 w700 #4e4e4e
+      " and a " Fira Sans, system-ui, sans-serif 15/18 w400 #4e4e4e
+      "#tag" Fira Sans, system-ui, sans-serif 15/18 w400 #7a7a7a underline
+      "." Fira Sans, system-ui, sans-serif 15/18 w400 #4e4e4e
+row depth=0 top=308 height=89 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=312 "Code block:"
+    "Code block:" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+  text x=87 top=345 "const a = 1;\nconsole.log(a);"
+    "const a = 1;\nconsole.log(a);" Fira Mono, ui-monospace, monospace 15.5/18.5 w400 #222222
+row depth=0 top=397 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=401 "Numbered list"
+    "Numbered list" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=427 height=30 bullet=85 number="1." number_right=93 text=105
+  text x=105 top=431 "First"
+    "First" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=457 height=30 bullet=85 number="2." number_right=93 text=105
+  text x=105 top=461 "Second with mark"
+    "Second with " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "mark" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 bg=#ffdd0061 r=2
+row depth=1 top=487 height=30 bullet=85 number="3." number_right=93 text=105
+  text x=105 top=491 "Third"
+    "Third" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=517 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=521 "Checked with a date ￼"
+    "Checked with a date ￼" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+  text x=296 top=522 "Fri, January 5th 2024"
+    "Fri, January 5th 2024" Fira Sans, system-ui, sans-serif 16/19.5 w400 #a7a7a7 strike
+row depth=0 top=547 height=34.5 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=551 "Heading with gone"
+    "Heading with " Fira Sans, system-ui, sans-serif 22/26 w700 #222222
+    "gone" Fira Sans, system-ui, sans-serif 22/26 w700 #222222 strike
+[views]
+view 0,0 1100x800 bg=#ffffff
+  view#topbar 0,0 1100x44 bg=#ffffff border-b=1 #eceef1
+    view 10,6.5 30x30 r=6
+      canvas 16,12.5 18x18
+    view 44,6.5 30x30 r=6
+      canvas 50,12.5 18x18
+    view 78,6.5 30x30 r=6
+      canvas 84,12.5 18x18
+    text 900.5,13.5 87.5x16
+      "Local only"
+        "Local only" Fira Sans, system-ui, sans-serif 13/0 w400 #8b8f97
+    view 992,6.5 30x30 r=6
+      canvas 998,12.5 18x18
+    view 1026,6.5 30x30 r=6
+      canvas 1032,12.5 18x18
+    view 1060,6.5 30x30 r=6
+      canvas 1066,12.5 18x18
+  scroll#outline 0,44 1100x756 bg=#ffffff scroll 1100x537.5
+    view 0,44 1100x66
+      view#title 0,44 1100x66
+        view 50,64 1010x34
+          text 50,64 1010x34
+            "Inline"
+              "Inline" Fira Sans, system-ui, sans-serif 28/34 w400 #222222
+    view 0,110 1100x30
+      view#row 0,110 1100x30
+        view 52,114 18x22
+          view#bullet 58,122 6x6 bg=#8b8f97 r=3
+        view 70,114 990x22
+          input#row-input 76,114 984x22
+            "**Bold**, __italic__, ~~strike~~ and ==highlight=="
+    view 0,140 1100x30
+      view#row 0,140 1100x30
+        view 52,144 18x22
+          view#bullet 58,152 6x6 bg=#8b8f97 r=3
+        view 70,144 990x22
+          text#row-text 76,144 505x22
+            "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
+              "Code " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "let x = 1;" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              ", an escaped *star* and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "e^{i\\pi}+1=0" Fira Mono, ui-monospace, monospace 16/22 w400 #222222
+    view 0,170 1100x30
+      view#row 0,170 1100x30
+        view 52,174 18x22
+          view#bullet 58,182 6x6 bg=#8b8f97 r=3
+        view 70,174 990x22
+          text#row-text 76,174 445.5x22
+            "A link, https://example.org/docs and #tag @me"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              ", " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "https://example.org/docs" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "@me" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    view 0,200 1100x30
+      view#row 0,200 1100x30
+        view 52,204 18x22
+          view#bullet 58,212 6x6 bg=#8b8f97 r=3
+        view 70,204 990x22
+          text#row-text 76,204 109x22
+            "Due ￼ and ￼"
+              "Due ￼ and ￼" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+            view 115.5,204 210x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+              view 120.5,208.5 13x12.5
+                canvas 120.5,208.5 13x12.5
+              text 137.5,205 185x19.5
+                "Fri, January 5th 2024"
+                  "Fri, January 5th 2024" Fira Sans, system-ui, sans-serif 16/19.5 w400 #222222
+            view 175,204 342x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+              view 180,208.5 13x12.5
+                canvas 180,208.5 13x12.5
+              text 197,205 317x19.5
+                "Sun, March 10th 2024, 3:30 pm - 5 pm"
+                  "Sun, March 10th 2024, 3:30 pm - 5 pm" Fira Sans, system-ui, sans-serif 16/19.5 w400 #222222
+    view 0,230 1100x30
+      view#row 0,230 1100x30
+        view 52,234 18x22
+          view#bullet 58,242 6x6 bg=#8b8f97 r=3
+        view 70,234 990x22
+          text#row-text 76,234 257.5x22
+            "Every week ￼ and a picture"
+              "Every week ￼ and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "a picture" Fira Sans, system-ui, sans-serif 18/22 w400 #2f8cf0 underline
+            view 185,234 465.5x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+              view 190,238.5 13x12.5
+                canvas 190,238.5 13x12.5
+              text 207,235 440.5x19.5
+                "Mon, January 8th 2024, every week on Mon, Wed, Fri"
+                  "Mon, January 8th 2024, every week on Mon, Wed, Fri" Fira Sans, system-ui, sans-serif 16/19.5 w400 #222222
+    view 0,260 1100x48
+      view#row 0,260 1100x48
+        view 52,264 18x22
+          view#bullet 58,272 6x6 bg=#8b8f97 r=3
+        view 70,264 990x40
+          text#row-text 76,264 158.5x22
+            "Item with a note"
+              "Item with a note" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+          view#note 76,286 984x18
+            text 76,286 984x18
+              "A note under the item, with bold and a #tag."
+                "A note under the item, with " Fira Sans, system-ui, sans-serif 15/18 w400 #4e4e4e
+                "bold" Fira Sans, system-ui, sans-serif 15/18 w700 #4e4e4e
+                " and a " Fira Sans, system-ui, sans-serif 15/18 w400 #4e4e4e
+                "#tag" Fira Sans, system-ui, sans-serif 15/18 w400 #7a7a7a underline
+                "." Fira Sans, system-ui, sans-serif 15/18 w400 #4e4e4e
+    view 0,308 1100x89
+      view#row 0,308 1100x89
+        view 52,312 18x22
+          view#bullet 58,320 6x6 bg=#8b8f97 r=3
+        view 70,312 990x81
+          view#row-text 76,312 984x81
+            text 76,312 984x22
+              "Code block:"
+                "Code block:" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+            view 76,336 984x55 bg=#f1f2f4 r=6 border=1 #dfe1e5
+              text 87,345 962x37
+                "const a = 1;\nconsole.log(a);"
+                  "const a = 1;\nconsole.log(a);" Fira Mono, ui-monospace, monospace 15.5/18.5 w400 #222222
+    view 0,397 1100x30
+      view#row 0,397 1100x30
+        view 52,401 18x22
+          view#bullet 58,409 6x6 bg=#8b8f97 r=3
+        view 70,401 990x22
+          text#row-text 76,401 129x22
+            "Numbered list"
+              "Numbered list" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,427 1100x30
+      view#row 0,427 1100x30
+        view#guide 61,427 1x30 bg=#e3e5e8
+        view 71,431 28x22
+          view#bullet 71,433 28x18.5
+            text 76,433 17x18.5
+              "1."
+                "1." Fira Sans, system-ui, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
+        view 99,431 961x22
+          text#row-text 105,431 49.5x22
+            "First"
+              "First" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,457 1100x30
+      view#row 0,457 1100x30
+        view#guide 61,457 1x30 bg=#e3e5e8
+        view 71,461 28x22
+          view#bullet 71,463 28x18.5
+            text 76,463 17x18.5
+              "2."
+                "2." Fira Sans, system-ui, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
+        view 99,461 961x22
+          text#row-text 105,461 158.5x22
+            "Second with mark"
+              "Second with " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "mark" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 bg=#ffdd0061 r=2
+    view 0,487 1100x30
+      view#row 0,487 1100x30
+        view#guide 61,487 1x30 bg=#e3e5e8
+        view 71,491 28x22
+          view#bullet 71,493 28x18.5
+            text 76,493 17x18.5
+              "3."
+                "3." Fira Sans, system-ui, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
+        view 99,491 961x22
+          text#row-text 105,491 49.5x22
+            "Third"
+              "Third" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,517 1100x30
+      view#row 0,517 1100x30
+        view 52,521 18x22
+          view#bullet 58,529 6x6 bg=#8b8f97 r=3
+        view 70,521 990x22
+          text#row-text 76,521 208x22
+            "Checked with a date ￼"
+              "Checked with a date ￼" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+            view 274,521 210x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+              view 279,525.5 13x12.5
+                canvas 279,525.5 13x12.5
+              text 296,522 185x19.5
+                "Fri, January 5th 2024"
+                  "Fri, January 5th 2024" Fira Sans, system-ui, sans-serif 16/19.5 w400 #a7a7a7 strike
+    view 0,547 1100x34.5
+      view#row 0,547 1100x34.5
+        view 52,551 18x26
+          view#bullet 58,561 6x6 bg=#8b8f97 r=3
+        view 70,551 990x26.5
+          text#row-text 76,551 206x26.5
+            "Heading with gone"
+              "Heading with " Fira Sans, system-ui, sans-serif 22/26 w700 #222222
+              "gone" Fira Sans, system-ui, sans-serif 22/26 w700 #222222 strike

@@ -1,0 +1,863 @@
+# demo, desktop 1100x800 (MacOs), editing d1; clock 2024-06-15 12:00 UTC
+[model]
+topbar top=0 height=44
+title top=44 height=66
+  text x=50 top=64 "Demo"
+    "Demo" Fira Sans, system-ui, sans-serif 28/34 w400 #222222
+row depth=0 top=110 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=114 "Plain item 1"
+    "Plain item 1" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=140 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  input x=105 "**Bold** and __italic__ and `code` 2"
+row depth=1 top=170 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=174 "A link and a #tag 3"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 3" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=2 top=200 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 text=134
+  text x=134 top=204 "한글 항목: 입력 테스트 4"
+    "한글 항목: 입력 테스트 4" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=230 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=234 "Mixed 굵게 코드 text 5"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 5" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=260 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=264 "Plain item 6"
+    "Plain item 6" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=290 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=294 "Bold and italic and code 7"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 7" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=320 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=324 "A link and a #tag 8"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 8" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=350 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=354 "한글 항목: 입력 테스트 9"
+    "한글 항목: 입력 테스트 9" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=380 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=384 "Mixed 굵게 코드 text 10"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #a7a7a7 strike
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
+    " text 10" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+row depth=2 top=410 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 text=134
+  text x=134 top=414 "Plain item 11"
+    "Plain item 11" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=440 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=444 "Bold and italic and code 12"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 12" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=470 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 checkbox=101 text=123
+  text x=123 top=474 "A link and a #tag 13"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 13" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=500 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=504 "한글 항목: 입력 테스트 14"
+    "한글 항목: 입력 테스트 14" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=530 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=534 "Mixed 굵게 코드 text 15"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 15" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=560 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105 label=#c8e3c0
+  text x=105 top=564 "Plain item 16"
+    "Plain item 16" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=590 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=594 "Bold and italic and code 17"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 17" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=2 top=620 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 text=134
+  text x=134 top=624 "A link and a #tag 18"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 18" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=650 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=654 "한글 항목: 입력 테스트 19"
+    "한글 항목: 입력 테스트 19" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=680 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=684 "Mixed 굵게 코드 text 20"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 20" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=710 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=714 "Plain item 21"
+    "Plain item 21" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=740 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=744 "Bold and italic and code 22"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 22" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=770 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=774 "A link and a #tag 23"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 23" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=800 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=804 "한글 항목: 입력 테스트 24"
+    "한글 항목: 입력 테스트 24" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=2 top=830 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 text=134
+  text x=134 top=834 "Mixed 굵게 코드 text 25"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 25" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=860 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=864 "Plain item 26"
+    "Plain item 26" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=890 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=894 "Bold and italic and code 27"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #a7a7a7 strike
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 italic strike
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
+    " 27" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+row depth=1 top=920 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=924 "A link and a #tag 28"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 28" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=950 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=954 "한글 항목: 입력 테스트 29"
+    "한글 항목: 입력 테스트 29" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=980 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=984 "Mixed 굵게 코드 text 30"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 30" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1010 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1014 "Plain item 31"
+    "Plain item 31" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=2 top=1040 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 checkbox=130 text=152
+  text x=152 top=1044 "Bold and italic and code 32"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 32" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1070 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1074 "A link and a #tag 33"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 33" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1100 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1104 "한글 항목: 입력 테스트 34"
+    "한글 항목: 입력 테스트 34" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1130 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1134 "Mixed 굵게 코드 text 35"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 35" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=1160 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=1164 "Plain item 36"
+    "Plain item 36" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1190 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1194 "Bold and italic and code 37"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 37" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1220 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1224 "A link and a #tag 38"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 38" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=2 top=1250 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 text=134 label=#c8e3c0
+  text x=134 top=1254 "한글 항목: 입력 테스트 39"
+    "한글 항목: 입력 테스트 39" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1280 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1284 "Mixed 굵게 코드 text 40"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 40" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1310 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1314 "Plain item 41"
+    "Plain item 41" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1340 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1344 "Bold and italic and code 42"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 42" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=0 top=1370 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+  text x=76 top=1374 "A link and a #tag 43"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 43" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1400 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1404 "한글 항목: 입력 테스트 44"
+    "한글 항목: 입력 테스트 44" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+row depth=1 top=1430 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1434 "Mixed 굵게 코드 text 45"
+    "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " text 45" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=2 top=1460 height=30 bullet=119 dot=6 bg=#8b8f97 r=3 text=134
+  text x=134 top=1464 "Plain item 46"
+    "Plain item 46" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1490 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1494 "Bold and italic and code 47"
+    "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+    " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+    " 47" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1520 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1524 "A link and a #tag 48"
+    "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+    " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+    " 48" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+row depth=1 top=1550 height=30 bullet=90 dot=6 bg=#8b8f97 r=3 text=105
+  text x=105 top=1554 "한글 항목: 입력 테스트 49"
+    "한글 항목: 입력 테스트 49" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+[views]
+view 0,0 1100x800 bg=#ffffff
+  view#topbar 0,0 1100x44 bg=#ffffff border-b=1 #eceef1
+    view 10,6.5 30x30 r=6
+      canvas 16,12.5 18x18
+    view 44,6.5 30x30 r=6
+      canvas 50,12.5 18x18
+    view 78,6.5 30x30 r=6
+      canvas 84,12.5 18x18
+    text 900.5,13.5 87.5x16
+      "Local only"
+        "Local only" Fira Sans, system-ui, sans-serif 13/0 w400 #8b8f97
+    view 992,6.5 30x30 r=6
+      canvas 998,12.5 18x18
+    view 1026,6.5 30x30 r=6
+      canvas 1032,12.5 18x18
+    view 1060,6.5 30x30 r=6
+      canvas 1066,12.5 18x18
+  scroll#outline 0,44 1100x756 bg=#ffffff scroll 1100x300066
+    view 0,44 1100x66
+      view#title 0,44 1100x66
+        view 50,64 1010x34
+          text 50,64 1010x34
+            "Demo"
+              "Demo" Fira Sans, system-ui, sans-serif 28/34 w400 #222222
+    view 0,110 1100x30
+      view#row 0,110 1100x30
+        view 52,114 18x22
+          view#bullet 58,122 6x6 bg=#8b8f97 r=3
+        view 70,114 990x22
+          text#row-text 76,114 119x22
+            "Plain item 1"
+              "Plain item 1" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,140 1100x30
+      view#row 0,140 1100x30
+        view#guide 61,140 1x30 bg=#e3e5e8
+        view 81,144 18x22
+          view#bullet 87,152 6x6 bg=#8b8f97 r=3
+        view 99,144 961x22
+          input#row-input 105,144 955x22
+            "**Bold** and __italic__ and `code` 2"
+    view 0,170 1100x30
+      view#row 0,170 1100x30
+        view#guide 61,170 1x30 bg=#e3e5e8
+        view 81,174 18x22
+          view#bullet 87,182 6x6 bg=#8b8f97 r=3
+        view 99,174 961x22
+          text#row-text 105,174 188.5x22
+            "A link and a #tag 3"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 3" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,200 1100x30
+      view#row 0,200 1100x30
+        view#guide 61,200 1x30 bg=#e3e5e8
+        view#guide 90,200 1x30 bg=#e3e5e8
+        view 110,204 18x22
+          view#bullet 116,212 6x6 bg=#8b8f97 r=3
+        view 128,204 932x22
+          text#row-text 134,204 148.5x22
+            "한글 항목: 입력 테스트 4"
+              "한글 항목: 입력 테스트 4" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,230 1100x30
+      view#row 0,230 1100x30
+        view#guide 61,230 1x30 bg=#e3e5e8
+        view 81,234 18x22
+          view#bullet 87,242 6x6 bg=#8b8f97 r=3
+        view 99,234 961x22
+          text#row-text 105,234 178.5x22
+            "Mixed 굵게 코드 text 5"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 5" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,260 1100x30
+      view#row 0,260 1100x30
+        view#guide 61,260 1x30 bg=#e3e5e8
+        view 81,264 18x22
+          view#bullet 87,272 6x6 bg=#8b8f97 r=3
+        view 99,264 961x22
+          text#row-text 105,264 119x22
+            "Plain item 6"
+              "Plain item 6" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,290 1100x30
+      view#row 0,290 1100x30
+        view#guide 61,290 1x30 bg=#e3e5e8
+        view 81,294 18x22
+          view#bullet 87,302 6x6 bg=#8b8f97 r=3
+        view 99,294 961x22
+          text#row-text 105,294 257.5x22
+            "Bold and italic and code 7"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 7" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,320 1100x30
+      view#row 0,320 1100x30
+        view 52,324 18x22
+          view#bullet 58,332 6x6 bg=#8b8f97 r=3
+        view 70,324 990x22
+          text#row-text 76,324 188.5x22
+            "A link and a #tag 8"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 8" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,350 1100x30
+      view#row 0,350 1100x30
+        view#guide 61,350 1x30 bg=#e3e5e8
+        view 81,354 18x22
+          view#bullet 87,362 6x6 bg=#8b8f97 r=3
+        view 99,354 961x22
+          text#row-text 105,354 148.5x22
+            "한글 항목: 입력 테스트 9"
+              "한글 항목: 입력 테스트 9" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,380 1100x30
+      view#row 0,380 1100x30
+        view#guide 61,380 1x30 bg=#e3e5e8
+        view 81,384 18x22
+          view#bullet 87,392 6x6 bg=#8b8f97 r=3
+        view 99,384 961x22
+          text#row-text 105,384 188.5x22
+            "Mixed 굵게 코드 text 10"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #a7a7a7 strike
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
+              " text 10" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    view 0,410 1100x30
+      view#row 0,410 1100x30
+        view#guide 61,410 1x30 bg=#e3e5e8
+        view#guide 90,410 1x30 bg=#e3e5e8
+        view 110,414 18x22
+          view#bullet 116,422 6x6 bg=#8b8f97 r=3
+        view 128,414 932x22
+          text#row-text 134,414 129x22
+            "Plain item 11"
+              "Plain item 11" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,440 1100x30
+      view#row 0,440 1100x30
+        view#guide 61,440 1x30 bg=#e3e5e8
+        view 81,444 18x22
+          view#bullet 87,452 6x6 bg=#8b8f97 r=3
+        view 99,444 961x22
+          text#row-text 105,444 267.5x22
+            "Bold and italic and code 12"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 12" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,470 1100x30
+      view#row 0,470 1100x30
+        view#guide 61,470 1x30 bg=#e3e5e8
+        view 81,474 18x22
+          view#bullet 87,482 6x6 bg=#8b8f97 r=3
+        view#checkbox 101,477 16x16
+          view 101,477 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
+        view 117,474 943x22
+          text#row-text 123,474 198x22
+            "A link and a #tag 13"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 13" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,500 1100x30
+      view#row 0,500 1100x30
+        view#guide 61,500 1x30 bg=#e3e5e8
+        view 81,504 18x22
+          view#bullet 87,512 6x6 bg=#8b8f97 r=3
+        view 99,504 961x22
+          text#row-text 105,504 158.5x22
+            "한글 항목: 입력 테스트 14"
+              "한글 항목: 입력 테스트 14" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,530 1100x30
+      view#row 0,530 1100x30
+        view 52,534 18x22
+          view#bullet 58,542 6x6 bg=#8b8f97 r=3
+        view 70,534 990x22
+          text#row-text 76,534 188.5x22
+            "Mixed 굵게 코드 text 15"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 15" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,560 1100x30
+      view#row 0,560 1100x30
+        view#guide 61,560 1x30 bg=#e3e5e8
+        view 81,564 18x22
+          view#bullet 87,572 6x6 bg=#8b8f97 r=3
+        view 99,564 961x22
+          text#row-text 105,564 129x22 bg=#c8e3c0 r=3
+            "Plain item 16"
+              "Plain item 16" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,590 1100x30
+      view#row 0,590 1100x30
+        view#guide 61,590 1x30 bg=#e3e5e8
+        view 81,594 18x22
+          view#bullet 87,602 6x6 bg=#8b8f97 r=3
+        view 99,594 961x22
+          text#row-text 105,594 267.5x22
+            "Bold and italic and code 17"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 17" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,620 1100x30
+      view#row 0,620 1100x30
+        view#guide 61,620 1x30 bg=#e3e5e8
+        view#guide 90,620 1x30 bg=#e3e5e8
+        view 110,624 18x22
+          view#bullet 116,632 6x6 bg=#8b8f97 r=3
+        view 128,624 932x22
+          text#row-text 134,624 198x22
+            "A link and a #tag 18"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 18" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,650 1100x30
+      view#row 0,650 1100x30
+        view#guide 61,650 1x30 bg=#e3e5e8
+        view 81,654 18x22
+          view#bullet 87,662 6x6 bg=#8b8f97 r=3
+        view 99,654 961x22
+          text#row-text 105,654 158.5x22
+            "한글 항목: 입력 테스트 19"
+              "한글 항목: 입력 테스트 19" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,680 1100x30
+      view#row 0,680 1100x30
+        view#guide 61,680 1x30 bg=#e3e5e8
+        view 81,684 18x22
+          view#bullet 87,692 6x6 bg=#8b8f97 r=3
+        view 99,684 961x22
+          text#row-text 105,684 188.5x22
+            "Mixed 굵게 코드 text 20"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 20" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,710 1100x30
+      view#row 0,710 1100x30
+        view#guide 61,710 1x30 bg=#e3e5e8
+        view 81,714 18x22
+          view#bullet 87,722 6x6 bg=#8b8f97 r=3
+        view 99,714 961x22
+          text#row-text 105,714 129x22
+            "Plain item 21"
+              "Plain item 21" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,740 1100x30
+      view#row 0,740 1100x30
+        view 52,744 18x22
+          view#bullet 58,752 6x6 bg=#8b8f97 r=3
+        view 70,744 990x22
+          text#row-text 76,744 267.5x22
+            "Bold and italic and code 22"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 22" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,770 1100x30
+      view#row 0,770 1100x30
+        view#guide 61,770 1x30 bg=#e3e5e8
+        view 81,774 18x22
+          view#bullet 87,782 6x6 bg=#8b8f97 r=3
+        view 99,774 961x22
+          text#row-text 105,774 198x22
+            "A link and a #tag 23"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 23" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,800 1100x30
+      view#row 0,800 1100x30
+        view#guide 61,800 1x30 bg=#e3e5e8
+        view 81,804 18x22
+          view#bullet 87,812 6x6 bg=#8b8f97 r=3
+        view 99,804 961x22
+          text#row-text 105,804 158.5x22
+            "한글 항목: 입력 테스트 24"
+              "한글 항목: 입력 테스트 24" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,830 1100x30
+      view#row 0,830 1100x30
+        view#guide 61,830 1x30 bg=#e3e5e8
+        view#guide 90,830 1x30 bg=#e3e5e8
+        view 110,834 18x22
+          view#bullet 116,842 6x6 bg=#8b8f97 r=3
+        view 128,834 932x22
+          text#row-text 134,834 188.5x22
+            "Mixed 굵게 코드 text 25"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 25" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,860 1100x30
+      view#row 0,860 1100x30
+        view#guide 61,860 1x30 bg=#e3e5e8
+        view 81,864 18x22
+          view#bullet 87,872 6x6 bg=#8b8f97 r=3
+        view 99,864 961x22
+          text#row-text 105,864 129x22
+            "Plain item 26"
+              "Plain item 26" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,890 1100x30
+      view#row 0,890 1100x30
+        view#guide 61,890 1x30 bg=#e3e5e8
+        view 81,894 18x22
+          view#bullet 87,902 6x6 bg=#8b8f97 r=3
+        view 99,894 961x22
+          text#row-text 105,894 267.5x22
+            "Bold and italic and code 27"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #a7a7a7 strike
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 italic strike
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e strike bg=#f5f5f5 r=4
+              " 27" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    view 0,920 1100x30
+      view#row 0,920 1100x30
+        view#guide 61,920 1x30 bg=#e3e5e8
+        view 81,924 18x22
+          view#bullet 87,932 6x6 bg=#8b8f97 r=3
+        view 99,924 961x22
+          text#row-text 105,924 198x22
+            "A link and a #tag 28"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 28" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,950 1100x30
+      view#row 0,950 1100x30
+        view 52,954 18x22
+          view#bullet 58,962 6x6 bg=#8b8f97 r=3
+        view 70,954 990x22
+          text#row-text 76,954 158.5x22
+            "한글 항목: 입력 테스트 29"
+              "한글 항목: 입력 테스트 29" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,980 1100x30
+      view#row 0,980 1100x30
+        view#guide 61,980 1x30 bg=#e3e5e8
+        view 81,984 18x22
+          view#bullet 87,992 6x6 bg=#8b8f97 r=3
+        view 99,984 961x22
+          text#row-text 105,984 188.5x22
+            "Mixed 굵게 코드 text 30"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 30" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1010 1100x30
+      view#row 0,1010 1100x30
+        view#guide 61,1010 1x30 bg=#e3e5e8
+        view 81,1014 18x22
+          view#bullet 87,1022 6x6 bg=#8b8f97 r=3
+        view 99,1014 961x22
+          text#row-text 105,1014 129x22
+            "Plain item 31"
+              "Plain item 31" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1040 1100x30
+      view#row 0,1040 1100x30
+        view#guide 61,1040 1x30 bg=#e3e5e8
+        view#guide 90,1040 1x30 bg=#e3e5e8
+        view 110,1044 18x22
+          view#bullet 116,1052 6x6 bg=#8b8f97 r=3
+        view#checkbox 130,1047 16x16
+          view 130,1047 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
+        view 146,1044 914x22
+          text#row-text 152,1044 267.5x22
+            "Bold and italic and code 32"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 32" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1070 1100x30
+      view#row 0,1070 1100x30
+        view#guide 61,1070 1x30 bg=#e3e5e8
+        view 81,1074 18x22
+          view#bullet 87,1082 6x6 bg=#8b8f97 r=3
+        view 99,1074 961x22
+          text#row-text 105,1074 198x22
+            "A link and a #tag 33"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 33" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1100 1100x30
+      view#row 0,1100 1100x30
+        view#guide 61,1100 1x30 bg=#e3e5e8
+        view 81,1104 18x22
+          view#bullet 87,1112 6x6 bg=#8b8f97 r=3
+        view 99,1104 961x22
+          text#row-text 105,1104 158.5x22
+            "한글 항목: 입력 테스트 34"
+              "한글 항목: 입력 테스트 34" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1130 1100x30
+      view#row 0,1130 1100x30
+        view#guide 61,1130 1x30 bg=#e3e5e8
+        view 81,1134 18x22
+          view#bullet 87,1142 6x6 bg=#8b8f97 r=3
+        view 99,1134 961x22
+          text#row-text 105,1134 188.5x22
+            "Mixed 굵게 코드 text 35"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 35" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1160 1100x30
+      view#row 0,1160 1100x30
+        view 52,1164 18x22
+          view#bullet 58,1172 6x6 bg=#8b8f97 r=3
+        view 70,1164 990x22
+          text#row-text 76,1164 129x22
+            "Plain item 36"
+              "Plain item 36" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1190 1100x30
+      view#row 0,1190 1100x30
+        view#guide 61,1190 1x30 bg=#e3e5e8
+        view 81,1194 18x22
+          view#bullet 87,1202 6x6 bg=#8b8f97 r=3
+        view 99,1194 961x22
+          text#row-text 105,1194 267.5x22
+            "Bold and italic and code 37"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 37" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1220 1100x30
+      view#row 0,1220 1100x30
+        view#guide 61,1220 1x30 bg=#e3e5e8
+        view 81,1224 18x22
+          view#bullet 87,1232 6x6 bg=#8b8f97 r=3
+        view 99,1224 961x22
+          text#row-text 105,1224 198x22
+            "A link and a #tag 38"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 38" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1250 1100x30
+      view#row 0,1250 1100x30
+        view#guide 61,1250 1x30 bg=#e3e5e8
+        view#guide 90,1250 1x30 bg=#e3e5e8
+        view 110,1254 18x22
+          view#bullet 116,1262 6x6 bg=#8b8f97 r=3
+        view 128,1254 932x22
+          text#row-text 134,1254 158.5x22 bg=#c8e3c0 r=3
+            "한글 항목: 입력 테스트 39"
+              "한글 항목: 입력 테스트 39" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1280 1100x30
+      view#row 0,1280 1100x30
+        view#guide 61,1280 1x30 bg=#e3e5e8
+        view 81,1284 18x22
+          view#bullet 87,1292 6x6 bg=#8b8f97 r=3
+        view 99,1284 961x22
+          text#row-text 105,1284 188.5x22
+            "Mixed 굵게 코드 text 40"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 40" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1310 1100x30
+      view#row 0,1310 1100x30
+        view#guide 61,1310 1x30 bg=#e3e5e8
+        view 81,1314 18x22
+          view#bullet 87,1322 6x6 bg=#8b8f97 r=3
+        view 99,1314 961x22
+          text#row-text 105,1314 129x22
+            "Plain item 41"
+              "Plain item 41" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1340 1100x30
+      view#row 0,1340 1100x30
+        view#guide 61,1340 1x30 bg=#e3e5e8
+        view 81,1344 18x22
+          view#bullet 87,1352 6x6 bg=#8b8f97 r=3
+        view 99,1344 961x22
+          text#row-text 105,1344 267.5x22
+            "Bold and italic and code 42"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 42" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1370 1100x30
+      view#row 0,1370 1100x30
+        view 52,1374 18x22
+          view#bullet 58,1382 6x6 bg=#8b8f97 r=3
+        view 70,1374 990x22
+          text#row-text 76,1374 198x22
+            "A link and a #tag 43"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 43" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1400 1100x30
+      view#row 0,1400 1100x30
+        view#guide 61,1400 1x30 bg=#e3e5e8
+        view 81,1404 18x22
+          view#bullet 87,1412 6x6 bg=#8b8f97 r=3
+        view 99,1404 961x22
+          text#row-text 105,1404 158.5x22
+            "한글 항목: 입력 테스트 44"
+              "한글 항목: 입력 테스트 44" Fira Sans, system-ui, sans-serif 18/22 w400 #a7a7a7 strike
+    view 0,1430 1100x30
+      view#row 0,1430 1100x30
+        view#guide 61,1430 1x30 bg=#e3e5e8
+        view 81,1434 18x22
+          view#bullet 87,1442 6x6 bg=#8b8f97 r=3
+        view 99,1434 961x22
+          text#row-text 105,1434 188.5x22
+            "Mixed 굵게 코드 text 45"
+              "Mixed " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "굵게" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "코드" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " text 45" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1460 1100x30
+      view#row 0,1460 1100x30
+        view#guide 61,1460 1x30 bg=#e3e5e8
+        view#guide 90,1460 1x30 bg=#e3e5e8
+        view 110,1464 18x22
+          view#bullet 116,1472 6x6 bg=#8b8f97 r=3
+        view 128,1464 932x22
+          text#row-text 134,1464 129x22
+            "Plain item 46"
+              "Plain item 46" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1490 1100x30
+      view#row 0,1490 1100x30
+        view#guide 61,1490 1x30 bg=#e3e5e8
+        view 81,1494 18x22
+          view#bullet 87,1502 6x6 bg=#8b8f97 r=3
+        view 99,1494 961x22
+          text#row-text 105,1494 267.5x22
+            "Bold and italic and code 47"
+              "Bold" Fira Sans, system-ui, sans-serif 18/22 w700 #222222
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "italic" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 italic
+              " and " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "code" Fira Mono, ui-monospace, monospace 16/22 w400 #c7254e bg=#f5f5f5 r=4
+              " 47" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1520 1100x30
+      view#row 0,1520 1100x30
+        view#guide 61,1520 1x30 bg=#e3e5e8
+        view 81,1524 18x22
+          view#bullet 87,1532 6x6 bg=#8b8f97 r=3
+        view 99,1524 961x22
+          text#row-text 105,1524 198x22
+            "A link and a #tag 48"
+              "A " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "link" Fira Sans, system-ui, sans-serif 18/22 w400 #222222 underline
+              " and a " Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+              "#tag" Fira Sans, system-ui, sans-serif 18/22 w400 #7a7a7a underline
+              " 48" Fira Sans, system-ui, sans-serif 18/22 w400 #222222
+    view 0,1550 1100x30
+      view#row 0,1550 1100x30
+        view#guide 61,1550 1x30 bg=#e3e5e8
+        view 81,1554 18x22
+          view#bullet 87,1562 6x6 bg=#8b8f97 r=3
+        view 99,1554 961x22
+          text#row-text 105,1554 158.5x22
+            "한글 항목: 입력 테스트 49"
+              "한글 항목: 입력 테스트 49" Fira Sans, system-ui, sans-serif 18/22 w400 #222222

@@ -41,10 +41,10 @@ jobs:
         id: metal
         run: |
           xcodebuild -downloadComponent MetalToolchain || true
-          if xcrun -f metal >/dev/null 2>&1; then echo "features=" >> "$GITHUB_OUTPUT"; else echo "features=--features runtime-shaders" >> "$GITHUB_OUTPUT"; fi
+          if xcrun -f metal >/dev/null 2>&1; then echo "features=" >> "$GITHUB_OUTPUT"; else echo "features=runtime-shaders" >> "$GITHUB_OUTPUT"; fi
       - name: Build
         working-directory: native
-        run: cargo build --release -p outliner-mac ${{ steps.metal.outputs.features }}
+        run: cargo build --release -p outliner-mac --features "${{ steps.metal.outputs.features }}"
       - name: Bundle Outliner.app
         working-directory: native
         run: |
@@ -59,6 +59,18 @@ jobs:
         with:
           name: Outliner-macos
           path: native/target/Outliner-macos.zip
+          retention-days: 14
+      # The offscreen render of the look fixtures (crates/outliner-mac/src/bin/shot.rs): PNGs to look at, compared
+      # with nothing (the structural snapshot in ci.yml is the check). A debug build: GPUI's test support changes
+      # its features, and a second release build with LTO would take long.
+      - name: Offscreen render
+        working-directory: native
+        run: cargo run -p outliner-mac --features "shot ${{ steps.metal.outputs.features }}" --bin shot -- target/shots
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Outliner-shots
+          path: native/target/shots
+          if-no-files-found: error
           retention-days: 14
 
   android:

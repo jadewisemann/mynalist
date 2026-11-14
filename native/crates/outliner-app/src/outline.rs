@@ -71,6 +71,7 @@ fn title() -> impl IntoElement {
         store::read(|s| Some(item::note(s.tree().get(&s.view.zoom)).to_owned()).filter(|t| !t.trim().is_empty()))
     });
     view()
+        .test_id("title")
         .pl(px(style::text_left(0) - 26.0))
         .pr(px(style::doc_pad().1))
         .pt(px(if phone { 12.0 } else { 18.0 }) + px(2.0))
@@ -111,7 +112,7 @@ fn note_text(src: &str, checked: bool) -> View {
     let size = EFS * 0.8333;
     let fg = if checked { color::check() } else { color::note() };
     let look = inline::Look::new(size, store::now()).colored(fg, checked);
-    view().children(inline::blocks(src).into_iter().map(move |b| match b {
+    view().test_id("note").children(inline::blocks(src).into_iter().map(move |b| match b {
         Block::Inline(tokens) => {
             let mut t = text("")
                 .font_family(FONT)
@@ -140,6 +141,7 @@ fn row(at: Position) -> impl IntoElement {
         store::read(|s| s.editing.as_ref().is_some_and(|c| c.id == id)).then_some(id)
     });
     view()
+        .test_id("row")
         .flex_row()
         .items_start()
         .py(px(PAD))
@@ -151,6 +153,7 @@ fn row(at: Position) -> impl IntoElement {
             (0..depth())
                 .map(|k| {
                     view()
+                        .test_id("guide")
                         .absolute()
                         .top(px(0.0))
                         .bottom(px(0.0))
@@ -206,6 +209,7 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
             let n = num();
             if n > 0 {
                 return view()
+                    .test_id("bullet")
                     .self_stretch()
                     .flex_row()
                     .items_center()
@@ -221,6 +225,7 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
                     .into_element();
             }
             view()
+                .test_id("bullet")
                 .w(move || px(if folded() { DOT + 8.0 } else { DOT }))
                 .h(move || px(if folded() { DOT + 8.0 } else { DOT }))
                 .rounded(move || px(if folded() { (DOT + 8.0) / 2.0 } else { DOT / 2.0 }))
@@ -234,23 +239,24 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
 /// The checkbox of an item that shows one (`.o-check`): 16px, centered on the first line; a press checks it.
 fn checkbox(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
     let on = move || look.get().checked;
-    button()
-        .w(px(16.0))
-        .h(px(16.0))
-        .mt(move || px((look.get().type_size().1 - 16.0) / 2.0))
-        .ml(px(2.0))
-        .rounded(px(3.0))
-        .border(px(1.5))
-        .border_color(move || if on() { color::muted() } else { color::check() })
-        .bg(move || if on() { color::muted() } else { color::bg() })
-        .items_center()
-        .justify_center()
-        .on_press(move || {
-            if let Some(r) = row.get_untracked() {
-                cmd::toggle_checked(&r.id, 0, true);
-            }
-        })
-        .child(when(on, || text("✓").text_size(px(12.0)).text_color(color::bg())))
+    // the test id names the wrapper: a button takes none
+    view().test_id("checkbox").mt(move || px((look.get().type_size().1 - 16.0) / 2.0)).ml(px(2.0)).child(
+        button()
+            .w(px(16.0))
+            .h(px(16.0))
+            .rounded(px(3.0))
+            .border(px(1.5))
+            .border_color(move || if on() { color::muted() } else { color::check() })
+            .bg(move || if on() { color::muted() } else { color::bg() })
+            .items_center()
+            .justify_center()
+            .on_press(move || {
+                if let Some(r) = row.get_untracked() {
+                    cmd::toggle_checked(&r.id, 0, true);
+                }
+            })
+            .child(when(on, || text("✓").text_size(px(12.0)).text_color(color::bg()))),
+    )
 }
 
 /// The row's text as formatted spans (`.o-content`), code blocks under their lines; a press starts editing it.
@@ -288,14 +294,14 @@ fn row_text(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
         let mut blocks = inline::blocks(&src);
         if let [Block::Inline(tokens)] = &blocks[..] {
             // as wide as its text, as `.o-content` is (a color label covers the text only)
-            let mut t = paragraph(tokens).self_start();
+            let mut t = paragraph(tokens).self_start().test_id("row-text");
             // a color label is a rounded background behind the text (`.o-cl1` .. `.o-cl6`)
             if let Some(bg) = color::label(l.label) {
                 t = t.bg(bg).rounded(px(3.0));
             }
             return t.into_element();
         }
-        let mut v = view().on_press(edit);
+        let mut v = view().test_id("row-text").on_press(edit);
         if let Some(bg) = color::label(l.label) {
             v = v.bg(bg).rounded(px(3.0));
         }

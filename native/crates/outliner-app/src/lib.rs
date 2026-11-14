@@ -5,6 +5,7 @@
 //! `outliner-core`, the Rust port of `packages/core`.
 
 pub mod commands;
+pub mod fixture;
 mod icons;
 pub mod inline;
 mod outline;
@@ -42,6 +43,11 @@ pub fn App() -> impl IntoElement {
         let inline = std::env::var("OUTLINER_DEMO").is_ok_and(|d| d == "inline");
         store::open(if inline { store::showcase() } else { store::demo(DEMO_ITEMS) });
     }
+    screen()
+}
+
+/// The app's screen over the open document: the top bar, the outline and the phone toolbar.
+fn screen() -> View {
     view()
         .flex_1()
         .pt_safe_area()

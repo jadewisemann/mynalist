@@ -195,10 +195,13 @@ pub fn code_block(source: &str, look: &Look) -> impl IntoElement {
         .border(px(1.0))
         .border_color(color::chip_border())
         .rounded(px(6.0))
-        .child(
-            text(source.to_owned())
+        .child({
+            // the text's color, as the block inherits it (`.o-codeblock` sets none), struck on a checked item
+            let t = text(source.to_owned())
                 .font_family(MONO)
                 .text_size(px(size))
-                .line_height(LineHeight::Points(px(size * 1.2223))),
-        )
+                .line_height(LineHeight::Points(px(size * 1.2223)))
+                .text_color(look.color);
+            if look.struck { t.line_through() } else { t }
+        })
 }

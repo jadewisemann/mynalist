@@ -228,3 +228,52 @@ pub fn showcase() -> DocSession<Option<Caret>> {
 pub fn content_of(s: &State, id: &str) -> String {
     item::content(s.tree().get(id)).to_owned()
 }
+
+/// The looks of items (for the look checks, `fixture`): headings of three levels, checked items, checkboxes on
+/// and off, the six color labels, a folded item, a note under a checked item and a deeper level.
+pub fn looks() -> DocSession<Option<Caret>> {
+    let mut s = DocSession::default();
+    let ts = now();
+    // id, parent, content, note, other props
+    type Item<'a> = (&'a str, &'a str, &'a str, &'a str, &'a [(&'a str, Value)]);
+    let items: [Item<'_>; 19] = [
+        ("l0", ROOT, "Heading one", "", &[("h", Value::from(1))]),
+        ("l1", ROOT, "Heading two", "", &[("h", Value::from(2))]),
+        ("l2", ROOT, "Heading three", "", &[("h", Value::from(3))]),
+        ("l3", ROOT, "A checked item", "Its note is checked too.", &[("ck", Value::Bool(true))]),
+        ("l4", ROOT, "A checkbox, off", "", &[("cb", Value::Bool(true))]),
+        ("l5", ROOT, "A checkbox, on", "", &[("cb", Value::Bool(true)), ("ck", Value::Bool(true))]),
+        ("l6", ROOT, "Color labels", "", &[]),
+        ("l7", "l6", "Label 1", "", &[("cl", Value::from(1))]),
+        ("l8", "l6", "Label 2", "", &[("cl", Value::from(2))]),
+        ("l9", "l6", "Label 3", "", &[("cl", Value::from(3))]),
+        ("l10", "l6", "Label 4", "", &[("cl", Value::from(4))]),
+        ("l11", "l6", "Label 5", "", &[("cl", Value::from(5))]),
+        ("l12", "l6", "Label 6", "", &[("cl", Value::from(6))]),
+        ("l13", ROOT, "A folded item", "", &[("cl", Value::from(5))]),
+        ("l14", "l13", "Hidden under the fold", "", &[]),
+        ("l15", ROOT, "Levels", "", &[]),
+        ("l16", "l15", "Second level", "", &[]),
+        ("l17", "l16", "Third level with a **bold** word", "", &[]),
+        ("l18", "l17", "Fourth level", "", &[]),
+    ];
+    let mut ops = Vec::new();
+    let mut last: std::collections::HashMap<&str, NodeId> = std::collections::HashMap::new();
+    for (id, parent, c, n, extra) in items.iter() {
+        let mut props = text_props(c);
+        if !n.is_empty() {
+            props.insert("n".into(), Value::String((*n).to_owned()));
+        }
+        for (k, v) in extra.iter() {
+            props.insert((*k).to_owned(), v.clone());
+        }
+        let after = last.insert(parent, (*id).to_owned());
+        ops.push(Op::Create { id: (*id).to_owned(), parent: (*parent).to_owned(), after, props, ts });
+    }
+    ops.push(Op::Collapse { id: "l13".into(), v: true });
+    let mut title = Props::new();
+    title.insert("c".into(), Value::String("Looks".into()));
+    ops.insert(0, Op::Set { id: ROOT.to_owned(), props: title, ts });
+    s.transact(ops, None, None, false);
+    s
+}
