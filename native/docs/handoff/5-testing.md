@@ -1,7 +1,9 @@
 # Area 5: deterministic look checks (structural snapshot + offscreen render)
 
 The user wants the UI checked deterministically, replacing the Xvfb screenshots (do not use Xvfb / xwd any more).
-Two tools, both in CI. This comes right after area 1; areas 2-4 then use them as their "done when".
+Two tools, both in CI. This comes right after area 1; areas 2-4 then use them as their "done when". No screenshot
+comparison of any kind (no pixel diffs against reference images): the structural snapshot is the only check, and
+the offscreen render only produces pictures for people to look at.
 
 ## 1. Structural snapshot
 
@@ -30,9 +32,8 @@ https://github.com/longbridge/nsh, for how its own tests use it). Use it to rend
 size and scale:
 
 - on the macOS CI runner (the platform the app ships on); find out whether it works on Linux too and say so;
-- compare with checked-in reference PNGs with a small per-pixel tolerance and a max differing-pixel ratio, and
-  upload the PNGs and a diff image as CI artifacts;
-- references are updated the same way as the snapshots (env var, and the commit says why).
+- upload the PNGs as CI artifacts. Do not compare them with reference images and do not check reference PNGs in:
+  they are for looking at, not a test.
 
 If the `shot` path cannot work from outside the NSH workspace at 0.5.0, stop and report what blocks it with the
 evidence, instead of falling back to Xvfb.
@@ -40,5 +41,6 @@ evidence, instead of falling back to Xvfb.
 ## Done when
 
 Both run in CI (the snapshot in `ci.yml` with the other Rust tests, the offscreen render in `native.yml` on macOS),
-they fail on a deliberate one-pixel / one-point change and pass again when it is reverted, `common.md` describes how
+the snapshot fails on a deliberate one-point change and passes again when it is reverted, the offscreen PNGs are in
+the macOS job's artifacts, `common.md` describes how
 to use and update them, TASKS.md updated, committed and pushed, working tree clean.

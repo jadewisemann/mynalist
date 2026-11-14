@@ -9,5 +9,5 @@ app, plus the bullet hover marks on desktop (triangle down / right on items with
 
 ## Done when
 
-The structural snapshot and the offscreen render (area 5) match the web app with a row being edited at depth 2 or more, headless tests still pass, CI green,
+The structural snapshot (area 5) matches the web app's values with a row being edited at depth 2 or more, headless tests still pass, CI green,
 TASKS.md updated, committed and pushed.

@@ -10,5 +10,5 @@ Tags tab lists the tags found in the open document (`extractTags`, from the inli
 
 ## Done when
 
-Desktop and phone layouts match the web app (structural snapshot and offscreen render, area 5), switching documents works, headless tests cover it, CI
+Desktop and phone layouts match the web app (structural snapshot, area 5; the offscreen PNGs are for looking only), switching documents works, headless tests cover it, CI
 green, TASKS.md updated, committed and pushed.
