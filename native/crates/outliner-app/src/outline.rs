@@ -12,7 +12,8 @@ use outliner_core::item;
 
 use crate::commands as cmd;
 use crate::inline::{self, Block};
-use crate::store::{self, Row};
+use crate::icons;
+use crate::store::{self, Row, Thread};
 use crate::style::{self, color, num};
 
 /// How an item is drawn, from its props.
@@ -47,7 +48,9 @@ fn look_of(id: &str) -> Look {
 }
 
 pub fn outline() -> impl IntoElement {
-    virtual_list(|| store::read(|s| s.rows.len()), row)
+    // the rows of the bullet thread, read by every cell
+    let path = computed(|| store::read(|s| s.path_rows()));
+    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path))
         .keys(|| store::read(|s| s.rows.iter().map(|r| r.id.clone()).collect::<Vec<_>>()))
         .estimated_item_size(px(style::line() + 2.0 * style::pad()))
         .header(title())
@@ -128,9 +131,10 @@ fn note_text(src: &str, checked: bool) -> View {
 }
 
 /// A cell, reused for other rows as the list scrolls: its bindings read the row where it is now.
-fn row(at: Position) -> impl IntoElement {
+fn row(at: Position, path: Memo<Vec<usize>>) -> impl IntoElement {
     let row = computed(move || store::read(|s| s.rows.get(at.index()).cloned()));
     let look = computed(move || row.get().map(|r| look_of(&r.id)).unwrap_or_default());
+    let thread = computed(move || row.get().map(|r| path.with(|p| Thread::of(p, at.index(), r.depth))).unwrap_or_default());
     let depth = move || row.get().map_or(0, |r| r.depth);
     // the id of this row while it is the one being edited: the input is made for that item, and made again
     // when the cell is reused for another row that is being edited too (after a zoom, say)
@@ -161,7 +165,12 @@ fn row(at: Position) -> impl IntoElement {
                 })
                 .collect::<Vec<_>>()
         }))
-        .child(bullet(row, look))
+        // the bullet thread over them
+        .child(dynamic(move || {
+            let (t, r) = (thread.get(), row.get());
+            r.map(|r| thread_marks(&t, &r, look.get().type_size().1)).unwrap_or_default()
+        }))
+        .child(bullet(row, look, thread))
         .child(when(move || look.get().checkbox, move || checkbox(row, look)))
         .child(
             view()
@@ -184,6 +193,40 @@ fn row(at: Position) -> impl IntoElement {
         )
 }
 
+/// The bullet thread's pieces in a row (`.o-thread` in the web's styles.css): straight through the row on the
+/// guides it passes, from an ancestor's bullet down its children's guide, and a rounded turn from the parent's
+/// guide into the bullet of a row on the path. `bullet_h`: the bullet's box, which the thread meets at its middle.
+fn thread_marks(t: &Thread, r: &Row, bullet_h: f32) -> Vec<View> {
+    let w = num("space.thread");
+    let mid = style::pad() + bullet_h / 2.0;
+    let line = |depth: u16| view().absolute().left(px(style::thread_x(depth) - w / 2.0)).w(px(w));
+    let mut out: Vec<View> = t
+        .through
+        .iter()
+        .map(|&k| line(k).test_id("thread").top(px(0.0)).bottom(px(0.0)).bg(color::thread()))
+        .collect();
+    if t.down {
+        out.push(line(r.depth).test_id("thread").top(px(mid)).bottom(px(0.0)).bg(color::thread()));
+    }
+    if t.elbow {
+        let left = style::thread_x(r.depth - 1) - w / 2.0;
+        out.push(
+            view()
+                .test_id("elbow")
+                .absolute()
+                .left(px(left))
+                .top(px(0.0))
+                .w(px(style::elbow_end(r.depth, r.num > 0) - left))
+                .h(px(mid + w / 2.0))
+                .border_l(px(w))
+                .border_b(px(w))
+                .border_color(color::thread())
+                .rounded_bl(px(num("radius.elbow"))),
+        );
+    }
+    out
+}
+
 /// The bullet column's width: the bullet's, or the number's (`.o-numbered > .o-row > .o-bullet`).
 fn bullet_w(n: u32) -> f32 {
     if n > 0 { num("space.number") } else { style::bullet_w() }
@@ -191,11 +234,16 @@ fn bullet_w(n: u32) -> f32 {
 
 /// The bullet (`.o-bullet`): a 6px dot in its 18px column, as tall as the text's line; ringed while its
 /// children are folded. Under a numbered parent, the row's number instead (`1.`), right-aligned 6px from the
-/// text, in figures of one width, at .85em. A press folds or unfolds.
-fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
+/// text, in figures of one width, at .85em. On the bullet thread, both take its color. A press folds or unfolds;
+/// on desktops, under the pointer, the dot of an item with children turns into a triangle pointing down, or
+/// right while folded.
+fn bullet(row: Memo<Option<Row>>, look: Memo<Look>, thread: Memo<Thread>) -> impl IntoElement {
     let folded = move || row.get().is_some_and(|r| r.has_kids && r.collapsed);
+    let kids = move || row.get().is_some_and(|r| r.has_kids);
     let number = move || row.get().map_or(0, |r| r.num);
+    let on_path = move || thread.get().path;
     button()
+        .group()
         .w(move || px(bullet_w(number())))
         .h(move || px(look.get().type_size().1))
         .items_center()
@@ -219,7 +267,7 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
                         text(format!("{n}."))
                             .font_family(style::editor_font())
                             .text_size(px(style::efs() * num("type.number")))
-                            .text_color(color::muted())
+                            .text_color(if on_path() { color::thread() } else { color::muted() })
                             .tabular_nums(),
                     )
                     .into_element();
@@ -227,16 +275,36 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
             // the ring of a folded item is a border around the dot (a box shadow on the web)
             let ring = move || if folded() { num("space.fold_ring") } else { 0.0 };
             let size = move || style::dot() + 2.0 * ring();
-            view()
+            // a folded dot keeps its look on the path (`.o-collapsed > .o-row > .o-bullet:empty::before`)
+            let fill = move || if on_path() && !folded() { color::thread() } else { color::muted() };
+            let dot = view()
                 .test_id("bullet")
                 .w(move || px(size()))
                 .h(move || px(size()))
                 .rounded(move || px(size() / 2.0))
-                .bg(color::muted())
+                .bg(fill)
                 .border(move || px(ring()))
-                .border_color(color::faint())
+                .border_color(color::faint());
+            if !kids() || style::phone() {
+                return dot.into_element();
+            }
+            view()
+                .child(dot.group_hover(|s| s.hidden()))
+                .child(fold_mark(folded()).hidden().group_hover(|s| s.flex()))
                 .into_element()
         }))
+}
+
+/// The triangle a bullet with children shows under the pointer (`.o-bullet:hover:empty::before` on items with
+/// children): pointing down, or right while `folded`, in the text color.
+fn fold_mark(folded: bool) -> View {
+    let (base, h) = (num("space.fold_mark"), num("space.fold_mark_h"));
+    let (w, ht, d) = if folded {
+        (h, base, format!("M0 0L{h} {}L0 {base}z", base / 2.0))
+    } else {
+        (base, h, format!("M0 0H{base}L{} {h}z", base / 2.0))
+    };
+    view().test_id("fold-mark").text_color(color::fg()).child(icons::shape(&d, w, ht))
 }
 
 /// Space from the checkbox's touch target to the text: the gap from its visible box, less the target's margin
@@ -390,6 +458,10 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
     bind("mod+z", |_, _| cmd::undo(false));
     bind("shift+mod+z", |_, _| cmd::undo(true));
     bind("mod+y", |_, _| cmd::undo(true));
+    // a multiline input breaks the line on Shift+Return and Alt+Return: an item's text gets no line break from
+    // these (on the web, Shift+Enter moves to the note, which the native app does not edit yet)
+    bind("shift+enter", |_, _| {});
+    bind("alt+enter", |_, _| {});
 
     let (value_id, change_id, submit_id, key_id) = (id.clone(), id.clone(), id.clone(), id.clone());
     input()
@@ -398,6 +470,8 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .test_id("row-input")
         .auto_focus(true)
         .selected_range((caret, caret))
+        // several lines, as tall as its text (`.o-content` wraps); a plain return still submits (splits the row)
+        .multiline(true)
         .submit_behavior(SubmitBehavior::Submit)
         .auto_correct(false)
         .p_0()
@@ -408,6 +482,7 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .line_height(LineHeight::Points(px(style::line())))
         .min_h(px(style::line()))
         .text_color(color::fg())
+        .selection_color(color::selection())
         .on_change(move |t: &str| cmd::set_text(&change_id, t, sel.get_untracked()))
         .on_selection_change(move |s: &Selection| {
             sel.set(s.start);

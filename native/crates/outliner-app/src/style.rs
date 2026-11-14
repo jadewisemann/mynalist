@@ -70,6 +70,17 @@ pub mod color {
     pub fn accent() -> Rgba {
         of("color.accent")
     }
+    /// The bullet thread and the bullets on it.
+    pub fn thread() -> Rgba {
+        of("color.thread")
+    }
+    /// Selected text's background: the accent color, `color.selection_mix` of it over the page
+    /// (`.o-editor ::selection`).
+    pub fn selection() -> Rgba {
+        let mut c = accent();
+        c.a *= super::num("color.selection_mix");
+        c
+    }
     pub fn hover() -> Rgba {
         of("color.hover")
     }
@@ -183,6 +194,18 @@ pub fn bullet_center(depth: u16) -> f32 {
 /// children's bullet column).
 pub fn guide_x(depth: u16) -> f32 {
     doc_pad().0 + indent() * f32::from(depth) - num("space.guide")
+}
+
+/// The x of the center of the bullet thread on the guide of the children of a row at `depth`.
+pub fn thread_x(depth: u16) -> f32 {
+    guide_x(depth) + num("space.guide_w") / 2.0
+}
+
+/// Where the thread's turn into the bullet of a row at `depth` ends (`--elbow-end`, from the left of the row's
+/// node box, which starts its gutter left of the bullet column's right edge); `numbered`: the row shows a number.
+pub fn elbow_end(depth: u16, numbered: bool) -> f32 {
+    let end = num(if numbered { "space.elbow_end_numbered" } else { "space.elbow_end" });
+    doc_pad().0 + indent() * f32::from(depth) - num("space.gutter") + end
 }
 
 /// Text size and line box of a heading level (`.o-h1` .. `.o-h3`; 0 for plain text).

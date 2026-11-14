@@ -140,10 +140,12 @@ button { font: inherit; color: inherit; }
 .o-node.o-has-kids.o-collapsed > .o-row:hover > .o-bullet:empty::before { transition: transform .1s; }
 .o-editor:not(.o-bullet-zoom) .o-node.o-has-kids > .o-row > .o-bullet:hover:empty::before {
   width: 0; height: 0; border-radius: 0; background: none; box-shadow: none;
-  border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--fg);
+  border-left: calc(var(--space-fold-mark) / 2) solid transparent; border-right: calc(var(--space-fold-mark) / 2) solid transparent;
+  border-top: var(--space-fold-mark-h) solid var(--fg);
 }
 .o-editor:not(.o-bullet-zoom) .o-node.o-has-kids.o-collapsed > .o-row > .o-bullet:hover:empty::before {
-  border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 6px solid var(--fg); border-right: 0;
+  border-top: calc(var(--space-fold-mark) / 2) solid transparent; border-bottom: calc(var(--space-fold-mark) / 2) solid transparent;
+  border-left: var(--space-fold-mark-h) solid var(--fg); border-right: 0;
 }
 .o-bullet-zoom .o-bullet:hover:empty::before { box-shadow: 0 0 0 6px var(--line); }
 
@@ -179,7 +181,7 @@ button { font: inherit; color: inherit; }
 .o-checked > .o-row .o-content, .o-checked > .o-row .o-note { color: var(--check); text-decoration: line-through; }
 .o-checked > .o-row .o-content.o-editing { text-decoration: none; }
 
-.o-hl-current .o-current > .o-row { background: color-mix(in srgb, var(--line) 45%, transparent); }
+.o-hl-current .o-current > .o-row { background: color-mix(in srgb, var(--line) calc(var(--color-current-mix) * 100%), transparent); }
 .o-selected > .o-row, .o-selected > .o-kids { background: var(--sel); }
 .o-selected > .o-kids { border-left-color: transparent; }
 .o-select-mode .o-row { user-select: none; -webkit-user-select: none; }
@@ -190,7 +192,6 @@ button { font: inherit; color: inherit; }
    child node's box: its content starts 50px in (gutter), the parent's guide sits 1px left of the --kid-pad indent.
    The editor marks the path (o-path: the current item and its ancestors) and, in each children block on it, the
    rows and chunks above it (o-above); see Editor.paintThread. */
-.o-editor { --thread: var(--accent); }
 .o-node { --bh: var(--row-h); --elbow-end: var(--space-elbow-end); }
 .o-h1 { --bh: calc(var(--efs) * var(--type-h1-box)); } .o-h2 { --bh: calc(var(--efs) * var(--type-h2-box)); } .o-h3 { --bh: calc(var(--efs) * var(--type-h3-box)); }
 .o-numbered { --elbow-end: var(--space-elbow-end-numbered); }
@@ -214,7 +215,7 @@ button { font: inherit; color: inherit; }
   height: calc(var(--pad) + var(--bh) / 2 + var(--thread-w) / 2);
   border: 0 solid var(--thread); border-width: 0 0 var(--thread-w) var(--thread-w); border-bottom-left-radius: var(--radius-elbow);
 }
-.o-editor ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.o-editor ::selection { background: color-mix(in srgb, var(--accent) calc(var(--color-selection-mix) * 100%), transparent); }
 
 /* inline syntax (classes from core renderInline) */
 .o-bold, .o-b { font-weight: var(--type-bold-weight); }

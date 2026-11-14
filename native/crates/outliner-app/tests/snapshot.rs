@@ -1,7 +1,8 @@
 //! The structural snapshot: the fixtures of `outliner_app::fixture` (the demo's first screen, the inline showcase,
 //! the item looks), each as a desktop and a phone, at rest and with a row being edited, rendered headless and
 //! dumped as text: the render model (top bar, title, rows with their depth, bullet center, text left, top, height
-//! and styled spans; the phone toolbar), then every view on screen. The dumps are compared byte for byte with the
+//! and styled spans, the row being edited and the bullet thread's pieces; the phone toolbar), then every view on
+//! screen. The dumps are compared byte for byte with the
 //! golden files in `tests/snapshots/`; `UPDATE_SNAPSHOTS=1 cargo test --test snapshot` rewrites them.
 //!
 //! The output depends on nothing of the machine: a fixed clock and time zone, fixed ids, reduced motion, and
@@ -142,6 +143,12 @@ fn view_style(s: &ViewStyle) -> String {
     if s.border_radius.0 > 0.0 {
         let _ = write!(out, " r={}", len(s.border_radius.0));
     }
+    let c = &s.corner_radius;
+    for (name, r) in [("tl", c.top_left), ("tr", c.top_right), ("br", c.bottom_right), ("bl", c.bottom_left)] {
+        if let Some(r) = r {
+            let _ = write!(out, " r-{name}={}", len(r.0));
+        }
+    }
     let w = &s.borders.widths;
     let edges = [("t", w.top, 0), ("r", w.right, 1), ("b", w.bottom, 2), ("l", w.left, 3)];
     let c = s.borders.colors;
@@ -244,8 +251,67 @@ fn write_texts(out: &mut String, app: &Headless, tree: &Tree, id: NodeId, pad: &
     }
 }
 
+/// A piece of the bullet thread as the model writes it: a straight run (pieces at one x that touch, merged) or a
+/// turn into a bullet. `x` is the center of the vertical line.
+struct ThreadPiece {
+    x: f32,
+    top: f32,
+    bottom: f32,
+    w: f32,
+    color: String,
+    /// A turn: where it ends on the right, and its corner's radius.
+    elbow: Option<(f32, f32)>,
+}
+
+impl ThreadPiece {
+    fn write(&self, out: &mut String) {
+        let (x, top, bottom, w) = (len(self.x), len(self.top), len(self.bottom), len(self.w));
+        match self.elbow {
+            None => {
+                let _ = writeln!(out, "  thread x={x} top={top} bottom={bottom} w={w} {}", self.color);
+            }
+            Some((right, r)) => {
+                let (right, r) = (len(right), len(r));
+                let _ = writeln!(out, "  elbow x={x} top={top} bottom={bottom} right={right} w={w} r={r} {}", self.color);
+            }
+        }
+    }
+}
+
+/// The bullet thread's views (`thread`, `elbow`), straight runs merged.
+fn thread_pieces(tree: &Tree, styles: &HashMap<NodeId, ViewStyle>) -> Vec<ThreadPiece> {
+    let mut runs: Vec<ThreadPiece> = Vec::new();
+    for n in tree.with_id("thread") {
+        let b = n.bounds;
+        let color = styles.get(&n.id).map_or_else(String::new, |s| color(s.background_color));
+        let (x, top, w) = (b.origin.x.0 + b.size.width.0 / 2.0, b.origin.y.0, b.size.width.0);
+        let bottom = top + b.size.height.0;
+        match runs.iter_mut().find(|r| (r.x - x).abs() < 0.25 && (r.bottom - top).abs() <= 0.5 && r.color == color) {
+            Some(r) => r.bottom = bottom,
+            None => runs.push(ThreadPiece { x, top, bottom, w, color, elbow: None }),
+        }
+    }
+    for n in tree.with_id("elbow") {
+        let b = n.bounds;
+        let Some(s) = styles.get(&n.id) else { continue };
+        let w = s.borders.widths.left.0;
+        let r = s.corner_radius.bottom_left.map_or(s.border_radius.0, |r| r.0);
+        runs.push(ThreadPiece {
+            x: b.origin.x.0 + w / 2.0,
+            top: b.origin.y.0,
+            bottom: b.origin.y.0 + b.size.height.0,
+            w,
+            color: color(s.borders.colors[3]),
+            elbow: Some((b.origin.x.0 + b.size.width.0, r)),
+        });
+    }
+    runs.sort_by(|a, b| a.top.total_cmp(&b.top).then(a.x.total_cmp(&b.x)));
+    runs
+}
+
 /// The render model area 6 shares with the web app.
 fn model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId, ViewStyle>) {
+    let thread = thread_pieces(tree, styles);
     let _ = writeln!(out, "[model]");
     for bar in tree.with_id("topbar") {
         let b = bar.bounds;
@@ -270,6 +336,9 @@ fn model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
                 Some(t) => {
                     let right = t.content.origin.x.0 + t.content.size.width.0;
                     let _ = write!(out, " number={:?} number_right={}", t.text.text, len(right));
+                    if let Some(span) = t.text.spans.first() {
+                        let _ = write!(out, " number_color={}", color(span.style.color));
+                    }
                 }
                 // the dot: its size and look (a folded item's is ringed)
                 None => {
@@ -289,6 +358,10 @@ fn model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
                 let _ = write!(out, " label={}", color(bg));
             }
         }
+        // the row being edited (`.o-current`)
+        if inside.iter().any(|n| is(n, "row-input")) {
+            let _ = write!(out, " current");
+        }
         let _ = writeln!(out);
         if let Some(c) = content {
             if c.text.is_some() || c.kind == ViewKind::Input {
@@ -300,6 +373,11 @@ fn model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
         for note in inside.iter().filter(|n| is(n, "note")) {
             let _ = writeln!(out, "  note top={}", len(note.bounds.origin.y.0));
             write_texts(out, app, tree, note.id, "    ");
+        }
+        // the thread's pieces that start in this row
+        let (top, bottom) = (b.origin.y.0, b.origin.y.0 + b.size.height.0);
+        for p in thread.iter().filter(|p| p.top >= top - 0.25 && p.top < bottom - 0.25) {
+            p.write(out);
         }
     }
     for bar in tree.with_id("toolbar") {
@@ -623,6 +701,18 @@ fn goldens_hold_the_web_values() {
     want(looks, "text left", format!("text={}", len(doc_left + gap)));
     want(looks, "indent", format!("text={}", len(doc_left + indent + gap)));
     want(looks, "bullet center", format!("bullet={}", len(doc_left - n("--space-bullet") / 2.0)));
+
+    // the bullet thread (`.o-thread`): its width and color, the bullets on it, its turn's radius
+    let edit = "looks-desktop-edit.txt";
+    let thread = var("--thread");
+    let thread = match thread.strip_prefix("var(").and_then(|v| v.strip_suffix(')')) {
+        Some(v) => var(v),
+        None => thread,
+    };
+    let tw = len(n("--thread-w"));
+    want(edit, "thread", format!(" w={tw} {thread}"));
+    want(edit, "thread turn", format!(" w={tw} r={} {thread}", len(n("--radius-elbow"))));
+    want(edit, "bullet on the thread", format!("dot={} bg={thread} r={}", len(dot), len(dot / 2.0)));
 
     // `.topbar`: 44px on desktops, 46px on phones; `.mobile-bar`: 41px with a top border
     let line_c = var("--line");

@@ -43,3 +43,11 @@ pub fn calendar(size: f32) -> impl IntoElement {
     let markup = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4 0h2v2h4V0h2v2h3v14H1V2h3zM3 6v8h10V6z"/></svg>"#;
     svg(ImageSrc::svg_markup(markup)).w(px(size)).h(px(size))
 }
+
+/// A shape filled in the text color around it: the path `d` in a `w`×`h` box, drawn at that size.
+pub fn shape(d: &str, w: f32, h: f32) -> impl IntoElement {
+    let markup = format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" fill="currentColor"><path d="{d}"/></svg>"#
+    );
+    svg(ImageSrc::svg_markup(&markup)).w(px(w)).h(px(h))
+}

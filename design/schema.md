@@ -44,6 +44,9 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | accent | color |  | `--accent` | `#2f8cf0` | Links on hover, primary buttons, the bullet thread, focus. |
 | hover | color |  | `--hover` | `#eef5fe` | Background under the pointer. |
 | sel | color |  | `--sel` | `#d9eafd` | Selected items and the active file. |
+| thread | color |  | `--thread` | `{color.accent}` | The bullet thread: the line to the item being edited and the bullets on it. |
+| selection_mix | ratio | 0..1 | `--color-selection-mix` | `0.3` | Selected text's background: this much of the accent color over the page. |
+| current_mix | ratio | 0..1 | `--color-current-mix` | `0.45` | The current item's background (highlight on): this much of the line color over the page. |
 | side_bg | color |  | `--side-bg` | `#f7f8fa` | Sidebar background. |
 | chip | color |  | `--chip` | `#f1f2f4` | Chips: code blocks, keys, counts. |
 | chip_border | color |  | `--chip-border` | `#dfe1e5` | Borders of chips, inputs, menus and buttons. |
@@ -157,6 +160,8 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | bullet | length | 8..40 | `--space-bullet` | `18` | The bullet column's width. |
 | dot | length | 2..16 | `--space-dot` | `6` | The bullet dot's diameter. |
 | fold_ring | length | 0..10 | `--space-fold-ring` | `4` | The ring around a folded item's dot. |
+| fold_mark | length | 2..20 | `--space-fold-mark` | `10` | The triangle a bullet with children shows under the pointer: its base. |
+| fold_mark_h | length | 2..20 | `--space-fold-mark-h` | `6` | The triangle a bullet with children shows under the pointer: its height. |
 | number | length | 10..60 | `--space-number` | `28` | The number column's width (numbered lists). |
 | number_gap | length | 0..20 | `--space-number-gap` | `6` | Space right of a list number. |
 | body_gap | length | 0..30 | `--space-body-gap` | `6` | Space between the bullet column and the text. |

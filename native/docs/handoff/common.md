@@ -39,13 +39,15 @@ Read this first. Area notes in this folder say what each piece of work is.
     1100x800) and a phone (`Os::Ios`, 390x844), at rest and editing, on a manual clock (2024-06-15 12:00), `TZ=UTC`,
     reduced motion and nsh-testing's approximate text engine (no fonts involved), and writes
     `tests/snapshots/<doc>-<device>-<rest|edit>.txt`: `[model]` (top bar, title, rows: depth, top, height, bullet
-    center, dot or number, checkbox, text left, label, texts with their styled spans, notes; phone toolbar: the
+    center, dot or number (and its color), checkbox, text left, label, ` current` on the row being edited, texts with
+    their styled spans, notes, the bullet thread's pieces starting in the row (`thread`: straight runs at one x
+    merged, `elbow`: the turn into a bullet); phone toolbar: the
     render model area 6 shares with the web) then `[views]` (every view with an area, in tree order: kind, test id,
     bounds rounded to 0.5pt, background / radius / borders from the mount batches, texts with spans, inputs).
     A mismatch prints a line diff per file. After a meant change: `UPDATE_SNAPSHOTS=1 cargo test -p outliner-app
     --test snapshot`, read the diff of the goldens, and say why they changed in the commit message. The test ids
     the model reads (`topbar`, `title`, `row`, `guide`, `bullet`, `checkbox`, `row-text`, `row-input`, `note`,
-    `toolbar`) are in `outline.rs` / `toolbar.rs`; keep them when restructuring views. `goldens_hold_the_web_values`
+    `toolbar`, `thread`, `elbow`) are in `outline.rs` / `toolbar.rs`; keep them when restructuring views. `goldens_hold_the_web_values`
     reads `styles.css` and checks the goldens hold its values (type, colors, pitch, indent, bars): when the web
     changes a value, both that test and the snapshot tell you.
   - Offscreen render: `cargo run -p outliner-mac --features shot --bin shot -- <dir>` (`src/bin/shot.rs`) draws the
@@ -64,7 +66,7 @@ Read this first. Area notes in this folder say what each piece of work is.
   ...) as expressions over entries. The native snapshot test `the_look_keeps_the_spec` checks them in the spec's modes
   on desktop and phone; `npm run qa:model` (after `npm ci`, Playwright's Chromium) measures the web's model of the same
   fixtures (`apps/web/test/model`, `tests/snapshots/*.items.jsonl`) and compares it with the native goldens
-  (`inline`, `looks`, and `looks-*-custom.txt` with `design/test/custom.toml`), then checks the spec on the web.
+  (`inline`, `looks` at rest and editing, and `looks-*-custom.txt` with `design/test/custom.toml`), then checks the spec on the web.
   Known differences are listed with their reason in `qa/lib/model.mjs` (`KNOWN`); fix or list, never loosen.
 - User appearance: a TOML in the same schema (`appearance::parse` / `appearance::set(modes, toml)` on native,
   `apps/web/src/design/appearance.ts` on the web): same checks, errors with their line.
@@ -72,6 +74,11 @@ Read this first. Area notes in this folder say what each piece of work is.
   at the root if you touched TS, `node design/build.mjs --check` if you touched `design/`.
 
 ## Gotchas found so far
+
+- Hover: `.group()` on the view and `.group_hover(|s| ...)` on what changes inside it (desktop only; nsh-testing
+  cannot move a pointer, so hover looks are not in the snapshot).
+- The row input is `multiline(true)` with `SubmitBehavior::Submit`: a plain Return submits (splits the row), and
+  Shift/Alt+Return would break the line, so they are bound (consumed) in `row_input`.
 
 - TS `Tree.toJSON()` shares the live node objects: `structuredClone` before mutating if you record a "before" state.
 - Rust strings cannot hold a lone UTF-16 surrogate; generators must cut text at code point boundaries.

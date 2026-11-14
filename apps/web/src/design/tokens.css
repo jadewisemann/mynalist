@@ -12,6 +12,9 @@
   --accent: #2f8cf0;
   --hover: #eef5fe;
   --sel: #d9eafd;
+  --thread: var(--accent);
+  --color-selection-mix: 0.3;
+  --color-current-mix: 0.45;
   --side-bg: #f7f8fa;
   --chip: #f1f2f4;
   --chip-border: #dfe1e5;
@@ -100,6 +103,8 @@
   --space-bullet: 18px;
   --space-dot: 6px;
   --space-fold-ring: 4px;
+  --space-fold-mark: 10px;
+  --space-fold-mark-h: 6px;
   --space-number: 28px;
   --space-number-gap: 6px;
   --space-body-gap: 6px;

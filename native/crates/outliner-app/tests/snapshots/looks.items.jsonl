@@ -15,6 +15,8 @@
 {"collapsed":true,"id":"l13","parent":"root","props":{"c":"A folded item","cl":5}}
 {"collapsed":false,"id":"l14","parent":"l13","props":{"c":"Hidden under the fold"}}
 {"collapsed":false,"id":"l15","parent":"root","props":{"c":"Levels"}}
+{"collapsed":false,"id":"l19","parent":"l15","props":{"c":"A sibling above"}}
+{"collapsed":false,"id":"l20","parent":"l19","props":{"c":"Its child"}}
 {"collapsed":false,"id":"l16","parent":"l15","props":{"c":"Second level"}}
 {"collapsed":false,"id":"l17","parent":"l16","props":{"c":"Third level with a **bold** word"}}
 {"collapsed":false,"id":"l18","parent":"l17","props":{"c":"Fourth level"}}

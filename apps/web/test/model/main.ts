@@ -149,8 +149,57 @@ function writeTexts(out: string[], pad: string, ts: Text[]) {
   }
 }
 
+interface Piece { x: number; top: number; bottom: number; w: number; color: string; elbow?: { right: number; r: number } }
+
+/** The bullet thread's pieces (styles.css `.o-thread`: pseudo-elements of the marked rows and nodes), straight runs
+ * at one x that touch merged, as the native snapshot writes them. `x` is the center of the vertical line. */
+function threadPieces(): Piece[] {
+  const runs: Piece[] = [];
+  // a pseudo-element's box, from its containing block: the row (positioned), or the node or chunk (contained)
+  const box = (el: Element, pseudo: string) => {
+    const c = getComputedStyle(el, pseudo);
+    if (c.content === 'none' || c.display === 'none') return null;
+    const r = el.getBoundingClientRect();
+    return { c, left: r.left + px(c.left), top: r.top + px(c.top), width: px(c.width), height: px(c.height) };
+  };
+  const straight = [
+    ...[...document.querySelectorAll('.o-path:not(.o-current) > .o-row')].map((el) => box(el, '::after')),
+    ...[...document.querySelectorAll('.o-above')].map((el) => box(el, '::before')),
+  ];
+  for (const b of straight) {
+    if (!b || !b.height) continue;
+    const [x, top, bottom, color] = [b.left + b.width / 2, b.top, b.top + b.height, hex(b.c.backgroundColor)!];
+    const run = runs.find((r) => Math.abs(r.x - x) < 0.25 && Math.abs(r.bottom - top) <= 0.5 && r.color === color);
+    if (run) run.bottom = Math.max(run.bottom, bottom);
+    else runs.push({ x, top, bottom, w: b.width, color });
+  }
+  // runs found out of order (a row's segment after its siblings') still join
+  runs.sort((a, b) => a.top - b.top);
+  for (let i = 0; i < runs.length; i++) {
+    const j = runs.findIndex((r, k) => k > i && Math.abs(r.x - runs[i]!.x) < 0.25 && Math.abs(runs[i]!.bottom - r.top) <= 0.5 && r.color === runs[i]!.color);
+    if (j >= 0) {
+      runs[i]!.bottom = Math.max(runs[i]!.bottom, runs[j]!.bottom);
+      runs.splice(j, 1);
+      i--;
+    }
+  }
+  for (const el of document.querySelectorAll('.o-kids > .o-path, .o-kids > .o-chunk > .o-path')) {
+    const b = box(el, '::before');
+    if (!b) continue;
+    const w = px(b.c.borderLeftWidth);
+    runs.push({ x: b.left + w / 2, top: b.top, bottom: b.top + b.height, w, color: hex(b.c.borderLeftColor)!, elbow: { right: b.left + b.width, r: px(b.c.borderBottomLeftRadius) } });
+  }
+  return runs.sort((a, b) => a.top - b.top || a.x - b.x);
+}
+
+function writePiece(out: string[], p: Piece) {
+  const head = `x=${len(p.x)} top=${len(p.top)} bottom=${len(p.bottom)}`;
+  out.push(p.elbow ? `  elbow ${head} right=${len(p.elbow.right)} w=${len(p.w)} r=${len(p.elbow.r)} ${p.color}` : `  thread ${head} w=${len(p.w)} ${p.color}`);
+}
+
 function model(): string {
   const out = ['[model]'];
+  const thread = threadPieces();
   const bar = document.querySelector('.topbar')!.getBoundingClientRect();
   out.push(`topbar top=${len(bar.top)} height=${len(bar.height)}`);
   const title = document.querySelector('.o-title')!;
@@ -171,7 +220,7 @@ function model(): string {
       const range = document.createRange();
       range.selectNodeContents(bullet);
       const t = range.getBoundingClientRect();
-      line += ` number=${JSON.stringify(bullet.textContent)} number_right=${len(t.right)}`;
+      line += ` number=${JSON.stringify(bullet.textContent)} number_right=${len(t.right)} number_color=${hex(getComputedStyle(bullet).color)}`;
     } else {
       const d = getComputedStyle(bullet, '::before');
       const ring = /0px 0px 0px ([\d.]+)px/.exec(d.boxShadow);
@@ -186,19 +235,25 @@ function model(): string {
     const cc = getComputedStyle(content);
     line += ` text=${len(content.getBoundingClientRect().left + px(cc.paddingLeft))}`;
     if (hex(cc.backgroundColor)) line += ` label=${hex(cc.backgroundColor)}`;
+    if (node.classList.contains('o-current')) line += ' current';
     out.push(line);
-    writeTexts(out, '  ', texts(content));
+    // the item being edited shows its source, as the native app's input does
+    if (content.classList.contains('o-editing')) out.push(`  input x=${len(content.getBoundingClientRect().left + px(cc.paddingLeft))} ${JSON.stringify(content.textContent)}`);
+    else writeTexts(out, '  ', texts(content));
     const note = row.querySelector('.o-note');
     if (note && note.textContent) {
       out.push(`  note top=${len(note.getBoundingClientRect().top)}`);
       writeTexts(out, '    ', texts(note));
     }
+    // the thread's pieces that start in this row (its node's row and the note in it)
+    for (const p of thread) if (p.top >= rr.top - 0.25 && p.top < rr.bottom - 0.25) writePiece(out, p);
   }
   return out.join('\n') + '\n';
 }
 
-/** Shows `doc` in `modes` (`{ theme: 'dark', size: 'large' }`) with a user's appearance TOML; its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string) => {
+/** Shows `doc` in `modes` (`{ theme: 'dark', size: 'large' }`) with a user's appearance TOML, editing the item
+ * `editing` (its caret at the end) when given; its model. */
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string) => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
@@ -206,6 +261,7 @@ function model(): string {
   if ('error' in look) throw new Error(`line ${look.error.line}: ${look.error.message}`);
   applyAppearance(root, look.values);
   show(doc);
+  if (editing) ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);
   await document.fonts.ready;
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   return model();

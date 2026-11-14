@@ -4,7 +4,7 @@ topbar top=0 height=45
 title top=45 height=66
   text x=50 top=65 "Inline"
     "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
-row depth=0 top=111 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
+row depth=0 top=111 height=30 bullet=61 dot=6 bg=#2f8cf0 r=3 text=76 current
   input x=76 "**Bold**, __italic__, ~~strike~~ and ==highlight=="
 row depth=0 top=141 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
   text x=76 top=145 "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
@@ -53,14 +53,14 @@ row depth=0 top=309 height=89 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
 row depth=0 top=398 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
   text x=76 top=402 "Numbered list"
     "Numbered list" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=428 height=30 bullet=86 number="1." number_right=94 text=106
+row depth=1 top=428 height=30 bullet=86 number="1." number_right=94 number_color=#8b8f97 text=106
   text x=106 top=432 "First"
     "First" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-row depth=1 top=458 height=30 bullet=86 number="2." number_right=94 text=106
+row depth=1 top=458 height=30 bullet=86 number="2." number_right=94 number_color=#8b8f97 text=106
   text x=106 top=462 "Second with mark"
     "Second with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
     "mark" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 bg=#ffdd0061 r=2
-row depth=1 top=488 height=30 bullet=86 number="3." number_right=94 text=106
+row depth=1 top=488 height=30 bullet=86 number="3." number_right=94 number_color=#8b8f97 text=106
   text x=106 top=492 "Third"
     "Third" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
 row depth=0 top=518 height=30 bullet=61 dot=6 bg=#8b8f97 r=3 text=76
@@ -100,7 +100,7 @@ view 0,0 1100x800 bg=#ffffff
     view 0,111 1100x30
       view#row 0,111 1100x30
         view 52,115 18x22
-          view#bullet 58,123 6x6 bg=#8b8f97 r=3
+          view#bullet 58,123 6x6 bg=#2f8cf0 r=3
         view 70,115 990x22
           input#row-input 76,115 984x22
             "**Bold**, __italic__, ~~strike~~ and ==highlight=="
@@ -197,7 +197,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,398 1100x30
       view#row 0,398 1100x30
         view 52,402 18x22
-          view#bullet 58,410 6x6 bg=#8b8f97 r=3
+          view 58,410 6x6
+            view#bullet 58,410 6x6 bg=#8b8f97 r=3
         view 70,402 990x22
           text#row-text 76,402 129x22
             "Numbered list"

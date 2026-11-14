@@ -76,6 +76,65 @@ impl State {
     pub fn row_index(&self, id: &str) -> Option<usize> {
         self.rows.iter().position(|r| r.id == id)
     }
+
+    /// The rows of the bullet thread (`Editor.paintThread`): the row being edited and the rows of its ancestors
+    /// under the zoom root, from the top level down, as row indices (entry `k` is at depth `k`); empty while
+    /// nothing is edited.
+    pub fn path_rows(&self) -> Vec<usize> {
+        let Some(at) = self.editing.as_ref().and_then(|c| self.row_index(&c.id)) else { return Vec::new() };
+        let mut path = vec![at];
+        // a row's parent is the nearest row above it that is less deep (the rows between are its siblings and
+        // their subtrees)
+        let mut want = self.rows[at].depth;
+        for i in (0..at).rev() {
+            if want == 0 {
+                break;
+            }
+            if self.rows[i].depth < want {
+                want = self.rows[i].depth;
+                path.push(i);
+            }
+        }
+        path.reverse();
+        path
+    }
+}
+
+/// How the bullet thread passes a row (`.o-path`, `.o-current`, `.o-above` in the web's styles.css).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Thread {
+    /// The row is on the path: the item being edited or one of its ancestors (its bullet takes the thread color).
+    pub path: bool,
+    /// The row is the one being edited.
+    pub current: bool,
+    /// An ancestor's row: the thread runs from its bullet down to its bottom, on its children's guide.
+    pub down: bool,
+    /// The guide levels (as `Row::depth` counts them, 0 the top level's children) the thread runs straight
+    /// through this row on: the row is under an ancestor on the path, above the next item on it.
+    pub through: Vec<u16>,
+    /// The row is on the path below the top level: the thread comes down its parent's guide and turns into its
+    /// bullet.
+    pub elbow: bool,
+}
+
+impl Thread {
+    /// How the thread of `path` ([`State::path_rows`]) passes row `i` at `depth`.
+    pub fn of(path: &[usize], i: usize, depth: u16) -> Thread {
+        let on = path.get(usize::from(depth)) == Some(&i);
+        let through = (0..depth)
+            .filter(|&k| {
+                let k = usize::from(k);
+                matches!((path.get(k), path.get(k + 1)), (Some(&a), Some(&b)) if a < i && i < b)
+            })
+            .collect();
+        Thread {
+            path: on,
+            current: on && path.len() == usize::from(depth) + 1,
+            down: on && path.len() > usize::from(depth) + 1,
+            through,
+            elbow: on && depth > 0,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -230,13 +289,14 @@ pub fn content_of(s: &State, id: &str) -> String {
 }
 
 /// The looks of items (for the look checks, `fixture`): headings of three levels, checked items, checkboxes on
-/// and off, the six color labels, a folded item, a note under a checked item and a deeper level.
+/// and off, the six color labels, a folded item, a note under a checked item and levels four deep, with a sibling
+/// and its child above the deepest branch (the bullet thread runs past them while an item down there is edited).
 pub fn looks() -> DocSession<Option<Caret>> {
     let mut s = DocSession::default();
     let ts = now();
     // id, parent, content, note, other props
     type Item<'a> = (&'a str, &'a str, &'a str, &'a str, &'a [(&'a str, Value)]);
-    let items: [Item<'_>; 19] = [
+    let items: [Item<'_>; 21] = [
         ("l0", ROOT, "Heading one", "", &[("h", Value::from(1))]),
         ("l1", ROOT, "Heading two", "", &[("h", Value::from(2))]),
         ("l2", ROOT, "Heading three", "", &[("h", Value::from(3))]),
@@ -253,6 +313,8 @@ pub fn looks() -> DocSession<Option<Caret>> {
         ("l13", ROOT, "A folded item", "", &[("cl", Value::from(5))]),
         ("l14", "l13", "Hidden under the fold", "", &[]),
         ("l15", ROOT, "Levels", "", &[]),
+        ("l19", "l15", "A sibling above", "", &[]),
+        ("l20", "l19", "Its child", "", &[]),
         ("l16", "l15", "Second level", "", &[]),
         ("l17", "l16", "Third level with a **bold** word", "", &[]),
         ("l18", "l17", "Fourth level", "", &[]),

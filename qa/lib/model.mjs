@@ -36,9 +36,10 @@ export function parseModel(text) {
     } else if (t.startsWith('row ')) {
       const row = {
         depth: num(t, 'depth'), top: num(t, 'top'), height: num(t, 'height'), bullet: num(t, 'bullet'),
-        number: /number=("(?:[^"\\]|\\.)*")/.exec(t)?.[1], numberRight: num(t, 'number_right'),
+        number: /number=("(?:[^"\\]|\\.)*")/.exec(t)?.[1], numberRight: num(t, 'number_right'), numberColor: /number_color=(\S+)/.exec(t)?.[1],
         dot: /dot=(\S+ bg=\S+ r=\S+(?: border=\S+ \S+)?)/.exec(t)?.[1], dotColor: /dot=\S+ bg=(\S+)/.exec(t)?.[1],
-        checkbox: num(t, 'checkbox'), text: num(t, 'text'), label: /label=(\S+)/.exec(t)?.[1], texts: [], notes: [],
+        checkbox: num(t, 'checkbox'), text: num(t, 'text'), label: /label=(\S+)/.exec(t)?.[1], current: / current$/.test(t),
+        texts: [], notes: [], thread: [],
       };
       model.rows.push(row);
       texts = row.texts;
@@ -46,6 +47,12 @@ export function parseModel(text) {
       const note = { top: num(t, 'top'), texts: [] };
       model.rows[model.rows.length - 1].notes.push(note);
       texts = note.texts;
+    } else if (t.startsWith('thread ') || t.startsWith('elbow ')) {
+      const elbow = t.startsWith('elbow ');
+      model.rows[model.rows.length - 1].thread.push({
+        elbow, x: num(t, 'x'), top: num(t, 'top'), bottom: num(t, 'bottom'), w: num(t, 'w'), right: num(t, 'right'), r: num(t, 'r'),
+        color: /(#[0-9a-f]+)$/.exec(t)?.[1],
+      });
     } else if (t.startsWith('text ')) {
       curText = { x: num(t, 'x'), top: num(t, 'top'), text: STR.exec(t)[0], spans: [] };
       texts.push(curText);
@@ -78,6 +85,7 @@ export function compareModels(a, b, tol = { pos: 1.5, size: 1 }) {
     ta.forEach((x, i) => {
       const y = tb[i];
       if (x.text !== y.text) return out.push(`${where} text ${i}: native ${x.text}, web ${y.text}`);
+      if (x.input !== y.input) return out.push(`${where} input ${i}: native ${x.input}, web ${y.input}`);
       if (i === 0) {
         near(`${where} text x`, x.x, y.x, tol.pos, oa.x, ob.x);
         near(`${where} text top`, x.top, y.top, tol.pos, rowA, rowB);
@@ -99,7 +107,21 @@ export function compareModels(a, b, tol = { pos: 1.5, size: 1 }) {
     near(`${w} bullet`, x.bullet, y.bullet, tol.pos, oa.x, ob.x);
     near(`${w} checkbox`, x.checkbox, y.checkbox, tol.pos, oa.x, ob.x);
     near(`${w} text`, x.text, y.text, tol.pos, oa.x, ob.x);
-    for (const k of ['number', 'dot', 'label']) if (x[k] !== y[k]) out.push(`${w} ${k}: native ${x[k]}, web ${y[k]}`);
+    for (const k of ['number', 'numberColor', 'dot', 'label', 'current']) if (x[k] !== y[k]) out.push(`${w} ${k}: native ${x[k]}, web ${y[k]}`);
+    // the bullet thread: where each piece starts in its row, how long it is, where a turn ends
+    if (x.thread.length !== y.thread.length) out.push(`${w} thread: native ${x.thread.length} pieces, web ${y.thread.length}`);
+    x.thread.slice(0, y.thread.length).forEach((p, k) => {
+      const q = y.thread[k];
+      const where = `${w} ${p.elbow ? 'elbow' : 'thread'} ${k}`;
+      if (p.elbow !== q.elbow) return out.push(`${where}: native ${p.elbow ? 'a turn' : 'a run'}, web ${q.elbow ? 'a turn' : 'a run'}`);
+      near(`${where} x`, p.x, q.x, tol.pos, oa.x, ob.x);
+      near(`${where} top`, p.top, q.top, tol.pos, x.top, y.top);
+      near(`${where} length`, p.bottom - p.top, q.bottom - q.top, tol.pos);
+      near(`${where} width`, p.w, q.w, 0.25);
+      near(`${where} right`, p.right, q.right, tol.pos, oa.x, ob.x);
+      near(`${where} radius`, p.r, q.r, 0.25);
+      if (p.color !== q.color) out.push(`${where} color: native ${p.color}, web ${q.color}`);
+    });
     sameTexts(w, x.texts, y.texts, x.top, y.top);
     if (x.notes.length !== y.notes.length) out.push(`${w} notes: native ${x.notes.length}, web ${y.notes.length}`);
     x.notes.slice(0, y.notes.length).forEach((n, k) => {
@@ -114,8 +136,9 @@ export function compareModels(a, b, tol = { pos: 1.5, size: 1 }) {
 export const KNOWN = [
   { re: /row \d+ spans: native "const a = 1;/, why: 'the native app has no syntax highlighting in code blocks yet' },
   { re: /e\^\{i\\\\pi\}\+1=0.*Latin Modern Math|Latin Modern Math.*e\^\{i/, why: 'the native app shows LaTeX source in the mono font; the web typesets it (KaTeX)' },
-  { re: /^inline-\w+-rest: row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
-  { re: /^inline-phone-rest: row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
+  { re: /^inline-\w+-(rest|edit): row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
+  { re: /^inline-phone-(rest|edit): row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
+  { re: /^looks-phone-edit: row (18 height|19 top):/, why: 'the edited row\'s source (its ** marks shown) wraps on a phone in the snapshot\'s approximate text engine, whose glyphs are wider than Fira Sans' },
   { re: /"(highlight|mark)" .* #222222 bg=#ffdd0061 r=2; web .*"(highlight|mark)" .* #000000 bg=#ffdd0061/, why: 'the web\'s <mark> takes the browser\'s black text (a web quirk to decide on)' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));
 

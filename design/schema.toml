@@ -22,6 +22,9 @@ guide = { kind = "color", css = "--guide", doc = "The vertical guide line of a c
 accent = { kind = "color", css = "--accent", doc = "Links on hover, primary buttons, the bullet thread, focus." }
 hover = { kind = "color", css = "--hover", doc = "Background under the pointer." }
 sel = { kind = "color", css = "--sel", doc = "Selected items and the active file." }
+thread = { kind = "color", css = "--thread", doc = "The bullet thread: the line to the item being edited and the bullets on it." }
+selection_mix = { kind = "ratio", min = 0, max = 1, doc = "Selected text's background: this much of the accent color over the page." }
+current_mix = { kind = "ratio", min = 0, max = 1, doc = "The current item's background (highlight on): this much of the line color over the page." }
 side_bg = { kind = "color", css = "--side-bg", doc = "Sidebar background." }
 chip = { kind = "color", css = "--chip", doc = "Chips: code blocks, keys, counts." }
 chip_border = { kind = "color", css = "--chip-border", doc = "Borders of chips, inputs, menus and buttons." }
@@ -120,6 +123,8 @@ gutter = { kind = "length", min = 20, max = 120, doc = "Room left of each row fo
 bullet = { kind = "length", min = 8, max = 40, doc = "The bullet column's width." }
 dot = { kind = "length", min = 2, max = 16, doc = "The bullet dot's diameter." }
 fold_ring = { kind = "length", min = 0, max = 10, doc = "The ring around a folded item's dot." }
+fold_mark = { kind = "length", min = 2, max = 20, doc = "The triangle a bullet with children shows under the pointer: its base." }
+fold_mark_h = { kind = "length", min = 2, max = 20, doc = "The triangle a bullet with children shows under the pointer: its height." }
 number = { kind = "length", min = 10, max = 60, doc = "The number column's width (numbered lists)." }
 number_gap = { kind = "length", min = 0, max = 20, doc = "Space right of a list number." }
 body_gap = { kind = "length", min = 0, max = 30, doc = "Space between the bullet column and the text." }

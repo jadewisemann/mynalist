@@ -51,12 +51,15 @@ for (const [device, d] of Object.entries(DEVICES)) {
   page.on('pageerror', (e) => problems.push(`${device}: page error: ${e.message}`));
   await page.goto(url);
   await page.waitForFunction(() => '__model' in window);
-  const measure = (doc, modes, toml) => page.evaluate(([doc, modes, toml]) => window.__model(doc, modes, toml), [doc, modes, toml]);
+  const measure = (doc, modes, toml, editing) =>
+    page.evaluate(([doc, modes, toml, editing]) => window.__model(doc, modes, toml, editing), [doc, modes, toml, editing]);
 
-  // the same fixture and look on both apps
-  for (const [doc, look, toml] of [['inline', 'rest', ''], ['looks', 'rest', ''], ['looks', 'custom', custom]]) {
+  // the same fixture and look on both apps; at rest, and with the item `fixture::edited_item` names being edited
+  // (the bullet thread: `looks` edits an item at depth 2)
+  const EDITED = { inline: 's0', looks: 'l17' };
+  for (const [doc, look, toml] of [['inline', 'rest', ''], ['looks', 'rest', ''], ['looks', 'custom', custom], ['inline', 'edit', ''], ['looks', 'edit', '']]) {
     const name = `${doc}-${device}-${look}`;
-    const web = await measure(doc, {}, toml);
+    const web = await measure(doc, {}, toml, look === 'edit' ? EDITED[doc] : undefined);
     writeFileSync(join(outDir, `${name}.web.txt`), web);
     const native = readFileSync(join(goldens, `${name}.txt`), 'utf8');
     for (const p of compareModels(parseModel(native), parseModel(web))) {

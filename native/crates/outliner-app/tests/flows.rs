@@ -99,6 +99,54 @@ fn return_splits_into_a_new_row_below() {
     assert_eq!(at("new row"), at("Plain item 1") + 1);
 }
 
+/// The row input's height, while it shows.
+fn input_height_on(screen: &Screen) -> Option<f32> {
+    let node = screen
+        .layout_nodes()
+        .into_iter()
+        .find(|n| n.test_id.as_deref() == Some("row-input") && n.bounds.size.height.0 > 0.0);
+    node.map(|n| n.bounds.size.height.0)
+}
+
+#[test]
+fn a_long_row_wraps_in_its_input_and_return_still_splits_it() {
+    let mut app = start(Os::MacOs);
+    edit_row(&mut app, "Plain item 1", "Plain item 1");
+    let one_line = input_height_on(app.screen()).unwrap();
+    let long = " and a sentence long enough to need more than one line of the editor's width".repeat(3);
+    app.type_text("id:row-input", &long).unwrap();
+    let source = format!("Plain item 1{long}");
+    expect_editing(&mut app, &source);
+    // the input grows with its text instead of scrolling it sideways
+    let grew = app.wait_until("the input taller", SHOWS, |s| input_height_on(s).is_some_and(|h| h > 1.5 * one_line));
+    assert!(grew.is_ok(), "the input is {:?} tall, one line {one_line}", input_height_on(app.screen()));
+    // Shift+Return and Alt+Return break no line in the item's text
+    app.press_key("shift+enter").unwrap();
+    app.press_key("alt+enter").unwrap();
+    expect_editing(&mut app, &source);
+    // Return splits the row: the caret was at the end, an empty row below takes it
+    app.press_key("enter").unwrap();
+    expect_editing(&mut app, "");
+}
+
+#[test]
+fn the_bullet_thread_follows_the_row_being_edited() {
+    let mut app = start(Os::MacOs);
+    let count = |s: &Screen, id: &str| {
+        s.layout_nodes().into_iter().filter(|n| n.test_id.as_deref() == Some(id) && n.bounds.size.height.0 > 0.0).count()
+    };
+    // nothing edited: no thread
+    assert_eq!(count(app.screen(), "elbow") + count(app.screen(), "thread"), 0);
+    // a top-level row: its bullet only, no line
+    edit_row(&mut app, "Plain item 1", "Plain item 1");
+    assert_eq!(count(app.screen(), "elbow") + count(app.screen(), "thread"), 0);
+    // its third child (depth 1, under a sibling with a child): down from the parent's bullet, past the rows
+    // above, and a turn into the row's bullet
+    edit_row(&mut app, "Mixed 굵게 코드 text 5", "Mixed **굵게** `코드` text 5");
+    let drawn = app.wait_until("the thread drawn", SHOWS, |s| count(s, "elbow") == 1 && count(s, "thread") == 4);
+    assert!(drawn.is_ok(), "{} turns, {} runs", count(app.screen(), "elbow"), count(app.screen(), "thread"));
+}
+
 #[test]
 fn desktop_keys_indent_outdent_move_and_undo() {
     let mut app = start(Os::MacOs);

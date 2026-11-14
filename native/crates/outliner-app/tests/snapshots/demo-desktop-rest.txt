@@ -305,7 +305,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,111 1100x30
       view#row 0,111 1100x30
         view 52,115 18x22
-          view#bullet 58,123 6x6 bg=#8b8f97 r=3
+          view 58,123 6x6
+            view#bullet 58,123 6x6 bg=#8b8f97 r=3
         view 70,115 990x22
           text#row-text 76,115 119x22
             "Plain item 1"
@@ -328,7 +329,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,171 1100x30
         view#guide 61,171 1x30 bg=#e3e5e8
         view 82,175 18x22
-          view#bullet 88,183 6x6 bg=#8b8f97 r=3
+          view 88,183 6x6
+            view#bullet 88,183 6x6 bg=#8b8f97 r=3
         view 100,175 960x22
           text#row-text 106,175 188.5x22
             "A link and a #tag 3"
@@ -386,7 +388,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,321 1100x30
       view#row 0,321 1100x30
         view 52,325 18x22
-          view#bullet 58,333 6x6 bg=#8b8f97 r=3
+          view 58,333 6x6
+            view#bullet 58,333 6x6 bg=#8b8f97 r=3
         view 70,325 990x22
           text#row-text 76,325 188.5x22
             "A link and a #tag 8"
@@ -408,7 +411,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,381 1100x30
         view#guide 61,381 1x30 bg=#e3e5e8
         view 82,385 18x22
-          view#bullet 88,393 6x6 bg=#8b8f97 r=3
+          view 88,393 6x6
+            view#bullet 88,393 6x6 bg=#8b8f97 r=3
         view 100,385 960x22
           text#row-text 106,385 188.5x22
             "Mixed 굵게 코드 text 10"
@@ -468,7 +472,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,531 1100x30
       view#row 0,531 1100x30
         view 52,535 18x22
-          view#bullet 58,543 6x6 bg=#8b8f97 r=3
+          view 58,543 6x6
+            view#bullet 58,543 6x6 bg=#8b8f97 r=3
         view 70,535 990x22
           text#row-text 76,535 188.5x22
             "Mixed 굵게 코드 text 15"
@@ -490,7 +495,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,591 1100x30
         view#guide 61,591 1x30 bg=#e3e5e8
         view 82,595 18x22
-          view#bullet 88,603 6x6 bg=#8b8f97 r=3
+          view 88,603 6x6
+            view#bullet 88,603 6x6 bg=#8b8f97 r=3
         view 100,595 960x22
           text#row-text 106,595 267.5x22
             "Bold and italic and code 17"
@@ -548,7 +554,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,741 1100x30
       view#row 0,741 1100x30
         view 52,745 18x22
-          view#bullet 58,753 6x6 bg=#8b8f97 r=3
+          view 58,753 6x6
+            view#bullet 58,753 6x6 bg=#8b8f97 r=3
         view 70,745 990x22
           text#row-text 76,745 267.5x22
             "Bold and italic and code 22"
@@ -575,7 +582,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,801 1100x30
         view#guide 61,801 1x30 bg=#e3e5e8
         view 82,805 18x22
-          view#bullet 88,813 6x6 bg=#8b8f97 r=3
+          view 88,813 6x6
+            view#bullet 88,813 6x6 bg=#8b8f97 r=3
         view 100,805 960x22
           text#row-text 106,805 158.5x22
             "한글 항목: 입력 테스트 24"
@@ -633,7 +641,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,951 1100x30
       view#row 0,951 1100x30
         view 52,955 18x22
-          view#bullet 58,963 6x6 bg=#8b8f97 r=3
+          view 58,963 6x6
+            view#bullet 58,963 6x6 bg=#8b8f97 r=3
         view 70,955 990x22
           text#row-text 76,955 158.5x22
             "한글 항목: 입력 테스트 29"
@@ -655,7 +664,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,1011 1100x30
         view#guide 61,1011 1x30 bg=#e3e5e8
         view 82,1015 18x22
-          view#bullet 88,1023 6x6 bg=#8b8f97 r=3
+          view 88,1023 6x6
+            view#bullet 88,1023 6x6 bg=#8b8f97 r=3
         view 100,1015 960x22
           text#row-text 106,1015 129x22
             "Plain item 31"
@@ -715,7 +725,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,1161 1100x30
       view#row 0,1161 1100x30
         view 52,1165 18x22
-          view#bullet 58,1173 6x6 bg=#8b8f97 r=3
+          view 58,1173 6x6
+            view#bullet 58,1173 6x6 bg=#8b8f97 r=3
         view 70,1165 990x22
           text#row-text 76,1165 129x22
             "Plain item 36"
@@ -738,7 +749,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,1221 1100x30
         view#guide 61,1221 1x30 bg=#e3e5e8
         view 82,1225 18x22
-          view#bullet 88,1233 6x6 bg=#8b8f97 r=3
+          view 88,1233 6x6
+            view#bullet 88,1233 6x6 bg=#8b8f97 r=3
         view 100,1225 960x22
           text#row-text 106,1225 198x22
             "A link and a #tag 38"
@@ -796,7 +808,8 @@ view 0,0 1100x800 bg=#ffffff
     view 0,1371 1100x30
       view#row 0,1371 1100x30
         view 52,1375 18x22
-          view#bullet 58,1383 6x6 bg=#8b8f97 r=3
+          view 58,1383 6x6
+            view#bullet 58,1383 6x6 bg=#8b8f97 r=3
         view 70,1375 990x22
           text#row-text 76,1375 198x22
             "A link and a #tag 43"
@@ -818,7 +831,8 @@ view 0,0 1100x800 bg=#ffffff
       view#row 0,1431 1100x30
         view#guide 61,1431 1x30 bg=#e3e5e8
         view 82,1435 18x22
-          view#bullet 88,1443 6x6 bg=#8b8f97 r=3
+          view 88,1443 6x6
+            view#bullet 88,1443 6x6 bg=#8b8f97 r=3
         view 100,1435 960x22
           text#row-text 106,1435 188.5x22
             "Mixed 굵게 코드 text 45"

@@ -121,6 +121,34 @@ export const SCHEMA: Entry[] = [
   },
   {
     "table": "color",
+    "key": "thread",
+    "id": "color.thread",
+    "kind": "color",
+    "doc": "The bullet thread: the line to the item being edited and the bullets on it.",
+    "css": "--thread"
+  },
+  {
+    "table": "color",
+    "key": "selection_mix",
+    "id": "color.selection_mix",
+    "kind": "ratio",
+    "doc": "Selected text's background: this much of the accent color over the page.",
+    "css": "--color-selection-mix",
+    "min": 0,
+    "max": 1
+  },
+  {
+    "table": "color",
+    "key": "current_mix",
+    "id": "color.current_mix",
+    "kind": "ratio",
+    "doc": "The current item's background (highlight on): this much of the line color over the page.",
+    "css": "--color-current-mix",
+    "min": 0,
+    "max": 1
+  },
+  {
+    "table": "color",
     "key": "side_bg",
     "id": "color.side_bg",
     "kind": "color",
@@ -895,6 +923,26 @@ export const SCHEMA: Entry[] = [
   },
   {
     "table": "space",
+    "key": "fold_mark",
+    "id": "space.fold_mark",
+    "kind": "length",
+    "doc": "The triangle a bullet with children shows under the pointer: its base.",
+    "css": "--space-fold-mark",
+    "min": 2,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "fold_mark_h",
+    "id": "space.fold_mark_h",
+    "kind": "length",
+    "doc": "The triangle a bullet with children shows under the pointer: its height.",
+    "css": "--space-fold-mark-h",
+    "min": 2,
+    "max": 20
+  },
+  {
+    "table": "space",
     "key": "number",
     "id": "space.number",
     "kind": "length",
@@ -1495,7 +1543,7 @@ export const SCHEMA: Entry[] = [
   }
 ];
 
-export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
+export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
 
 export const GROUPS: Group[] = [
   {
