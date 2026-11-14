@@ -29,7 +29,11 @@ pub fn App() -> impl IntoElement {
     view()
         .flex_1()
         .pt_safe_area()
+        // The software keyboard's height: the list shrinks and the toolbar sits right on the keyboard.
+        .pb_keyboard()
         .bg(move || theme().background)
         .child(outline::outline())
         .child(toolbar::toolbar())
+        // the home indicator's room, only while the keyboard does not cover it
+        .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
 }

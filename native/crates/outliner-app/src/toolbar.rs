@@ -30,7 +30,6 @@ pub fn toolbar() -> impl IntoElement {
                 .border_t(px(1.0))
                 .border_color(move || theme().border)
                 .bg(move || theme().background)
-                .pb_safe_area()
                 .child(tool("⇤", move |id| cmd::outdent(id, caret())))
                 .child(tool("⇥", move |id| cmd::indent(id, caret())))
                 .child(tool("↑", |id| cmd::step(id, false)))
