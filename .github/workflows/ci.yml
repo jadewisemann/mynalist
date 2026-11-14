@@ -18,6 +18,23 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  # The Rust port of packages/core (native/), checked against fixtures recorded from the TS core.
+  native-core:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - run: node native/crates/outliner-core/fixtures/gen.ts
+      - run: cargo test -p outliner-core
+        working-directory: native
+      - run: cargo clippy -p outliner-core --all-targets -- -D warnings
+        working-directory: native
+
   # Dynalist parity: replays the recorded Dynalist results (qa/golden) against this build.
   # No network access to Dynalist is needed; fails only on regressions. See qa/PLAN.md.
   parity:

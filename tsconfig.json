@@ -12,5 +12,5 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"]
   },
-  "include": ["packages/*/src", "packages/*/test", "apps/*/src", "apps/*/test"]
+  "include": ["packages/*/src", "packages/*/test", "apps/*/src", "apps/*/test", "native/crates/*/fixtures"]
 }
