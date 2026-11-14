@@ -1,5 +1,7 @@
 # Area 3: sidebar
 
+> On hold (the user, 2026-11-14): not to be started until the user asks.
+
 ## Goal
 
 The web app's sidebar (`apps/web/src/ui/sidebar.ts`, `.sidebar` styles): Files / Bookmarks / Tags tabs, the file

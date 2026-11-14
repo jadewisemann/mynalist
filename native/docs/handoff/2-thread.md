@@ -1,5 +1,7 @@
 # Area 2: current-row thread and interaction marks
 
+> On hold (the user, 2026-11-14): not to be started until the user asks.
+
 ## Goal
 
 The web app marks the row being edited and its ancestors: the bullets on that path are blue (`--accent`) and a

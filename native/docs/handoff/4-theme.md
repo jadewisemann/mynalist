@@ -1,5 +1,7 @@
 # Area 4: themes and display settings
 
+> On hold (the user, 2026-11-14): not to be started until the user asks.
+
 ## Goal
 
 The web app's themes (light, dark, black, sepia, and the others in `apps/web/src/styles.css` `:root[data-theme=..]`),
