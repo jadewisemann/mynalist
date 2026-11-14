@@ -6,10 +6,14 @@ use nsh_core::element::Root;
 
 use crate::appearance::{self, Modes};
 use crate::sidebar::{self, Tab};
-use crate::{commands, store, DEMO_ITEMS};
+use crate::{commands, store};
 
 /// The documents a fixture opens.
 pub const DOCS: [&str; 3] = ["demo", "inline", "looks"];
+
+/// Items in the fixtures' demo document: the demo's first screens, without the 10 000 items of the app's (only
+/// the performance test opens that one), so that tests start fast however busy the machine is.
+pub const DEMO_SMALL: usize = 120;
 
 /// The item each document edits in its editing state.
 pub fn edited_item(doc: &str) -> &'static str {
@@ -51,7 +55,8 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
     let first = match doc.as_str() {
         "inline" => store::showcase(),
         "looks" => store::looks(),
-        _ => store::demo(DEMO_ITEMS),
+        "demo" => store::demo(DEMO_SMALL),
+        other => panic!("no fixture document {other}"),
     };
     // an empty document beside it, as the app has (the sidebar lists both)
     store::open_all(vec![(doc.clone(), first), ("untitled".into(), store::named("Untitled"))]);

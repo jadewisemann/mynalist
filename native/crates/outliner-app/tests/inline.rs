@@ -4,13 +4,11 @@
 use nsh_core::platform::{Idiom, Os};
 use nsh_core::prelude::rgb;
 use nsh_core::{Color, ResolvedTextStyle};
-use nsh_engine::{EngineConfig, Root};
+use nsh_engine::EngineConfig;
 use nsh_testing::{Headless, LayoutNode};
 
 fn start(os: Os) -> Headless {
-    // every test of this file sets the same value
-    std::env::set_var("OUTLINER_DEMO", "inline");
-    let mut config = EngineConfig::new(Root::of::<outliner_app::App>());
+    let mut config = EngineConfig::new(outliner_app::fixture::root("inline", None));
     config.environment.os = os;
     if os == Os::MacOs {
         // a desktop window, as the snapshot's: the sidebar's panel shows beside the document

@@ -359,15 +359,15 @@ view 0,0 1100x800 bg=#ffffff
                     "Untitled"
                       "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
       view#splitter 257,45 6x755
-    scroll#outline 263,45 837x755 bg=#ffffff scroll 837x300110
+    scroll#outline 263,45 837x755 bg=#ffffff scroll 837x3696
       view 263,45 837x66
         view#title 263,45 837x66
           view 313,65 747x34
             text 313,65 747x34
               "Demo"
                 "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
-      view 263,300125 837x30
-        view#doc-end 263,300125 837x30
+      view 263,3711 837x30
+        view#doc-end 263,3711 837x30
       view 263,111 837x30
         view#row 263,111 837x30
           view 315,115 18x22

@@ -5,14 +5,14 @@ use std::time::Duration;
 
 use nsh_core::geometry::{point, Points};
 use nsh_core::platform::{Idiom, Os};
-use nsh_engine::{EngineConfig, Root};
+use nsh_engine::EngineConfig;
 use nsh_testing::{Headless, Screen};
 
 /// How long a step's outcome may take to show (see `flows.rs`).
 const SHOWS: Duration = Duration::from_secs(10);
 
 fn start(os: Os) -> Headless {
-    let mut config = EngineConfig::new(Root::of::<outliner_app::App>());
+    let mut config = EngineConfig::new(outliner_app::fixture::root("demo", None));
     config.environment.os = os;
     if os == Os::MacOs {
         // a desktop window, as the snapshot's: the sidebar's panel shows beside the document
@@ -162,14 +162,14 @@ fn the_phone_drawer_opens_over_a_scrim_and_closes() {
 fn the_tags_tab_counts_the_open_documents_tags() {
     let mut app = start(Os::MacOs);
     app.press("id:sidebar >> text:Tags").unwrap();
-    // the demo writes `#tag` in every fifth of its 10 000 items; the empty document has none (section heads are
+    // the demo writes `#tag` in every fifth of its 120 items; the empty document has none (section heads are
     // in capitals, as the web's)
     app.wait_for("text:▾ DOCUMENT TAGS (1)").unwrap();
     assert!(app.screen().shows("▾ ALL TAGS (1)"));
-    assert_eq!(app.screen().count("text:(2000)").unwrap(), 2);
+    assert_eq!(app.screen().count("text:(24)").unwrap(), 2);
     app.press("text:▾ DOCUMENT TAGS (1)").unwrap();
     app.wait_for("text:▸ DOCUMENT TAGS (1)").unwrap();
-    assert_eq!(app.screen().count("text:(2000)").unwrap(), 1);
+    assert_eq!(app.screen().count("text:(24)").unwrap(), 1);
     // the empty document: none of its own, the demo's among all
     app.press("id:sidebar >> text:Files").unwrap();
     app.press("id:sidebar >> text:Untitled").unwrap();

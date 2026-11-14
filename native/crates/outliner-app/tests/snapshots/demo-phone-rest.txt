@@ -303,15 +303,15 @@ view 0,0 390x844 bg=#ffffff
     view 346,0 44x46
       canvas 358,13 20x20
   view 0,47 390x797
-    scroll#outline 0,47 390x797 bg=#ffffff scroll 390x300113
+    scroll#outline 0,47 390x797 bg=#ffffff scroll 390x3699
       view 0,47 390x60
         view#title 0,47 390x60
           view 10,61 366x34
             text 10,61 366x34
               "Demo"
                 "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
-      view 0,300130 390x30
-        view#doc-end 0,300130 390x30
+      view 0,3716 390x30
+        view#doc-end 0,3716 390x30
       view 0,107 390x30
         view#row 0,107 390x30
           view 12,111 18x22

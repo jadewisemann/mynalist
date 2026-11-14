@@ -1,5 +1,6 @@
 //! The spike's flows, headless: the demo document shows, rows edit in an input, and the outliner's keys work
-//! while it has the focus. Each test is a fresh surface with the 10 000-item demo document.
+//! while it has the focus. Each test is a fresh surface on the fixtures' small demo document; only the performance
+//! test opens the app's 10 000-item one.
 
 use std::time::{Duration, Instant};
 
@@ -12,7 +13,11 @@ use nsh_testing::{Headless, Screen};
 const SHOWS: Duration = Duration::from_secs(10);
 
 fn start(os: Os) -> Headless {
-    let mut config = EngineConfig::new(Root::of::<outliner_app::App>());
+    start_on(os, outliner_app::fixture::root("demo", None))
+}
+
+fn start_on(os: Os, root: Root) -> Headless {
+    let mut config = EngineConfig::new(root);
     config.environment.os = os;
     if os == Os::MacOs {
         // a desktop window, as the snapshot's: the sidebar's panel shows beside the document
@@ -71,8 +76,6 @@ fn shows_the_demo_document_formatted() {
     // a formatted row is one text of spans: its characters read whole, without the markup
     assert!(app.screen().shows("Bold and italic and code 2"));
     assert!(app.screen().shows("Mixed 굵게 코드 text 5"));
-    // only the rows in view are made out of the 10 000
-    assert!(app.screen().count("role:button").unwrap() < 200);
 }
 
 #[test]
@@ -214,12 +217,15 @@ fn zoom_in_and_out() {
 
 #[test]
 fn scrolling_far_down_stays_fast() {
-    let mut app = start(Os::Ios);
+    // the app as it starts: the 10 000-item demo
+    let mut app = start_on(Os::Ios, Root::of::<outliner_app::App>());
     let t = Instant::now();
     app.scroll("id:outline", px(20_000.0)).unwrap();
     assert!(t.elapsed() < Duration::from_secs(20), "scrolled in {:?}", t.elapsed());
     let gone = app.wait_until("the first row gone", SHOWS, |s| !s.shows("Plain item 1"));
     assert!(gone.is_ok(), "{gone:?}");
+    // only the rows in view are made out of the 10 000
+    assert!(app.screen().count("role:button").unwrap() < 200);
 }
 
 fn px(v: f32) -> nsh_core::geometry::Points {
