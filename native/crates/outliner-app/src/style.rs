@@ -125,12 +125,12 @@ pub fn mono() -> String {
     look().text("font.mono").to_owned()
 }
 
-/// Editor type: the text size, and its line (rounded to whole points: the text engines lay lines out on them).
+/// Editor type: the text size, and its line.
 pub fn efs() -> f32 {
     num("type.size")
 }
 pub fn line() -> f32 {
-    (efs() * num("type.line")).round()
+    efs() * num("type.line")
 }
 /// Space above and below a row's text (density).
 pub fn pad() -> f32 {
@@ -153,9 +153,10 @@ pub fn phone() -> bool {
     matches!(os(), Os::Ios | Os::Android) || std::env::var_os("OUTLINER_PHONE").is_some()
 }
 
-/// One level of indentation: the children block's indent less the guide's offset (`.o-kids`).
+/// One level of indentation: the children block's indent less the guide's offset, plus the guide line, which is
+/// its left border (`.o-kids`).
 pub fn indent() -> f32 {
-    num("space.indent") - num("space.guide")
+    num("space.indent") - num("space.guide") + num("space.guide_w")
 }
 
 /// The document's left padding (where depth-0 rows start, bullet included) and right padding.
@@ -163,9 +164,9 @@ pub fn doc_pad() -> (f32, f32) {
     (num("space.doc_left"), num("space.doc_right"))
 }
 
-/// The top bar's height.
+/// The top bar's height, its bottom border included (the web's bar is that tall above its border).
 pub fn topbar_h() -> f32 {
-    num("space.topbar")
+    num("space.topbar") + num("space.border")
 }
 
 /// Where a row's text starts, for `depth` (0 under the zoom root): the bullet column is just left of it.
@@ -173,9 +174,15 @@ pub fn text_left(depth: u16) -> f32 {
     doc_pad().0 + indent() * f32::from(depth) + body_gap()
 }
 
-/// The x of the bullet's center for `depth`, where the guide line of its children runs.
+/// The x of the bullet's center for `depth`.
 pub fn bullet_center(depth: u16) -> f32 {
     doc_pad().0 + indent() * f32::from(depth) - bullet_w() / 2.0
+}
+
+/// The x of the guide line of the children of a row at `depth` (`.o-kids`' left border, half a bullet left of the
+/// children's bullet column).
+pub fn guide_x(depth: u16) -> f32 {
+    doc_pad().0 + indent() * f32::from(depth) - num("space.guide")
 }
 
 /// Text size and line box of a heading level (`.o-h1` .. `.o-h3`; 0 for plain text).

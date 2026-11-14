@@ -12,7 +12,7 @@ Read this first. Area notes in this folder say what each piece of work is.
 - `crates/outliner-app`: the UI on NSH (Native Shell, https://github.com/longbridge/nsh, crates pinned `=0.5.0`).
   `store.rs` (open document, rows, editing caret, view), `commands.rs` (app commands over core commands),
   `outline.rs` (virtual list, rows, row input, key bindings), `toolbar.rs` (top bar, phone toolbar), `style.rs`
-  (colors and metrics from `apps/web/src/styles.css`), `icons.rs` (web icons as inline SVG), `inline.rs` (a
+  (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (a
   temporary subset parser, to be replaced by the core port).
 - `crates/outliner-mac`: macOS binary, NSH's GPUI backend. Builds on Linux too (GPUI dev libs).
 - CI: `.github/workflows/ci.yml` job `native-core` (fixtures + tests + clippy); `.github/workflows/native.yml` builds
@@ -54,8 +54,22 @@ Read this first. Area notes in this folder say what each piece of work is.
     `mesa-vulkan-drivers`, lavapipe) and GPUI's dev libs. CI (`native.yml`, macOS) uploads them as the artifact
     `Outliner-shots`; nothing compares them. Phones are laid out with `OUTLINER_PHONE=1` there (the test platform
     is a desktop), and the clock is the system's (the fixtures' dates are fixed days, so labels do not move).
+- Look values: `design/*.toml` is the only source of the look's values (colors, type, metrics, radii; modes:
+  theme, size, density, fonts, phone, print; documented in `design/schema.md`). `node design/build.mjs` writes
+  `apps/web/src/design/tokens.css` (what `styles.css` uses), `tokens.ts` (the web's settings) and
+  `outliner-app/src/design.rs`; commit them (`--check` fails CI when stale). Native code reads values only through
+  `style.rs` (`style::num("space.pad")`, `style::color::fg()`, ...), which reads `appearance::current()`: no color or
+  size literals in views. A new value is a new entry in `schema.toml` + `base.toml` (+ modes), used by both apps.
+- Relations and cross-check: `design/spec.json` lists relations (row pitch, indent, bullet to text, checkbox to text,
+  ...) as expressions over entries. The native snapshot test `the_look_keeps_the_spec` checks them in the spec's modes
+  on desktop and phone; `npm run qa:model` (after `npm ci`, Playwright's Chromium) measures the web's model of the same
+  fixtures (`apps/web/test/model`, `tests/snapshots/*.items.jsonl`) and compares it with the native goldens
+  (`inline`, `looks`, and `looks-*-custom.txt` with `design/test/custom.toml`), then checks the spec on the web.
+  Known differences are listed with their reason in `qa/lib/model.mjs` (`KNOWN`); fix or list, never loosen.
+- User appearance: a TOML in the same schema (`appearance::parse` / `appearance::set(modes, toml)` on native,
+  `apps/web/src/design/appearance.ts` on the web): same checks, errors with their line.
 - Before committing: `cargo test` and `cargo clippy --all-targets -- -D warnings` in `native/`, `npm run typecheck`
-  at the root if you touched TS.
+  at the root if you touched TS, `node design/build.mjs --check` if you touched `design/`.
 
 ## Gotchas found so far
 

@@ -155,7 +155,7 @@ fn row(at: Position) -> impl IntoElement {
                         .absolute()
                         .top(px(0.0))
                         .bottom(px(0.0))
-                        .left(px(style::bullet_center(k)))
+                        .left(px(style::guide_x(k)))
                         .w(px(num("space.guide_w")))
                         .bg(color::guide())
                 })
@@ -166,7 +166,9 @@ fn row(at: Position) -> impl IntoElement {
         .child(
             view()
                 .flex_1()
-                .pl(px(style::body_gap()))
+                // after a checkbox, the text sits its gap from the checkbox's visible box (`.o-check + .o-body`)
+                .pl(move || px(if look.get().checkbox { check_gap().max(0.0) } else { style::body_gap() }))
+                .ml(move || px(if look.get().checkbox { check_gap().min(0.0) } else { 0.0 }))
                 .child(dynamic(move || match editing.get() {
                     Some(_) => row_input(row.get_untracked()).into_element(),
                     None => row_text(row, look).into_element(),
@@ -237,6 +239,12 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
         }))
 }
 
+/// Space from the checkbox's touch target to the text: the gap from its visible box, less the target's margin
+/// around that box (phones).
+fn check_gap() -> f32 {
+    num("space.check_gap") - (num("space.check_hit") - num("space.check")) / 2.0
+}
+
 /// The check mark's size, of the checkbox's: the web draws it as a rotated border, here it is a character.
 const MARK: f32 = 0.75;
 
@@ -245,7 +253,17 @@ fn checkbox(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
     let on = move || look.get().checked;
     // the test id names the wrapper: a button takes none
     let size = num("space.check");
-    view().test_id("checkbox").mt(move || px((look.get().type_size().1 - size) / 2.0)).ml(px(num("space.check_left"))).child(
+    // the touch target (phones: larger than the box), the box centered in it
+    let hit = num("space.check_hit");
+    let target = view()
+        .test_id("checkbox")
+        .w(px(hit))
+        .h(px(hit))
+        .items_center()
+        .justify_center()
+        .mt(move || px((look.get().type_size().1 - hit) / 2.0))
+        .ml(px(num("space.check_left")));
+    target.child(
         button()
             .w(px(size))
             .h(px(size))

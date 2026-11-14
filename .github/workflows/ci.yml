@@ -52,6 +52,9 @@ jobs:
       - run: npx playwright-core install --with-deps chromium
       - run: npm run qa:serve
       - run: npm run qa
+      # the shared render model: the web's model of the native fixtures equals the native snapshot's, and both
+      # keep design/spec.json (the native side is checked by native-core's snapshot test)
+      - run: npm run qa:model
       - uses: actions/upload-artifact@v7
         if: always()
         with:

@@ -277,6 +277,28 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   오프스크린 렌더(`outliner-mac`의 `shot`)는 PNG를 만들어 macOS 작업의 artifact `Outliner-shots`로만 올린다(비교 없음).
   Linux에서도 화면 없이 동작한다(wgpu, Mesa lavapipe). 웹 대조 중 고친 차이: 코드 블록 글자색(검정 → 본문색), "Local only" 글꼴.
   남은 차이(스냅샷에 기록됨): 편집 입력란이 한 줄이라 긴 행은 가로로 밀린다(웹은 줄바꿈).
+- [x] 외형의 단일 소스 (2026-11-14, 영역 6): `design/`의 TOML이 두 앱 외형의 유일한 값이다. `base.toml`(모든 항목: 색,
+  라벨·구문 강조 색, 글꼴, 글자 크기·줄 높이·굵기, 행·불릿·체크박스·상단 바·툴바·사이드바·문서 여백, 모서리),
+  `modes/<그룹>/<모드>.toml`(테마 8개, 크기, 밀도, 글꼴, 동아시아 글꼴, 휴대폰, 인쇄), `schema.toml`(종류·범위·설명,
+  문서는 생성되는 `schema.md`). `node design/build.mjs`가 웹 CSS 변수(`apps/web/src/design/tokens.css`), 웹 설정용
+  `tokens.ts`, 네이티브 `outliner-app/src/design.rs`를 만들고 `--check`가 CI(`ci.yml` test)에서 생성물이 낡았는지 본다.
+  `styles.css`의 `:root`·테마 블록을 없애고 색·글자·행/바 치수를 생성 변수로 바꿨다(모든 테마·크기×밀도·글꼴, 데스크톱·
+  휴대폰에서 모든 요소의 계산된 스타일이 이전 빌드와 같음을 확인, 웹 QA 전체 통과). `style.rs`는 생성값만 읽는다
+  (`appearance.rs`가 기본값·모드·기기·사용자 값을 겹치고 `{table.key}` 참조를 푼다).
+  관계 스펙 `design/spec.json`(행 간격, 글자 안쪽 여백, 불릿 중심→글자, 단계별 들여쓰기, 제목 위치, 제목 크기, 노트 간격,
+  체크박스→글자, 상단 바 높이, 색)을 테마 8개와 크기×밀도 9개 조합, 데스크톱·휴대폰에서 두 앱 모델에 검사한다(네이티브
+  `the_look_keeps_the_spec`, 웹 `npm run qa:model`). 웹 측정기(`apps/web/test/model`, `qa/model.mjs`)는 네이티브 스냅샷과 같은
+  `[model]`을 만들고 같은 고정 문서(`tests/snapshots/*.items.jsonl`)로 두 앱을 대조한다(CI `parity`). 대조로 찾아 고친 네이티브
+  차이: 상단 바 테두리(웹은 높이 밖, 1pt), 단계당 들여쓰기 1pt(안내선 테두리), 체크박스와 글자 간격(데스크톱 2pt, 휴대폰
+  28pt 터치 영역), 줄 높이 반올림. 알려진 차이(이유와 함께 `qa/lib/model.mjs` `KNOWN`): 코드 블록 구문 강조 없음, LaTeX 조판
+  없음, 휴대폰에서 긴 줄이 접히는 위치(글리프 폭), 웹 `<mark>`의 검정 글자.
+  사용자 외형: 같은 스키마의 TOML(바꾼 것만). 웹은 동기화되는 설정 `appearance`에 저장하고 `<html>` 인라인 변수로 즉시
+  적용, 설정 > Look에서 항목별 입력과 TOML 원문 편집(줄 번호가 붙은 오류), `.toml` 내보내기/불러오기. 웹의 Custom CSS 설정은
+  없앴다(이미 저장된 `custom_css` 값은 읽지도 지우지도 않는다: 처리 방법은 사용자 결정 대기). 네이티브는 같은 TOML을
+  `appearance::set`으로 겹치고, `design/test/custom.toml`로 두 앱 모델이 같은지 대조한다. 네이티브 설정 화면은 영역 4.
+  남은 일: `styles.css`의 웹 전용 화면(대화상자, 메뉴, 설정, 날짜 선택기, 버전 기록, 마인드맵 등)의 여백·크기 px 값
+  약 420개는 아직 리터럴이다(색, 글자 크기, 모서리, 테두리, 개요·바 치수는 모두 토큰). 데모 문서(1만 행)는 웹 측정기
+  대조에서 빠졌다(inline, looks만).
 - [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
 - [ ] 남은 core 이식: `search.ts`, `paste.ts`, `export.ts`(HTML 렌더러 포함), `refs.ts`, `calendar.ts`.
 - [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌, 검색.
@@ -286,6 +308,8 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   for g in gen gen-commands gen-inline; do node native/crates/outliner-core/fixtures/$g.ts; done
   (cd native && cargo test)                                                      # core 대조 + 앱 헤드리스 테스트
   (cd native && UPDATE_SNAPSHOTS=1 cargo test -p outliner-app --test snapshot)   # 구조 스냅샷 정답 갱신 (커밋에 이유)
+  node design/build.mjs                                                          # design/*.toml → CSS 변수, tokens.ts, design.rs
+  npm run qa:model                                                               # 웹 모델 ↔ 네이티브 스냅샷 대조, spec.json
   (cd native && cargo run -p outliner-mac --features shot --bin shot -- /tmp/shots)  # 오프스크린 PNG
   cd native && cargo run -p outliner-mac                                         # 데스크톱 (Linux는 GPUI 개발 라이브러리 필요)
   cd native/crates/outliner-app && nsh package --target android                  # APK (Android SDK, NDK 필요)

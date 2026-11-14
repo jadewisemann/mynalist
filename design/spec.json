@@ -1,0 +1,42 @@
+{
+  "about": "Relations of the look that the tokens alone do not say, checked on the render model of both apps (qa/model.mjs for the web, native tests/spec.rs for the native app) in each of `modes` on a desktop and a phone. `expect` is an expression over design entries (`type.size`, `space.pad`, numbers, + - * / and parentheses) resolved for the modes and the device; `tolerance` in CSS pixels. `rows` names which rows of the fixture (looks, inline) a relation measures, by their item's props: plain (one short line: no heading, note, code block, LaTeX, checkbox or check, at most 24 characters, so it wraps on no screen), dot (a bullet, not a number, no checkbox), heading1..3, note, checkbox, checked, label, child (its parent's row is right above).",
+  "modes": [
+    {},
+    { "theme": "dark" },
+    { "theme": "black" },
+    { "theme": "sepia" },
+    { "theme": "scifi" },
+    { "theme": "sakura" },
+    { "theme": "darkgold" },
+    { "theme": "christmas" },
+    { "size": "small", "density": "compact" },
+    { "size": "small" },
+    { "size": "small", "density": "comfortable" },
+    { "density": "compact" },
+    { "density": "comfortable" },
+    { "size": "large", "density": "compact" },
+    { "size": "large" },
+    { "size": "large", "density": "comfortable" }
+  ],
+  "relations": [
+    { "name": "top bar height", "measure": "topbar.height", "expect": "space.topbar + space.border", "tolerance": 0.5 },
+    { "name": "row pitch", "measure": "row.height", "rows": "plain", "expect": "type.size * type.line + 2 * space.pad", "tolerance": 1 },
+    { "name": "text inset (density)", "measure": "row.text_top", "rows": "plain", "expect": "space.pad", "tolerance": 0.5 },
+    { "name": "bullet center to text", "measure": "row.bullet_to_text", "rows": "dot", "expect": "space.bullet / 2 + space.body_gap", "tolerance": 0.5 },
+    { "name": "indent per level", "measure": "row.indent", "rows": "child", "expect": "space.indent - space.guide + space.guide_w", "tolerance": 0.5 },
+    { "name": "title text left of items", "measure": "title.text_left", "expect": "0 - space.title_offset", "tolerance": 0.5 },
+    { "name": "title to first row", "measure": "title.to_first_row", "expect": "space.title_bottom", "tolerance": 1 },
+    { "name": "heading 1 row", "measure": "row.height", "rows": "heading1", "expect": "type.size * type.h1_box + 2 * space.pad", "tolerance": 1.5 },
+    { "name": "heading 2 row", "measure": "row.height", "rows": "heading2", "expect": "type.size * type.h2_box + 2 * space.pad", "tolerance": 1.5 },
+    { "name": "heading 3 row", "measure": "row.height", "rows": "heading3", "expect": "type.size * type.h3_box + 2 * space.pad", "tolerance": 1.5 },
+    { "name": "note right under the text", "measure": "note.gap", "rows": "note", "expect": "0", "tolerance": 1 },
+    { "name": "checkbox to text", "measure": "row.checkbox_to_text", "rows": "checkbox", "expect": "space.check_hit + space.check_gap - (space.check_hit - space.check) / 2", "tolerance": 0.5 },
+    { "name": "text size", "measure": "span.size", "rows": "plain", "expect": "type.size", "tolerance": 0.5 },
+    { "name": "heading 1 size", "measure": "span.size", "rows": "heading1", "expect": "type.size * type.h1", "tolerance": 0.5 },
+    { "name": "note size", "measure": "note.size", "rows": "note", "expect": "type.size * type.note", "tolerance": 0.5 },
+    { "name": "text color", "measure": "span.color", "rows": "plain", "expect": "color.fg" },
+    { "name": "checked color", "measure": "span.color", "rows": "checked", "expect": "color.check" },
+    { "name": "bullet color", "measure": "row.dot_color", "rows": "dot", "expect": "color.muted" },
+    { "name": "color label", "measure": "row.label", "rows": "label", "expect": "label" }
+  ]
+}

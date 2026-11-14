@@ -36,10 +36,15 @@ const PHONE: Device = Device { name: "phone", os: Os::Ios, width: 390.0, height:
 type Styles = Arc<Mutex<HashMap<NodeId, ViewStyle>>>;
 
 fn start(doc: &str, editing: bool, device: Device, appearance: &str) -> (Headless, Styles) {
+    start_with(doc, editing, device, "", appearance)
+}
+
+/// [`start`] in `modes` (`group=mode` words).
+fn start_with(doc: &str, editing: bool, device: Device, modes: &str, appearance: &str) -> (Headless, Styles) {
     // the dates' local zone (every snapshot sets the same)
     std::env::set_var("TZ", "UTC");
     let edited = editing.then(|| outliner_app::fixture::edited_item(doc));
-    let mut config = EngineConfig::new(outliner_app::fixture::root_with(doc, edited, "", appearance));
+    let mut config = EngineConfig::new(outliner_app::fixture::root_with(doc, edited, modes, appearance));
     config.clock = Clock::manual(SystemTime::UNIX_EPOCH + Duration::from_millis(NOW_MS));
     config.viewport = Size { width: Points(device.width), height: Points(device.height) };
     config.environment.os = device.os;
@@ -550,7 +555,7 @@ fn goldens_hold_the_web_values() {
     let (fg, row) = (var("--fg"), "inline-desktop-rest.txt");
     let bold = n("--type-bold-weight");
     want(row, "text", format!("\"Bold\" {fira} {}/{} w{bold} {fg}", len(efs), len(line)));
-    want(row, "row pitch", format!("row depth=0 top=110 height={}", len(line + 2.0 * pad)));
+    want(row, "row pitch", format!("row depth=0 top=111 height={}", len(line + 2.0 * pad)));
     // `.o-title .o-content`
     let title = efs * n("--type-title");
     let title_line = title * n("--type-title-line");
@@ -612,7 +617,8 @@ fn goldens_hold_the_web_values() {
     want(looks, "guide", format!("{}x{} bg={}", len(n("--space-guide-w")), len(line + 2.0 * pad), var("--guide")));
     // the document's padding (`.doc-wrap`), the indent (`--kid-pad` less the guide's offset), `.o-body` gap
     let doc_left = n("--space-doc-left");
-    let indent = n("--kid-pad") - n("--space-guide");
+    // the children block's guide line is its left border
+    let indent = n("--kid-pad") - n("--space-guide") + n("--space-guide-w");
     let gap = n("--space-body-gap");
     want(looks, "text left", format!("text={}", len(doc_left + gap)));
     want(looks, "indent", format!("text={}", len(doc_left + indent + gap)));
@@ -621,9 +627,10 @@ fn goldens_hold_the_web_values() {
     // `.topbar`: 44px on desktops, 46px on phones; `.mobile-bar`: 41px with a top border
     let line_c = var("--line");
     let border = len(n("--space-border"));
-    let bar = len(n("--space-topbar"));
+    // the bar's height is above its bottom border (`.topbar` is content-box)
+    let bar = len(n("--space-topbar") + n("--space-border"));
     want(looks, "top bar", format!("view#topbar 0,0 1100x{bar} bg={} border-b={border} {line_c}", var("--bg")));
-    let phone_bar = len(num(&phone("--space-topbar")));
+    let phone_bar = len(num(&phone("--space-topbar")) + n("--space-border"));
     want("looks-phone-rest.txt", "phone top bar", format!("view#topbar 0,0 390x{phone_bar}"));
     let toolbar = len(n("--space-toolbar"));
     want("looks-phone-edit.txt", "phone toolbar", format!("390x{toolbar} bg={} border-t={border} {line_c}", var("--bg")));
@@ -631,4 +638,333 @@ fn goldens_hold_the_web_values() {
     want("inline-phone-rest.txt", "phone text left", format!("text={}", len(phone_left)));
 
     assert!(missing.is_empty(), "the goldens do not hold these values of the design tokens:\n{}", missing.join("\n"));
+}
+
+// ---- design/spec.json: the relations of the look, on the native app's model ----
+
+/// The `[model]` of `doc` at rest in `modes` on `device`.
+fn model_in(doc: &str, device: Device, modes: &str) -> String {
+    let (app, styles) = start_with(doc, false, device, modes, "");
+    let tree = Tree::new(shown(&app));
+    let mut out = String::new();
+    model(&mut out, &app, &tree, &styles.lock().unwrap());
+    out
+}
+
+/// A text of the model: where it is, and its first span's size, line and color.
+#[derive(Default, Debug)]
+struct MText {
+    top: f32,
+    x: f32,
+    first: Option<(f32, f32, String)>,
+}
+
+#[derive(Default, Debug)]
+struct MRow {
+    depth: f32,
+    top: f32,
+    height: f32,
+    bullet: f32,
+    dot_color: Option<String>,
+    checkbox: Option<f32>,
+    text: f32,
+    label: Option<String>,
+    texts: Vec<MText>,
+    note: Option<(f32, Vec<MText>)>,
+}
+
+#[derive(Default, Debug)]
+struct Model {
+    topbar: f32,
+    title: Vec<MText>,
+    rows: Vec<MRow>,
+}
+
+fn attr(line: &str, key: &str) -> Option<String> {
+    let at = line.find(&format!(" {key}="))?;
+    Some(line[at + key.len() + 2..].split(' ').next()?.to_owned())
+}
+
+fn attr_num(line: &str, key: &str) -> Option<f32> {
+    attr(line, key).and_then(|v| v.parse().ok())
+}
+
+/// The parts of a model the relations measure (qa/lib/model.mjs reads the same text on the web's side).
+fn parse_model(text: &str) -> Model {
+    let mut m = Model::default();
+    // where texts go: 0 the title, 1 the last row, 2 the last row's note
+    let mut into = 0;
+    for line in text.lines() {
+        let t = line.trim_start();
+        let l = format!(" {t}");
+        if t.starts_with("topbar ") {
+            m.topbar = attr_num(&l, "height").unwrap();
+        } else if t.starts_with("title ") {
+            into = 0;
+        } else if t.starts_with("row ") {
+            m.rows.push(MRow {
+                depth: attr_num(&l, "depth").unwrap(),
+                top: attr_num(&l, "top").unwrap(),
+                height: attr_num(&l, "height").unwrap(),
+                bullet: attr_num(&l, "bullet").unwrap_or(0.0),
+                dot_color: if t.contains(" dot=") { attr(&l, "bg") } else { None },
+                checkbox: attr_num(&l, "checkbox"),
+                text: attr_num(&l, "text").unwrap_or(0.0),
+                label: attr(&l, "label"),
+                ..MRow::default()
+            });
+            into = 1;
+        } else if t.starts_with("note ") {
+            m.rows.last_mut().unwrap().note = Some((attr_num(&l, "top").unwrap(), Vec::new()));
+            into = 2;
+        } else if t.starts_with("text ") || t.starts_with("input ") || t.starts_with('"') {
+            let list = match into {
+                0 => &mut m.title,
+                1 => &mut m.rows.last_mut().unwrap().texts,
+                _ => &mut m.rows.last_mut().unwrap().note.as_mut().unwrap().1,
+            };
+            if !t.starts_with('"') {
+                list.push(MText { top: attr_num(&l, "top").unwrap_or(0.0), x: attr_num(&l, "x").unwrap(), first: None });
+                continue;
+            }
+            let Some(last) = list.last_mut() else { continue };
+            if last.first.is_none() {
+                // `"text" family size/line wN #color ...`
+                last.first = t.rsplit_once(" w").and_then(|(head, rest)| {
+                    let (size, line) = head.rsplit(' ').next()?.split_once('/')?;
+                    Some((size.parse().ok()?, line.parse().ok()?, rest.split(' ').nth(1)?.to_owned()))
+                });
+            }
+        }
+    }
+    m
+}
+
+/// What the relations need of a fixture's visible items, in row order (`*.items.jsonl`).
+#[derive(Debug, Default)]
+struct Item {
+    heading: i64,
+    note: bool,
+    checked: bool,
+    checkbox: bool,
+    label: i64,
+    numbered: bool,
+    code: bool,
+    latex: bool,
+    long: bool,
+}
+
+fn fixture_rows(doc: &str) -> Vec<Item> {
+    let text = std::fs::read_to_string(golden_dir().join(format!("{doc}.items.jsonl"))).unwrap();
+    let items: Vec<serde_json::Value> = text.lines().map(|l| serde_json::from_str(l).unwrap()).collect();
+    fn walk(items: &[serde_json::Value], id: &str, out: &mut Vec<Item>) {
+        let numbered = items.iter().find(|x| x["id"] == id).is_some_and(|p| p["props"]["num"] == true);
+        for k in items.iter().filter(|x| x["parent"] == id) {
+            let p = &k["props"];
+            let c = p["c"].as_str().unwrap_or("");
+            out.push(Item {
+                heading: p["h"].as_i64().unwrap_or(0),
+                note: p["n"].as_str().is_some_and(|n| !n.trim().is_empty()),
+                checked: p["ck"] == true,
+                checkbox: p["cb"] == true,
+                label: p["cl"].as_i64().unwrap_or(0),
+                numbered,
+                code: c.contains("```"),
+                latex: c.contains("$$"),
+                long: c.encode_utf16().count() > 24,
+            });
+            if k["collapsed"] != true {
+                walk(items, k["id"].as_str().unwrap(), out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(&items, "root", &mut out);
+    out
+}
+
+/// The row kinds of design/spec.json.
+fn kind_of(name: &str, r: &Item) -> bool {
+    match name {
+        "plain" => r.heading == 0 && !r.note && !r.code && !r.checked && !r.checkbox && !r.latex && !r.long,
+        "dot" => !r.numbered && !r.checkbox,
+        "heading1" => r.heading == 1,
+        "heading2" => r.heading == 2,
+        "heading3" => r.heading == 3,
+        "note" => r.note,
+        "checkbox" => r.checkbox,
+        "checked" => r.checked && r.heading == 0,
+        "label" => r.label > 0,
+        _ => panic!("unknown row kind {name}"),
+    }
+}
+
+/// An expression over design entries: numbers, `table.key`, + - * / and parentheses.
+fn evaluate(expr: &str, look: &outliner_app::appearance::Look) -> f32 {
+    let mut toks: Vec<String> = Vec::new();
+    let mut cur = String::new();
+    for c in expr.chars() {
+        if c.is_ascii_alphanumeric() || c == '_' || c == '.' {
+            cur.push(c);
+            continue;
+        }
+        if !cur.is_empty() {
+            toks.push(std::mem::take(&mut cur));
+        }
+        if "+-*/()".contains(c) {
+            toks.push(c.to_string());
+        }
+    }
+    if !cur.is_empty() {
+        toks.push(cur);
+    }
+    struct P<'a> {
+        toks: Vec<String>,
+        i: usize,
+        look: &'a outliner_app::appearance::Look,
+    }
+    impl P<'_> {
+        fn peek(&self) -> &str {
+            self.toks.get(self.i).map_or("", |s| s.as_str())
+        }
+        fn next(&mut self) -> String {
+            self.i += 1;
+            self.toks[self.i - 1].clone()
+        }
+        fn atom(&mut self) -> f32 {
+            let t = self.next();
+            match t.as_str() {
+                "(" => {
+                    let v = self.sum();
+                    self.next();
+                    v
+                }
+                "-" => -self.atom(),
+                _ => t.parse().unwrap_or_else(|_| self.look.number(&t)),
+            }
+        }
+        fn prod(&mut self) -> f32 {
+            let mut v = self.atom();
+            while matches!(self.peek(), "*" | "/") {
+                v = if self.next() == "*" { v * self.atom() } else { v / self.atom() };
+            }
+            v
+        }
+        fn sum(&mut self) -> f32 {
+            let mut v = self.prod();
+            while matches!(self.peek(), "+" | "-") {
+                v = if self.next() == "+" { v + self.prod() } else { v - self.prod() };
+            }
+            v
+        }
+    }
+    P { toks, i: 0, look }.sum()
+}
+
+fn hex(c: u32) -> String {
+    if c & 0xff == 0xff { format!("#{:06x}", c >> 8) } else { format!("#{c:08x}") }
+}
+
+/// The broken relations of `spec` in a model of `doc` in `modes` on `device` (qa/lib/model.mjs `checkSpec` on
+/// the web's side).
+fn check_spec(spec: &serde_json::Value, m: &Model, doc: &str, modes: &str, device: Device) -> Vec<String> {
+    use outliner_app::appearance::{Looks, Modes};
+    let looks = Looks::new(Modes::parse(modes).unwrap(), Default::default());
+    let look = if device.name == "phone" { &looks.phone } else { &looks.desktop };
+    let items = fixture_rows(doc);
+    let mut out = Vec::new();
+    for rel in spec["relations"].as_array().unwrap() {
+        let name = rel["name"].as_str().unwrap();
+        let measure = rel["measure"].as_str().unwrap();
+        let expect = rel["expect"].as_str().unwrap();
+        let tol = rel["tolerance"].as_f64().unwrap_or(0.0) as f32;
+        let color_of = |item: &Item| {
+            hex(look.color(&if expect == "label" { format!("label.{}", item.label) } else { expect.to_owned() }))
+        };
+        let mut check = |what: String, got: f32| {
+            let want = evaluate(expect, look);
+            if (got - want).abs() > tol {
+                out.push(format!("{name} ({what}): {got}, want {want}"));
+            }
+        };
+        let first_line = |t: &MText| t.first.as_ref().map_or(0.0, |f| f.1);
+        match measure {
+            "topbar.height" => check("top bar".into(), m.topbar),
+            "title.text_left" => check("title".into(), m.title[0].x - m.rows[0].text),
+            "title.to_first_row" => check("title".into(), m.rows[0].top - (m.title[0].top + first_line(&m.title[0]))),
+            _ => {
+                let mut colors = Vec::new();
+                for (i, row) in m.rows.iter().enumerate() {
+                    let Some(item) = items.get(i) else { continue };
+                    match rel["rows"].as_str() {
+                        Some("child") if i == 0 || row.depth != m.rows[i - 1].depth + 1.0 => continue,
+                        Some("child") | None => {}
+                        Some(k) if !kind_of(k, item) => continue,
+                        Some(_) => {}
+                    }
+                    let w = format!("row {i}");
+                    let first = &row.texts[0];
+                    match measure {
+                        "row.height" => check(w, row.height),
+                        "row.text_top" => check(w, first.top - row.top),
+                        "row.bullet_to_text" => {
+                            if row.dot_color.is_some() {
+                                check(w, row.text - row.bullet);
+                            }
+                        }
+                        "row.indent" => check(w, row.text - m.rows[i - 1].text),
+                        "note.gap" => {
+                            if let Some((top, _)) = &row.note {
+                                check(w, top - (first.top + first_line(first)));
+                            }
+                        }
+                        "row.checkbox_to_text" => check(w, row.text - row.checkbox.unwrap()),
+                        "span.size" => check(w, first.first.as_ref().unwrap().0),
+                        "note.size" => {
+                            if let Some((_, t)) = &row.note {
+                                check(w, t[0].first.as_ref().unwrap().0);
+                            }
+                        }
+                        "span.color" => colors.push((w, first.first.as_ref().unwrap().2.clone(), color_of(item))),
+                        "row.dot_color" => {
+                            if let Some(c) = &row.dot_color {
+                                colors.push((w, c.clone(), color_of(item)));
+                            }
+                        }
+                        "row.label" => colors.push((w, row.label.clone().unwrap_or_default(), color_of(item))),
+                        _ => panic!("unknown measure {measure}"),
+                    }
+                }
+                for (w, got, want) in colors {
+                    if got != want {
+                        out.push(format!("{name} ({w}): {got}, want {want}"));
+                    }
+                }
+            }
+        }
+    }
+    out
+}
+
+/// design/spec.json holds on the native app's model, in each of its modes, on a desktop and a phone (the web's
+/// model is checked by qa/model.mjs).
+#[test]
+fn the_look_keeps_the_spec() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../design/spec.json");
+    let spec: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    let mut broken = Vec::new();
+    for modes in spec["modes"].as_array().unwrap() {
+        let words: Vec<String> =
+            modes.as_object().unwrap().iter().map(|(g, m)| format!("{g}={}", m.as_str().unwrap())).collect();
+        let modes = words.join(" ");
+        for device in [DESKTOP, PHONE] {
+            for doc in ["looks", "inline"] {
+                let m = parse_model(&model_in(doc, device, &modes));
+                for p in check_spec(&spec, &m, doc, &modes, device) {
+                    broken.push(format!("{doc} {} [{modes}]: {p}", device.name));
+                }
+            }
+        }
+    }
+    assert!(broken.is_empty(), "the native look breaks design/spec.json:\n{}", broken.join("\n"));
 }
