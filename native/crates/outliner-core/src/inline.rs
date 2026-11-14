@@ -395,8 +395,8 @@ fn match_bracket(ctx: &mut Ctx<'_>, open: usize, end: usize) -> Option<usize> {
 /// Given `(` at `open`, the balanced `)`; no newlines allowed.
 fn match_paren(ctx: &Ctx<'_>, open: usize, end: usize) -> Option<usize> {
     let mut depth = 0;
-    for j in open..end {
-        match ctx.src[j] {
+    for (j, &c) in ctx.src.iter().enumerate().take(end).skip(open) {
+        match c {
             0x0a => return None,
             0x28 => depth += 1,
             0x29 => {
