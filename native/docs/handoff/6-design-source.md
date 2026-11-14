@@ -4,15 +4,18 @@ The behavior is kept equal by a spec and shared tests (the TS core is the oracle
 the look: one source of values, one spec of relations, one measured model both apps are checked against. Comes after
 area 5 (whose structural snapshot is already in the shared render-model shape) and before areas 2-4.
 
-## 1. Design tokens with modes
+## 1. Design tokens with modes, in TOML
 
-`design/tokens.json` (repo root; W3C design-tokens style or a plain JSON) holds every value the look uses: colors,
+The user's decision: one shared config format, TOML, for the whole look of both apps; neither app styles itself
+from hand-written values or user CSS any more. `design/` (repo root) holds TOML files: the base tokens and one file per
+built-in theme / mode, all in one schema (`design/schema.md` documents it). They hold every value the look uses: colors,
 type (families, sizes, line heights, weights), spacing and metrics (row padding, indent, bullet, checkbox, top bar,
 phone toolbar, sidebar), radii. Values vary by **modes**: theme (all themes of `apps/web/src/styles.css`), font size
 (small / medium / large), density (compact / cozy / comfortable, `docs/03-features-ui.md` §2.3), font family
 choices. A generator (Node script, or Style Dictionary) writes:
 
-- a CSS file of custom properties per mode for the web app, which `styles.css` uses instead of its own `:root` blocks;
+- a CSS file of custom properties per mode for the web app, which `styles.css` uses instead of its own `:root` blocks
+  (`styles.css` keeps only structure: selectors and rules that reference the properties);
 - a Rust module (`outliner-app`) with the same values per mode, which `style.rs` reads.
 
 Generated files are committed and a CI step fails if they are stale. The web app must look exactly as before: its
@@ -36,29 +39,24 @@ from the same fixtures. Tests:
 - the web model and the native model of the same fixture and modes are equal within tolerance (fonts' glyph widths
   differ between engines: compare positions that do not depend on text width exactly, widths loosely).
 
-## 4. Appearance customization, instead of custom CSS
+## 4. User appearance: the same TOML
 
-The native app will not interpret CSS (no CSS engine; see the user's decision). Instead both apps get detailed,
-structured appearance settings, defined once:
+A user's appearance is a TOML document in the same schema, holding only what they change (for example
+`[color] tag = "#008080"`, `[type] size = 17`). Both apps layer it over the chosen theme and modes and apply it at
+once, without a restart. It is stored where the other preferences are (locally for now; synced with the other prefs
+once sync exists), and can be exported / imported as a `.toml` file, so a custom theme is a file.
 
-- `design/customize.json` lists what a user may change, each entry naming the token(s) it overrides, its kind (color,
-  length, font family, weight, choice), range or choices, and a label: per-role colors (text, note, tag, link, code
-  text and background, checked items, bullets, guides, the six color labels, accent, background), font family,
-  font size, line height, row padding, indent width, heading sizes and weights, and anything else the web exposes
-  through its CSS properties that a user could reasonably want.
-- A user's customization is one value: a map of token overrides (`appearance_overrides`), stored where the other
-  preferences are (locally for now; synced with the other prefs once sync exists). The web app applies it as CSS
-  custom properties on `:root`; the native app as overrides of its reactive token values. Both apply it at once,
-  without a restart.
-- The settings screens of both apps are generated from `customize.json` (the native one is area 4's job; add the
-  web one here, in the web's settings dialog, next to its existing options).
-- Test: the same overrides give the same render model on both apps, and every entry of `customize.json` changes
-  what the model says it changes.
-
-The web's existing Custom CSS setting stays web-only; the native app does not read it, and its settings screen says so.
+- Both settings screens edit it two ways: per-entry controls generated from the schema (color, length, font, weight,
+  choice, with ranges), and the TOML text itself, validated with errors shown at their line. The web one is this
+  area's; the native one is area 4's.
+- **The web's Custom CSS setting goes away** (`apps/web/src/ui/settings.ts`, `custom_css` in `main.ts`), replaced by
+  this. What to do with `custom_css` values already stored (ignore and keep, or drop) is the user's call: report it
+  to the orchestration session instead of deciding.
+- Tests: the same TOML gives the same render model on both apps; every schema entry changes what it says it changes;
+  invalid TOML is rejected with a located error and leaves the look as it was.
 
 ## Done when
 
 Tokens and spec are the single source (no color or metric literals left in `styles.css` or `style.rs` outside the
-generated files), the web QA still passes, the cross-checks run in CI, the customization entries tested on both apps, TASKS.md updated,
+generated files), the web QA still passes, the cross-checks run in CI, the user TOML tested on both apps, the web's Custom CSS removed, TASKS.md updated,
 committed and pushed, working tree clean.

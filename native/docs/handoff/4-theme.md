@@ -9,8 +9,8 @@ them come from the current theme, reactively. A settings screen (the top bar's g
 with these options; keep the choices on the device (NSH storage).
 
 Build it on area 6's token modes (themes, sizes, densities, fonts come from `design/tokens.json`), and add the
-appearance customization screen generated from `design/customize.json` (area 6). The native app does not read the
-web's Custom CSS: the screen says it is web-only.
+appearance screen of area 6 §4: per-entry controls generated from the TOML schema plus the TOML text, export and
+import of the user's `.toml`.
 
 ## Done when
 
