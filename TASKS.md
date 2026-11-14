@@ -260,6 +260,7 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   - CI `.github/workflows/native.yml`: `Outliner-macos.zip`(ad-hoc 서명 .app)과 `Outliner-android.apk`(debug 서명)를 artifact로 올린다.
 - [x] core 1차 이식과 TS 대조 테스트.
 - [x] NSH 시험용 앱: 헤드리스 테스트 통과, Linux GPUI(Xvfb)에서 렌더링·클릭·입력·↓ 이동 확인.
+- [x] 외형을 웹에 맞춤 (2026-11-14): Fira Sans/Mono, 18px/22px 행(30px 간격), 불릿과 들여쓰기 안내선, 제목, 코드·링크·태그·완료·체크박스·색 라벨, 상단 바, 휴대폰 하단 툴바(웹 아이콘). 남은 차이: 사이드바, 코드 칸 좌우 여백, 편집 입력란의 글꼴(GPUI), 다크 테마.
 - [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
 - [ ] 남은 core 이식: `commands.ts`(Dynalist 동작 규칙), `inline.ts`(전체 인라인 문법), `view.ts`, `search.ts`, `dates.ts`, `paste.ts`, `export.ts`.
   앱의 `commands.rs`, `inline.rs`는 시험용 단순 버전이다.

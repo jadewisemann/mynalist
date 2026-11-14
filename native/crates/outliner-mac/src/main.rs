@@ -8,8 +8,9 @@ fn main() -> std::process::ExitCode {
     use nsh_platform_gpui::{run_app, set_ui_sets, Appearance, AppOptions, AppSource, Root};
 
     set_ui_sets(vec![nsh_base::registry(), outliner_app::registry()]);
+    let root = outliner_app::FONTS.iter().fold(Root::of::<outliner_app::App>(), |root, font| root.font(*font));
     run_app(
-        AppSource::Rust(Root::of::<outliner_app::App>()),
+        AppSource::Rust(root),
         AppOptions {
             app_id: "dev.outliner.app".to_owned(),
             title: "Outliner".to_owned(),

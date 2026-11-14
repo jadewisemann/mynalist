@@ -10,7 +10,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 outliner-core = { path = "../outliner-core" }
-nsh-core = "=0.5.0"
+nsh-core = { version = "=0.5.0", features = ["svg"] }
 nsh-base = "=0.5.0"
 serde_json.workspace = true
 

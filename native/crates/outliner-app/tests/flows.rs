@@ -18,9 +18,14 @@ fn start(os: Os) -> Headless {
     app
 }
 
-/// The left edge of the row input (its row's indentation).
+/// The left edge of the row input (its row's indentation). A list keeps spare cells out of view, sized 0, with
+/// the last row they showed: only the input that shows counts.
 fn input_left(app: &Headless) -> f32 {
-    let node = app.screen().layout_nodes().into_iter().find(|n| n.test_id.as_deref() == Some("row-input"));
+    let node = app
+        .screen()
+        .layout_nodes()
+        .into_iter()
+        .find(|n| n.test_id.as_deref() == Some("row-input") && n.bounds.size.height.0 > 0.0);
     node.expect("the row input is laid out").bounds.origin.x.0
 }
 

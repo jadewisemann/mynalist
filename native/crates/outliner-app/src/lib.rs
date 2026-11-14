@@ -5,19 +5,33 @@
 //! `outliner-core`, the Rust port of `packages/core`.
 
 pub mod commands;
+mod icons;
 pub mod inline;
 mod outline;
 pub mod store;
+mod style;
 mod toolbar;
 
-use nsh_base::theme;
 use nsh_core::prelude::*;
+
+/// The web app's fonts (Fira Sans and Fira Mono, SIL OFL: `assets/fonts/OFL.txt`), for hosts that do not read the
+/// crate's assets (the macOS app passes them with its root: `Root::font`).
+pub const FONTS: [&[u8]; 6] = [
+    include_bytes!("../assets/fonts/fira-sans-latin-300-normal.woff2"),
+    include_bytes!("../assets/fonts/fira-sans-latin-400-normal.woff2"),
+    include_bytes!("../assets/fonts/fira-sans-latin-400-italic.woff2"),
+    include_bytes!("../assets/fonts/fira-sans-latin-700-normal.woff2"),
+    include_bytes!("../assets/fonts/fira-sans-latin-700-italic.woff2"),
+    include_bytes!("../assets/fonts/fira-mono-latin-400-normal.woff2"),
+];
 
 /// Items in the demo document.
 pub const DEMO_ITEMS: usize = 10_000;
 
 #[native_module("outliner/native")]
 fn native(registry: &mut Registry) {
+    // the web app's fonts (Fira Sans and Fira Mono, SIL OFL: assets/fonts/OFL.txt)
+    registry.assets(assets!());
     registry.register::<App>();
 }
 
@@ -29,11 +43,12 @@ pub fn App() -> impl IntoElement {
     view()
         .flex_1()
         .pt_safe_area()
-        // The software keyboard's height: the list shrinks and the toolbar sits right on the keyboard.
+        // the software keyboard's height: the document shrinks and the toolbar sits right on the keyboard
         .pb_keyboard()
-        .bg(move || theme().background)
+        .bg(style::color::bg())
+        .child(toolbar::topbar())
         .child(outline::outline())
-        .child(toolbar::toolbar())
+        .child(toolbar::mobile_bar())
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
 }

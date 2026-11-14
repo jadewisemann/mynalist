@@ -148,9 +148,23 @@ pub fn demo(n: usize) -> DocSession<Option<Caret>> {
         let id = format!("d{i}");
         let after = last_child.insert(parent.clone(), id.clone());
         let text = format!("{} {}", samples[i % samples.len()], i + 1);
-        ops.push(Op::Create { id: id.clone(), parent, after, props: text_props(&text), ts });
+        let mut props = text_props(&text);
+        // a few checked items, checkboxes and color labels, to see how they look
+        if i % 17 == 9 {
+            props.insert("ck".into(), Value::Bool(true));
+        }
+        if i % 19 == 12 {
+            props.insert("cb".into(), Value::Bool(true));
+        }
+        if i % 23 == 15 {
+            props.insert("cl".into(), Value::from(4));
+        }
+        ops.push(Op::Create { id: id.clone(), parent, after, props, ts });
         path.push(id);
     }
+    let mut title = Props::new();
+    title.insert("c".into(), Value::String("Demo".into()));
+    ops.insert(0, Op::Set { id: ROOT.to_owned(), props: title, ts });
     s.transact(ops, None, None, false);
     s
 }

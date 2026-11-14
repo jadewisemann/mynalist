@@ -1,42 +1,107 @@
-//! The editing toolbar for touch screens (no Tab or arrow keys there): shown while a row is being edited.
+//! The bars around the document, as the web app's: the top bar (`.topbar`), and on phones the editing toolbar
+//! above the keyboard (`.mobile-bar`, Dynalist's default buttons). Buttons whose feature the native app does not
+//! have yet are drawn but do nothing.
 
-use nsh_base::{button, theme};
+use nsh_base::button;
 use nsh_core::prelude::*;
 
 use crate::commands as cmd;
+use crate::icons::icon;
 use crate::store;
+use crate::style::{self, color};
 
-fn tool(label: &'static str, run: impl Fn(&str) + 'static) -> impl IntoElement {
+/// An icon button of the top bar: 30×30 with a rounded hover on desktops, 44×46 edge to edge on phones.
+fn top_button(name: &'static str, _label: &'static str, run: impl Fn() + 'static) -> impl IntoElement {
+    let phone = style::phone();
     button()
-        .px(px(14.0))
-        .py(px(10.0))
+        .h(px(if phone { 46.0 } else { 30.0 }))
+        .min_w(px(if phone { 44.0 } else { 30.0 }))
+        .px(px(if phone { 12.0 } else { 6.0 }))
+        .rounded(px(if phone { 0.0 } else { 6.0 }))
+        .items_center()
+        .justify_center()
+        .text_color(color::muted())
+        .active(|s| s.bg(rgb(0xeef5fe)))
+        .on_press(run)
+        .child(icon(name, if phone { 20.0 } else { 18.0 }))
+}
+
+fn none() {}
+
+pub fn topbar() -> impl IntoElement {
+    let phone = style::phone();
+    let bar = view()
+        .flex_row()
+        .items_center()
+        .h(px(style::topbar_h()))
+        .px(px(if phone { 0.0 } else { 10.0 }))
+        .gap(px(if phone { 0.0 } else { 4.0 }))
+        .border_b(px(1.0))
+        .border_color(color::line())
+        .bg(color::bg())
+        .child(top_button("side", "Toggle sidebar", none));
+    if phone {
+        bar.child(view().flex_1())
+            .child(top_button("undo", "Undo", || cmd::undo(false)))
+            .child(top_button("select", "Select multiple items", none))
+            .child(top_button("search", "Search", none))
+            .child(top_button("lock", "Read mode", none))
+            .child(top_button("menu", "Menu", none))
+    } else {
+        bar.child(top_button("back", "Back", cmd::zoom_out))
+            .child(top_button("fwd", "Forward", none))
+            .child(view().flex_1())
+            .child(text("Local only").text_size(px(13.0)).text_color(color::muted()).px(px(8.0)))
+            .child(top_button("search", "Search", none))
+            .child(top_button("gear", "Settings", none))
+            .child(top_button("menu", "Menu", none))
+    }
+}
+
+/// A button of the phone toolbar: 40×41, a 20pt icon in the muted color. It acts on the item being edited.
+fn tool(name: &'static str, _label: &'static str, run: impl Fn(&str, u32) + 'static) -> impl IntoElement {
+    button()
+        .w(px(40.0))
+        .h(px(41.0))
+        .items_center()
+        .justify_center()
+        .text_color(color::muted())
         .active(|s| s.opacity(0.5))
         .on_press(move || {
             if let Some(c) = store::peek(|s| s.editing.clone()) {
-                run(&c.id);
+                run(&c.id, c.at);
             }
         })
-        .child(text(label).text_color(move || theme().foreground))
+        .child(icon(name, 20.0))
 }
 
-pub fn toolbar() -> impl IntoElement {
+/// The editing toolbar of phones, shown while an item is being edited, right above the keyboard.
+pub fn mobile_bar() -> impl IntoElement {
     when(
-        || store::read(|s| s.editing.is_some()),
+        || style::phone() && store::read(|s| s.editing.is_some()),
         || {
-            let caret = || store::peek(|s| s.editing.as_ref().map_or(0, |c| c.at));
-            view()
-                .flex_row()
-                .justify_around()
+            scroll()
+                .horizontal()
+                .h(px(41.0))
                 .border_t(px(1.0))
-                .border_color(move || theme().border)
-                .bg(move || theme().background)
-                .child(tool("⇤", move |id| cmd::outdent(id, caret())))
-                .child(tool("⇥", move |id| cmd::indent(id, caret())))
-                .child(tool("↑", |id| cmd::step(id, false)))
-                .child(tool("↓", |id| cmd::step(id, true)))
-                .child(tool("☑", move |id| cmd::toggle_checked(id, caret(), true)))
-                .child(tool("↶", |_| cmd::undo(false)))
-                .child(tool("↷", |_| cmd::undo(true)))
+                .border_color(color::line())
+                .bg(color::bg())
+                .child(
+                    view()
+                        .flex_row()
+                        .child(tool("unindent", "Unindent", cmd::outdent))
+                        .child(tool("indent", "Indent", cmd::indent))
+                        .child(tool("zoom", "Zoom in", |id, _| cmd::zoom_in(id)))
+                        .child(tool("trash", "Delete item", cmd::delete_item))
+                        .child(tool("check", "Check off", |id, at| cmd::toggle_checked(id, at, true)))
+                        .child(tool("note", "Edit note", |_, _| {}))
+                        .child(tool("date", "Add date", |_, _| {}))
+                        .child(tool("up", "Move up", cmd::move_up))
+                        .child(tool("down", "Move down", cmd::move_down))
+                        .child(tool("send", "Move item to", |_, _| {}))
+                        .child(tool("undo", "Undo", |_, _| cmd::undo(false)))
+                        .child(tool("redo", "Redo", |_, _| cmd::undo(true))),
+                )
         },
     )
 }
