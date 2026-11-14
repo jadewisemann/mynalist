@@ -1,7 +1,5 @@
 # Area 3: sidebar
 
-> On hold (the user, 2026-11-14): not to be started until the user asks.
-
 ## Goal
 
 The web app's sidebar (`apps/web/src/ui/sidebar.ts`, `.sidebar` styles): Files / Bookmarks / Tags tabs, the file
@@ -12,5 +10,5 @@ Tags tab lists the tags found in the open document (`extractTags`, from the inli
 
 ## Done when
 
-Desktop and phone layouts match the web app's screenshots, switching documents works, headless tests cover it, CI
+Desktop and phone layouts match the web app (structural snapshot and offscreen render, area 5), switching documents works, headless tests cover it, CI
 green, TASKS.md updated, committed and pushed.

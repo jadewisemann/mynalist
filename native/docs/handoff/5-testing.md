@@ -1,45 +1,44 @@
-# Area 5: deterministic, solid tests for the native app
+# Area 5: deterministic look checks (structural snapshot + offscreen render)
 
-The user wants the native app verified deterministically, against the oracles the repository already has, rather
-than by screenshots. Areas 2-4 (thread, sidebar, themes) are on hold; this comes after area 1 (inline syntax).
+The user wants the UI checked deterministically, replacing the Xvfb screenshots (do not use Xvfb / xwd any more).
+Two tools, both in CI. This comes right after area 1; areas 2-4 then use them as their "done when".
 
-## Oracles we already have
+## 1. Structural snapshot
 
-- The TS core (`packages/core`): differential fixtures, as `outliner-core` already does.
-- Dynalist itself, recorded: `qa/golden/editing.json` (398 keyboard scenarios: `pre` / `post` normalized states
-  with items, depth, props, caret / selection, zoom; the steps are defined in `qa/suites/editing.mjs`, known
-  Dynalist bugs in `qa/lib/compare.mjs` `KNOWN`), `qa/golden/fuzz.json.gz` (random key runs, 400 seeds x 10
-  steps), `qa/golden/layout.json` and `layout-mobile.json` (measured type and geometry, compared with tolerances by
-  `qa/layout.mjs`). The web app passes all of them; read `qa/PLAN.md` first.
+A headless NSH test (`nsh-testing` 0.5.0) that renders fixed documents and dumps what is on screen in a stable text
+form, checked in as golden files and compared byte for byte:
 
-## Work, in this order
+- every view: kind, test id, bounds (rounded to 0.5pt), in tree order;
+- every text and its spans: characters, and the resolved style (`screen().span_style(..)`: family, size, weight,
+  italic, color, decoration, background);
+- inputs: their text.
 
-1. **Editing behavior against Dynalist.** Move the key handling out of the NSH view into a pure Rust module (an
-   "editor" layer in `outliner-app` or a new crate, no NSH types): a key or typed text plus the current
-   caret/selection goes to a command on the document and gives the new caret/selection. The NSH row input then
-   only forwards keys and text to it. Export the scenarios to JSON with a small Node script (definitions from
-   `qa/suites/editing.mjs`, golden states from `qa/golden/editing.json`, the `KNOWN` list), and replay every
-   scenario in a Rust test: build `pre` from the fixture and setup, run the steps, normalize, compare with `post`
-   as `qa/lib/compare.mjs` does (same tolerances, same KNOWN exceptions). Then the fuzz recording the same way.
-   Report the match count; scenarios that need things the native app does not have yet (block selection,
-   clipboard, notes editing, search ...) are listed as skipped with the reason, never counted as passing.
-2. **Look against Dynalist's measurements.** A headless NSH test (`nsh-testing`: `screen().layout_nodes()`,
-   `span_style`) that builds the same fixture as `qa/layout.mjs`, measures the same metrics, and compares them with
-   `qa/golden/layout.json` (desktop: `Os::MacOs` + `Idiom::Desktop`) and `layout-mobile.json` (phone, 390x844)
-   with the same tolerances. Font family differs by design (Fira Sans vs Whitney): treat it as the web QA does.
-   Add a structural snapshot (layout tree, texts, span styles, in a stable text form, checked in) to catch
-   unintended changes.
-3. **Core invariants.** Property tests (seeded, e.g. `proptest`) on `outliner-core`: no cycles, parent/children
-   consistency, serialize round trip, undo then redo restores the canonical tree, any interleaving of several
-   clients through a simulated server converges. Run `cargo-mutants` on `outliner-core` once and report the
-   caught / missed ratio (do not add it to the PR-blocking CI if it is slow; a scheduled or manual workflow is fine).
-4. **Determinism hygiene.** `rust-toolchain.toml` pinning the toolchain, fixed seeds with failing seeds kept as
-   regression cases, no sleeps in tests (wait for conditions), no network. All of it in CI (`ci.yml`), and a CI
-   step that runs the test suites a few times to catch flaky tests.
+Fixtures: the demo document's first screen, one exercising every inline kind, headings, checked items, checkboxes,
+color labels, notes and numbered lists; each as desktop (`Os::MacOs` + `Idiom::Desktop`, 1100x800) and phone
+(`Os::Ios`/`Os::Android`, 390x844), at rest and with a row being edited. Fixed clock, fixed ids, reduced motion,
+bundled fonts only, so the output does not depend on the machine.
+
+A mismatch prints a readable diff. An env var (for example `UPDATE_SNAPSHOTS=1`) rewrites the goldens; the commit
+that changes them must say why. Check that the web app's values are what the goldens say where they overlap
+(sizes, paddings, colors from `apps/web/src/styles.css`), so the snapshot pins the web's look, not just today's.
+
+## 2. Offscreen render (GPUI)
+
+`nsh-platform-gpui` has a `shot` feature: GPUI's test platform (`TestAppContext`) renders a window's frame
+offscreen, with no X server or window manager (see `crates/gpui/nsh-platform-gpui/src/tests.rs` in the NSH repo,
+https://github.com/longbridge/nsh, for how its own tests use it). Use it to render the same fixtures to PNG at a fixed
+size and scale:
+
+- on the macOS CI runner (the platform the app ships on); find out whether it works on Linux too and say so;
+- compare with checked-in reference PNGs with a small per-pixel tolerance and a max differing-pixel ratio, and
+  upload the PNGs and a diff image as CI artifacts;
+- references are updated the same way as the snapshots (env var, and the commit says why).
+
+If the `shot` path cannot work from outside the NSH workspace at 0.5.0, stop and report what blocks it with the
+evidence, instead of falling back to Xvfb.
 
 ## Done when
 
-Each oracle above is replayed by a Rust test that runs in CI; the report (in TASKS.md, Korean) gives the numbers:
-scenarios matching / skipped (by reason) / failing, layout metrics within tolerance, mutants caught. Failing
-behavior that the app should already have is fixed in the app or core (or, if the fix is large, listed with its
-cause). Everything committed and pushed, working tree clean.
+Both run in CI (the snapshot in `ci.yml` with the other Rust tests, the offscreen render in `native.yml` on macOS),
+they fail on a deliberate one-pixel / one-point change and pass again when it is reverted, `common.md` describes how
+to use and update them, TASKS.md updated, committed and pushed, working tree clean.

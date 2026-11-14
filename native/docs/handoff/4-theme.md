@@ -1,7 +1,5 @@
 # Area 4: themes and display settings
 
-> On hold (the user, 2026-11-14): not to be started until the user asks.
-
 ## Goal
 
 The web app's themes (light, dark, black, sepia, and the others in `apps/web/src/styles.css` `:root[data-theme=..]`),
@@ -12,5 +10,5 @@ with these options; keep the choices on the device (NSH storage).
 
 ## Done when
 
-Each theme matches the web app's screenshots, changing settings applies at once and survives a restart, headless
+Each theme matches the web app (structural snapshot and offscreen render, area 5), changing settings applies at once and survives a restart, headless
 tests cover it, CI green, TASKS.md updated, committed and pushed.

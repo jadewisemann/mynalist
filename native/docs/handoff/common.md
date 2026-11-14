@@ -29,12 +29,9 @@ Read this first. Area notes in this folder say what each piece of work is.
 - App behavior: headless tests in `crates/outliner-app/tests/flows.rs` (`nsh-testing` 0.5.0: `press`, `type_text`,
   `submit`, `press_key`, `scroll`, `screen()`; no IME `compose` step in 0.5.0; no access to app state, so assert on
   what the screen shows). Set `config.environment.os = Os::MacOs` (+ `Idiom::Desktop`) for desktop keys.
-- Look: run the GPUI binary under Xvfb and screenshot (`apt-get install xvfb mesa-vulkan-drivers x11-apps
-  imagemagick xdotool` plus GPUI's dev libs: `clang libclang-dev pkg-config libfontconfig-dev libfreetype-dev
-  libwayland-dev libx11-xcb-dev libxcb1-dev libxkbcommon-dev libxkbcommon-x11-dev libzstd-dev libvulkan-dev`).
-  `DISPLAY=:99 WAYLAND_DISPLAY= ./target/debug/outliner`; `OUTLINER_PHONE=1` lays it out as a phone (resize the
-  window to 390x800 with xdotool). Compare with the web app: `npx vite build` in `apps/web`, serve `dist`, screenshot
-  with Playwright (`/opt/node-tools/node_modules/playwright`), paste content as a `text/plain` ClipboardEvent.
+- Look: the structural snapshot and the offscreen GPUI render (area 5, `5-testing.md`) are how the look is checked.
+  Do not use Xvfb / xwd screenshots (the user asked for deterministic checks). Values to match come from
+  `apps/web/src/styles.css`.
 - Before committing: `cargo test` and `cargo clippy --all-targets -- -D warnings` in `native/`, `npm run typecheck`
   at the root if you touched TS.
 
