@@ -81,17 +81,40 @@ fn desktop_keys_indent_outdent_move_and_undo() {
     assert!(outdented < nested, "{outdented} < {nested}");
     app.press_key("tab").unwrap();
     assert_eq!(input_left(&app), nested);
+    // Dynalist's rules: outdenting left its siblings below under the old parent, so indenting again made it
+    // that parent's last child; the row below is now the parent's next sibling
     app.press_key("down").unwrap();
-    assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 3");
+    assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 8");
     app.press_key("up").unwrap();
+    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 2");
+    // Mod+Down moves it past the next row; Mod+Up brings it back
+    app.press_key("mod+down").unwrap();
+    app.press_key("mod+up").unwrap();
     app.press_key("up").unwrap();
-    assert_eq!(editing(&app), "Plain item 1");
-    // undo the indent, then the outdent
-    app.press_key("mod+z").unwrap();
-    app.press_key("mod+z").unwrap();
+    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 7");
+    app.press_key("down").unwrap();
+    // undo both moves, the indent and the outdent
+    for _ in 0..4 {
+        app.press_key("mod+z").unwrap();
+    }
     // undo puts the caret back where the change was made
     assert_eq!(editing(&app), "**Bold** and *italic* and `code` 2");
     assert_eq!(input_left(&app), nested);
+    app.press_key("down").unwrap();
+    assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 3");
+}
+
+#[test]
+fn zoom_in_and_out() {
+    let mut app = start(Os::MacOs);
+    edit_row(&mut app, "Plain item 1", "Plain item 1");
+    app.press_key("mod+]").unwrap();
+    // only its children show; the caret is on the first one
+    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 2");
+    assert!(!app.screen().shows("A link and a #tag 8"));
+    app.press_key("mod+[").unwrap();
+    app.wait_for("text:A link and a #tag 8").unwrap();
+    assert_eq!(editing(&app), "Plain item 1");
 }
 
 #[test]

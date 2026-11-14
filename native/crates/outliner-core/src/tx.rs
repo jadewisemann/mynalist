@@ -9,11 +9,13 @@ pub struct Tx<'a> {
     pub ops: Vec<Op>,
     /// Inverse ops in undo order.
     pub inverse: Vec<Op>,
+    /// Ids for the items this tx creates, used before fresh random ones (tests replaying recorded edits).
+    pub ids: std::collections::VecDeque<NodeId>,
 }
 
 impl<'a> Tx<'a> {
     pub fn new(tree: &'a mut Tree, ts: i64) -> Self {
-        Tx { tree, ts, ops: Vec::new(), inverse: Vec::new() }
+        Tx { tree, ts, ops: Vec::new(), inverse: Vec::new(), ids: Default::default() }
     }
 
     pub fn apply(&mut self, op: Op) -> bool {
@@ -28,7 +30,8 @@ impl<'a> Tx<'a> {
     }
 
     pub fn create(&mut self, parent: &str, after: Option<&str>, props: Props) -> NodeId {
-        self.create_with_id(parent, after, props, new_id())
+        let id = self.ids.pop_front().unwrap_or_else(new_id);
+        self.create_with_id(parent, after, props, id)
     }
 
     pub fn create_with_id(&mut self, parent: &str, after: Option<&str>, props: Props, id: NodeId) -> NodeId {

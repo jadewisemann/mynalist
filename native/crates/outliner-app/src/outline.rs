@@ -27,9 +27,11 @@ pub fn outline() -> impl IntoElement {
 /// A cell, reused for other rows as the list scrolls: its bindings read the row where it is now.
 fn row(at: Position) -> impl IntoElement {
     let row = computed(move || store::read(|s| s.rows.get(at.index()).cloned()));
+    // the id of this row while it is the one being edited: the input is made for that item, and made again
+    // when the cell is reused for another row that is being edited too (after a zoom, say)
     let editing = computed(move || {
-        let id = row.get().map(|r| r.id);
-        store::read(|s| s.editing.as_ref().map(|c| c.id.clone())) == id && id.is_some()
+        let id = row.get().map(|r| r.id)?;
+        store::read(|s| s.editing.as_ref().is_some_and(|c| c.id == id)).then_some(id)
     });
     view()
         .flex_row()
@@ -40,8 +42,10 @@ fn row(at: Position) -> impl IntoElement {
         .child(bullet(row))
         .child(
             view().flex_1().py(px(4.0)).child(
-                when(move || editing.get(), move || row_input(row.get_untracked()))
-                    .otherwise(move || row_text(row)),
+                dynamic(move || match editing.get() {
+                    Some(_) => row_input(row.get_untracked()).into_element(),
+                    None => row_text(row).into_element(),
+                }),
             ),
         )
 }
@@ -56,7 +60,7 @@ fn bullet(row: Memo<Option<Row>>) -> impl IntoElement {
         .justify_center()
         .on_press(move || {
             if let Some(r) = row.get_untracked() {
-                cmd::toggle(&r.id);
+                cmd::toggle_collapse(&r.id, false);
             }
         })
         .child(
@@ -109,36 +113,59 @@ fn span(s: Span) -> Text {
 }
 
 /// The input of the row being edited. Made when editing moves to the row, gone when it moves away; the keys
-/// bound here live as long as it does.
+/// bound here live as long as it does. Its text is the item's (a command may change it while it shows), and a
+/// command that places the caret moves its selection there.
 fn row_input(row: Option<Row>) -> impl IntoElement {
     let Some(row) = row else { return view().into_element() };
     let id = row.id.clone();
-    let (initial, caret) = store::peek(|s| {
-        let at = s.editing.as_ref().map_or(0, |c| c.at);
-        (store::content_of(s, &id), at)
-    });
-    let value = signal(initial);
+    let caret = store::peek(|s| s.editing.as_ref().map_or(0, |c| c.at));
     let sel = signal(caret);
     let sel_end = signal(caret);
+    let field = element_ref();
 
+    // a command (not typing) put the caret somewhere in this row: select it there
+    {
+        let id = id.clone();
+        let seen = std::cell::Cell::new(store::peek(|s| s.caret_rev));
+        effect(move || {
+            let (rev, at) = store::read(|s| (s.caret_rev, s.editing.as_ref().filter(|c| c.id == id).map(|c| c.at)));
+            if rev != seen.get() {
+                seen.set(rev);
+                if let Some(at) = at {
+                    sel.set(at);
+                    sel_end.set(at);
+                    field.set_selection(at, at);
+                }
+            }
+        });
+    }
+
+    let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
     let bind = |keys: &str, f: fn(&str, u32)| {
         let id = id.clone();
-        on_key_with(keys, KeyOptions { when: When::Always, repeat: true, ..Default::default() }, move |_| {
-            f(&id, sel.get_untracked());
-        });
+        on_key_with(keys, opts, move |_| f(&id, sel.get_untracked()));
     };
     bind("up", |id, _| cmd::step(id, false));
     bind("down", |id, _| cmd::step(id, true));
     bind("tab", cmd::indent);
     bind("shift+tab", cmd::outdent);
-    bind("mod+enter", |id, _| cmd::toggle_checked(id));
+    bind("mod+up", cmd::move_up);
+    bind("mod+down", cmd::move_down);
+    bind("shift+mod+backspace", cmd::delete_item);
+    bind("mod+enter", |id, at| cmd::toggle_checked(id, at, false));
+    bind("shift+mod+c", cmd::toggle_checkbox);
+    bind("mod+.", |id, _| cmd::toggle_collapse(id, false));
+    bind("shift+mod+.", |id, _| cmd::toggle_collapse(id, true));
+    bind("mod+]", |id, _| cmd::zoom_in(id));
+    bind("mod+[", |_, _| cmd::zoom_out());
     bind("mod+z", |_, _| cmd::undo(false));
     bind("shift+mod+z", |_, _| cmd::undo(true));
-    bind("mod+.", |id, _| cmd::toggle(id));
+    bind("mod+y", |_, _| cmd::undo(true));
 
-    let (change_id, submit_id, key_id) = (id.clone(), id.clone(), id.clone());
+    let (value_id, change_id, submit_id, key_id) = (id.clone(), id.clone(), id.clone(), id.clone());
     input()
-        .value(move || value.get())
+        .element_ref(&field)
+        .value(move || store::read(|s| store::content_of(s, &value_id)))
         .test_id("row-input")
         .auto_focus(true)
         .selected_range((caret, caret))
@@ -148,18 +175,15 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .border(px(0.0))
         .bg(AdaptiveColor::TRANSPARENT)
         .text_color(move || theme().foreground)
-        .on_change(move |t: &str| {
-            value.set(t.to_owned());
-            cmd::set_text(&change_id, t, sel.get_untracked());
-        })
+        .on_change(move |t: &str| cmd::set_text(&change_id, t, sel.get_untracked()))
         .on_selection_change(move |s: &Selection| {
             sel.set(s.start);
             sel_end.set(s.end);
         })
-        .on_submit(move |_: &str| cmd::split(&submit_id, sel.get_untracked()))
+        .on_submit(move |_: &str| cmd::enter(&submit_id, sel.get_untracked(), sel_end.get_untracked()))
         .on_key_press(move |k: &str| {
             if k == "Backspace" && sel.get_untracked() == 0 && sel_end.get_untracked() == 0 {
-                cmd::merge_up(&key_id);
+                cmd::backspace(&key_id);
             }
         })
         .into_element()

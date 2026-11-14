@@ -6,6 +6,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use nsh_core::prelude::*;
+use outliner_core::view::{visible_children, View};
 use outliner_core::{item, DocSession, NodeId, Op, Props, Tree, ROOT};
 use serde_json::Value;
 
@@ -30,11 +31,15 @@ pub struct State {
     pub rows: Vec<Row>,
     /// The item being edited, and where its caret goes when the row's input appears.
     pub editing: Option<Caret>,
+    /// Bumped when a command (not typing) places the caret, so the row's input moves its selection there.
+    pub caret_rev: u64,
+    /// The zoom root and the visibility options.
+    pub view: View,
 }
 
 impl State {
     fn new(session: DocSession<Option<Caret>>) -> Self {
-        let mut s = State { session, rows: Vec::new(), editing: None };
+        let mut s = State { session, rows: Vec::new(), editing: None, caret_rev: 0, view: View::default() };
         s.reflow();
         s
     }
@@ -43,17 +48,20 @@ impl State {
         &self.session.live
     }
 
-    /// Recompute the visible rows: every attached item under the root, depth first, skipping collapsed children.
+    /// Recompute the visible rows: the items under the zoom root that the view shows, depth first.
     pub fn reflow(&mut self) {
         let t = &self.session.live;
+        if !t.is_attached(&self.view.zoom) {
+            self.view.zoom = ROOT.to_owned();
+        }
+        let v = &self.view;
         let mut rows = Vec::with_capacity(self.rows.len().max(64));
-        let mut stack: Vec<(&str, u16)> = t.root().children.iter().rev().map(|c| (c.as_str(), 0)).collect();
+        let mut stack: Vec<(NodeId, u16)> = visible_children(t, &v.zoom, v).into_iter().rev().map(|c| (c, 0)).collect();
         while let Some((id, depth)) = stack.pop() {
-            let Some(n) = t.get(id) else { continue };
-            rows.push(Row { id: n.id.clone(), depth, has_kids: !n.children.is_empty(), collapsed: n.collapsed });
-            if !n.collapsed {
-                stack.extend(n.children.iter().rev().map(|c| (c.as_str(), depth + 1)));
-            }
+            let Some(n) = t.get(&id) else { continue };
+            let shown = visible_children(t, &id, v);
+            rows.push(Row { id: id.clone(), depth, has_kids: !n.children.is_empty(), collapsed: n.collapsed });
+            stack.extend(shown.into_iter().rev().map(|c| (c, depth + 1)));
         }
         self.rows = rows;
     }

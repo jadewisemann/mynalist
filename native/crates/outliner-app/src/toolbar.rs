@@ -34,7 +34,7 @@ pub fn toolbar() -> impl IntoElement {
                 .child(tool("⇥", move |id| cmd::indent(id, caret())))
                 .child(tool("↑", |id| cmd::step(id, false)))
                 .child(tool("↓", |id| cmd::step(id, true)))
-                .child(tool("☑", cmd::toggle_checked))
+                .child(tool("☑", move |id| cmd::toggle_checked(id, caret(), true)))
                 .child(tool("↶", |_| cmd::undo(false)))
                 .child(tool("↷", |_| cmd::undo(true)))
         },
