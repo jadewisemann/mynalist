@@ -1,0 +1,10 @@
+{
+  "about": "Combinations of a theme, modes and the user's appearance (custom: design/test/custom.toml) that both apps render the same fixture in: native tests/snapshot.rs writes a golden for each, qa/model.mjs measures the web in the same and compares. Named <doc>-<device>-<modes, in this order, by their values>[-custom].",
+  "combos": [
+    { "doc": "looks", "device": "desktop", "modes": { "theme": "dark" } },
+    { "doc": "looks", "device": "phone", "modes": { "theme": "sepia", "size": "large", "density": "compact" } },
+    { "doc": "inline", "device": "desktop", "modes": { "theme": "black", "size": "small", "density": "comfortable", "font": "serif" }, "custom": true },
+    { "doc": "looks", "device": "phone", "modes": { "theme": "darkgold", "eafont": "pretendard" }, "custom": true },
+    { "doc": "inline", "device": "phone", "modes": { "theme": "christmas", "density": "compact" } }
+  ]
+}

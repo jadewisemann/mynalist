@@ -1,10 +1,11 @@
 //! Fixed documents and states for the look checks: the structural snapshot (`tests/snapshot.rs`) and the
 //! offscreen render (`outliner-mac`, `src/bin/shot.rs`) open the app on one of these instead of the demo.
 
-use nsh_core::prelude::*;
 use nsh_core::element::Root;
+use nsh_core::prelude::*;
 
 use crate::appearance::{self, Modes};
+use crate::settings::{self, Prefs};
 use crate::sidebar::{self, Tab};
 use crate::{commands, store};
 
@@ -24,6 +25,9 @@ pub fn edited_item(doc: &str) -> &'static str {
     }
 }
 
+/// The modes of a fixture that uses the prefs kept on the device instead of modes of its own.
+pub const STORED: &str = "stored";
+
 /// The props of [`Fixture`]: the document (one of [`DOCS`]) and the item being edited ("" for none).
 #[derive(Clone, PartialEq, Props)]
 pub struct FixtureProps {
@@ -31,14 +35,15 @@ pub struct FixtureProps {
     #[prop(default)]
     pub editing: Prop<String>,
     /// The modes the look is resolved for, as `group=mode` words ([`Modes::parse`]; the device comes from the
-    /// platform).
+    /// platform), or [`STORED`].
     #[prop(default)]
     pub modes: Prop<String>,
     /// A user's appearance TOML layered over them ("" for none).
     #[prop(default)]
     pub appearance: Prop<String>,
     /// The sidebar: "" as the device starts it (shown on desktops, hidden on phones), or shown on a tab
-    /// ("files", "bookmarks", "tags").
+    /// ("files", "bookmarks", "tags"); or the settings shown, on Preferences ("settings") or on Look with the
+    /// `[type]` controls ("look").
     #[prop(default)]
     pub side: Prop<String>,
 }
@@ -48,9 +53,14 @@ pub struct FixtureProps {
 pub fn Fixture(props: FixtureProps) -> impl IntoElement {
     let doc = props.doc.get();
     let (modes, user) = (props.modes.get(), props.appearance.get());
-    let modes = Modes::parse(&modes).unwrap_or_else(|e| panic!("the fixture's modes: {e}"));
-    if modes != Modes::default() || !user.is_empty() {
-        appearance::set(modes, &user).unwrap_or_else(|e| panic!("the fixture's appearance: {e}"));
+    // "stored": the prefs kept on the device, as the app starts with them (the settings' tests)
+    if modes != STORED {
+        let modes = Modes::parse(&modes).unwrap_or_else(|e| panic!("the fixture's modes: {e}"));
+        if let Err(e) = appearance::parse(&user) {
+            panic!("the fixture's appearance: {e}");
+        }
+        // the modes as prefs, not kept on the device (the theme named: none follows the system's appearance)
+        settings::use_prefs(Prefs::of(&modes, &user));
     }
     let first = match doc.as_str() {
         "inline" => store::showcase(),
@@ -65,13 +75,18 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
         "files" => sidebar::show(Tab::Files),
         "bookmarks" => sidebar::show(Tab::Bookmarks),
         "tags" => sidebar::show(Tab::Tags),
+        "settings" => settings::open(settings::Tab::Prefs),
+        "look" => {
+            settings::open(settings::Tab::Look);
+            settings::show_table("type");
+        }
         other => panic!("the fixture's sidebar: {other}"),
     }
     let editing = props.editing.get();
     if !editing.is_empty() {
         commands::start_editing(&editing, None);
     }
-    crate::screen()
+    crate::root()
 }
 
 /// The root of the app on `doc`, editing `editing` when given.

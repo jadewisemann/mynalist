@@ -143,7 +143,9 @@ fn val(v: &Value) -> Val {
 }
 
 fn layer(map: &mut HashMap<&'static str, Val>, group: &str, mode: &str) {
-    let Some(g) = GROUPS.iter().find(|g| g.name == group) else { return };
+    let Some(g) = GROUPS.iter().find(|g| g.name == group) else {
+        return;
+    };
     if let Some((_, values)) = g.modes.iter().find(|(name, _)| *name == mode) {
         for (id, v) in values.iter() {
             map.insert(id, val(v));
@@ -190,7 +192,9 @@ fn substitute(t: &str, values: &HashMap<&'static str, Val>) -> String {
     let mut rest = t;
     while let Some(start) = rest.find('{') {
         out.push_str(&rest[..start]);
-        let Some(end) = rest[start..].find('}') else { break };
+        let Some(end) = rest[start..].find('}') else {
+            break;
+        };
         let id = &rest[start + 1..start + end];
         match values.get(id) {
             Some(Val::Text(x)) => out.push_str(x),
@@ -246,7 +250,9 @@ fn refs(t: &str) -> Vec<&str> {
     let mut out = Vec::new();
     let mut rest = t;
     while let Some(start) = rest.find('{') {
-        let Some(end) = rest[start..].find('}') else { break };
+        let Some(end) = rest[start..].find('}') else {
+            break;
+        };
         out.push(&rest[start + 1..start + end]);
         rest = &rest[start + end + 1..];
     }
@@ -353,6 +359,93 @@ pub fn parse(text: &str) -> Result<User, Error> {
     Ok(User(out))
 }
 
+/// A value as a TOML text writes it: a number as JS's `String` does, a string as JSON (the web's `toToml`).
+fn toml_text(v: &toml::Value) -> String {
+    match v {
+        toml::Value::String(t) => serde_json::to_string(t).unwrap_or_default(),
+        toml::Value::Integer(i) => i.to_string(),
+        toml::Value::Float(f) if f.fract() == 0.0 && f.abs() < 1e15 => format!("{}", *f as i64),
+        toml::Value::Float(f) => f.to_string(),
+        other => other.to_string(),
+    }
+}
+
+/// The TOML text of an appearance's entries, tables and keys in the schema's order, as the web's `toToml` writes
+/// it ("" for none).
+pub fn to_toml(entries: &[(&'static str, toml::Value)]) -> String {
+    let order = |id: &str| SCHEMA.iter().position(|e| e.id == id).unwrap_or(usize::MAX);
+    let mut sorted: Vec<_> = entries.iter().collect();
+    sorted.sort_by_key(|(id, _)| order(id));
+    let mut tables: Vec<(&str, Vec<String>)> = Vec::new();
+    for (id, v) in sorted {
+        let (table, key) = id.split_once('.').unwrap_or((id, ""));
+        let line = format!("{key} = {}", toml_text(v));
+        match tables.last_mut() {
+            Some((t, lines)) if *t == table => lines.push(line),
+            _ => tables.push((table, vec![line])),
+        }
+    }
+    tables.iter().map(|(t, lines)| format!("[{t}]\n{}\n", lines.join("\n"))).collect::<Vec<_>>().join("\n")
+}
+
+/// The entries a valid appearance TOML sets, as written (references and units kept), in its order.
+pub fn raw_entries(text: &str) -> Result<Vec<(&'static str, toml::Value)>, Error> {
+    parse(text)?;
+    let doc: toml::Table =
+        text.parse().map_err(|e: toml::de::Error| Error { line: 0, message: e.message().to_owned() })?;
+    let mut out = Vec::new();
+    for (table, entries) in &doc {
+        for (key, v) in entries.as_table().into_iter().flatten() {
+            if let Some(e) = entry(&format!("{table}.{key}")) {
+                out.push((e.id, v.clone()));
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// A value for entry `id` from what a control holds: a number for lengths, ratios and weights ("10pt" stays text
+/// for a length), else the text itself; `None` for an empty control (the entry goes back to the theme's value).
+pub fn control_value(id: &str, input: &str) -> Option<toml::Value> {
+    let t = input.trim();
+    if t.is_empty() {
+        return None;
+    }
+    let numeric = entry(id).is_some_and(|e| matches!(e.kind, Kind::Length | Kind::Ratio | Kind::Weight));
+    match t.parse::<f64>() {
+        Ok(n) if numeric && n.fract() == 0.0 && n.abs() < 1e15 => Some(toml::Value::Integer(n as i64)),
+        Ok(n) if numeric => Some(toml::Value::Float(n)),
+        _ => Some(toml::Value::String(t.to_owned())),
+    }
+}
+
+/// `text` (a valid appearance) with entry `id` set to `value`, or left to the theme when `None`; checked: an
+/// invalid value is the error, with its entry's name.
+pub fn with_entry(text: &str, id: &str, value: Option<toml::Value>) -> Result<String, Error> {
+    let mut entries = raw_entries(text)?;
+    let e = entry(id).ok_or_else(|| Error { line: 0, message: format!("unknown entry {id}") })?;
+    entries.retain(|(x, _)| *x != e.id);
+    if let Some(v) = value {
+        entries.push((e.id, v));
+    }
+    let out = to_toml(&entries);
+    // the one value changed is the only one that can be wrong: name it without a line
+    parse(&out).map_err(|err| Error { line: 0, message: err.message })?;
+    Ok(out)
+}
+
+/// An entry's value in the base look (desktop), as a TOML file writes it: what a control shows when the user's
+/// appearance does not set it.
+pub fn base_text(id: &str) -> String {
+    match BASE.iter().find(|(x, _)| *x == id).map(|(_, v)| v) {
+        Some(Value::Color(c)) if c & 0xff == 0xff => format!("#{:06x}", c >> 8),
+        Some(Value::Color(c)) => format!("#{c:08x}"),
+        Some(Value::Number(n)) => n.to_string(),
+        Some(Value::Text(t)) => (*t).to_owned(),
+        None => String::new(),
+    }
+}
+
 /// The looks this app shows, a reactive global: whatever reads it is drawn again when it changes.
 #[derive(Clone, Default)]
 struct Current(Rc<Looks>);
@@ -419,6 +512,35 @@ mod tests {
         assert_eq!(err("[color]\nbg = \"{space.pad}\"\n").message, "color.bg: a color reference is one color entry");
         assert_eq!(err("[type]\nheading_weight = 650.5\n").line, 2);
         assert_eq!(err("[color]\nscheme = \"blue\"\n").message, "color.scheme: one of light, dark");
+    }
+
+    #[test]
+    fn writes_back_what_it_reads_as_the_web_does() {
+        let src = "[color]\ntag = \"#008080\"\n\n[type]\nsize = 17\n";
+        assert_eq!(to_toml(&raw_entries(src).unwrap()), src);
+        // keys in the schema's order, whatever the document's
+        let shuffled = "[type]\nline = 1.5\nsize = 17\n\n[color]\ntopbar_border = \"{color.accent}\"\n";
+        assert_eq!(
+            to_toml(&raw_entries(shuffled).unwrap()),
+            "[color]\ntopbar_border = \"{color.accent}\"\n\n[type]\nsize = 17\nline = 1.5\n"
+        );
+        assert_eq!(to_toml(&[]), "");
+    }
+
+    #[test]
+    fn a_control_sets_one_entry() {
+        let src = "[color]\ntag = \"#008080\"\n";
+        let set = |id, v: &str| with_entry(src, id, control_value(id, v));
+        assert_eq!(set("type.size", "17").unwrap(), "[color]\ntag = \"#008080\"\n\n[type]\nsize = 17\n");
+        assert_eq!(set("space.pad", "2.5").unwrap(), "[color]\ntag = \"#008080\"\n\n[space]\npad = 2.5\n");
+        assert_eq!(set("color.tag", "").unwrap(), "");
+        assert_eq!(set("color.fg", "{color.tag}").unwrap(), "[color]\nfg = \"{color.tag}\"\ntag = \"#008080\"\n");
+        assert_eq!(set("type.size", "100").unwrap_err().message, "type.size: more than 40");
+        assert_eq!(set("color.bg", "teal").unwrap_err().message, "color.bg: not a color: teal");
+        assert_eq!(base_text("color.bg"), "#ffffff");
+        assert_eq!(base_text("color.highlight"), "#ffdd0061");
+        assert_eq!(base_text("type.line"), "1.2223");
+        assert_eq!(base_text("type.size"), "18");
     }
 
     #[test]

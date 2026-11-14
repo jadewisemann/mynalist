@@ -852,6 +852,16 @@ export const SCHEMA: Entry[] = [
     "max": 0.5
   },
   {
+    "table": "type",
+    "key": "modal_title",
+    "id": "type.modal_title",
+    "kind": "length",
+    "doc": "Dialog titles (the settings' heading).",
+    "css": "--type-modal-title",
+    "min": 8,
+    "max": 32
+  },
+  {
     "table": "space",
     "key": "pad",
     "id": "space.pad",
@@ -1672,6 +1682,306 @@ export const SCHEMA: Entry[] = [
     "max": 4
   },
   {
+    "table": "space",
+    "key": "overlay_top",
+    "id": "space.overlay_top",
+    "kind": "ratio",
+    "doc": "Space above a dialog, of the window's height.",
+    "css": "--space-overlay-top",
+    "min": 0,
+    "max": 0.5
+  },
+  {
+    "table": "space",
+    "key": "settings",
+    "id": "space.settings",
+    "kind": "length",
+    "doc": "The settings dialog's width (narrower windows: `space.settings_vw`).",
+    "css": "--space-settings",
+    "min": 300,
+    "max": 1200
+  },
+  {
+    "table": "space",
+    "key": "settings_vw",
+    "id": "space.settings_vw",
+    "kind": "ratio",
+    "doc": "The settings dialog's widest, of the window's width.",
+    "css": "--space-settings-vw",
+    "min": 0.5,
+    "max": 1
+  },
+  {
+    "table": "space",
+    "key": "settings_vh",
+    "id": "space.settings_vh",
+    "kind": "ratio",
+    "doc": "The settings dialog's tallest, of the window's height.",
+    "css": "--space-settings-vh",
+    "min": 0.3,
+    "max": 1
+  },
+  {
+    "table": "space",
+    "key": "modal_x",
+    "id": "space.modal_x",
+    "kind": "length",
+    "doc": "Dialogs' padding left and right.",
+    "css": "--space-modal-x",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "modal_head_y",
+    "id": "space.modal_head_y",
+    "kind": "length",
+    "doc": "Dialog titles' padding above and below.",
+    "css": "--space-modal-head-y",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "modal_body_y",
+    "id": "space.modal_body_y",
+    "kind": "length",
+    "doc": "Dialog bodies' padding above and below.",
+    "css": "--space-modal-body-y",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "modal_foot_y",
+    "id": "space.modal_foot_y",
+    "kind": "length",
+    "doc": "Dialog button rows' padding above and below.",
+    "css": "--space-modal-foot-y",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "modal_foot_gap",
+    "id": "space.modal_foot_gap",
+    "kind": "length",
+    "doc": "Space between a dialog's buttons.",
+    "css": "--space-modal-foot-gap",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "btn_x",
+    "id": "space.btn_x",
+    "kind": "length",
+    "doc": "Buttons' padding left and right.",
+    "css": "--space-btn-x",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "btn_y",
+    "id": "space.btn_y",
+    "kind": "length",
+    "doc": "Buttons' padding above and below.",
+    "css": "--space-btn-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "field_gap",
+    "id": "space.field_gap",
+    "kind": "length",
+    "doc": "Space between a setting's label and its input.",
+    "css": "--space-field-gap",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "field_row_gap",
+    "id": "space.field_row_gap",
+    "kind": "length",
+    "doc": "Space between a checkbox setting's box and its label.",
+    "css": "--space-field-row-gap",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "field_bottom",
+    "id": "space.field_bottom",
+    "kind": "length",
+    "doc": "Space below a setting.",
+    "css": "--space-field-bottom",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "input_x",
+    "id": "space.input_x",
+    "kind": "length",
+    "doc": "Inputs' padding left and right.",
+    "css": "--space-input-x",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "input_y",
+    "id": "space.input_y",
+    "kind": "length",
+    "doc": "Inputs' padding above and below.",
+    "css": "--space-input-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "set_tab_x",
+    "id": "space.set_tab_x",
+    "kind": "length",
+    "doc": "Settings tabs' padding left and right.",
+    "css": "--space-set-tab-x",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "set_tab_y",
+    "id": "space.set_tab_y",
+    "kind": "length",
+    "doc": "Settings tabs' padding above and below.",
+    "css": "--space-set-tab-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "set_tab_bar",
+    "id": "space.set_tab_bar",
+    "kind": "length",
+    "doc": "The active settings tab's underline.",
+    "css": "--space-set-tab-bar",
+    "min": 0,
+    "max": 6
+  },
+  {
+    "table": "space",
+    "key": "set_tabs_gap",
+    "id": "space.set_tabs_gap",
+    "kind": "length",
+    "doc": "Space between the settings tabs.",
+    "css": "--space-set-tabs-gap",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "set_tabs_bottom",
+    "id": "space.set_tabs_bottom",
+    "kind": "length",
+    "doc": "Space below the settings tabs.",
+    "css": "--space-set-tabs-bottom",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "set_head_top",
+    "id": "space.set_head_top",
+    "kind": "length",
+    "doc": "Space above a settings section's head.",
+    "css": "--space-set-head-top",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "set_head_bottom",
+    "id": "space.set_head_bottom",
+    "kind": "length",
+    "doc": "Space below a settings section's head.",
+    "css": "--space-set-head-bottom",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "km_y",
+    "id": "space.km_y",
+    "kind": "length",
+    "doc": "Settings list rows' padding above and below (appearance entries, keys).",
+    "css": "--space-km-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "km_gap",
+    "id": "space.km_gap",
+    "kind": "length",
+    "doc": "Space between a settings list row's parts.",
+    "css": "--space-km-gap",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "toml_min",
+    "id": "space.toml_min",
+    "kind": "length",
+    "doc": "The appearance TOML input's least height.",
+    "css": "--space-toml-min",
+    "min": 40,
+    "max": 400
+  },
+  {
+    "table": "space",
+    "key": "menu_y",
+    "id": "space.menu_y",
+    "kind": "length",
+    "doc": "Menus' padding above and below.",
+    "css": "--space-menu-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "menu_min",
+    "id": "space.menu_min",
+    "kind": "length",
+    "doc": "Menus' least width.",
+    "css": "--space-menu-min",
+    "min": 100,
+    "max": 400
+  },
+  {
+    "table": "space",
+    "key": "menu_item_x",
+    "id": "space.menu_item_x",
+    "kind": "length",
+    "doc": "Menu items' padding left and right.",
+    "css": "--space-menu-item-x",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "menu_item_y",
+    "id": "space.menu_item_y",
+    "kind": "length",
+    "doc": "Menu items' padding above and below.",
+    "css": "--space-menu-item-y",
+    "min": 0,
+    "max": 20
+  },
+  {
     "table": "radius",
     "key": "row",
     "id": "radius.row",
@@ -1793,7 +2103,7 @@ export const SCHEMA: Entry[] = [
   }
 ];
 
-export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["type.head_tracking",0.04],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.sidebar_min",160],["space.sidebar_drag_max",520],["space.splitter",6],["space.drawer",0.82],["space.drawer_shadow",40],["space.side_tab_y",8],["space.side_tab_bar",2],["space.pane_head_left",12],["space.pane_head_right",8],["space.pane_head_y",6],["space.pane_top",4],["space.pane_bottom",24],["space.file_pad",8],["space.file_indent",16],["space.file_gap",6],["space.file_box",16],["space.file_icon",15],["space.tag_row_x",12],["space.tag_row_y",3],["space.pane_empty_x",14],["space.pane_empty_y",8],["space.link_y",4],["space.rename_x",4],["space.rename_y",1],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
+export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["type.head_tracking",0.04],["type.modal_title",16],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.sidebar_min",160],["space.sidebar_drag_max",520],["space.splitter",6],["space.drawer",0.82],["space.drawer_shadow",40],["space.side_tab_y",8],["space.side_tab_bar",2],["space.pane_head_left",12],["space.pane_head_right",8],["space.pane_head_y",6],["space.pane_top",4],["space.pane_bottom",24],["space.file_pad",8],["space.file_indent",16],["space.file_gap",6],["space.file_box",16],["space.file_icon",15],["space.tag_row_x",12],["space.tag_row_y",3],["space.pane_empty_x",14],["space.pane_empty_y",8],["space.link_y",4],["space.rename_x",4],["space.rename_y",1],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["space.overlay_top",0.12],["space.settings",680],["space.settings_vw",0.94],["space.settings_vh",0.86],["space.modal_x",18],["space.modal_head_y",14],["space.modal_body_y",12],["space.modal_foot_y",10],["space.modal_foot_gap",8],["space.btn_x",14],["space.btn_y",6],["space.field_gap",4],["space.field_row_gap",8],["space.field_bottom",12],["space.input_x",8],["space.input_y",6],["space.set_tab_x",12],["space.set_tab_y",8],["space.set_tab_bar",2],["space.set_tabs_gap",4],["space.set_tabs_bottom",10],["space.set_head_top",14],["space.set_head_bottom",8],["space.km_y",4],["space.km_gap",8],["space.toml_min",100],["space.menu_y",4],["space.menu_min",210],["space.menu_item_x",14],["space.menu_item_y",6],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
 
 export const GROUPS: Group[] = [
   {

@@ -52,7 +52,7 @@ pub fn topbar() -> impl IntoElement {
             .child(top_button("select", "Select multiple items", none))
             .child(top_button("search", "Search", none))
             .child(top_button("lock", "Read mode", none))
-            .child(top_button("menu", "Menu", none))
+            .child(top_button("menu", "Menu", crate::settings::toggle_menu))
     } else {
         bar.child(top_button("back", "Back", cmd::zoom_out))
             .child(top_button("fwd", "Forward", none))
@@ -65,7 +65,7 @@ pub fn topbar() -> impl IntoElement {
                     .px(px(SYNC_PAD)),
             )
             .child(top_button("search", "Search", none))
-            .child(top_button("gear", "Settings", none))
+            .child(top_button("gear", "Settings", || crate::settings::open(crate::settings::Tab::Prefs)))
             .child(top_button("menu", "Menu", none))
     }
 }

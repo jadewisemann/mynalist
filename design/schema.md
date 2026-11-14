@@ -148,6 +148,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | math | ratio | 0.5..2 | `--type-math` | `1.05` | LaTeX size, times the text size. |
 | toolbar | length | 8..32 | `--type-toolbar` | `15` | Phone toolbar buttons' text. |
 | head_tracking | ratio | 0..0.5 | `--type-head-tracking` | `0.04` | Section heads' letter spacing, times their size. |
+| modal_title | length | 8..32 | `--type-modal-title` | `16` | Dialog titles (the settings' heading). |
 
 ## [space]
 
@@ -235,6 +236,36 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | tag_pad | length | 0..20 | `--space-tag-pad` | `6` | Tags' padding left and right (tag background on). |
 | row_estimate | length | 10..100 | `--space-row-estimate` | `30` | The height a row is taken to have before it is laid out (long documents). |
 | border | length | 0..4 | `--space-border` | `1` | Borders and separators. |
+| overlay_top | ratio | 0..0.5 | `--space-overlay-top` | `0.12` | Space above a dialog, of the window's height. |
+| settings | length | 300..1200 | `--space-settings` | `680` | The settings dialog's width (narrower windows: `space.settings_vw`). |
+| settings_vw | ratio | 0.5..1 | `--space-settings-vw` | `0.94` | The settings dialog's widest, of the window's width. |
+| settings_vh | ratio | 0.3..1 | `--space-settings-vh` | `0.86` | The settings dialog's tallest, of the window's height. |
+| modal_x | length | 0..40 | `--space-modal-x` | `18` | Dialogs' padding left and right. |
+| modal_head_y | length | 0..40 | `--space-modal-head-y` | `14` | Dialog titles' padding above and below. |
+| modal_body_y | length | 0..40 | `--space-modal-body-y` | `12` | Dialog bodies' padding above and below. |
+| modal_foot_y | length | 0..40 | `--space-modal-foot-y` | `10` | Dialog button rows' padding above and below. |
+| modal_foot_gap | length | 0..30 | `--space-modal-foot-gap` | `8` | Space between a dialog's buttons. |
+| btn_x | length | 0..40 | `--space-btn-x` | `14` | Buttons' padding left and right. |
+| btn_y | length | 0..20 | `--space-btn-y` | `6` | Buttons' padding above and below. |
+| field_gap | length | 0..20 | `--space-field-gap` | `4` | Space between a setting's label and its input. |
+| field_row_gap | length | 0..30 | `--space-field-row-gap` | `8` | Space between a checkbox setting's box and its label. |
+| field_bottom | length | 0..40 | `--space-field-bottom` | `12` | Space below a setting. |
+| input_x | length | 0..30 | `--space-input-x` | `8` | Inputs' padding left and right. |
+| input_y | length | 0..20 | `--space-input-y` | `6` | Inputs' padding above and below. |
+| set_tab_x | length | 0..30 | `--space-set-tab-x` | `12` | Settings tabs' padding left and right. |
+| set_tab_y | length | 0..20 | `--space-set-tab-y` | `8` | Settings tabs' padding above and below. |
+| set_tab_bar | length | 0..6 | `--space-set-tab-bar` | `2` | The active settings tab's underline. |
+| set_tabs_gap | length | 0..20 | `--space-set-tabs-gap` | `4` | Space between the settings tabs. |
+| set_tabs_bottom | length | 0..30 | `--space-set-tabs-bottom` | `10` | Space below the settings tabs. |
+| set_head_top | length | 0..40 | `--space-set-head-top` | `14` | Space above a settings section's head. |
+| set_head_bottom | length | 0..30 | `--space-set-head-bottom` | `8` | Space below a settings section's head. |
+| km_y | length | 0..20 | `--space-km-y` | `4` | Settings list rows' padding above and below (appearance entries, keys). |
+| km_gap | length | 0..30 | `--space-km-gap` | `8` | Space between a settings list row's parts. |
+| toml_min | length | 40..400 | `--space-toml-min` | `100` | The appearance TOML input's least height. |
+| menu_y | length | 0..20 | `--space-menu-y` | `4` | Menus' padding above and below. |
+| menu_min | length | 100..400 | `--space-menu-min` | `210` | Menus' least width. |
+| menu_item_x | length | 0..30 | `--space-menu-item-x` | `14` | Menu items' padding left and right. |
+| menu_item_y | length | 0..20 | `--space-menu-item-y` | `6` | Menu items' padding above and below. |
 
 ## [radius]
 

@@ -273,7 +273,7 @@ fn icon_button(name: &'static str, run: impl Fn() + 'static) -> AnyElement {
 fn none() {}
 
 /// A text in the app's font, `size` on lines `line` high, at least a line tall (as a web text's box is).
-fn ui_text(content: impl IntoReactive<SharedString>, (size, line): (f32, f32)) -> Text {
+pub(crate) fn ui_text(content: impl IntoReactive<SharedString>, (size, line): (f32, f32)) -> Text {
     text(content)
         .font_family(style::font())
         .text_size(px(size))

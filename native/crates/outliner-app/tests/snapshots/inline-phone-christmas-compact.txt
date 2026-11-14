@@ -1,0 +1,279 @@
+# inline, phone 390x844 (Ios), at rest, in theme=christmas density=compact; clock 2024-06-15 12:00 UTC
+[model]
+topbar top=0 height=47
+title top=47 height=60
+  text x=10 top=61 "Inline"
+    "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #f3efe2
+row depth=0 top=107 height=24 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=108 "Bold, italic, strike and highlight"
+    "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #f3efe2
+    ", " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 italic
+    ", " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "strike" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 strike
+    " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "highlight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 bg=#ffdd0061 r=2
+row depth=0 top=131 height=45.5 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=132 "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
+    "Code " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "let x = 1;" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #ffd27a bg=#1d4029 r=4
+    ", an escaped *star* and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "e^{i\\pi}+1=0" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #f3efe2
+row depth=0 top=176.5 height=45.5 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=177.5 "A link, https://example.org/docs and #tag @me"
+    "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 underline
+    ", " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "https://example.org/docs" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 underline
+    " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #e8c547 underline
+    " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "@me" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #e8c547 underline
+row depth=0 top=222 height=24 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=223 "Due ￼ and ￼"
+    "Due ￼ and ￼" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+  text x=97.5 top=224 "Fri, January 5th 2024"
+    "Fri, January 5th 2024" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #f3efe2
+  text x=157 top=224 "Sun, March 10th 2024, 3:30 pm - 5 pm"
+    "Sun, March 10th 2024, 3:30 pm - 5 pm" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #f3efe2
+row depth=0 top=246 height=24 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=247 "Every week ￼ and a picture"
+    "Every week ￼ and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "a picture" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #e8c547 underline
+  text x=167 top=248 "Mon, January 8th 2024, every week on Mon, Wed, Fri"
+    "Mon, January 8th 2024, every week on Mon, Wed, Fri" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #f3efe2
+row depth=0 top=270 height=60 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=271 "Item with a note"
+    "Item with a note" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+  note top=293
+    text x=36 top=293 "A note under the item, with bold and a #tag."
+      "A note under the item, with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #d8dcc6
+      "bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w700 #d8dcc6
+      " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #d8dcc6
+      "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #e8c547 underline
+      "." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #d8dcc6
+row depth=0 top=330 height=83 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=331 "Code block:"
+    "Code block:" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+  text x=47 top=364 "const a = 1;\nconsole.log(a);"
+    "const a = 1;\nconsole.log(a);" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15.5/18.5 w400 #f3efe2
+row depth=0 top=413 height=24 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=414 "Numbered list"
+    "Numbered list" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+row depth=1 top=437 height=24 bullet=37 number="1." number_right=45 number_color=#b9c2a2 text=57
+  text x=57 top=438 "First"
+    "First" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+row depth=1 top=461 height=24 bullet=37 number="2." number_right=45 number_color=#b9c2a2 text=57
+  text x=57 top=462 "Second with mark"
+    "Second with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+    "mark" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 bg=#ffdd0061 r=2
+row depth=1 top=485 height=24 bullet=37 number="3." number_right=45 number_color=#b9c2a2 text=57
+  text x=57 top=486 "Third"
+    "Third" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+row depth=0 top=509 height=24 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=510 "Checked with a date ￼"
+    "Checked with a date ￼" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7f9a7f strike
+  text x=256 top=511 "Fri, January 5th 2024"
+    "Fri, January 5th 2024" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #7f9a7f strike
+row depth=0 top=533 height=28.5 bullet=21 dot=6 bg=#b9c2a2 r=3 text=36
+  text x=36 top=534 "Heading with gone"
+    "Heading with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #f3efe2
+    "gone" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #f3efe2 strike
+[views]
+view 0,0 390x844
+  view 0,0 390x844 bg=#12301f
+    view#topbar 0,0 390x47 bg=#8e2020 border-b=1 #6d1717
+      view 0,0 44x46
+        canvas 12,13 20x20
+      view 170,0 44x46
+        canvas 182,13 20x20
+      view 214,0 44x46
+        canvas 226,13 20x20
+      view 258,0 44x46
+        canvas 270,13 20x20
+      view 302,0 44x46
+        canvas 314,13 20x20
+      view 346,0 44x46
+        canvas 358,13 20x20
+    view 0,47 390x797
+      scroll#outline 0,47 390x797 bg=#12301f scroll 390x538.5
+        view 0,47 390x60
+          view#title 0,47 390x60
+            view 10,61 366x34
+              text 10,61 366x34
+                "Inline"
+                  "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #f3efe2
+        view 0,561.5 390x24
+          view#doc-end 0,561.5 390x24
+        view 0,107 390x24
+          view#row 0,107 390x24
+            view 12,108 18x22
+              view#bullet 18,116 6x6 bg=#b9c2a2 r=3
+            view 30,108 346x22
+              text#row-text 36,108 337x22
+                "Bold, italic, strike and highlight"
+                  "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #f3efe2
+                  ", " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 italic
+                  ", " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "strike" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 strike
+                  " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "highlight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 bg=#ffdd0061 r=2
+        view 0,131 390x45.5
+          view#row 0,131 390x45.5
+            view 12,132 18x22
+              view#bullet 18,140 6x6 bg=#b9c2a2 r=3
+            view 30,132 346x43.5
+              text#row-text 36,132 340x43.5
+                "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
+                  "Code " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "let x = 1;" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #ffd27a bg=#1d4029 r=4
+                  ", an escaped *star* and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "e^{i\\pi}+1=0" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #f3efe2
+        view 0,176.5 390x45.5
+          view#row 0,176.5 390x45.5
+            view 12,177.5 18x22
+              view#bullet 18,185.5 6x6 bg=#b9c2a2 r=3
+            view 30,177.5 346x43.5
+              text#row-text 36,177.5 340x43.5
+                "A link, https://example.org/docs and #tag @me"
+                  "A " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 underline
+                  ", " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "https://example.org/docs" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 underline
+                  " and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #e8c547 underline
+                  " " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "@me" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #e8c547 underline
+        view 0,222 390x24
+          view#row 0,222 390x24
+            view 12,223 18x22
+              view#bullet 18,231 6x6 bg=#b9c2a2 r=3
+            view 30,223 346x22
+              text#row-text 36,223 109x22
+                "Due ￼ and ￼"
+                  "Due ￼ and ￼" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                view 75.5,223 210x21.5 bg=#1d4029 r=4 border=1 #3b5e3b
+                  view 80.5,227.5 13x12.5
+                    canvas 80.5,227.5 13x12.5
+                  text 97.5,224 185x19.5
+                    "Fri, January 5th 2024"
+                      "Fri, January 5th 2024" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #f3efe2
+                view 135,223 342x21.5 bg=#1d4029 r=4 border=1 #3b5e3b
+                  view 140,227.5 13x12.5
+                    canvas 140,227.5 13x12.5
+                  text 157,224 317x19.5
+                    "Sun, March 10th 2024, 3:30 pm - 5 pm"
+                      "Sun, March 10th 2024, 3:30 pm - 5 pm" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #f3efe2
+        view 0,246 390x24
+          view#row 0,246 390x24
+            view 12,247 18x22
+              view#bullet 18,255 6x6 bg=#b9c2a2 r=3
+            view 30,247 346x22
+              text#row-text 36,247 257.5x22
+                "Every week ￼ and a picture"
+                  "Every week ￼ and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "a picture" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #e8c547 underline
+                view 145,247 465.5x21.5 bg=#1d4029 r=4 border=1 #3b5e3b
+                  view 150,251.5 13x12.5
+                    canvas 150,251.5 13x12.5
+                  text 167,248 440.5x19.5
+                    "Mon, January 8th 2024, every week on Mon, Wed, Fri"
+                      "Mon, January 8th 2024, every week on Mon, Wed, Fri" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #f3efe2
+        view 0,270 390x60
+          view#row 0,270 390x60
+            view 12,271 18x22
+              view#bullet 18,279 6x6 bg=#b9c2a2 r=3
+            view 30,271 346x58
+              text#row-text 36,271 158.5x22
+                "Item with a note"
+                  "Item with a note" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+              view#note 36,293 340x36
+                text 36,293 340x36
+                  "A note under the item, with bold and a #tag."
+                    "A note under the item, with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #d8dcc6
+                    "bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w700 #d8dcc6
+                    " and a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #d8dcc6
+                    "#tag" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #e8c547 underline
+                    "." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #d8dcc6
+        view 0,330 390x83
+          view#row 0,330 390x83
+            view 12,331 18x22
+              view#bullet 18,339 6x6 bg=#b9c2a2 r=3
+            view 30,331 346x81
+              view#row-text 36,331 340x81
+                text 36,331 340x22
+                  "Code block:"
+                    "Code block:" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                view 36,355 340x55 bg=#1d4029 r=6 border=1 #3b5e3b
+                  text 47,364 318x37
+                    "const a = 1;\nconsole.log(a);"
+                      "const a = 1;\nconsole.log(a);" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15.5/18.5 w400 #f3efe2
+        view 0,413 390x24
+          view#row 0,413 390x24
+            view 12,414 18x22
+              view#bullet 18,422 6x6 bg=#b9c2a2 r=3
+            view 30,414 346x22
+              text#row-text 36,414 129x22
+                "Numbered list"
+                  "Numbered list" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+        view 0,437 390x24
+          view#row 0,437 390x24
+            view#guide 21,437 1x24 bg=#8a7a3a
+            view 23,438 28x22
+              view#bullet 23,440 28x18.5
+                text 28,440 17x18.5
+                  "1."
+                    "1." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #b9c2a2 variant=FontVariant(8)
+            view 51,438 325x22
+              text#row-text 57,438 49.5x22
+                "First"
+                  "First" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+        view 0,461 390x24
+          view#row 0,461 390x24
+            view#guide 21,461 1x24 bg=#8a7a3a
+            view 23,462 28x22
+              view#bullet 23,464 28x18.5
+                text 28,464 17x18.5
+                  "2."
+                    "2." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #b9c2a2 variant=FontVariant(8)
+            view 51,462 325x22
+              text#row-text 57,462 158.5x22
+                "Second with mark"
+                  "Second with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+                  "mark" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2 bg=#ffdd0061 r=2
+        view 0,485 390x24
+          view#row 0,485 390x24
+            view#guide 21,485 1x24 bg=#8a7a3a
+            view 23,486 28x22
+              view#bullet 23,488 28x18.5
+                text 28,488 17x18.5
+                  "3."
+                    "3." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #b9c2a2 variant=FontVariant(8)
+            view 51,486 325x22
+              text#row-text 57,486 49.5x22
+                "Third"
+                  "Third" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #f3efe2
+        view 0,509 390x24
+          view#row 0,509 390x24
+            view 12,510 18x22
+              view#bullet 18,518 6x6 bg=#b9c2a2 r=3
+            view 30,510 346x22
+              text#row-text 36,510 208x22
+                "Checked with a date ￼"
+                  "Checked with a date ￼" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7f9a7f strike
+                view 234,510 210x21.5 bg=#1d4029 r=4 border=1 #3b5e3b
+                  view 239,514.5 13x12.5
+                    canvas 239,514.5 13x12.5
+                  text 256,511 185x19.5
+                    "Fri, January 5th 2024"
+                      "Fri, January 5th 2024" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #7f9a7f strike
+        view 0,533 390x28.5
+          view#row 0,533 390x28.5
+            view 12,534 18x26
+              view#bullet 18,544 6x6 bg=#b9c2a2 r=3
+            view 30,534 346x26.5
+              text#row-text 36,534 206x26.5
+                "Heading with gone"
+                  "Heading with " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #f3efe2
+                  "gone" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #f3efe2 strike

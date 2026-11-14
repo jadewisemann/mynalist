@@ -107,6 +107,13 @@ Read this first. Area notes in this folder say what each piece of work is.
 - Shell commands that climb out of the working folder with `../` mixed with globs (e.g. `cd ~/.cargo/registry/src/*/x && grep ../../*/y`)
   are not auto-approved in these sessions: the session then waits for a person and stalls. Read files outside the repo with one
   plain absolute path per command (`ls -d ~/.cargo/registry/src/*/nsh-core-0.5.0` first, then use that path).
+- The look is made again when it changes: `lib.rs` `root` rebuilds the screen from `appearance::current()`, so views
+  read the look as plain values; keep what a view shows in the store or a global signal, not in the view. A
+  `dynamic` that reads a whole global struct runs again on any field: read the field through `computed`.
+- Settings tests: `fixture::root_with(doc, None, fixture::STORED, "")` uses the prefs in `config.storage`
+  (`nsh_testing::MemoryStorage`); `on_pick` / `on_pick_save_path` answer file pickers.
+- Representative look combinations live in `design/test/combos.json`, read by both `tests/snapshot.rs` and
+  `qa/model.mjs`.
 
 ## Conventions
 

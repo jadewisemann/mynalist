@@ -192,10 +192,12 @@ function compareSidebar(a, b, tol, out) {
 export const KNOWN = [
   { re: /row \d+ spans: native "const a = 1;/, why: 'the native app has no syntax highlighting in code blocks yet' },
   { re: /e\^\{i\\\\pi\}\+1=0.*Latin Modern Math|Latin Modern Math.*e\^\{i/, why: 'the native app shows LaTeX source in the mono font; the web typesets it (KaTeX)' },
-  { re: /^inline-\w+-(rest|edit|tags): row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
-  { re: /^inline-phone-(rest|edit|tags): row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
+  { re: /^inline-[\w-]+: row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
+  { re: /^inline-phone-[\w-]+: row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
   { re: /^looks-phone-edit: row (18 height|19 top):/, why: 'the edited row\'s source (its ** marks shown) wraps on a phone in the snapshot\'s approximate text engine, whose glyphs are wider than Fira Sans' },
-  { re: /"(highlight|mark)" .* #222222 bg=#ffdd0061 r=2; web .*"(highlight|mark)" .* #000000 bg=#ffdd0061/, why: 'the web\'s <mark> takes the browser\'s black text (a web quirk to decide on)' },
+  { re: /^looks-phone-[\w-]*large[\w-]*: row (18 height|19 top):/, why: 'the large text wraps a long row on a phone where glyph widths decide it, which differ between text engines' },
+  { re: /^looks-[\w-]*large[\w-]*: row 0 height:/, why: 'the snapshot\'s approximate text engine makes a text 1.2 times its size tall, taller than a large heading\'s line' },
+  { re: /"(highlight|mark)" .* #[0-9a-f]{6} bg=#ffdd0061 r=2; web .*"(highlight|mark)" .* #000000 bg=#ffdd0061/, why: 'the web\'s <mark> takes the browser\'s black text (a web quirk to decide on)' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));
 
 // ---- design/spec.json ----

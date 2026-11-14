@@ -13,6 +13,7 @@ pub mod fixture;
 mod icons;
 pub mod inline;
 mod outline;
+pub mod settings;
 mod sidebar;
 pub mod store;
 pub mod style;
@@ -49,7 +50,17 @@ pub fn App() -> impl IntoElement {
         let first = if inline { store::showcase() } else { store::demo(DEMO_ITEMS) };
         store::open_all(vec![("doc1".into(), first), ("doc2".into(), store::named("Untitled"))]);
     }
-    screen()
+    root()
+}
+
+/// The app's screen in the look the settings and the system's appearance choose: made again when the look
+/// changes (its views read the look as plain values; what they show is kept in the store and the globals).
+fn root() -> impl IntoElement {
+    effect(settings::apply);
+    view().flex_1().child(dynamic(|| {
+        appearance::current();
+        untracked(screen)
+    }))
 }
 
 /// The app's screen over the open document: the top bar, the sidebar's panel (desktops) beside the outline, the
@@ -67,4 +78,6 @@ fn screen() -> View {
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
         .child(sidebar::drawer())
+        .child(settings::menu())
+        .child(settings::screen())
 }

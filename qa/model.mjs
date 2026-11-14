@@ -35,6 +35,9 @@ for (let i = 0; i < 60; i++) {
 
 const custom = readFileSync(join(root, 'design/test/custom.toml'), 'utf8');
 const spec = JSON.parse(readFileSync(join(root, 'design/spec.json'), 'utf8'));
+const combos = JSON.parse(readFileSync(join(root, 'design/test/combos.json'), 'utf8'));
+// the order a combination's name lists its modes in (native tests/snapshot.rs `combos`)
+const GROUP_ORDER = ['theme', 'size', 'density', 'font', 'eafont'];
 const DEVICES = {
   desktop: { viewport: { width: 1100, height: 800 }, extra: {} },
   phone: { viewport: PHONE.viewport, extra: PHONE.device },
@@ -60,6 +63,19 @@ for (const [device, d] of Object.entries(DEVICES)) {
   for (const [doc, look, toml] of [['inline', 'rest', ''], ['looks', 'rest', ''], ['looks', 'custom', custom], ['inline', 'edit', ''], ['looks', 'edit', '']]) {
     const name = `${doc}-${device}-${look}`;
     const web = await measure(doc, {}, toml, look === 'edit' ? EDITED[doc] : undefined);
+    writeFileSync(join(outDir, `${name}.web.txt`), web);
+    const native = readFileSync(join(goldens, `${name}.txt`), 'utf8');
+    for (const p of compareModels(parseModel(native), parseModel(web))) {
+      const k = KNOWN.find((k) => k.test(`${name}: ${p}`));
+      (k ? known : problems).push(`${name}: ${p}${k ? `  (known: ${k.why})` : ''}`);
+    }
+    checked++;
+  }
+  // themes, modes and the user's appearance together (design/test/combos.json, native `structural_snapshots`)
+  for (const c of combos.combos.filter((c) => c.device === device)) {
+    const values = GROUP_ORDER.filter((g) => c.modes[g]).map((g) => c.modes[g]);
+    const name = `${c.doc}-${device}-${values.join('-')}${c.custom ? '-custom' : ''}`;
+    const web = await measure(c.doc, c.modes, c.custom ? custom : '');
     writeFileSync(join(outDir, `${name}.web.txt`), web);
     const native = readFileSync(join(goldens, `${name}.txt`), 'utf8');
     for (const p of compareModels(parseModel(native), parseModel(web))) {

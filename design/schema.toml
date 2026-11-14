@@ -114,6 +114,7 @@ number = { kind = "ratio", min = 0.5, max = 1.5, doc = "Numbered list numbers' s
 math = { kind = "ratio", min = 0.5, max = 2, doc = "LaTeX size, times the text size." }
 toolbar = { kind = "length", min = 8, max = 32, doc = "Phone toolbar buttons' text." }
 head_tracking = { kind = "ratio", min = 0, max = 0.5, doc = "Section heads' letter spacing, times their size." }
+modal_title = { kind = "length", min = 8, max = 32, doc = "Dialog titles (the settings' heading)." }
 
 [space]
 pad = { kind = "length", min = 0, max = 20, css = "--pad", doc = "Space above and below each row's text (density)." }
@@ -198,6 +199,36 @@ codeblock_margin = { kind = "length", min = 0, max = 20, doc = "Space above and 
 tag_pad = { kind = "length", min = 0, max = 20, doc = "Tags' padding left and right (tag background on)." }
 row_estimate = { kind = "length", min = 10, max = 100, doc = "The height a row is taken to have before it is laid out (long documents)." }
 border = { kind = "length", min = 0, max = 4, doc = "Borders and separators." }
+overlay_top = { kind = "ratio", min = 0, max = 0.5, doc = "Space above a dialog, of the window's height." }
+settings = { kind = "length", min = 300, max = 1200, doc = "The settings dialog's width (narrower windows: `space.settings_vw`)." }
+settings_vw = { kind = "ratio", min = 0.5, max = 1, doc = "The settings dialog's widest, of the window's width." }
+settings_vh = { kind = "ratio", min = 0.3, max = 1, doc = "The settings dialog's tallest, of the window's height." }
+modal_x = { kind = "length", min = 0, max = 40, doc = "Dialogs' padding left and right." }
+modal_head_y = { kind = "length", min = 0, max = 40, doc = "Dialog titles' padding above and below." }
+modal_body_y = { kind = "length", min = 0, max = 40, doc = "Dialog bodies' padding above and below." }
+modal_foot_y = { kind = "length", min = 0, max = 40, doc = "Dialog button rows' padding above and below." }
+modal_foot_gap = { kind = "length", min = 0, max = 30, doc = "Space between a dialog's buttons." }
+btn_x = { kind = "length", min = 0, max = 40, doc = "Buttons' padding left and right." }
+btn_y = { kind = "length", min = 0, max = 20, doc = "Buttons' padding above and below." }
+field_gap = { kind = "length", min = 0, max = 20, doc = "Space between a setting's label and its input." }
+field_row_gap = { kind = "length", min = 0, max = 30, doc = "Space between a checkbox setting's box and its label." }
+field_bottom = { kind = "length", min = 0, max = 40, doc = "Space below a setting." }
+input_x = { kind = "length", min = 0, max = 30, doc = "Inputs' padding left and right." }
+input_y = { kind = "length", min = 0, max = 20, doc = "Inputs' padding above and below." }
+set_tab_x = { kind = "length", min = 0, max = 30, doc = "Settings tabs' padding left and right." }
+set_tab_y = { kind = "length", min = 0, max = 20, doc = "Settings tabs' padding above and below." }
+set_tab_bar = { kind = "length", min = 0, max = 6, doc = "The active settings tab's underline." }
+set_tabs_gap = { kind = "length", min = 0, max = 20, doc = "Space between the settings tabs." }
+set_tabs_bottom = { kind = "length", min = 0, max = 30, doc = "Space below the settings tabs." }
+set_head_top = { kind = "length", min = 0, max = 40, doc = "Space above a settings section's head." }
+set_head_bottom = { kind = "length", min = 0, max = 30, doc = "Space below a settings section's head." }
+km_y = { kind = "length", min = 0, max = 20, doc = "Settings list rows' padding above and below (appearance entries, keys)." }
+km_gap = { kind = "length", min = 0, max = 30, doc = "Space between a settings list row's parts." }
+toml_min = { kind = "length", min = 40, max = 400, doc = "The appearance TOML input's least height." }
+menu_y = { kind = "length", min = 0, max = 20, doc = "Menus' padding above and below." }
+menu_min = { kind = "length", min = 100, max = 400, doc = "Menus' least width." }
+menu_item_x = { kind = "length", min = 0, max = 30, doc = "Menu items' padding left and right." }
+menu_item_y = { kind = "length", min = 0, max = 20, doc = "Menu items' padding above and below." }
 
 [radius]
 row = { kind = "length", min = 0, max = 20, doc = "Rows (selection, current item)." }

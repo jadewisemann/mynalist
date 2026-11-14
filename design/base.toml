@@ -108,6 +108,7 @@ number = 0.85
 math = 1.05
 toolbar = 15
 head_tracking = 0.04
+modal_title = 16
 
 [space]
 pad = 4
@@ -192,6 +193,36 @@ codeblock_margin = 2
 tag_pad = 6
 row_estimate = 30
 border = 1
+overlay_top = 0.12
+settings = 680
+settings_vw = 0.94
+settings_vh = 0.86
+modal_x = 18
+modal_head_y = 14
+modal_body_y = 12
+modal_foot_y = 10
+modal_foot_gap = 8
+btn_x = 14
+btn_y = 6
+field_gap = 4
+field_row_gap = 8
+field_bottom = 12
+input_x = 8
+input_y = 6
+set_tab_x = 12
+set_tab_y = 8
+set_tab_bar = 2
+set_tabs_gap = 4
+set_tabs_bottom = 10
+set_head_top = 14
+set_head_bottom = 8
+km_y = 4
+km_gap = 8
+toml_min = 100
+menu_y = 4
+menu_min = 210
+menu_item_x = 14
+menu_item_y = 6
 
 [radius]
 row = 3

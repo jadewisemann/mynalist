@@ -36,11 +36,8 @@ const PHONE: Device = Device { name: "phone", os: Os::Ios, width: 390.0, height:
 
 type Styles = Arc<Mutex<HashMap<NodeId, ViewStyle>>>;
 
-fn start(doc: &str, editing: bool, device: Device, appearance: &str, side: &str) -> (Headless, Styles) {
-    start_with(doc, editing, device, "", appearance, side)
-}
-
-/// [`start`] in `modes` (`group=mode` words).
+/// The app on fixture `doc` on `device`, in `modes` (`group=mode` words) with a user's appearance and the sidebar
+/// or settings as `side` says (`fixture::FixtureProps`).
 fn start_with(doc: &str, editing: bool, device: Device, modes: &str, appearance: &str, side: &str) -> (Headless, Styles) {
     // the dates' local zone (every snapshot sets the same)
     std::env::set_var("TZ", "UTC");
@@ -486,12 +483,23 @@ fn views(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
 }
 
 fn snapshot(doc: &str, editing: bool, device: Device, appearance: &str, side: &str) -> String {
-    let (app, styles) = start(doc, editing, device, appearance, side);
+    snapshot_in(doc, editing, device, "", appearance, side)
+}
+
+/// [`snapshot`] in `modes` (`group=mode` words).
+fn snapshot_in(doc: &str, editing: bool, device: Device, modes: &str, appearance: &str, side: &str) -> String {
+    let (app, styles) = start_with(doc, editing, device, modes, appearance, side);
     let tree = Tree::new(shown(&app));
     let mut out = String::new();
     let mut state = if editing { format!("editing {}", outliner_app::fixture::edited_item(doc)) } else { "at rest".into() };
     if !side.is_empty() {
         let _ = write!(state, ", the sidebar on {side}");
+    }
+    if !modes.is_empty() {
+        let _ = write!(state, ", in {modes}");
+    }
+    if !appearance.is_empty() && !modes.is_empty() {
+        state.push_str(", the custom appearance");
     }
     let _ = writeln!(
         out,
@@ -501,6 +509,39 @@ fn snapshot(doc: &str, editing: bool, device: Device, appearance: &str, side: &s
     let styles = styles.lock().unwrap();
     model(&mut out, &app, &tree, &styles);
     views(&mut out, &app, &tree, &styles);
+    out
+}
+
+/// A combination of `design/test/combos.json`.
+struct Combo {
+    name: String,
+    doc: String,
+    device: String,
+    /// `group=mode` words
+    modes: String,
+    custom: bool,
+}
+
+/// The combinations both apps render (`design/test/combos.json`); a name lists the modes' values in the order of
+/// the groups.
+fn combos() -> Vec<Combo> {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../design/test/combos.json");
+    let file: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    let mut out = Vec::new();
+    for c in file["combos"].as_array().unwrap() {
+        let (doc, device) = (c["doc"].as_str().unwrap(), c["device"].as_str().unwrap());
+        let custom = c["custom"].as_bool().unwrap_or(false);
+        let mut words = Vec::new();
+        let mut values = Vec::new();
+        for g in ["theme", "size", "density", "font", "eafont"] {
+            if let Some(m) = c["modes"][g].as_str() {
+                words.push(format!("{g}={m}"));
+                values.push(m.to_owned());
+            }
+        }
+        let name = format!("{doc}-{device}-{}{}", values.join("-"), if custom { "-custom" } else { "" });
+        out.push(Combo { name, doc: doc.into(), device: device.into(), modes: words.join(" "), custom });
+    }
     out
 }
 
@@ -615,6 +656,29 @@ fn structural_snapshots() {
     for (doc, device, side) in [("looks", PHONE, "files"), ("inline", DESKTOP, "tags"), ("inline", PHONE, "tags")] {
         let name = format!("{doc}-{}-{side}.txt", device.name);
         let got = snapshot(doc, false, device, "", side);
+        let path = dir.join(&name);
+        if update {
+            std::fs::write(&path, &got).unwrap();
+            continue;
+        }
+        let want = std::fs::read_to_string(&path).unwrap_or_default();
+        if want != got {
+            eprintln!("snapshot {name} differs (- golden, + now):\n{}", diff(&want, &got));
+            failed.push(name);
+        }
+    }
+    // themes, modes and the user's appearance together (design/test/combos.json, which qa/model.mjs measures the
+    // web in too); the settings screen on both tabs
+    let mut more: Vec<(String, String)> = Vec::new();
+    for c in combos() {
+        let device = if c.device == "phone" { PHONE } else { DESKTOP };
+        let appearance = if c.custom { custom.as_str() } else { "" };
+        more.push((format!("{}.txt", c.name), snapshot_in(&c.doc, false, device, &c.modes, appearance, "")));
+    }
+    for (device, side) in [(DESKTOP, "settings"), (PHONE, "settings"), (DESKTOP, "look"), (PHONE, "look")] {
+        more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
+    }
+    for (name, got) in more {
         let path = dir.join(&name);
         if update {
             std::fs::write(&path, &got).unwrap();
