@@ -31,6 +31,13 @@ const pick = <T>(xs: readonly T[]): T => xs[int(xs.length)]!;
 // Korean, an emoji and markup for the text commands.
 const TITLES = ['', 'apple', 'Banana', 'item 2', 'Item 10', 'item 1', '한글', '가나다', 'zeta', 'Alpha beta'];
 const TEXTS = [...TITLES, 'emoji 😀 x', '**bold**', 'a **b** c', ' padded ', '__x__', 'line'];
+// Items with dates, for the date sorts and recurring dates on check (dates in the runner's local zone).
+const DATED = [
+  'due !(2026-10-22)', 'due !(2026-10-22 09:30)', 'due !(2025-01-05 | w)', 'pay !(2026-01-31 | 1m) and !(2026-02-01)',
+  'gym !(2026-10-22 18:00 - 2026-10-22 19:00 | ~2w135)', 'zz !(2026-03-08 02:30 | d)', '`!(2026-10-22 | d)` code',
+  'y !(2024-02-29 | y)', 'sp !(2026-10-22 10:00 +09:00 | 3d)',
+];
+const itemText = () => (rand() < 0.25 ? pick(DATED) : pick(TEXTS));
 
 /** A UTF-16 offset in `s` that does not split a surrogate pair. */
 function offset(s: string): number {
@@ -47,7 +54,7 @@ function randomTree(n: number): Tree {
     const parent = rand() < 0.35 ? ROOT : pick(ids);
     const kids = t.get(parent)!.children;
     const after = kids.length && rand() < 0.7 ? pick(kids) : null;
-    const p: Props = { c: pick(TEXTS) };
+    const p: Props = { c: itemText() };
     if (rand() < 0.15) p.n = pick(['note', 'two\nlines', '']);
     if (rand() < 0.2) p.ck = true;
     if (rand() < 0.15) p.cb = true;
@@ -86,13 +93,13 @@ const text = (t: Tree, id: NodeId) => (t.get(id)?.props.c as string | undefined)
 
 function randomPortable(depthLeft: number): Portable {
   const kids = depthLeft > 0 && rand() < 0.4 ? Array.from({ length: 1 + int(2) }, () => randomPortable(depthLeft - 1)) : [];
-  const props: Props = { c: pick(TEXTS) };
+  const props: Props = { c: itemText() };
   if (rand() < 0.3) props.ck = true;
   return { props, collapsed: kids.length > 0 && rand() < 0.3, children: kids };
 }
 
 const SORTS: SortMode[] = [
-  'title-asc', 'title-desc', 'unchecked-first', 'checked-first', 'edited-new', 'edited-old', 'created-new', 'created-old', 'reverse',
+  'title-asc', 'title-desc', 'date-new', 'date-old', 'unchecked-first', 'checked-first', 'edited-new', 'edited-old', 'created-new', 'created-old', 'reverse',
 ];
 
 interface Case { tree: unknown; view: unknown; cmd: string; args: unknown; ids: string[]; ts: number; result: unknown; ops: unknown; inverse: unknown; canonical: string }
@@ -154,7 +161,10 @@ for (let c = 0; c < 1500; c++) {
     case 11: { const ids = block(); cmd = 'replaceWithEmpty'; args = { ids }; result = replaceWithEmpty(tx, v, ids); break; }
     case 12: {
       const ids = block(); const sel = selFor(ids); const stay = rand() < 0.3;
-      cmd = 'toggleChecked'; args = { ids, sel, stay }; result = toggleChecked(tx, v, ids, sel, { stay }); break;
+      const recurring = pick([undefined, 'new_instance', 'update'] as const);
+      const now = rand() < 0.5 ? undefined : 1_790_000_000_000 + int(400) * 86_400_000;
+      cmd = 'toggleChecked'; args = { ids, sel, stay, recurring: recurring ?? null, now: now ?? null };
+      result = toggleChecked(tx, v, ids, sel, { stay, recurring, now }); break;
     }
     case 13: {
       const ids = block(); const sel = selFor(ids); const key = pick(['cb', 'num', 'ck']);

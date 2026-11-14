@@ -252,8 +252,9 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   - Android: NSH의 Android 백엔드. 입력란은 실제 `EditText`라 한글 IME가 OS 그대로 동작한다.
   - Exact(expo/exact), gpui-mobile도 검토했다. Exact는 macOS가 AppKit뿐이고 Android 지원이 초기 단계라서, gpui-mobile은 Android에서 IME 조합 입력이 없어서 제외했다.
 - **구조:**
-  - `crates/outliner-core`: `packages/core`의 Rust 이식. 지금은 tree, item, ids, session(undo, sync), history, Tx.
-    `fixtures/gen.ts`가 TS 코어의 동작을 무작위 시나리오로 기록하고 `tests/parity.rs`가 대조한다 (CI `native-core`).
+  - `crates/outliner-core`: `packages/core`의 Rust 이식. 지금은 tree, item, ids, session(undo, sync), history, Tx, commands,
+    view, inline, dates. `fixtures/gen*.ts`가 TS 코어의 동작을 무작위 시나리오로 기록하고 `tests/*.rs`가 대조한다
+    (CI `native-core`). 날짜 사례는 시간대 5곳(UTC, 뉴욕, 서울, 산티아고, 로드하우)에서 기록해 서머타임 경계까지 대조한다.
   - `crates/outliner-app`: NSH UI. 가상 리스트, 인라인 서식 행, 편집 중인 행만 네이티브 입력란, 키 바인딩(`When::Always`), 터치용 툴바.
     헤드리스 테스트 `tests/flows.rs` (1만 개 행 문서).
   - `crates/outliner-mac`: macOS 실행 파일 (GPUI).
@@ -261,14 +262,21 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
 - [x] core 1차 이식과 TS 대조 테스트.
 - [x] NSH 시험용 앱: 헤드리스 테스트 통과, Linux GPUI(Xvfb)에서 렌더링·클릭·입력·↓ 이동 확인.
 - [x] 외형을 웹에 맞춤 (2026-11-14): Fira Sans/Mono, 18px/22px 행(30px 간격), 불릿과 들여쓰기 안내선, 제목, 코드·링크·태그·완료·체크박스·색 라벨, 상단 바, 휴대폰 하단 툴바(웹 아이콘). 남은 차이: 사이드바, 코드 칸 좌우 여백, 편집 입력란의 글꼴(GPUI), 다크 테마.
+- [x] 인라인 문법·노트·번호 목록 (2026-11-14): `inline.ts`, `dates.ts` 이식(대조 테스트 약 14만 5천 건, 변이 검출 확인),
+  반복 날짜 체크(`new_instance`)와 날짜 정렬 연결. 앱이 굵게·기울임·취소선·강조·코드·코드 블록·링크·자동 링크·이미지·태그·
+  날짜 칩·LaTeX(원문)·이스케이프, 노트(`n`), 번호 목록(`num`)을 웹처럼 그린다(`OUTLINER_DEMO=inline`, `tests/inline.rs`).
+  남은 차이: KaTeX 수식은 원문을 고정폭으로 보인다(NSH에 수식 조판이 없다), 코드 블록은 줄을 접는다(웹은 가로 스크롤)와
+  구문 강조가 없다, 날짜 칩 클릭(날짜 선택기)·반복 날짜 툴팁 없음, 노트 편집은 아직 없다(Shift+Enter), 칩의 날짜 표시는
+  행이 다시 그려질 때만 갱신된다, `highlight_overdue`·`display_images_inline` 설정은 기본값(끔)으로 고정이다(코드는 있다),
+  `[[` 항목 링크(`refs.ts`)와 검색 강조(`o-match`)는 해당 이식과 함께 한다.
 - [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
-- [ ] 남은 core 이식: `commands.ts`(Dynalist 동작 규칙), `inline.ts`(전체 인라인 문법), `view.ts`, `search.ts`, `dates.ts`, `paste.ts`, `export.ts`.
-  앱의 `commands.rs`, `inline.rs`는 시험용 단순 버전이다.
+- [ ] 남은 core 이식: `search.ts`, `paste.ts`, `export.ts`(HTML 렌더러 포함), `refs.ts`, `calendar.ts`.
 - [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌, 검색.
 - [ ] 알려진 제약: Rust 문자열은 짝이 맞지 않는 UTF-16 서로게이트를 담을 수 없다. 웹이 이런 문자열을 보내면 역직렬화가 실패한다.
 - 명령:
   ```sh
-  node native/crates/outliner-core/fixtures/gen.ts && (cd native && cargo test)   # core 대조 + 앱 헤드리스 테스트
+  for g in gen gen-commands gen-inline; do node native/crates/outliner-core/fixtures/$g.ts; done
+  (cd native && cargo test)                                                      # core 대조 + 앱 헤드리스 테스트
   cd native && cargo run -p outliner-mac                                         # 데스크톱 (Linux는 GPUI 개발 라이브러리 필요)
   cd native/crates/outliner-app && nsh package --target android                  # APK (Android SDK, NDK 필요)
   ```

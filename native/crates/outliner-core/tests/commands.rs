@@ -6,7 +6,7 @@
 
 use std::collections::HashSet;
 
-use outliner_core::commands::{self as cmd, CheckOptions, Dir, Keep, Portable, Sel, SortMode};
+use outliner_core::commands::{self as cmd, CheckOptions, Dir, Keep, Portable, Recurring, Sel, SortMode};
 use outliner_core::view::{self, View};
 use outliner_core::{NodeId, SerializedTree, Tree, Tx};
 use serde_json::Value;
@@ -83,7 +83,12 @@ fn commands_match_ts() {
             }
             "replaceWithEmpty" => result(cmd::replace_with_empty(&mut tx, &v, &ids())),
             "toggleChecked" => {
-                let opts = CheckOptions { stay: a["stay"].as_bool().unwrap() };
+                let recurring = match a["recurring"].as_str() {
+                    Some("new_instance") => Some(Recurring::NewInstance),
+                    Some("update") => Some(Recurring::Update),
+                    _ => None,
+                };
+                let opts = CheckOptions { stay: a["stay"].as_bool().unwrap(), recurring, now: a["now"].as_i64() };
                 result(cmd::toggle_checked(&mut tx, &v, &ids(), sel(), &opts))
             }
             "toggleProp" => json(&cmd::toggle_prop(&mut tx, &ids(), s(&a["key"]), sel())),
@@ -110,7 +115,7 @@ fn commands_match_ts() {
             }
             "sortChildren" => {
                 let mode: SortMode = de(&a["mode"]);
-                json(&cmd::sort_children(&mut tx, &ids(), mode, sel(), &|_| None))
+                json(&cmd::sort_children(&mut tx, &ids(), mode, sel()))
             }
             "toggleWrapItems" => {
                 cmd::toggle_wrap_items(&mut tx, &ids(), s(&a["d"]));

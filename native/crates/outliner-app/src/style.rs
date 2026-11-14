@@ -38,6 +38,21 @@ pub mod color {
     pub fn code_bg() -> Rgba {
         rgb(0xf5f5f5)
     }
+    pub fn accent() -> Rgba {
+        rgb(0x2f8cf0)
+    }
+    pub fn note() -> Rgba {
+        rgb(0x4e4e4e)
+    }
+    pub fn chip() -> Rgba {
+        rgb(0xf1f2f4)
+    }
+    pub fn chip_border() -> Rgba {
+        rgb(0xdfe1e5)
+    }
+    pub fn date_border() -> Rgba {
+        rgb(0xcccccc)
+    }
     /// Color labels 1..6 (`--cl1` .. `--cl6`).
     pub fn label(n: i64) -> Option<Rgba> {
         Some(rgb(match n {

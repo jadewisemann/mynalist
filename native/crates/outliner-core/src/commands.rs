@@ -2,15 +2,14 @@
 //!
 //! Each command runs against a [`Tx`] (ops applied to the live tree at once, recorded for sync and undo) and
 //! returns the selection to show afterwards, or `None` when it does nothing. Text offsets are UTF-16 units.
-//!
-//! Not yet ported (they need `dates.ts` and `inline.ts`): advancing a recurring date when an item is checked
-//! (`CheckOptions::recurring`) and the date sort modes, which take the dates through [`DateFn`] meanwhile.
 
 use std::cmp::Ordering;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
+use crate::dates::{advance_recurrence, to_date};
+use crate::inline::extract_dates;
 use crate::item::meta_of;
 use crate::text16;
 use crate::tree::{is_falsy, NodeId, Props, Tree, ROOT};
@@ -370,8 +369,22 @@ pub fn replace_with_empty(tx: &mut Tx<'_>, _v: &View, ids: &[NodeId]) -> Option<
 
 // ---- item-level toggles ----------------------------------------------------
 
+/// What checking an item whose first date recurs does.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Recurring {
+    /// Insert a checked copy above and advance the date in the (still unchecked) original.
+    NewInstance,
+    /// Only advance the date.
+    Update,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct CheckOptions {
+    /// Recurring dates on check; `None`: recurrence is ignored.
+    pub recurring: Option<Recurring>,
+    /// Completion time for "from completion" recurrences (default: the tx's time).
+    pub now: Option<i64>,
     /// Keep the selection on the item instead of moving on to the next one (Dynalist's mobile toolbar).
     pub stay: bool,
 }
@@ -380,14 +393,36 @@ pub fn toggle_checked(tx: &mut Tx<'_>, v: &View, ids: &[NodeId], sel: Sel, opts:
     let targets: Vec<NodeId> = ids.iter().filter(|id| *id != ROOT).cloned().collect();
     let last = targets.last()?.clone();
     let all = targets.iter().all(|id| prop_true(tx.tree, id, "ck"));
+    let mut advanced = 0;
     for id in &targets {
+        if let (false, Some(mode)) = (all, opts.recurring) {
+            let node = tx.tree.get(id).filter(|n| !prop_true(tx.tree, id, "ck") && n.parent.is_some());
+            if let Some(n) = node {
+                let (parent, node_props) = (n.parent.clone().expect("attached"), n.props.clone());
+                if let Some((text, _)) = advance_recurrence(&text(tx.tree, id), opts.now.unwrap_or(tx.ts)) {
+                    if mode == Recurring::NewInstance {
+                        let mut copy = node_props;
+                        copy.insert("ck".into(), Value::Bool(true));
+                        let after = tx.tree.prev_sibling(id).cloned();
+                        tx.create(&parent, after.as_deref(), copy);
+                    }
+                    tx.set(id, props(&[("c", Value::String(text))]));
+                    advanced += 1;
+                    continue;
+                }
+            }
+        }
         tx.set(id, props(&[("ck", if all { Value::Null } else { Value::Bool(true) })]));
     }
-    if !opts.stay && matches!(sel, Sel::Text { .. } | Sel::Block { .. }) {
+    if !opts.stay && matches!(sel, Sel::Text { .. } | Sel::Block { .. }) && advanced < targets.len() {
         // checking or unchecking moves on to the start of the next item (Dynalist)
         if let Some(next) = next_visible_non_descendant(tx.tree, &last, v) {
             return Some(CmdResult::sel(caret(&next, 0)));
         }
+    }
+    if let (Sel::Text { id, f, s, e }, true) = (&sel, advanced > 0) {
+        let len = text16::len(&text(tx.tree, id));
+        return Some(CmdResult::sel(Sel::Text { id: id.clone(), f: *f, s: (*s).min(len), e: (*e).min(len) }));
     }
     Some(CmdResult::sel(sel))
 }
@@ -695,7 +730,9 @@ pub const SORT_LABELS: [(SortMode, &str); 11] = [
 ];
 
 /// The first inline date of an item's text, in ms (for the date sorts).
-pub type DateFn<'a> = &'a dyn Fn(&str) -> Option<f64>;
+fn first_date(t: &Tree, id: &str) -> Option<i64> {
+    extract_dates(&text(t, id)).first().map(|d| to_date(&d.spec.start))
+}
 
 /// Compare titles as `localeCompare(_, _, { numeric: true })` does for plain text: case-insensitive, runs of
 /// digits by their value.
@@ -737,11 +774,7 @@ pub fn natural_cmp(a: &str, b: &str) -> Ordering {
 pub type Comparator<'a> = Box<dyn Fn(&NodeId, &NodeId) -> Ordering + 'a>;
 
 /// A comparator for a sort mode (stable when used with a stable sort); `None` for `Reverse`.
-pub fn sort_comparator<'a>(
-    t: &'a Tree,
-    mode: SortMode,
-    first_date: DateFn<'a>,
-) -> Option<Comparator<'a>> {
+pub fn sort_comparator(t: &Tree, mode: SortMode) -> Option<Comparator<'_>> {
     let node = move |x: &NodeId| t.get(x).expect("item");
     let ck = move |x: &NodeId| prop_true(t, x, "ck");
     Some(match mode {
@@ -750,9 +783,9 @@ pub fn sort_comparator<'a>(
         SortMode::DateNew | SortMode::DateOld => {
             let newest_first = mode == SortMode::DateNew;
             // items without a date go last either way
-            Box::new(move |a, b| match (first_date(&text(t, a)), first_date(&text(t, b))) {
+            Box::new(move |a, b| match (first_date(t, a), first_date(t, b)) {
                 (Some(x), Some(y)) => {
-                    let o = x.partial_cmp(&y).unwrap_or(Ordering::Equal);
+                    let o = x.cmp(&y);
                     if newest_first { o.reverse() } else { o }
                 }
                 (x, y) => x.is_none().cmp(&y.is_none()),
@@ -769,10 +802,10 @@ pub fn sort_comparator<'a>(
 }
 
 /// Sort the children of each of `ids`.
-pub fn sort_children(tx: &mut Tx<'_>, ids: &[NodeId], mode: SortMode, sel: Sel, first_date: DateFn<'_>) -> CmdResult {
+pub fn sort_children(tx: &mut Tx<'_>, ids: &[NodeId], mode: SortMode, sel: Sel) -> CmdResult {
     for p in ids {
         let mut kids = children(tx.tree, p);
-        match sort_comparator(tx.tree, mode, first_date) {
+        match sort_comparator(tx.tree, mode) {
             Some(cmp) => kids.sort_by(|a, b| cmp(a, b)),
             None => kids.reverse(),
         }

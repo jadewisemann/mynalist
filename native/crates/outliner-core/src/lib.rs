@@ -4,8 +4,10 @@
 //! server as the web app. `tests/parity.rs` checks this crate against fixtures recorded from the TS code.
 
 pub mod commands;
+pub mod dates;
 pub mod history;
 pub mod ids;
+pub mod inline;
 pub mod item;
 pub mod session;
 pub mod text16;

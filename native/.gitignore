@@ -2,3 +2,4 @@ target/
 /crates/outliner-core/fixtures/core.json
 /crates/outliner-app/.nsh
 /crates/outliner-core/fixtures/commands.json
+/crates/outliner-core/fixtures/inline.json

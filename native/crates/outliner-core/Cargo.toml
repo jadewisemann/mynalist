@@ -9,3 +9,5 @@ publish.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 getrandom.workspace = true
+# local time zone for date labels and recurrences (TZ, /etc/localtime, Android's tzdata)
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }

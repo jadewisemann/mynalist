@@ -79,7 +79,7 @@ fn return_splits_into_a_new_row_below() {
 #[test]
 fn desktop_keys_indent_outdent_move_and_undo() {
     let mut app = start(Os::MacOs);
-    edit_row(&mut app, "Bold and italic and code 2", "**Bold** and *italic* and `code` 2");
+    edit_row(&mut app, "Bold and italic and code 2", "**Bold** and __italic__ and `code` 2");
     let nested = input_left(&app);
     app.press_key("shift+tab").unwrap();
     let outdented = input_left(&app);
@@ -91,19 +91,19 @@ fn desktop_keys_indent_outdent_move_and_undo() {
     app.press_key("down").unwrap();
     assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 8");
     app.press_key("up").unwrap();
-    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 2");
+    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 2");
     // Mod+Down moves it past the next row; Mod+Up brings it back
     app.press_key("mod+down").unwrap();
     app.press_key("mod+up").unwrap();
     app.press_key("up").unwrap();
-    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 7");
+    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 7");
     app.press_key("down").unwrap();
     // undo both moves, the indent and the outdent
     for _ in 0..4 {
         app.press_key("mod+z").unwrap();
     }
     // undo puts the caret back where the change was made
-    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 2");
+    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 2");
     assert_eq!(input_left(&app), nested);
     app.press_key("down").unwrap();
     assert_eq!(editing(&app), "A [link](https://example.com) and a #tag 3");
@@ -115,7 +115,7 @@ fn zoom_in_and_out() {
     edit_row(&mut app, "Plain item 1", "Plain item 1");
     app.press_key("mod+]").unwrap();
     // only its children show; the caret is on the first one
-    assert_eq!(editing(&app), "**Bold** and *italic* and `code` 2");
+    assert_eq!(editing(&app), "**Bold** and __italic__ and `code` 2");
     assert!(!app.screen().shows("A link and a #tag 8"));
     app.press_key("mod+[").unwrap();
     app.wait_for("text:A link and a #tag 8").unwrap();

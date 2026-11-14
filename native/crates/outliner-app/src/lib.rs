@@ -38,7 +38,9 @@ fn native(registry: &mut Registry) {
 #[component]
 pub fn App() -> impl IntoElement {
     if store::peek(|s| s.rows.is_empty()) {
-        store::open(store::demo(DEMO_ITEMS));
+        // `OUTLINER_DEMO=inline`: the inline showcase instead of the large demo
+        let inline = std::env::var("OUTLINER_DEMO").is_ok_and(|d| d == "inline");
+        store::open(if inline { store::showcase() } else { store::demo(DEMO_ITEMS) });
     }
     view()
         .flex_1()

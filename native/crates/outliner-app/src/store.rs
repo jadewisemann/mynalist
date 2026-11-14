@@ -24,6 +24,8 @@ pub struct Row {
     pub depth: u16,
     pub has_kids: bool,
     pub collapsed: bool,
+    /// Its number among the shown children of a numbered parent (`num`), shown in place of the bullet; 0 if none.
+    pub num: u32,
 }
 
 pub struct State {
@@ -56,12 +58,17 @@ impl State {
         }
         let v = &self.view;
         let mut rows = Vec::with_capacity(self.rows.len().max(64));
-        let mut stack: Vec<(NodeId, u16)> = visible_children(t, &v.zoom, v).into_iter().rev().map(|c| (c, 0)).collect();
-        while let Some((id, depth)) = stack.pop() {
+        // the children of `parent`, numbered when it numbers them, last first (for the stack)
+        let kids = |parent: &str, depth: u16| {
+            let numbered = item::numbered(t.get(parent));
+            let shown = visible_children(t, parent, v);
+            shown.into_iter().enumerate().rev().map(move |(k, c)| (c, depth, if numbered { k as u32 + 1 } else { 0 }))
+        };
+        let mut stack: Vec<(NodeId, u16, u32)> = kids(&v.zoom, 0).collect();
+        while let Some((id, depth, num)) = stack.pop() {
             let Some(n) = t.get(&id) else { continue };
-            let shown = visible_children(t, &id, v);
-            rows.push(Row { id: id.clone(), depth, has_kids: !n.children.is_empty(), collapsed: n.collapsed });
-            stack.extend(shown.into_iter().rev().map(|c| (c, depth + 1)));
+            rows.push(Row { id: id.clone(), depth, has_kids: !n.children.is_empty(), collapsed: n.collapsed, num });
+            stack.extend(kids(&id, depth + 1));
         }
         self.rows = rows;
     }
@@ -127,7 +134,7 @@ pub fn demo(n: usize) -> DocSession<Option<Caret>> {
     let ts = now();
     let samples = [
         "Plain item",
-        "**Bold** and *italic* and `code`",
+        "**Bold** and __italic__ and `code`",
         "A [link](https://example.com) and a #tag",
         "한글 항목: 입력 테스트",
         "Mixed **굵게** `코드` text",
@@ -164,6 +171,54 @@ pub fn demo(n: usize) -> DocSession<Option<Caret>> {
     }
     let mut title = Props::new();
     title.insert("c".into(), Value::String("Demo".into()));
+    ops.insert(0, Op::Set { id: ROOT.to_owned(), props: title, ts });
+    s.transact(ops, None, None, false);
+    s
+}
+
+/// The inline showcase (`OUTLINER_DEMO=inline`): every kind of inline syntax, a note and a numbered list. Its
+/// dates are fixed past days, so their labels do not depend on today.
+pub fn showcase() -> DocSession<Option<Caret>> {
+    let mut s = DocSession::default();
+    let ts = now();
+    // content, note, other props
+    type Item<'a> = (&'a str, &'a str, &'a [(&'a str, Value)]);
+    let items: [Item<'_>; 13] = [
+        ("**Bold**, __italic__, ~~strike~~ and ==highlight==", "", &[]),
+        ("Code `let x = 1;`, an escaped \\*star\\* and $$e^{i\\pi}+1=0$$", "", &[]),
+        ("A [link](https://example.com), https://example.org/docs and #tag @me", "", &[]),
+        ("Due !(2024-01-05) and !(2024-03-10 15:30 - 2024-03-10 17:00)", "", &[]),
+        ("Every week !(2024-01-08 | 1w135) and ![a picture](https://example.com/a.png)", "", &[]),
+        ("Item with a note", "A note under the item, with **bold** and a #tag.", &[]),
+        ("Code block:\n```js\nconst a = 1;\nconsole.log(a);\n```", "", &[]),
+        ("Numbered list", "", &[("num", Value::Bool(true))]),
+        ("First", "", &[]),
+        ("Second with ==mark==", "", &[]),
+        ("Third", "", &[]),
+        ("Checked with a date !(2024-01-05)", "", &[("ck", Value::Bool(true))]),
+        ("Heading with ~~gone~~", "", &[("h", Value::from(2))]),
+    ];
+    let mut ops = Vec::new();
+    let mut after: Option<NodeId> = None;
+    let mut kid_after: Option<NodeId> = None;
+    for (i, (c, n, extra)) in items.iter().enumerate() {
+        let id = format!("s{i}");
+        let mut props = text_props(c);
+        if !n.is_empty() {
+            props.insert("n".into(), Value::String((*n).to_owned()));
+        }
+        for (k, v) in extra.iter() {
+            props.insert((*k).to_owned(), v.clone());
+        }
+        // the three after "Numbered list" are its children
+        if (8..=10).contains(&i) {
+            ops.push(Op::Create { id: id.clone(), parent: "s7".into(), after: kid_after.replace(id.clone()), props, ts });
+        } else {
+            ops.push(Op::Create { id: id.clone(), parent: ROOT.into(), after: after.replace(id.clone()), props, ts });
+        }
+    }
+    let mut title = Props::new();
+    title.insert("c".into(), Value::String("Inline".into()));
     ops.insert(0, Op::Set { id: ROOT.to_owned(), props: title, ts });
     s.transact(ops, None, None, false);
     s

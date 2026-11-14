@@ -29,7 +29,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      - run: node native/crates/outliner-core/fixtures/gen.ts && node native/crates/outliner-core/fixtures/gen-commands.ts
+      - run: node native/crates/outliner-core/fixtures/gen.ts && node native/crates/outliner-core/fixtures/gen-commands.ts && node native/crates/outliner-core/fixtures/gen-inline.ts
       - run: cargo test -p outliner-core -p outliner-app
         working-directory: native
       - run: cargo clippy -p outliner-core -p outliner-app --all-targets -- -D warnings

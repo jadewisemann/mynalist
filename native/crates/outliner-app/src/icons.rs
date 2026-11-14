@@ -37,3 +37,9 @@ pub fn icon(name: &str, size: f32) -> impl IntoElement {
     );
     svg(ImageSrc::svg_markup(&markup)).w(px(size)).h(px(size))
 }
+
+/// The date chip's calendar (`.o-date::before`, a 16×16 shape filled in the text color), `size` points square.
+pub fn calendar(size: f32) -> impl IntoElement {
+    let markup = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4 0h2v2h4V0h2v2h3v14H1V2h3zM3 6v8h10V6z"/></svg>"#;
+    svg(ImageSrc::svg_markup(markup)).w(px(size)).h(px(size))
+}

@@ -1,7 +1,7 @@
 //! The app's editing commands: the core's commands (`outliner_core::commands`, the port of `commands.ts` with its
 //! Dynalist rules) run on the open document, recorded for undo and sync, with the caret they leave.
 
-use outliner_core::commands::{self as core, CheckOptions, CmdResult, Dir, Sel};
+use outliner_core::commands::{self as core, CheckOptions, CmdResult, Dir, Recurring, Sel};
 use outliner_core::view::{self, View};
 use outliner_core::{item, text16, NodeId, Op, Tx, ROOT};
 
@@ -110,7 +110,9 @@ pub fn delete_item(id: &str, caret: u32) {
 /// Mod+Enter (moves on to the next row) or the toolbar's check (`stay`).
 pub fn toggle_checked(id: &str, caret: u32, stay: bool) {
     run(at(id, caret), |tx, v| {
-        core::toggle_checked(tx, v, &[id.to_owned()], text_sel(id, caret), &CheckOptions { stay })
+        // a recurring date moves on, a checked copy staying above (the web's default `new_instance`)
+        let opts = CheckOptions { stay, recurring: Some(Recurring::NewInstance), now: None };
+        core::toggle_checked(tx, v, &[id.to_owned()], text_sel(id, caret), &opts)
     });
 }
 
