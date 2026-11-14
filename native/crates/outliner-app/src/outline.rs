@@ -442,8 +442,22 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
             }
         });
     };
-    bind("up", |id, _| cmd::step(id, false));
-    bind("down", |id, _| cmd::step(id, true));
+    // Up and Down move to the row above or below from the input's first or last line only (`verticalMove` on
+    // the web); elsewhere they go on to the input, which moves its caret between its lines
+    let caret_box = signal(None::<(f32, f32)>);
+    let field_h = signal(0.0_f32);
+    for (keys, down) in [("up", false), ("down", true)] {
+        let id = id.clone();
+        let opts = KeyOptions { pass_through: true, ..opts };
+        on_key_with(keys, opts, move |_| {
+            if !store::peek(|s| s.editing.as_ref().is_some_and(|c| c.id == id)) {
+                return;
+            }
+            if on_edge(caret_box.get_untracked(), field_h.get_untracked(), down) {
+                cmd::step(&id, down);
+            }
+        });
+    }
     bind("tab", cmd::indent);
     bind("shift+tab", cmd::outdent);
     bind("mod+up", cmd::move_up);
@@ -484,6 +498,12 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .text_color(color::fg())
         .selection_color(color::selection())
         .on_change(move |t: &str| cmd::set_text(&change_id, t, sel.get_untracked()))
+        .on_caret_move(move |c: &CaretEvent| {
+            let b = c.bounds;
+            // an empty caret: the platform could not place it
+            caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
+        })
+        .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
         .on_selection_change(move |s: &Selection| {
             sel.set(s.start);
             sel_end.set(s.end);
@@ -495,4 +515,16 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
             }
         })
         .into_element()
+}
+
+/// Whether the caret (its top and bottom in the input, `None` when unknown) is on the input's first line (`down`
+/// false) or last line (`down` true), as the web's `onFirstLine` / `onLastLine` tell: within 0.7 of a line from
+/// that edge. Unknown places count as an edge, so the keys still move between rows.
+fn on_edge(caret: Option<(f32, f32)>, height: f32, down: bool) -> bool {
+    let Some((top, bottom)) = caret else { return true };
+    if height <= 0.0 {
+        return true;
+    }
+    let near = style::line() * 0.7;
+    if down { height - bottom < near } else { top < near }
 }

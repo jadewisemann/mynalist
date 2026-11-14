@@ -130,6 +130,22 @@ fn a_long_row_wraps_in_its_input_and_return_still_splits_it() {
 }
 
 #[test]
+fn up_and_down_leave_a_wrapped_row_from_its_first_or_last_line_only() {
+    let mut app = start(Os::MacOs);
+    edit_row(&mut app, "Bold and italic and code 2", "**Bold** and __italic__ and `code` 2");
+    let long = " and a sentence long enough to need more than one line of the editor's width".repeat(3);
+    app.type_text("id:row-input", &long).unwrap();
+    let source = format!("**Bold** and __italic__ and `code` 2{long}");
+    expect_editing(&mut app, &source);
+    // the caret is at the end, on the last of several lines: Up goes to the line above, in the input
+    app.press_key("up").unwrap();
+    expect_editing(&mut app, &source);
+    // Down from the last line goes to the row below
+    app.press_key("down").unwrap();
+    expect_editing(&mut app, "A [link](https://example.com) and a #tag 3");
+}
+
+#[test]
 fn the_bullet_thread_follows_the_row_being_edited() {
     let mut app = start(Os::MacOs);
     let count = |s: &Screen, id: &str| {
