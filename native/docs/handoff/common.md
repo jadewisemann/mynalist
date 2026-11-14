@@ -104,6 +104,10 @@ Read this first. Area notes in this folder say what each piece of work is.
 - `nsh package` creates `crates/outliner-app/target` and `.nsh/`: both gitignored, never commit build output
   (check `git status` before `git add`).
 
+- Shell commands that climb out of the working folder with `../` mixed with globs (e.g. `cd ~/.cargo/registry/src/*/x && grep ../../*/y`)
+  are not auto-approved in these sessions: the session then waits for a person and stalls. Read files outside the repo with one
+  plain absolute path per command (`ls -d ~/.cargo/registry/src/*/nsh-core-0.5.0` first, then use that path).
+
 ## Conventions
 
 - Commit on branch `ccr-b10d0d65-ax4wtp`, push with `git push -u origin ccr-b10d0d65-ax4wtp`. Pull before you start.
