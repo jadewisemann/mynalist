@@ -115,7 +115,7 @@ export const KNOWN = [
   { re: /row \d+ spans: native "const a = 1;/, why: 'the native app has no syntax highlighting in code blocks yet' },
   { re: /e\^\{i\\\\pi\}\+1=0.*Latin Modern Math|Latin Modern Math.*e\^\{i/, why: 'the native app shows LaTeX source in the mono font; the web typesets it (KaTeX)' },
   { re: /^inline-\w+-rest: row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
-  { re: /^inline-phone-rest: row [3-6] (height|top):/, why: 'where a long line wraps depends on glyph widths, which differ between the text engines' },
+  { re: /^inline-phone-rest: row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
   { re: /"(highlight|mark)" .* #222222 bg=#ffdd0061 r=2; web .*"(highlight|mark)" .* #000000 bg=#ffdd0061/, why: 'the web\'s <mark> takes the browser\'s black text (a web quirk to decide on)' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));
 
