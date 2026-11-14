@@ -36,17 +36,29 @@ from the same fixtures. Tests:
 - the web model and the native model of the same fixture and modes are equal within tolerance (fonts' glyph widths
   differ between engines: compare positions that do not depend on text width exactly, widths loosely).
 
-## 4. Custom CSS (the web's Settings > Custom CSS, pref `custom_css`)
+## 4. Appearance customization, instead of custom CSS
 
-The native app has no CSS engine. Define the subset both apps honor: custom-property overrides on `:root`
-(`--tag: teal`, i.e. token overrides) and simple rules on the known classes (`.o-tag`, `.o-code`, `.o-link`,
-`.o-content`, `.o-note`, `.o-h1`..`.o-h3`, `.o-checked`, `.o-bullet`, ...) with text properties (color, background,
-font-weight, font-style, text-decoration, font-size). Parse it in Rust (a CSS parser crate), apply that subset, and
-list what was ignored so the settings screen can say "web only". Test: the same snippets give the same render model
-on both, for the supported part. The settings screen itself is area 4's.
+The native app will not interpret CSS (no CSS engine; see the user's decision). Instead both apps get detailed,
+structured appearance settings, defined once:
+
+- `design/customize.json` lists what a user may change, each entry naming the token(s) it overrides, its kind (color,
+  length, font family, weight, choice), range or choices, and a label: per-role colors (text, note, tag, link, code
+  text and background, checked items, bullets, guides, the six color labels, accent, background), font family,
+  font size, line height, row padding, indent width, heading sizes and weights, and anything else the web exposes
+  through its CSS properties that a user could reasonably want.
+- A user's customization is one value: a map of token overrides (`appearance_overrides`), stored where the other
+  preferences are (locally for now; synced with the other prefs once sync exists). The web app applies it as CSS
+  custom properties on `:root`; the native app as overrides of its reactive token values. Both apply it at once,
+  without a restart.
+- The settings screens of both apps are generated from `customize.json` (the native one is area 4's job; add the
+  web one here, in the web's settings dialog, next to its existing options).
+- Test: the same overrides give the same render model on both apps, and every entry of `customize.json` changes
+  what the model says it changes.
+
+The web's existing Custom CSS setting stays web-only; the native app does not read it, and its settings screen says so.
 
 ## Done when
 
 Tokens and spec are the single source (no color or metric literals left in `styles.css` or `style.rs` outside the
-generated files), the web QA still passes, the cross-checks run in CI, custom-CSS subset tested, TASKS.md updated,
+generated files), the web QA still passes, the cross-checks run in CI, the customization entries tested on both apps, TASKS.md updated,
 committed and pushed, working tree clean.

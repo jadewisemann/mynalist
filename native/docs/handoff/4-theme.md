@@ -8,8 +8,9 @@ and density (compact / normal / comfortable row padding). `style.rs` holds the l
 them come from the current theme, reactively. A settings screen (the top bar's gear on desktop, the menu on phones)
 with these options; keep the choices on the device (NSH storage).
 
-Build it on area 6's token modes (themes, sizes, densities, fonts come from `design/tokens.json`) and apply the
-custom-CSS subset of area 6 from the settings screen, listing the ignored rules as "web only".
+Build it on area 6's token modes (themes, sizes, densities, fonts come from `design/tokens.json`), and add the
+appearance customization screen generated from `design/customize.json` (area 6). The native app does not read the
+web's Custom CSS: the screen says it is web-only.
 
 ## Done when
 
