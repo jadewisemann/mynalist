@@ -1,7 +1,7 @@
 # TASKS — 작업 현황과 남은 일
 
 Dynalist를 클린룸으로 재구현하는 셀프호스팅 아웃라이너. 이 문서만 읽고 이어서 작업할 수 있게 정리했다.
-(최종 갱신: 2026-10-24)
+(최종 갱신: 2026-11-14)
 
 - 레포: https://github.com/jadewisemann/mynalist (public), 로컬 `/home/ubuntu/code/outliner`, 브랜치 `main`
 - 구조:
@@ -243,12 +243,34 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
 - [x] 온보딩 튜토리얼과 What's new: 메인 메뉴에서 연다. QA에 방해되지 않게 자동으로 열지 않는다.
 - [x] 읽기 전용 잠금 모드: 문서별 보기 옵션에서 켠다.
 
-### 4. 모바일·macOS: Rust 네이티브 앱
+### 4. 모바일·macOS: Rust 네이티브 앱 (`native/`)
 - [x] Capacitor 셸(`apps/android`) 제거 (2026-11-13).
 - [x] Tauri 셸(`apps/shell`, `shell.yml`) 제거 (2026-11-13). 네이티브 앱이 나올 때까지 macOS와 Android는 웹(PWA)을 쓴다.
-- [ ] 웹(`apps/web`)은 TS/DOM 그대로 둔다. Android와 macOS는 Rust 네이티브 앱으로 새로 만든다. 기존 서버 동기화 프로토콜과 호환해야 한다.
-- [ ] UI 스택: macOS는 GPUI로 한다. 모바일은 GPUI와 코드를 최대한 공유할 수 있는 방향으로 정한다.
-- [ ] 한글 IME 검증.
+- **방향:** 웹(`apps/web`)과 서버는 TS 그대로 둔다. Android와 macOS는 Rust 앱으로 새로 만들고, 기존 서버 동기화 프로토콜과 호환한다.
+- **UI 스택:** [NSH](https://github.com/longbridge/nsh) 0.5.0 (crates.io, `=0.5.0`으로 고정).
+  - macOS: NSH의 GPUI 백엔드(`nsh-platform-gpui`)로 그린다. `crates/outliner-mac`이 창을 띄운다.
+  - Android: NSH의 Android 백엔드. 입력란은 실제 `EditText`라 한글 IME가 OS 그대로 동작한다.
+  - Exact(expo/exact), gpui-mobile도 검토했다. Exact는 macOS가 AppKit뿐이고 Android 지원이 초기 단계라서, gpui-mobile은 Android에서 IME 조합 입력이 없어서 제외했다.
+- **구조:**
+  - `crates/outliner-core`: `packages/core`의 Rust 이식. 지금은 tree, item, ids, session(undo, sync), history, Tx.
+    `fixtures/gen.ts`가 TS 코어의 동작을 무작위 시나리오로 기록하고 `tests/parity.rs`가 대조한다 (CI `native-core`).
+  - `crates/outliner-app`: NSH UI. 가상 리스트, 인라인 서식 행, 편집 중인 행만 네이티브 입력란, 키 바인딩(`When::Always`), 터치용 툴바.
+    헤드리스 테스트 `tests/flows.rs` (1만 개 행 문서).
+  - `crates/outliner-mac`: macOS 실행 파일 (GPUI).
+  - CI `.github/workflows/native.yml`: `Outliner-macos.zip`(ad-hoc 서명 .app)과 `Outliner-android.apk`(debug 서명)를 artifact로 올린다.
+- [x] core 1차 이식과 TS 대조 테스트.
+- [x] NSH 시험용 앱: 헤드리스 테스트 통과, Linux GPUI(Xvfb)에서 렌더링·클릭·입력·↓ 이동 확인.
+- [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
+- [ ] 남은 core 이식: `commands.ts`(Dynalist 동작 규칙), `inline.ts`(전체 인라인 문법), `view.ts`, `search.ts`, `dates.ts`, `paste.ts`, `export.ts`.
+  앱의 `commands.rs`, `inline.rs`는 시험용 단순 버전이다.
+- [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌, 검색.
+- [ ] 알려진 제약: Rust 문자열은 짝이 맞지 않는 UTF-16 서로게이트를 담을 수 없다. 웹이 이런 문자열을 보내면 역직렬화가 실패한다.
+- 명령:
+  ```sh
+  node native/crates/outliner-core/fixtures/gen.ts && (cd native && cargo test)   # core 대조 + 앱 헤드리스 테스트
+  cd native && cargo run -p outliner-mac                                         # 데스크톱 (Linux는 GPUI 개발 라이브러리 필요)
+  cd native/crates/outliner-app && nsh package --target android                  # APK (Android SDK, NDK 필요)
+  ```
 
 ## 자주 쓰는 명령
 

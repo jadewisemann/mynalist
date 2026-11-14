@@ -9,6 +9,7 @@ packages/core   shared logic: tree + ops, undo, sync client, editor commands, in
                 paste/import/export (no runtime deps; unit-tested)
 apps/server     Node 24 + node:sqlite + ws — op-log sync server (single user)
 apps/web        Vite + vanilla TS editor
+native/         Rust app for Android and macOS (NSH; GPUI on macOS) + Rust port of core
 deploy/         systemd user service + install script
 ```
 
