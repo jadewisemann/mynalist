@@ -121,6 +121,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | --- | --- | --- | --- | --- | --- |
 | ui | length | 10..24 | `--fs` | `14` | The app's text size (bars, menus, sidebar). |
 | ui_line | ratio | 1..2.5 | `--type-ui-line` | `1.5` | The app's line height. |
+| tour_line | ratio | 1..2.5 | `--type-tour-line` | `1.6` | The tutorial's text line height. |
 | ui_small | length | 8..24 | `--type-ui-small` | `13` | Small app text: breadcrumbs, sync status, hints. |
 | ui_tiny | length | 8..24 | `--type-ui-tiny` | `12` | Tiny app text: section heads, shortcuts. |
 | ui_micro | length | 8..24 | `--type-ui-micro` | `11` | The smallest app text: counts. |
@@ -298,6 +299,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | search_vw | ratio | 0.3..1 | `--space-search-vw` | `0.7` | The search box's and the search tips' widest, of the window's width. |
 | modal_vw | ratio | 0.5..1 | `--space-modal-vw` | `0.92` | Dialogs' widest, of the window's width. |
 | modal_vh | ratio | 0.3..1 | `--space-modal-vh` | `0.76` | Dialogs' tallest, of the window's height. |
+| capture_vh | ratio | 0.1..0.9 | `--space-capture-vh` | `0.4` | The inbox capture box's least height, of the window's height. |
 | export_out | length | 80..800 | `--space-export-out` | `280` | The export dialog's output box's height. |
 | crumb_max | length | 40..400 | `--space-crumb-max` | `160` | A breadcrumb's widest. |
 | chunk_estimate | length | 100..10000 | `--space-chunk-estimate` | `3000` | The height a block of rows is taken to have before it is laid out (long documents). |

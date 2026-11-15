@@ -80,6 +80,7 @@ math = "'Latin Modern Math', 'STIX Two Math', serif"
 [type]
 ui = 14
 ui_line = 1.5
+tour_line = 1.6
 ui_small = 13
 ui_tiny = 12
 ui_micro = 11
@@ -257,6 +258,7 @@ search_tips_right = 76
 search_vw = 0.7
 modal_vw = 0.92
 modal_vh = 0.76
+capture_vh = 0.4
 export_out = 280
 crumb_max = 160
 chunk_estimate = 3000

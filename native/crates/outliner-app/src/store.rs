@@ -88,6 +88,12 @@ pub struct State {
     pub files: Vec<String>,
     /// The documents that are not open, with the view each was left in.
     shelved: HashMap<String, (Session, View)>,
+    /// The places (document, zoom root) Back goes to, the last one last (the web's browser history of routes).
+    back: Vec<(String, NodeId)>,
+    /// The places Forward goes to, the next one last.
+    forward: Vec<(String, NodeId)>,
+    /// The change being made moves through the history itself (Back, Forward) or starts over: not recorded.
+    unrecorded: bool,
 }
 
 impl State {
@@ -109,6 +115,9 @@ impl State {
             doc,
             files,
             shelved,
+            back: Vec::new(),
+            forward: Vec::new(),
+            unrecorded: false,
         };
         s.reflow();
         s
@@ -273,6 +282,53 @@ impl State {
         self.rows = rows;
     }
 
+    /// Where the app is: the open document and its zoom root.
+    fn location(&self) -> (String, NodeId) {
+        (self.doc.clone(), self.view.zoom.clone())
+    }
+
+    /// A change left `before`: when it opened another document or zoomed, Back goes there (`go` pushing a route
+    /// on the web) and Forward has nowhere to go.
+    fn record(&mut self, before: (String, NodeId)) {
+        if std::mem::take(&mut self.unrecorded) || before == self.location() {
+            return;
+        }
+        if self.back.len() >= HISTORY {
+            self.back.remove(0);
+        }
+        self.back.push(before);
+        self.forward.clear();
+    }
+
+    /// Whether Back (`forward`: Forward) has somewhere to go.
+    pub fn can_travel(&self, forward: bool) -> bool {
+        if forward { !self.forward.is_empty() } else { !self.back.is_empty() }
+    }
+
+    /// Back (`forward`: Forward) through the places the app was in: the document opened again in that zoom
+    /// (its root when the item is gone), nothing edited (`setZoom`). Places of documents that are gone are
+    /// passed over. Returns whether it went.
+    pub fn travel(&mut self, forward: bool) -> bool {
+        let here = self.location();
+        loop {
+            let next = if forward { self.forward.pop() } else { self.back.pop() };
+            let Some((doc, zoom)) = next else { return false };
+            if self.tree_of(&doc).is_none() || (doc.as_str(), zoom.as_str()) == (here.0.as_str(), here.1.as_str()) {
+                continue;
+            }
+            if forward { &mut self.back } else { &mut self.forward }.push(here);
+            self.switch(&doc);
+            self.view.zoom = zoom;
+            self.view.filter = None;
+            self.editing = None;
+            self.block = None;
+            self.caret_rev += 1;
+            self.reflow();
+            self.unrecorded = true;
+            return true;
+        }
+    }
+
     pub fn row_index(&self, id: &str) -> Option<usize> {
         self.rows.iter().position(|r| r.id == id)
     }
@@ -372,6 +428,11 @@ fn shared() -> Rc<RefCell<State>> {
     global::<Shared>().get_untracked().0
 }
 
+/// Back (`forward`: Forward) through the places the app was in ([`State::travel`]).
+pub fn travel(forward: bool) {
+    edit(|s| s.travel(forward));
+}
+
 /// Read the document; the reader runs again when it changes.
 pub fn read<R>(f: impl FnOnce(&State) -> R) -> R {
     global::<Rev>().get();
@@ -383,9 +444,16 @@ pub fn peek<R>(f: impl FnOnce(&State) -> R) -> R {
     f(&shared().borrow())
 }
 
-/// Change the document and tell its readers.
+/// How many places Back keeps.
+const HISTORY: usize = 100;
+
+/// Change the document and tell its readers. A change that opens another document or zooms is recorded for
+/// Back and Forward.
 pub fn edit<R>(f: impl FnOnce(&mut State) -> R) -> R {
-    let out = f(&mut shared().borrow_mut());
+    let st = shared();
+    let before = st.borrow().location();
+    let out = f(&mut st.borrow_mut());
+    st.borrow_mut().record(before);
     global::<Rev>().update(|r| r.0 += 1);
     out
 }
@@ -401,6 +469,7 @@ pub fn open_all(docs: Vec<(String, Session)>) {
     edit(|s| {
         let show_checked = s.show_checked;
         *s = State::new(docs);
+        s.unrecorded = true;
         s.show_checked = show_checked;
         s.reflow();
     });

@@ -755,6 +755,10 @@ fn structural_snapshots() {
         for (doc, side) in [("looks", "search"), ("inline", "search"), ("looks", "links"), ("looks", "backlinks")] {
             more.push((format!("{doc}-{}-{side}.txt", device.name), snapshot(doc, false, device, "", side)));
         }
+        // the help panel, the mind map, the tutorial (area 14)
+        for side in ["help", "mindmap", "tour"] {
+            more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
+        }
     }
     for (name, got) in more {
         let path = dir.join(&name);

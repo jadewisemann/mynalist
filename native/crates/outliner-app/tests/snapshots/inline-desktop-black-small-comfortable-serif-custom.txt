@@ -345,3 +345,8 @@ view 0,0 1100x800
                   "Heading with gone"
                     "Heading with " Georgia, 'Times New Roman', serif 21/24.5 w600 #102030
                     "gone" Georgia, 'Times New Roman', serif 21/24.5 w600 #102030 strike
+        view#doc-actions 1026,51 62x30
+          view#bookmark-view 1026,51 30x30 r=6
+            canvas 1032,57 18x18
+          view#view-options 1058,51 30x30 r=6
+            canvas 1064,57 18x18

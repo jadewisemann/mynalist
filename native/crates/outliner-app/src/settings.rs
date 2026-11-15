@@ -129,6 +129,12 @@ pub const PICKS: &[Pick] = &[
         options: &[("new_instance", "Next date appears in new item"), ("update", "Existing date gets updated")],
     },
     Pick {
+        key: "inbox_move_position",
+        label: "Move to position",
+        default: "bottom",
+        options: &[("bottom", "End of inbox"), ("top", "Start of inbox")],
+    },
+    Pick {
         key: "dyslexia_font",
         label: "Font for dyslexia",
         default: "none",
@@ -150,6 +156,8 @@ pub const TEXTS: &[Typed] = &[
         placeholder: "relative",
         hint: "e.g. \"ddd, MMM D\"",
     },
+    // chosen with the inbox picker ("Your inbox"), not typed: "<doc>" or "<doc>/<item>"
+    Typed { key: "inbox_location", label: "Inbox destination", placeholder: "", hint: "" },
 ];
 
 /// The keymap's changes (the web's `shortcut_override`: a command's id and its keys, as JSON).
@@ -235,6 +243,13 @@ impl Prefs {
             "mon" => 1,
             _ => 0,
         }
+    }
+}
+
+/// The tutorial was done or skipped (`finished_onboarding`), kept on the device.
+pub fn finish_onboarding() {
+    if let Err(e) = Storage::set_item(crate::help::FINISHED, "true") {
+        eprintln!("settings: {} not kept: {e:?}", crate::help::FINISHED);
     }
 }
 
@@ -879,6 +894,26 @@ fn prefs_pane() -> impl IntoElement {
         .child(pick_field("recurrence_check_behavior"))
         .child(section("Internal links"))
         .child(flag_field("show_backlinks"))
+        .child(section("Your inbox"))
+        .child(
+            view()
+                .flex_row()
+                .items_center()
+                .gap(px(num("space.step4")))
+                .mb(px(num("space.field_bottom")))
+                .child(ui("Inbox destination: "))
+                .child(
+                    ui(|| -> SharedString {
+                        // again when the inbox is chosen
+                        prefs();
+                        crate::inbox::label().into()
+                    })
+                    .test_id("inbox-label")
+                    .flex_shrink(1.0),
+                )
+                .child(btn("Change…", false, crate::inbox::pick)),
+        )
+        .child(pick_field("inbox_move_position"))
         .child(section("Control"))
         .child(flag_field("use_bullet_to_zoom"))
         .child(flag_field("unindent_in_place"))
@@ -1514,8 +1549,8 @@ pub fn screen() -> impl IntoElement {
     )
 }
 
-/// The top bar's menu (`.menu`), while it shows: the settings, the search everywhere, the search and replace and
-/// the export (the web's other items are not here yet).
+/// The top bar's menu (`.menu`), while it shows: the web's items the native app has (version history, print,
+/// the sync status and About are not here).
 pub fn menu() -> impl IntoElement {
     when(
         || panel().with(|p| p.menu),
@@ -1558,10 +1593,16 @@ pub fn menu() -> impl IntoElement {
                         .pr(px(num("space.topbar_pad")))
                         .child(
                             menu_box()
+                                .child(item("Shortcuts & formatting", || crate::help::toggle(Some(true))))
                                 .child(item("Settings", || open(Tab::Prefs)))
+                                .child(item("Capture to inbox", crate::inbox::capture))
+                                .child(item("Go to inbox", crate::inbox::goto))
                                 .child(item("Search everywhere", crate::find::search_everywhere))
                                 .child(item("Search and replace", crate::find::replace_dialog))
-                                .child(item("Export…", crate::export::open)),
+                                .child(item("Export…", crate::export::open))
+                                .child(item("Download backup", download_backup))
+                                .child(item("Tutorial", crate::help::tutorial))
+                                .child(item("What's new", crate::help::whats_new)),
                         ),
                 )
         },

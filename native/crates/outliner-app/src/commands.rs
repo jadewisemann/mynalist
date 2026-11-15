@@ -62,6 +62,10 @@ fn targets(s: &State) -> Vec<NodeId> {
 /// Run `f` on the open document's selection as one undoable change; the selection becomes what its result says.
 /// Returns whether it did something.
 fn run(f: impl FnOnce(&mut Tx<'_>, &View, &[NodeId], Sel) -> Option<CmdResult>) -> bool {
+    // a locked document (read mode) is not changed (`Editor.run`)
+    if store::peek(|s| crate::docview::is_locked(&s.doc)) {
+        return false;
+    }
     store::edit(|s| {
         let v = s.view.clone();
         let before = current(s);
@@ -93,6 +97,8 @@ fn run_items(f: impl FnOnce(&mut Tx<'_>, &View, &[NodeId], Sel) -> Option<CmdRes
 
 /// Make `mark` the selection: the caret (an item edited) or selected items, or neither.
 fn place(s: &mut State, mark: Option<Mark>) {
+    // a locked document can be read and navigated, not edited (`applySel`)
+    let mark = mark.filter(|m| !matches!(m, Mark::Caret(_)) || !crate::docview::is_locked(&s.doc));
     match mark {
         Some(Mark::Caret(c)) => {
             s.editing = Some(c);
@@ -391,6 +397,9 @@ pub fn focus_end() {
 }
 
 pub fn undo(redo: bool) {
+    if store::peek(|s| crate::docview::is_locked(&s.doc)) {
+        return;
+    }
     store::edit(|s| {
         let (sel, change) = if redo { s.session.redo() } else { s.session.undo() };
         if change.is_some() {

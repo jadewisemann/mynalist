@@ -1,0 +1,1072 @@
+# looks, phone 390x844 (Ios), at rest, the sidebar on help; clock 2024-06-15 12:00 UTC
+[model]
+topbar top=0 height=47
+title top=47 height=60
+  text x=10 top=61 "Looks"
+    "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
+row depth=0 top=107 height=37 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=111 "Heading one"
+    "Heading one" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 24/28 w700 #222222
+row depth=0 top=144 height=34.5 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=148 "Heading two"
+    "Heading two" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #222222
+row depth=0 top=178.5 height=32 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=182.5 "Heading three"
+    "Heading three" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 20/24 w700 #222222
+row depth=0 top=210.5 height=48 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=214.5 "A checked item"
+    "A checked item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+  note top=236.5
+    text x=36 top=236.5 "Its note is checked too."
+      "Its note is checked too." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #a7a7a7 strike
+row depth=0 top=258.5 height=33 bullet=21 dot=6 bg=#8b8f97 r=3 checkbox=32 text=58
+  text x=58 top=262.5 "A checkbox, off"
+    "A checkbox, off" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=0 top=291.5 height=33 bullet=21 dot=6 bg=#8b8f97 r=3 checkbox=32 text=58
+  text x=58 top=295.5 "A checkbox, on"
+    "A checkbox, on" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+row depth=0 top=324.5 height=30 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=328.5 "Color labels"
+    "Color labels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=354.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#f9d0c4
+  text x=57 top=358.5 "Label 1"
+    "Label 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=384.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#fed8b1
+  text x=57 top=388.5 "Label 2"
+    "Label 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=414.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#fef2c0
+  text x=57 top=418.5 "Label 3"
+    "Label 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=444.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#c8e3c0
+  text x=57 top=448.5 "Label 4"
+    "Label 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=474.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#c5def5
+  text x=57 top=478.5 "Label 5"
+    "Label 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=504.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#d4c5f9
+  text x=57 top=508.5 "Label 6"
+    "Label 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=0 top=534.5 height=30 bullet=21 dot=14 bg=#8b8f97 r=7 border=4 #c9ccd1 text=36 label=#c5def5
+  text x=36 top=538.5 "A folded item"
+    "A folded item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=0 top=564.5 height=30 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=568.5 "Levels"
+    "Levels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=594.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57
+  text x=57 top=598.5 "A sibling above"
+    "A sibling above" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=2 top=624.5 height=30 bullet=63 dot=6 bg=#8b8f97 r=3 text=78
+  text x=78 top=628.5 "Its child"
+    "Its child" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=654.5 height=30 bullet=42 dot=6 bg=#8b8f97 r=3 text=57
+  text x=57 top=658.5 "Second level"
+    "Second level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=2 top=684.5 height=30 bullet=63 dot=6 bg=#8b8f97 r=3 text=78
+  text x=78 top=688.5 "Third level with a bold word"
+    "Third level with a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+    "bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+    " word" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=3 top=714.5 height=30 bullet=84 dot=6 bg=#8b8f97 r=3 text=99
+  text x=99 top=718.5 "Fourth level"
+    "Fourth level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+[views]
+view 0,0 390x844
+  view 0,0 390x844 bg=#ffffff
+    view#topbar 0,0 390x47 bg=#ffffff border-b=1 #eceef1
+      view 0,0 44x46
+        canvas 12,13 20x20
+      view 170,0 44x46
+        canvas 182,13 20x20
+      view 214,0 44x46
+        canvas 226,13 20x20
+      view 258,0 44x46
+        canvas 270,13 20x20
+      view 302,0 44x46
+        canvas 314,13 20x20
+      view 346,0 44x46
+        canvas 358,13 20x20
+    view 0,47 390x797
+      view 0,47 390x797
+        scroll#outline 0,47 390x797 bg=#ffffff scroll 390x727.5
+          view 0,47 390x60
+            view#title 0,47 390x60
+              view 10,61 366x34
+                text 10,61 366x34
+                  "Looks"
+                    "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
+          view 0,744.5 390x30
+            view 0,744.5 390x30
+              view#doc-end 0,744.5 390x30
+          view 0,107 390x37
+            view#row 0,107 390x37
+              view 12,111 18x28
+                view#bullet 18,122 6x6 bg=#8b8f97 r=3
+              view 30,111 346x29
+                text#row-text 36,111 145.5x29
+                  "Heading one"
+                    "Heading one" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 24/28 w700 #222222
+          view 0,144 390x34.5
+            view#row 0,144 390x34.5
+              view 12,148 18x26
+                view#bullet 18,158 6x6 bg=#8b8f97 r=3
+              view 30,148 346x26.5
+                text#row-text 36,148 133.5x26.5
+                  "Heading two"
+                    "Heading two" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #222222
+          view 0,178.5 390x32
+            view#row 0,178.5 390x32
+              view 12,182.5 18x24
+                view#bullet 18,191.5 6x6 bg=#8b8f97 r=3
+              view 30,182.5 346x24
+                text#row-text 36,182.5 143x24
+                  "Heading three"
+                    "Heading three" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 20/24 w700 #222222
+          view 0,210.5 390x48
+            view#row 0,210.5 390x48
+              view 12,214.5 18x22
+                view#bullet 18,222.5 6x6 bg=#8b8f97 r=3
+              view 30,214.5 346x40
+                text#row-text 36,214.5 139x22
+                  "A checked item"
+                    "A checked item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+                view#note 36,236.5 340x18
+                  text 36,236.5 340x18
+                    "Its note is checked too."
+                      "Its note is checked too." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #a7a7a7 strike
+          view 0,258.5 390x33
+            view#row 0,258.5 390x33
+              view 12,262.5 18x22
+                view#bullet 18,270.5 6x6 bg=#8b8f97 r=3
+              view#checkbox 32,259.5 28x28
+                view 38,265.5 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
+              view 58,262.5 318x22
+                text#row-text 58,262.5 148.5x22
+                  "A checkbox, off"
+                    "A checkbox, off" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,291.5 390x33
+            view#row 0,291.5 390x33
+              view 12,295.5 18x22
+                view#bullet 18,303.5 6x6 bg=#8b8f97 r=3
+              view#checkbox 32,292.5 28x28
+                view 38,298.5 16x16 bg=#8b8f97 r=3 border=1.5 #8b8f97
+                  text 42.5,299.5 7x14.5
+                    "✓"
+                      "✓" system 12/0 w400 #ffffff
+              view 58,295.5 318x22
+                text#row-text 58,295.5 139x22
+                  "A checkbox, on"
+                    "A checkbox, on" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+          view 0,324.5 390x30
+            view#row 0,324.5 390x30
+              view 12,328.5 18x22
+                view#bullet 18,336.5 6x6 bg=#8b8f97 r=3
+              view 30,328.5 346x22
+                text#row-text 36,328.5 119x22
+                  "Color labels"
+                    "Color labels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,354.5 390x30
+            view#row 0,354.5 390x30
+              view#guide 21,354.5 1x30 bg=#e3e5e8
+              view 33,358.5 18x22
+                view#bullet 39,366.5 6x6 bg=#8b8f97 r=3
+              view 51,358.5 325x22
+                text#row-text 57,358.5 69.5x22 bg=#f9d0c4 r=3
+                  "Label 1"
+                    "Label 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,384.5 390x30
+            view#row 0,384.5 390x30
+              view#guide 21,384.5 1x30 bg=#e3e5e8
+              view 33,388.5 18x22
+                view#bullet 39,396.5 6x6 bg=#8b8f97 r=3
+              view 51,388.5 325x22
+                text#row-text 57,388.5 69.5x22 bg=#fed8b1 r=3
+                  "Label 2"
+                    "Label 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,414.5 390x30
+            view#row 0,414.5 390x30
+              view#guide 21,414.5 1x30 bg=#e3e5e8
+              view 33,418.5 18x22
+                view#bullet 39,426.5 6x6 bg=#8b8f97 r=3
+              view 51,418.5 325x22
+                text#row-text 57,418.5 69.5x22 bg=#fef2c0 r=3
+                  "Label 3"
+                    "Label 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,444.5 390x30
+            view#row 0,444.5 390x30
+              view#guide 21,444.5 1x30 bg=#e3e5e8
+              view 33,448.5 18x22
+                view#bullet 39,456.5 6x6 bg=#8b8f97 r=3
+              view 51,448.5 325x22
+                text#row-text 57,448.5 69.5x22 bg=#c8e3c0 r=3
+                  "Label 4"
+                    "Label 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,474.5 390x30
+            view#row 0,474.5 390x30
+              view#guide 21,474.5 1x30 bg=#e3e5e8
+              view 33,478.5 18x22
+                view#bullet 39,486.5 6x6 bg=#8b8f97 r=3
+              view 51,478.5 325x22
+                text#row-text 57,478.5 69.5x22 bg=#c5def5 r=3
+                  "Label 5"
+                    "Label 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,504.5 390x30
+            view#row 0,504.5 390x30
+              view#guide 21,504.5 1x30 bg=#e3e5e8
+              view 33,508.5 18x22
+                view#bullet 39,516.5 6x6 bg=#8b8f97 r=3
+              view 51,508.5 325x22
+                text#row-text 57,508.5 69.5x22 bg=#d4c5f9 r=3
+                  "Label 6"
+                    "Label 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,534.5 390x30
+            view#row 0,534.5 390x30
+              view 12,538.5 18x22
+                view#bullet 14,542.5 14x14 bg=#8b8f97 r=7 border=4 #c9ccd1
+              view 30,538.5 346x22
+                text#row-text 36,538.5 129x22 bg=#c5def5 r=3
+                  "A folded item"
+                    "A folded item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,564.5 390x30
+            view#row 0,564.5 390x30
+              view 12,568.5 18x22
+                view#bullet 18,576.5 6x6 bg=#8b8f97 r=3
+              view 30,568.5 346x22
+                text#row-text 36,568.5 59.5x22
+                  "Levels"
+                    "Levels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,594.5 390x30
+            view#row 0,594.5 390x30
+              view#guide 21,594.5 1x30 bg=#e3e5e8
+              view 33,598.5 18x22
+                view#bullet 39,606.5 6x6 bg=#8b8f97 r=3
+              view 51,598.5 325x22
+                text#row-text 57,598.5 148.5x22
+                  "A sibling above"
+                    "A sibling above" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,624.5 390x30
+            view#row 0,624.5 390x30
+              view#guide 21,624.5 1x30 bg=#e3e5e8
+              view#guide 42,624.5 1x30 bg=#e3e5e8
+              view 54,628.5 18x22
+                view#bullet 60,636.5 6x6 bg=#8b8f97 r=3
+              view 72,628.5 304x22
+                text#row-text 78,628.5 89.5x22
+                  "Its child"
+                    "Its child" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,654.5 390x30
+            view#row 0,654.5 390x30
+              view#guide 21,654.5 1x30 bg=#e3e5e8
+              view 33,658.5 18x22
+                view#bullet 39,666.5 6x6 bg=#8b8f97 r=3
+              view 51,658.5 325x22
+                text#row-text 57,658.5 119x22
+                  "Second level"
+                    "Second level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,684.5 390x30
+            view#row 0,684.5 390x30
+              view#guide 21,684.5 1x30 bg=#e3e5e8
+              view#guide 42,684.5 1x30 bg=#e3e5e8
+              view 54,688.5 18x22
+                view#bullet 60,696.5 6x6 bg=#8b8f97 r=3
+              view 72,688.5 304x22
+                text#row-text 78,688.5 277.5x22
+                  "Third level with a bold word"
+                    "Third level with a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                    "bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                    " word" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,714.5 390x30
+            view#row 0,714.5 390x30
+              view#guide 21,714.5 1x30 bg=#e3e5e8
+              view#guide 42,714.5 1x30 bg=#e3e5e8
+              view#guide 63,714.5 1x30 bg=#e3e5e8
+              view 75,718.5 18x22
+                view#bullet 81,726.5 6x6 bg=#8b8f97 r=3
+              view 93,718.5 283x22
+                text#row-text 99,718.5 119x22
+                  "Fourth level"
+                    "Fourth level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+    view#help 0,0 390x844 bg=#ffffff
+      view 0,0 390x63 border-b=1 #eceef1
+        text 16,20 320x22.5
+          "Shortcuts & formatting"
+            "Shortcuts & formatting" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/22.5 w700 #222222
+        view 336,8 44x46
+          canvas 348,21 20x20
+      scroll 0,63 390x781 scroll 390x3193.5
+        view 0,63 390x3193.5
+          text 16,81 358x19.5
+            "Triggers"
+              "Triggers" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,104.5 358x26.5 border-b=1 #eceef1
+            text 20,107.5 114.5x19.5
+              "Tag autocomplete"
+                "Tag autocomplete" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 312.5,107.5 57.5x19.5
+              "#  or  @"
+                "#  or  @" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,131 358x26.5 border-b=1 #eceef1
+            text 20,134 79x19.5
+              "Date picker"
+                "Date picker" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,134 7.5x19.5
+              "!"
+                "!" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,157.5 358x26.5 border-b=1 #eceef1
+            text 20,160.5 229x19.5
+              "Link to another item or document"
+                "Link to another item or document" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,160.5 14.5x19.5
+              "[["
+                "[[" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,198 358x19.5
+            "Formatting"
+              "Formatting" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,221.5 358x26.5 border-b=1 #eceef1
+            text 20,224.5 29x19.5
+              "Bold"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 312.5,224.5 57.5x19.5
+              "**bold**"
+                "**bold**" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,248 358x26.5 border-b=1 #eceef1
+            text 20,251 43x19.5
+              "Italic"
+                "Italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 298.5,251 71.5x19.5
+              "__italic__"
+                "__italic__" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,274.5 358x26.5 border-b=1 #eceef1
+            text 20,277.5 93x19.5
+              "Strikethrough"
+                "Strikethrough" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 298.5,277.5 71.5x19.5
+              "~~strike~~"
+                "~~strike~~" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,301 358x26.5 border-b=1 #eceef1
+            text 20,304 64.5x19.5
+              "Highlight"
+                "Highlight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 277,304 93x19.5
+              "==highlight=="
+                "==highlight==" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,327.5 358x26.5 border-b=1 #eceef1
+            text 20,330.5 79x19.5
+              "Inline code"
+                "Inline code" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 327,330.5 43x19.5
+              "`code`"
+                "`code`" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,354 358x26.5 border-b=1 #eceef1
+            text 20,357 71.5x19.5
+              "Code block"
+                "Code block" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 284,357 86x19.5
+              "```lang↵…```"
+                "```lang↵…```" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,380.5 358x26.5 border-b=1 #eceef1
+            text 20,383.5 29x19.5
+              "Link"
+                "Link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 291,383.5 79x19.5
+              "[text](url)"
+                "[text](url)" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,407 358x26.5 border-b=1 #eceef1
+            text 20,410 36x19.5
+              "Image"
+                "Image" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 291,410 79x19.5
+              "![alt](url)"
+                "![alt](url)" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,433.5 358x26.5 border-b=1 #eceef1
+            text 20,436.5 36x19.5
+              "LaTeX"
+                "LaTeX" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 298.5,436.5 71.5x19.5
+              "$$E=mc^2$$"
+                "$$E=mc^2$$" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,460 358x26.5 border-b=1 #eceef1
+            text 20,463 29x19.5
+              "Tags"
+                "Tags" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 305.5,463 64.5x19.5
+              "#tag @tag"
+                "#tag @tag" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,486.5 358x26.5 border-b=1 #eceef1
+            text 20,489.5 29x19.5
+              "Date"
+                "Date" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 234,489.5 136x19.5
+              "!(2026-01-31 14:00)"
+                "!(2026-01-31 14:00)" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,513 358x26.5 border-b=1 #eceef1
+            text 20,516 100.5x19.5
+              "Recurring date"
+                "Recurring date" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 241,516 129x19.5
+              "!(2026-01-31 | 1w)"
+                "!(2026-01-31 | 1w)" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,553.5 358x19.5
+            "Basics"
+              "Basics" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,577 358x26.5 border-b=1 #eceef1
+            text 20,580 43x19.5
+              "Indent"
+                "Indent" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,580 21.5x19.5
+              "Tab"
+                "Tab" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,603.5 358x26.5 border-b=1 #eceef1
+            text 20,606.5 57.5x19.5
+              "Unindent"
+                "Unindent" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 341,606.5 29x19.5
+              "⇧Tab"
+                "⇧Tab" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,630 358x26.5 border-b=1 #eceef1
+            text 20,633 107.5x19.5
+              "Expand/collapse"
+                "Expand/collapse" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,633 14.5x19.5
+              "⌘."
+                "⌘." 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,656.5 358x26.5 border-b=1 #eceef1
+            text 20,659.5 50.5x19.5
+              "Zoom in"
+                "Zoom in" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,659.5 14.5x19.5
+              "⌘]"
+                "⌘]" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,683 358x26.5 border-b=1 #eceef1
+            text 20,686 57.5x19.5
+              "Zoom out"
+                "Zoom out" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,686 14.5x19.5
+              "⌘["
+                "⌘[" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,709.5 358x26.5 border-b=1 #eceef1
+            text 20,712.5 79x19.5
+              "Delete item"
+                "Delete item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,712.5 21.5x19.5
+              "⌘⇧⌫"
+                "⌘⇧⌫" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,750 358x19.5
+            "General"
+              "General" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,773.5 358x26.5 border-b=1 #eceef1
+            text 20,776.5 193.5x19.5
+              "Shortcuts & formatting help"
+                "Shortcuts & formatting help" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 312.5,776.5 57.5x19.5
+              "⌘/ / ⌘⇧/"
+                "⌘/ / ⌘⇧/" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,800 358x26.5 border-b=1 #eceef1
+            text 20,803 93x19.5
+              "Open settings"
+                "Open settings" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,803 14.5x19.5
+              "⌘,"
+                "⌘," 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,826.5 358x26.5 border-b=1 #eceef1
+            text 20,829.5 114.5x19.5
+              "Toggle file pane"
+                "Toggle file pane" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,829.5 21.5x19.5
+              "⌘⇧F"
+                "⌘⇧F" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,853 358x26.5 border-b=1 #eceef1
+            text 20,856 143x19.5
+              "Toggle bookmark pane"
+                "Toggle bookmark pane" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,856 21.5x19.5
+              "⌘⇧B"
+                "⌘⇧B" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,879.5 358x26.5 border-b=1 #eceef1
+            text 20,882.5 107.5x19.5
+              "Toggle tag pane"
+                "Toggle tag pane" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,882.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,906 358x26.5 border-b=1 #eceef1
+            text 20,909 164.5x19.5
+              "Show/hide checked items"
+                "Show/hide checked items" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,909 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,932.5 358x26.5 border-b=1 #eceef1
+            text 20,935.5 107.5x19.5
+              "Show/hide notes"
+                "Show/hide notes" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,935.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,959 358x26.5 border-b=1 #eceef1
+            text 20,962 286x19.5
+              "Show/hide checked items in this document"
+                "Show/hide checked items in this document" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,962 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,985.5 358x26.5 border-b=1 #eceef1
+            text 20,988.5 229x19.5
+              "Show/hide notes in this document"
+                "Show/hide notes in this document" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,988.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1012 358x26.5 border-b=1 #eceef1
+            text 20,1015 143x19.5
+              "Toggle spell checker"
+                "Toggle spell checker" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1015 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1038.5 358x26.5 border-b=1 #eceef1
+            text 20,1041.5 107.5x19.5
+              "Version history"
+                "Version history" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1041.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1065 358x26.5 border-b=1 #eceef1
+            text 20,1068 107.5x19.5
+              "Download backup"
+                "Download backup" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1068 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1091.5 358x26.5 border-b=1 #eceef1
+            text 20,1094.5 107.5x19.5
+              "Save / sync now"
+                "Save / sync now" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,1094.5 14.5x19.5
+              "⌘S"
+                "⌘S" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1118 358x26.5 border-b=1 #eceef1
+            text 20,1121 114.5x19.5
+              "Capture to inbox"
+                "Capture to inbox" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1121 21.5x19.5
+              "⌘⇧I"
+                "⌘⇧I" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1144.5 358x26.5 border-b=1 #eceef1
+            text 20,1147.5 150.5x19.5
+              "Bookmark current view"
+                "Bookmark current view" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1147.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,1185 358x19.5
+            "Lists"
+              "Lists" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,1208.5 358x26.5 border-b=1 #eceef1
+            text 20,1211.5 172x19.5
+              "Delete item (focus next)"
+                "Delete item (focus next)" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 312.5,1211.5 57.5x19.5
+              "⌘⇧Delete"
+                "⌘⇧Delete" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1235 358x26.5 border-b=1 #eceef1
+            text 20,1238 186x19.5
+              "Move between item and note"
+                "Move between item and note" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,1238 14.5x19.5
+              "⇧↵"
+                "⇧↵" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1261.5 358x26.5 border-b=1 #eceef1
+            text 20,1264.5 114.5x19.5
+              "Toggle completed"
+                "Toggle completed" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,1264.5 14.5x19.5
+              "⌘↵"
+                "⌘↵" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1288 358x26.5 border-b=1 #eceef1
+            text 20,1291 200.5x19.5
+              "Uncheck item and descendants"
+                "Uncheck item and descendants" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1291 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1314.5 358x26.5 border-b=1 #eceef1
+            text 20,1317.5 136x19.5
+              "Expand/collapse all"
+                "Expand/collapse all" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1317.5 21.5x19.5
+              "⌘⇧."
+                "⌘⇧." 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1341 358x26.5 border-b=1 #eceef1
+            text 20,1344 172x19.5
+              "Expand/collapse siblings"
+                "Expand/collapse siblings" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1344 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1367.5 358x26.5 border-b=1 #eceef1
+            text 20,1370.5 107.5x19.5
+              "Toggle checkbox"
+                "Toggle checkbox" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1370.5 21.5x19.5
+              "⌘⇧C"
+                "⌘⇧C" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1394 358x26.5 border-b=1 #eceef1
+            text 20,1397 193.5x19.5
+              "Toggle checkbox on children"
+                "Toggle checkbox on children" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1397 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1420.5 358x26.5 border-b=1 #eceef1
+            text 20,1423.5 143x19.5
+              "Toggle numbered list"
+                "Toggle numbered list" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1423.5 21.5x19.5
+              "⌘⇧X"
+                "⌘⇧X" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1447 358x26.5 border-b=1 #eceef1
+            text 20,1450 64.5x19.5
+              "Duplicate"
+                "Duplicate" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1450 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1473.5 358x26.5 border-b=1 #eceef1
+            text 20,1476.5 64.5x19.5
+              "Select up"
+                "Select up" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1476.5 21.5x19.5
+              "⇧Up"
+                "⇧Up" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1500 358x26.5 border-b=1 #eceef1
+            text 20,1503 79x19.5
+              "Select down"
+                "Select down" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 334,1503 36x19.5
+              "⇧Down"
+                "⇧Down" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1526.5 358x26.5 border-b=1 #eceef1
+            text 20,1529.5 122x19.5
+              "Select everything"
+                "Select everything" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1529.5 21.5x19.5
+              "⌘⇧A"
+                "⌘⇧A" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1553 358x26.5 border-b=1 #eceef1
+            text 20,1556 29x19.5
+              "Undo"
+                "Undo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,1556 14.5x19.5
+              "⌘Z"
+                "⌘Z" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1579.5 358x26.5 border-b=1 #eceef1
+            text 20,1582.5 29x19.5
+              "Redo"
+                "Redo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 312.5,1582.5 57.5x19.5
+              "⌘Y / ⌘⇧Z"
+                "⌘Y / ⌘⇧Z" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1606 358x26.5 border-b=1 #eceef1
+            text 20,1609 122x19.5
+              "Copy link to item"
+                "Copy link to item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1609 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1632.5 358x26.5 border-b=1 #eceef1
+            text 20,1635.5 114.5x19.5
+              "Get link to item"
+                "Get link to item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1635.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1659 358x26.5 border-b=1 #eceef1
+            text 20,1662 136x19.5
+              "Show all references"
+                "Show all references" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1662 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1685.5 358x26.5 border-b=1 #eceef1
+            text 20,1688.5 114.5x19.5
+              "Insert template…"
+                "Insert template…" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1688.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1712 358x26.5 border-b=1 #eceef1
+            text 20,1715 157.5x19.5
+              "Delete completed items"
+                "Delete completed items" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1715 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1738.5 358x26.5 border-b=1 #eceef1
+            text 20,1741.5 122x19.5
+              "Sort children A→Z"
+                "Sort children A→Z" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1741.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1765 358x26.5 border-b=1 #eceef1
+            text 20,1768 122x19.5
+              "Sort children Z→A"
+                "Sort children Z→A" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1768 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1791.5 358x26.5 border-b=1 #eceef1
+            text 20,1794.5 222x19.5
+              "Sort children by date (new→old)"
+                "Sort children by date (new→old)" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1794.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1818 358x26.5 border-b=1 #eceef1
+            text 20,1821 222x19.5
+              "Sort children by date (old→new)"
+                "Sort children by date (old→new)" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1821 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1844.5 358x26.5 border-b=1 #eceef1
+            text 20,1847.5 122x19.5
+              "Expand to level 1"
+                "Expand to level 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1847.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1871 358x26.5 border-b=1 #eceef1
+            text 20,1874 122x19.5
+              "Expand to level 2"
+                "Expand to level 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1874 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1897.5 358x26.5 border-b=1 #eceef1
+            text 20,1900.5 122x19.5
+              "Expand to level 3"
+                "Expand to level 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1900.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,1924 358x26.5 border-b=1 #eceef1
+            text 20,1927 122x19.5
+              "Expand to level 4"
+                "Expand to level 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,1927 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,1964.5 358x19.5
+            "Navigate"
+              "Navigate" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,1988 358x26.5 border-b=1 #eceef1
+            text 20,1991 93x19.5
+              "Move item to…"
+                "Move item to…" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,1991 21.5x19.5
+              "⌘⇧M"
+                "⌘⇧M" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2014.5 358x26.5 border-b=1 #eceef1
+            text 20,2017.5 50.5x19.5
+              "Move up"
+                "Move up" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2017.5 21.5x19.5
+              "⌘Up"
+                "⌘Up" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2041 358x26.5 border-b=1 #eceef1
+            text 20,2044 64.5x19.5
+              "Move down"
+                "Move down" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 334,2044 36x19.5
+              "⌘Down"
+                "⌘Down" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2067.5 358x26.5 border-b=1 #eceef1
+            text 20,2070.5 186x19.5
+              "Zoom into previous sibling"
+                "Zoom into previous sibling" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2070.5 21.5x19.5
+              "⌘⇧["
+                "⌘⇧[" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2094 358x26.5 border-b=1 #eceef1
+            text 20,2097 157.5x19.5
+              "Zoom into next sibling"
+                "Zoom into next sibling" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2097 21.5x19.5
+              "⌘⇧]"
+                "⌘⇧]" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2120.5 358x26.5 border-b=1 #eceef1
+            text 20,2123.5 79x19.5
+              "Go to inbox"
+                "Go to inbox" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2123.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2147 358x26.5 border-b=1 #eceef1
+            text 20,2150 122x19.5
+              "Go to parent item"
+                "Go to parent item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2150 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2173.5 358x26.5 border-b=1 #eceef1
+            text 20,2176.5 157.5x19.5
+              "Go to previous sibling"
+                "Go to previous sibling" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2176.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2200 358x26.5 border-b=1 #eceef1
+            text 20,2203 129x19.5
+              "Go to next sibling"
+                "Go to next sibling" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2203 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2226.5 358x26.5 border-b=1 #eceef1
+            text 20,2229.5 172x19.5
+              "Go to start of item text"
+                "Go to start of item text" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2229.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2253 358x26.5 border-b=1 #eceef1
+            text 20,2256 157.5x19.5
+              "Go to end of item text"
+                "Go to end of item text" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2256 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2279.5 358x26.5 border-b=1 #eceef1
+            text 20,2282.5 114.5x19.5
+              "Go to first item"
+                "Go to first item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 334,2282.5 36x19.5
+              "⌘Home"
+                "⌘Home" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2306 358x26.5 border-b=1 #eceef1
+            text 20,2309 107.5x19.5
+              "Go to last item"
+                "Go to last item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 341,2309 29x19.5
+              "⌘End"
+                "⌘End" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2332.5 358x26.5 border-b=1 #eceef1
+            text 20,2335.5 29x19.5
+              "Back"
+                "Back" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 334,2335.5 36x19.5
+              "⌥Left"
+                "⌥Left" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2359 358x26.5 border-b=1 #eceef1
+            text 20,2362 50.5x19.5
+              "Forward"
+                "Forward" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 327,2362 43x19.5
+              "⌥Right"
+                "⌥Right" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,2399.5 358x19.5
+            "Search"
+              "Search" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,2423 358x26.5 border-b=1 #eceef1
+            text 20,2426 129x19.5
+              "Search in document"
+                "Search in document" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,2426 14.5x19.5
+              "⌘F"
+                "⌘F" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2449.5 358x26.5 border-b=1 #eceef1
+            text 20,2452.5 79x19.5
+              "File finder"
+                "File finder" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,2452.5 14.5x19.5
+              "⌘O"
+                "⌘O" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2476 358x26.5 border-b=1 #eceef1
+            text 20,2479 79x19.5
+              "Item finder"
+                "Item finder" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2479 21.5x19.5
+              "⌘⇧O"
+                "⌘⇧O" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2502.5 358x26.5 border-b=1 #eceef1
+            text 20,2505.5 129x19.5
+              "Search and replace"
+                "Search and replace" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2505.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,2543 358x19.5
+            "Format"
+              "Format" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w700 #222222
+          view#help-row 16,2566.5 358x26.5 border-b=1 #eceef1
+            text 20,2569.5 29x19.5
+              "Bold"
+                "Bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,2569.5 14.5x19.5
+              "⌘B"
+                "⌘B" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2593 358x26.5 border-b=1 #eceef1
+            text 20,2596 43x19.5
+              "Italic"
+                "Italic" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,2596 14.5x19.5
+              "⌘I"
+                "⌘I" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2619.5 358x26.5 border-b=1 #eceef1
+            text 20,2622.5 79x19.5
+              "Inline code"
+                "Inline code" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,2622.5 14.5x19.5
+              "⌘`"
+                "⌘`" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2646 358x26.5 border-b=1 #eceef1
+            text 20,2649 71.5x19.5
+              "Code block"
+                "Code block" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2649 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2672.5 358x26.5 border-b=1 #eceef1
+            text 20,2675.5 29x19.5
+              "Link"
+                "Link" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 355.5,2675.5 14.5x19.5
+              "⌘K"
+                "⌘K" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2699 358x26.5 border-b=1 #eceef1
+            text 20,2702 93x19.5
+              "Strikethrough"
+                "Strikethrough" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2702 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2725.5 358x26.5 border-b=1 #eceef1
+            text 20,2728.5 64.5x19.5
+              "Highlight"
+                "Highlight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2728.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2752 358x26.5 border-b=1 #eceef1
+            text 20,2755 36x19.5
+              "LaTeX"
+                "LaTeX" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2755 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2778.5 358x26.5 border-b=1 #eceef1
+            text 20,2781.5 114.5x19.5
+              "New line in item"
+                "New line in item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2781.5 21.5x19.5
+              "⌘⇧↵"
+                "⌘⇧↵" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2805 358x26.5 border-b=1 #eceef1
+            text 20,2808 93x19.5
+              "Cycle heading"
+                "Cycle heading" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2808 21.5x19.5
+              "⌘⇧H"
+                "⌘⇧H" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2831.5 358x26.5 border-b=1 #eceef1
+            text 20,2834.5 64.5x19.5
+              "Heading 1"
+                "Heading 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2834.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2858 358x26.5 border-b=1 #eceef1
+            text 20,2861 64.5x19.5
+              "Heading 2"
+                "Heading 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2861 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2884.5 358x26.5 border-b=1 #eceef1
+            text 20,2887.5 64.5x19.5
+              "Heading 3"
+                "Heading 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2887.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2911 358x26.5 border-b=1 #eceef1
+            text 20,2914 93x19.5
+              "Clear heading"
+                "Clear heading" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2914 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2937.5 358x26.5 border-b=1 #eceef1
+            text 20,2940.5 122x19.5
+              "Cycle color label"
+                "Cycle color label" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 348.5,2940.5 21.5x19.5
+              "⌘⇧L"
+                "⌘⇧L" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2964 358x26.5 border-b=1 #eceef1
+            text 20,2967 93x19.5
+              "Color label 1"
+                "Color label 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2967 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,2990.5 358x26.5 border-b=1 #eceef1
+            text 20,2993.5 93x19.5
+              "Color label 2"
+                "Color label 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,2993.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3017 358x26.5 border-b=1 #eceef1
+            text 20,3020 93x19.5
+              "Color label 3"
+                "Color label 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3020 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3043.5 358x26.5 border-b=1 #eceef1
+            text 20,3046.5 93x19.5
+              "Color label 4"
+                "Color label 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3046.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3070 358x26.5 border-b=1 #eceef1
+            text 20,3073 93x19.5
+              "Color label 5"
+                "Color label 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3073 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3096.5 358x26.5 border-b=1 #eceef1
+            text 20,3099.5 93x19.5
+              "Color label 6"
+                "Color label 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3099.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3123 358x26.5 border-b=1 #eceef1
+            text 20,3126 122x19.5
+              "Clear color label"
+                "Clear color label" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3126 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3149.5 358x26.5 border-b=1 #eceef1
+            text 20,3152.5 136x19.5
+              "Insert current date"
+                "Insert current date" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3152.5 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          view#help-row 16,3176 358x26.5 border-b=1 #eceef1
+            text 20,3179 136x19.5
+              "Insert current time"
+                "Insert current time" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+            text 362.5,3179 7.5x19.5
+              "—"
+                "—" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 13/19.5 w400 #8b8f97
+          text 16,3214.5 358x18
+            "Change shortcuts in Settings → Keymap."
+              "Change shortcuts in Settings → Keymap." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97

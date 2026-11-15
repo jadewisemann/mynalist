@@ -129,7 +129,7 @@ fn width() -> f32 {
 
 /// Open document `id` from the sidebar (`openDoc`); on phones the drawer closes, as the web's does when the
 /// document changes.
-fn open_doc(id: &str) {
+pub(crate) fn open_doc(id: &str) {
     let changed = store::peek(|s| s.doc != id);
     store::edit(|s| s.switch(id));
     if changed {
@@ -437,7 +437,6 @@ fn icon_button(name: &'static str, run: impl Fn(&PressEvent) + 'static) -> AnyEl
         .into_element()
 }
 
-fn none(_: &PressEvent) {}
 
 /// A text in the app's font, `size` on lines `line` high, at least a line tall (as a web text's box is).
 pub(crate) fn ui_text(content: impl IntoReactive<SharedString>, (size, line): (f32, f32)) -> Text {
@@ -621,8 +620,8 @@ fn files() -> impl IntoElement {
         .child(head(
             "My files".into(),
             vec![
-                icon_button("search", none),
-                icon_button("inbox", none),
+                icon_button("search", |_| crate::finder::go_anywhere()),
+                icon_button("inbox", |_| crate::inbox::goto()),
                 icon_button("fold", |_| workspace::collapse_all()),
                 icon_button("plus", |p| {
                     menu::show(p.page_position.x.0, p.page_position.y.0 + num("space.step7"), new_menu(None))
@@ -797,15 +796,18 @@ pub fn bookmark_current() {
         };
         (s.doc.clone(), (z != ROOT).then_some(z), title)
     });
-    workspace::add_bookmark(&title, &doc, zoom.as_deref());
+    // with the search showing, the bookmark keeps it
+    let q = crate::find::query();
+    let title = if q.is_empty() { title } else { format!("{title} ({q})") };
+    workspace::add_search_bookmark(&title, &doc, zoom.as_deref(), Some(q.as_str()).filter(|q| !q.is_empty()));
     side().update(|s| s.open = Some(true));
     set_tab(Tab::Bookmarks);
     toast::show("Bookmarked");
 }
 
-/// Open a bookmark (`openBookmark`): its document, zoomed as it was made (a search bookmark opens its document
-/// until search exists here).
-fn open_bookmark(b: &Bookmark) {
+/// Open a bookmark (`openBookmark`): its document, zoomed as it was made, with its search (a flat search or a
+/// search of all documents opens as the document's search box).
+pub(crate) fn open_bookmark(b: &Bookmark) {
     if store::peek(|s| s.tree_of(&b.doc).is_none()) {
         return;
     }
@@ -820,6 +822,9 @@ fn open_bookmark(b: &Bookmark) {
             s.reflow();
         }
     });
+    if let Some(q) = b.q.as_deref().filter(|q| !q.is_empty()) {
+        crate::find::open(Some(q));
+    }
     if changed && style::phone() {
         toggle(Some(false));
     }

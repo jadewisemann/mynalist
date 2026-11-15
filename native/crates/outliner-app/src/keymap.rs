@@ -312,6 +312,13 @@ pub fn action(id: &str) -> Option<Action> {
         "redo" => (|| cmd::undo(true), BOTH),
         "settings" => (|| crate::settings::open(crate::settings::Tab::Prefs), &[App]),
         "toggle-file-pane" => (|| crate::sidebar::toggle(None), &[App]),
+        "help" => (|| crate::help::toggle(None), &[App]),
+        "back" => (|| crate::store::travel(false), &[App]),
+        "forward" => (|| crate::store::travel(true), &[App]),
+        "inbox-capture" => (crate::inbox::capture, &[App]),
+        "goto-inbox" => (crate::inbox::goto, &[App]),
+        "go-anywhere" => (crate::finder::go_anywhere, &[App]),
+        "move-to" => (crate::finder::move_to, BOTH),
         "toggle-show-checked" => (
             || {
                 crate::settings::change(|p| {

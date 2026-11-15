@@ -77,26 +77,51 @@ pub fn overlay() -> impl IntoElement {
     )
 }
 
-/// A dialog's box (`.modal`): its title (`h2`), its body, and its buttons in its foot.
+/// A dialog's box (`.modal`): its title (`h2`, none when empty), its body, and its buttons in its foot (none
+/// without buttons).
 pub fn modal(test_id: &str, title: impl Into<SharedString>, body: impl IntoElement, buttons: Vec<Button>) -> AnyElement {
+    let title: SharedString = title.into();
     let title_size = num("type.modal_title");
-    let foot = view()
-        .flex_row()
-        .justify_end()
-        .gap(px(num("space.modal_foot_gap")))
-        .px(px(num("space.modal_x")))
-        .py(px(num("space.modal_foot_y")))
-        .border_t(px(num("space.border")))
-        .border_color(color::line())
-        .children(buttons.into_iter().map(|b| {
-            let run = b.run.clone();
-            btn(b.label, b.primary, move || {
-                if run.as_ref().is_none_or(|r| r()) {
-                    close();
-                }
-            })
-            .into_element()
-        }));
+    let foot = (!buttons.is_empty()).then(|| {
+        view()
+            .flex_row()
+            .justify_end()
+            .gap(px(num("space.modal_foot_gap")))
+            .px(px(num("space.modal_x")))
+            .py(px(num("space.modal_foot_y")))
+            .border_t(px(num("space.border")))
+            .border_color(color::line())
+            .children(buttons.into_iter().map(|b| {
+                let run = b.run.clone();
+                btn(b.label, b.primary, move || {
+                    if run.as_ref().is_none_or(|r| r()) {
+                        close();
+                    }
+                })
+                .into_element()
+            }))
+    });
+    let head = (!title.is_empty()).then(|| {
+        ui_text(title, (title_size, title_size * num("type.ui_line")))
+            .text_color(color::fg())
+            .px(px(num("space.modal_x")))
+            .py(px(num("space.modal_head_y")))
+            .border_b(px(num("space.border")))
+            .border_color(color::line())
+    });
+    frame(test_id)
+        .children(head)
+        .child(
+            scroll()
+                .flex_shrink(1.0)
+                .child(view().px(px(num("space.modal_x"))).py(px(num("space.modal_body_y"))).child(body)),
+        )
+        .children(foot)
+        .into_element()
+}
+
+/// The box of a dialog (`.modal`), empty: its background, corners, shadow and size.
+pub fn frame(test_id: &str) -> View {
     view()
         .test_id(test_id)
         .flex_col()
@@ -111,21 +136,6 @@ pub fn modal(test_id: &str, title: impl Into<SharedString>, body: impl IntoEleme
             color: rgba(style::look().color("color.shadow_modal")).into(),
             ..Default::default()
         }])
-        .child(
-            ui_text(title.into(), (title_size, title_size * num("type.ui_line")))
-                .text_color(color::fg())
-                .px(px(num("space.modal_x")))
-                .py(px(num("space.modal_head_y")))
-                .border_b(px(num("space.border")))
-                .border_color(color::line()),
-        )
-        .child(
-            scroll()
-                .flex_shrink(1.0)
-                .child(view().px(px(num("space.modal_x"))).py(px(num("space.modal_body_y"))).child(body)),
-        )
-        .child(foot)
-        .into_element()
 }
 
 /// The app's text at the document's size (`.modal`, `.field` take `--fs`).

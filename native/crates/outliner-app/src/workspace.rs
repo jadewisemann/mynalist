@@ -295,6 +295,29 @@ pub fn set_archived(id: &str, archived: bool) {
     });
 }
 
+/// A document's view option `key` (`docPref`: its entry's `v_<key>`, as JSON), tracked; `None` when not set.
+pub fn doc_pref(id: &str, key: &str) -> Option<Value> {
+    read(|t| pref_of(t, id, key))
+}
+
+/// [`doc_pref`], untracked.
+pub fn doc_pref_now(id: &str, key: &str) -> Option<Value> {
+    peek(|t| pref_of(t, id, key))
+}
+
+fn pref_of(t: &Tree, id: &str, key: &str) -> Option<Value> {
+    let raw = t.get(id)?.props.get(&format!("v_{key}"))?.as_str()?;
+    serde_json::from_str(raw).ok()
+}
+
+/// Sets a document's view option (`setDocPref`); `None` takes it away.
+pub fn set_doc_pref(id: &str, key: &str, value: Option<Value>) {
+    let v = value.map_or(Value::Null, |v| Value::String(v.to_string()));
+    run(|tx| {
+        tx.set(id, props(&[(&format!("v_{key}"), v)]));
+    });
+}
+
 pub fn set_collapsed(id: &str, v: bool) {
     run(|tx| {
         tx.collapse(id, v);
@@ -407,11 +430,19 @@ fn bookmarks_of(t: &Tree) -> Vec<Bookmark> {
 
 /// A bookmark last in the list (`addBookmark`).
 pub fn add_bookmark(title: &str, doc: &str, zoom: Option<&str>) {
+    add_search_bookmark(title, doc, zoom, None);
+}
+
+/// [`add_bookmark`] of a search (`q`) in the document.
+pub fn add_search_bookmark(title: &str, doc: &str, zoom: Option<&str>, q: Option<&str>) {
     run(|tx| {
         let last = tx.tree.get(BOOKMARKS).and_then(|n| n.children.last().cloned());
         let mut p = props(&[("title", Value::String(title.into())), ("doc", Value::String(doc.into()))]);
         if let Some(z) = zoom {
             p.insert("zoom".into(), Value::String(z.into()));
+        }
+        if let Some(q) = q {
+            p.insert("q".into(), Value::String(q.into()));
         }
         tx.create(BOOKMARKS, last.as_deref(), p);
     });

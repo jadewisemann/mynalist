@@ -1,6 +1,5 @@
 //! The bars around the document, as the web app's: the top bar (`.topbar`), and on phones the editing toolbar
-//! above the keyboard (`.mobile-bar`, Dynalist's default buttons). Buttons whose feature the native app does not
-//! have yet are drawn but do nothing.
+//! above the keyboard (`.mobile-bar`, Dynalist's default buttons).
 
 use nsh_base::button;
 use nsh_core::prelude::*;
@@ -40,8 +39,6 @@ fn top_toggle(
         .child(icon(name, num("space.topbar_icon")))
 }
 
-fn none() {}
-
 /// The sync status's padding left and right (`.sync-status`, a web-only metric there).
 const SYNC_PAD: f32 = 8.0;
 
@@ -71,11 +68,11 @@ pub fn topbar() -> impl IntoElement {
                 ),
             )
             .child(top_button("search", "Search", || crate::find::open(None)))
-            .child(top_button("lock", "Read mode", none))
+            .child(top_toggle("lock", "Read mode (lock document)", crate::docview::toggle_lock, crate::docview::locked))
             .child(top_button("menu", "Menu", crate::settings::toggle_menu))
     } else {
-        bar.child(top_button("back", "Back", cmd::zoom_out))
-            .child(top_button("fwd", "Forward", none))
+        bar.child(top_button("back", "Back", || store::travel(false)))
+            .child(top_button("fwd", "Forward", || store::travel(true)))
             .child(view().flex_1())
             .child(
                 text("Local only")
@@ -114,7 +111,11 @@ fn tool(name: &'static str, label: &'static str, single: bool, run: impl Fn() + 
 /// its note) or items are selected.
 pub fn mobile_bar() -> impl IntoElement {
     when(
-        || style::phone() && store::read(|s| s.block.is_some() || s.editing.as_ref().is_some_and(|c| !c.note)),
+        || {
+            style::phone()
+                && store::read(|s| s.block.is_some() || s.editing.as_ref().is_some_and(|c| !c.note))
+                && !crate::docview::locked()
+        },
         || {
             scroll()
                 .test_id("toolbar")
@@ -135,7 +136,7 @@ pub fn mobile_bar() -> impl IntoElement {
                         .child(tool("date", "Add date", true, crate::datepicker::add_date))
                         .child(tool("up", "Move up", false, cmd::move_up))
                         .child(tool("down", "Move down", false, cmd::move_down))
-                        .child(tool("send", "Move item to", false, || {}))
+                        .child(tool("send", "Move item to", false, crate::finder::move_to))
                         .child(tool("undo", "Undo", false, || cmd::undo(false)))
                         .child(tool("redo", "Redo", false, || cmd::undo(true))),
                 )

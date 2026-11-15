@@ -86,6 +86,11 @@ pub fn highlight(id: &str) -> Vec<String> {
     find().with(|f| if f.hits.contains(id) { f.terms.clone() } else { Vec::new() })
 }
 
+/// The query in the search box while it shows, untracked ("" otherwise).
+pub fn query() -> String {
+    find().with_untracked(|f| if f.open { f.query.trim().to_owned() } else { String::new() })
+}
+
 /// Whether the search box shows (tracked).
 pub fn is_open() -> bool {
     find().with(|f| f.open)
@@ -289,10 +294,11 @@ pub fn doc_area() -> impl IntoElement {
             }
         }))
         .child(when(|| find().with(|f| f.open && f.focused && !f.query.trim().is_empty()) && pref("show_search_tips"), tips))
+        .child(crate::docview::actions())
 }
 
-/// The search box (`.search-box` in `.doc-tools`): a search icon, the query, the bookmark button (drawn: no
-/// bookmarks yet) and the close button; as wide as the document on phones.
+/// The search box (`.search-box` in `.doc-tools`): a search icon, the query, the bookmark button (the document
+/// with its search) and the close button; as wide as the document on phones.
 fn search_box() -> impl IntoElement {
     let field = element_ref();
     let phone = style::phone();
@@ -380,7 +386,7 @@ fn search_box() -> impl IntoElement {
         .h(px(num("space.step12")))
         .child(view().text_color(color::muted()).child(icon("search", num("space.topbar_icon"))))
         .child(input)
-        .child(button("star", "Bookmark this search", || {}))
+        .child(button("star", "Bookmark this search", crate::sidebar::bookmark_current))
         .child(button("close", "Close search", close));
     let bar = if phone {
         bar.flex_1()

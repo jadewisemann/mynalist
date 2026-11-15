@@ -87,6 +87,7 @@ math = { kind = "font", css = "--math-font", doc = "LaTeX." }
 [type]
 ui = { kind = "length", min = 10, max = 24, css = "--fs", doc = "The app's text size (bars, menus, sidebar)." }
 ui_line = { kind = "ratio", min = 1, max = 2.5, doc = "The app's line height." }
+tour_line = { kind = "ratio", min = 1, max = 2.5, doc = "The tutorial's text line height." }
 ui_small = { kind = "length", min = 8, max = 24, doc = "Small app text: breadcrumbs, sync status, hints." }
 ui_tiny = { kind = "length", min = 8, max = 24, doc = "Tiny app text: section heads, shortcuts." }
 ui_micro = { kind = "length", min = 8, max = 24, doc = "The smallest app text: counts." }
@@ -261,6 +262,7 @@ search_tips_right = { kind = "length", min = 0, max = 200, doc = "The search tip
 search_vw = { kind = "ratio", min = 0.3, max = 1, doc = "The search box's and the search tips' widest, of the window's width." }
 modal_vw = { kind = "ratio", min = 0.5, max = 1, doc = "Dialogs' widest, of the window's width." }
 modal_vh = { kind = "ratio", min = 0.3, max = 1, doc = "Dialogs' tallest, of the window's height." }
+capture_vh = { kind = "ratio", min = 0.1, max = 0.9, doc = "The inbox capture box's least height, of the window's height." }
 export_out = { kind = "length", min = 80, max = 800, doc = "The export dialog's output box's height." }
 crumb_max = { kind = "length", min = 40, max = 400, doc = "A breadcrumb's widest." }
 chunk_estimate = { kind = "length", min = 100, max = 10000, doc = "The height a block of rows is taken to have before it is laid out (long documents)." }

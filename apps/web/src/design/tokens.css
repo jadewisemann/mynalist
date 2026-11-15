@@ -69,6 +69,7 @@
   --math-font: 'Latin Modern Math', 'STIX Two Math', serif;
   --fs: 14px;
   --type-ui-line: 1.5;
+  --type-tour-line: 1.6;
   --type-ui-small: 13px;
   --type-ui-tiny: 12px;
   --type-ui-micro: 11px;
@@ -241,6 +242,7 @@
   --space-search-vw: 0.7;
   --space-modal-vw: 0.92;
   --space-modal-vh: 0.76;
+  --space-capture-vh: 0.4;
   --space-export-out: 280px;
   --space-crumb-max: 160px;
   --space-chunk-estimate: 3000px;

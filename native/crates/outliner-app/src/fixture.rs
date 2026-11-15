@@ -109,7 +109,7 @@ pub struct FixtureProps {
     /// settings of [`PREFS`] ("prefs"); or a state of the outline: the note of [`noted_item`] edited ("note"),
     /// [`selected_item`] selected ("select"); searching for [`search_query`] ("search"); `[[` typed at the end of
     /// [`edited_item`] ("links"); an item linking to `looks`' "Levels", zoomed in on it with backlinks shown
-    /// ("backlinks").
+    /// ("backlinks"); the help panel ("help"), the mind map ("mindmap"), the tutorial ("tour").
     #[prop(default)]
     pub side: Prop<String>,
 }
@@ -211,6 +211,10 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
             commands::set_text("l4", false, &src, 0);
             crate::links::go(&doc, "l15");
         }
+        // the web's other screens (area 14): the help panel, the mind map, the tutorial, a locked document
+        "help" => crate::help::toggle(Some(true)),
+        "mindmap" => crate::docview::set_layout(crate::docview::MINDMAP),
+        "tour" => crate::help::tutorial(),
         other => panic!("the fixture's sidebar: {other}"),
     }
     let editing = props.editing.get();

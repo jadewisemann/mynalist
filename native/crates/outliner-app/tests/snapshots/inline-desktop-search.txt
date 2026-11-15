@@ -146,3 +146,8 @@ view 0,0 1100x800
                     text 350,214 699x37
                       "const a = 1;\nconsole.log(a);"
                         "const a = 1;\nconsole.log(a);" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15.5/18.5 w400 #222222
+        view#doc-actions 1026,51 62x30
+          view#bookmark-view 1026,51 30x30 r=6
+            canvas 1032,57 18x18
+          view#view-options 1058,51 30x30 r=6
+            canvas 1064,57 18x18

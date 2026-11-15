@@ -356,13 +356,18 @@ view 0,0 1100x800
                 text#row-text 429,716.5 119x22
                   "Fourth level"
                     "Fourth level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+        view#doc-actions 1026,51 62x30
+          view#bookmark-view 1026,51 30x30 r=6
+            canvas 1032,57 18x18
+          view#view-options 1058,51 30x30 r=6
+            canvas 1064,57 18x18
     view#settings-overlay 0,0 1100x800 bg=#00000040
       view#settings 210,96 680x688 bg=#ffffff r=10 clips
         text 210,96 680x48.5 border-b=1 #eceef1
           "Settings"
             "Settings" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/24 w400 #222222
-        scroll#settings-body 210,144.5 680x583.5 scroll 840.5x2536.5
-          view 210,144.5 680x2536.5
+        scroll#settings-body 210,144.5 680x583.5 scroll 840.5x2583
+          view 210,144.5 680x2583
             view#settings-tabs 228,156.5 644x40 border-b=1 #eceef1
               view 228,156.5 109x39 border-b=2 #00000000
                 text 240,164.5 85x21
@@ -380,7 +385,7 @@ view 0,0 1100x800
                 text 486.5,164.5 85x21
                   "Sync & data"
                     "Sync & data" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #8b8f97
-            view#settings-look 228,206.5 644x2462.5
+            view#settings-look 228,206.5 644x2509
               text 228,206.5 644x29
                 "Change any part of the look over the chosen theme, size and density. It is a TOML file in the same format as the built-in themes (design/schema.md); only what you change is kept."
                   "Change any part of the look over the chosen theme, size and density. It is a TOML file in the same format as the built-in themes (design/schema.md); only what you change is kept." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
@@ -409,7 +414,7 @@ view 0,0 1100x800
                   text 450,437 92.5x21
                     "Import .toml"
                       "Import .toml" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-              view#entries 228,477 644x2192
+              view#entries 228,477 644x2238.5
                 view 228,477 644x27.5
                   view 228,477 644x27.5
                     text 228,481 64.5x19.5
@@ -430,12 +435,12 @@ view 0,0 1100x800
                     text 228,563.5 57.5x19.5
                       "▸ [font]"
                         "▸ [font]" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                view 228,587 644x2027
+                view 228,587 644x2073.5
                   view 228,587 644x27.5
                     text 228,591 57.5x19.5
                       "▾ [type]"
                         "▾ [type]" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                  view 228,614.5 644x1999.5
+                  view 228,614.5 644x2046
                     view#entry 228,614.5 644x46.5 border-b=1 #eceef1
                       view 228,618.5 376x37.5
                         text 228,618.5 376x19.5
@@ -461,462 +466,473 @@ view 0,0 1100x800
                     view#entry 228,707.5 644x46.5 border-b=1 #eceef1
                       view 228,711.5 376x37.5
                         text 228,711.5 376x19.5
-                          "ui_small"
-                            "ui_small" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "tour_line"
+                            "tour_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,731 376x18
-                          "Small app text: breadcrumbs, sync status, hints."
-                            "Small app text: breadcrumbs, sync status, hints." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "The tutorial's text line height."
+                            "The tutorial's text line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,715.5 260x30
-                        input#entry-type.ui_small 612,715.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.tour_line 612,715.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,754 644x46.5 border-b=1 #eceef1
                       view 228,758 376x37.5
                         text 228,758 376x19.5
-                          "ui_tiny"
-                            "ui_tiny" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "ui_small"
+                            "ui_small" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,777.5 376x18
-                          "Tiny app text: section heads, shortcuts."
-                            "Tiny app text: section heads, shortcuts." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Small app text: breadcrumbs, sync status, hints."
+                            "Small app text: breadcrumbs, sync status, hints." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,762 260x30
-                        input#entry-type.ui_tiny 612,762 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.ui_small 612,762 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,800.5 644x46.5 border-b=1 #eceef1
                       view 228,804.5 376x37.5
                         text 228,804.5 376x19.5
-                          "ui_micro"
-                            "ui_micro" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "ui_tiny"
+                            "ui_tiny" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,824 376x18
-                          "The smallest app text: counts."
-                            "The smallest app text: counts." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Tiny app text: section heads, shortcuts."
+                            "Tiny app text: section heads, shortcuts." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,808.5 260x30
-                        input#entry-type.ui_micro 612,808.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.ui_tiny 612,808.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,847 644x46.5 border-b=1 #eceef1
                       view 228,851 376x37.5
                         text 228,851 376x19.5
-                          "ui_icon"
-                            "ui_icon" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "ui_micro"
+                            "ui_micro" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,870.5 376x18
-                          "Icon buttons' text."
-                            "Icon buttons' text." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "The smallest app text: counts."
+                            "The smallest app text: counts." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,855 260x30
-                        input#entry-type.ui_icon 612,855 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.ui_micro 612,855 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,893.5 644x46.5 border-b=1 #eceef1
                       view 228,897.5 376x37.5
                         text 228,897.5 376x19.5
-                          "size"
-                            "size" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "ui_icon"
+                            "ui_icon" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,917 376x18
-                          "Editor text size."
-                            "Editor text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Icon buttons' text."
+                            "Icon buttons' text." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,901.5 260x30
-                        input#entry-type.size 612,901.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.ui_icon 612,901.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,940 644x46.5 border-b=1 #eceef1
                       view 228,944 376x37.5
                         text 228,944 376x19.5
-                          "line"
-                            "line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "size"
+                            "size" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,963.5 376x18
-                          "Editor line height."
-                            "Editor line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Editor text size."
+                            "Editor text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,948 260x30
-                        input#entry-type.line 612,948 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.size 612,948 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,986.5 644x46.5 border-b=1 #eceef1
                       view 228,990.5 376x37.5
                         text 228,990.5 376x19.5
-                          "title"
-                            "title" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "line"
+                            "line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1010 376x18
-                          "Document title size, times the editor size."
-                            "Document title size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Editor line height."
+                            "Editor line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,994.5 260x30
-                        input#entry-type.title 612,994.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.line 612,994.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1033 644x46.5 border-b=1 #eceef1
                       view 228,1037 376x37.5
                         text 228,1037 376x19.5
-                          "title_line"
-                            "title_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "title"
+                            "title" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1056.5 376x18
-                          "Document title line height."
-                            "Document title line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Document title size, times the editor size."
+                            "Document title size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1041 260x30
-                        input#entry-type.title_line 612,1041 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.title 612,1041 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1079.5 644x46.5 border-b=1 #eceef1
                       view 228,1083.5 376x37.5
                         text 228,1083.5 376x19.5
-                          "title_weight"
-                            "title_weight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "title_line"
+                            "title_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1103 376x18
-                          "Document title weight."
-                            "Document title weight." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Document title line height."
+                            "Document title line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1087.5 260x30
-                        input#entry-type.title_weight 612,1087.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.title_line 612,1087.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1126 644x46.5 border-b=1 #eceef1
                       view 228,1130 376x37.5
                         text 228,1130 376x19.5
-                          "h1"
-                            "h1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "title_weight"
+                            "title_weight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1149.5 376x18
-                          "Heading 1 size, times the editor size."
-                            "Heading 1 size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Document title weight."
+                            "Document title weight." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1134 260x30
-                        input#entry-type.h1 612,1134 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.title_weight 612,1134 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1172.5 644x46.5 border-b=1 #eceef1
                       view 228,1176.5 376x37.5
                         text 228,1176.5 376x19.5
-                          "h1_line"
-                            "h1_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h1"
+                            "h1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1196 376x18
-                          "Heading 1 line height."
-                            "Heading 1 line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 1 size, times the editor size."
+                            "Heading 1 size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1180.5 260x30
-                        input#entry-type.h1_line 612,1180.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h1 612,1180.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1219 644x46.5 border-b=1 #eceef1
-                      view 228,1223 554.5x37.5
-                        text 228,1223 554.5x19.5
-                          "h1_box"
-                            "h1_box" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,1242.5 554.5x18
-                          "Heading 1 bullet box height, times the editor size (its size times its line height)."
-                            "Heading 1 bullet box height, times the editor size (its size times its line height)." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 790.5,1227 260x30
-                        input#entry-type.h1_box 790.5,1227 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,1223 376x37.5
+                        text 228,1223 376x19.5
+                          "h1_line"
+                            "h1_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,1242.5 376x18
+                          "Heading 1 line height."
+                            "Heading 1 line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 612,1227 260x30
+                        input#entry-type.h1_line 612,1227 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1265.5 644x46.5 border-b=1 #eceef1
-                      view 228,1269.5 376x37.5
-                        text 228,1269.5 376x19.5
-                          "h2"
-                            "h2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,1289 376x18
-                          "Heading 2 size, times the editor size."
-                            "Heading 2 size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 612,1273.5 260x30
-                        input#entry-type.h2 612,1273.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,1269.5 554.5x37.5
+                        text 228,1269.5 554.5x19.5
+                          "h1_box"
+                            "h1_box" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,1289 554.5x18
+                          "Heading 1 bullet box height, times the editor size (its size times its line height)."
+                            "Heading 1 bullet box height, times the editor size (its size times its line height)." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 790.5,1273.5 260x30
+                        input#entry-type.h1_box 790.5,1273.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1312 644x46.5 border-b=1 #eceef1
                       view 228,1316 376x37.5
                         text 228,1316 376x19.5
-                          "h2_line"
-                            "h2_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h2"
+                            "h2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1335.5 376x18
-                          "Heading 2 line height."
-                            "Heading 2 line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 2 size, times the editor size."
+                            "Heading 2 size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1320 260x30
-                        input#entry-type.h2_line 612,1320 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h2 612,1320 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1358.5 644x46.5 border-b=1 #eceef1
                       view 228,1362.5 376x37.5
                         text 228,1362.5 376x19.5
-                          "h2_box"
-                            "h2_box" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h2_line"
+                            "h2_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1382 376x18
-                          "Heading 2 bullet box height, times the editor size."
-                            "Heading 2 bullet box height, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 2 line height."
+                            "Heading 2 line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1366.5 260x30
-                        input#entry-type.h2_box 612,1366.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h2_line 612,1366.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1405 644x46.5 border-b=1 #eceef1
                       view 228,1409 376x37.5
                         text 228,1409 376x19.5
-                          "h3"
-                            "h3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h2_box"
+                            "h2_box" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1428.5 376x18
-                          "Heading 3 size, times the editor size."
-                            "Heading 3 size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 2 bullet box height, times the editor size."
+                            "Heading 2 bullet box height, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1413 260x30
-                        input#entry-type.h3 612,1413 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h2_box 612,1413 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1451.5 644x46.5 border-b=1 #eceef1
                       view 228,1455.5 376x37.5
                         text 228,1455.5 376x19.5
-                          "h3_line"
-                            "h3_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h3"
+                            "h3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1475 376x18
-                          "Heading 3 line height."
-                            "Heading 3 line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 3 size, times the editor size."
+                            "Heading 3 size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1459.5 260x30
-                        input#entry-type.h3_line 612,1459.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h3 612,1459.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1498 644x46.5 border-b=1 #eceef1
                       view 228,1502 376x37.5
                         text 228,1502 376x19.5
-                          "h3_box"
-                            "h3_box" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h3_line"
+                            "h3_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1521.5 376x18
-                          "Heading 3 bullet box height, times the editor size."
-                            "Heading 3 bullet box height, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 3 line height."
+                            "Heading 3 line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1506 260x30
-                        input#entry-type.h3_box 612,1506 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h3_line 612,1506 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1544.5 644x46.5 border-b=1 #eceef1
                       view 228,1548.5 376x37.5
                         text 228,1548.5 376x19.5
-                          "heading_weight"
-                            "heading_weight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "h3_box"
+                            "h3_box" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1568 376x18
-                          "Headings' weight."
-                            "Headings' weight." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Heading 3 bullet box height, times the editor size."
+                            "Heading 3 bullet box height, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1552.5 260x30
-                        input#entry-type.heading_weight 612,1552.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.h3_box 612,1552.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1591 644x46.5 border-b=1 #eceef1
                       view 228,1595 376x37.5
                         text 228,1595 376x19.5
-                          "bold_weight"
-                            "bold_weight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "heading_weight"
+                            "heading_weight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1614.5 376x18
-                          "Bold text's weight."
-                            "Bold text's weight." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Headings' weight."
+                            "Headings' weight." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1599 260x30
-                        input#entry-type.bold_weight 612,1599 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.heading_weight 612,1599 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1637.5 644x46.5 border-b=1 #eceef1
                       view 228,1641.5 376x37.5
                         text 228,1641.5 376x19.5
-                          "note"
-                            "note" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "bold_weight"
+                            "bold_weight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1661 376x18
-                          "Note size, times the editor size."
-                            "Note size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Bold text's weight."
+                            "Bold text's weight." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1645.5 260x30
-                        input#entry-type.note 612,1645.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.bold_weight 612,1645.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1684 644x46.5 border-b=1 #eceef1
                       view 228,1688 376x37.5
                         text 228,1688 376x19.5
-                          "note_line"
-                            "note_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "note"
+                            "note" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1707.5 376x18
-                          "Note line height."
-                            "Note line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Note size, times the editor size."
+                            "Note size, times the editor size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1692 260x30
-                        input#entry-type.note_line 612,1692 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.note 612,1692 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1730.5 644x46.5 border-b=1 #eceef1
                       view 228,1734.5 376x37.5
                         text 228,1734.5 376x19.5
-                          "code"
-                            "code" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "note_line"
+                            "note_line" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1754 376x18
-                          "Inline code size, times the text size."
-                            "Inline code size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Note line height."
+                            "Note line height." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1738.5 260x30
-                        input#entry-type.code 612,1738.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.note_line 612,1738.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1777 644x46.5 border-b=1 #eceef1
                       view 228,1781 376x37.5
                         text 228,1781 376x19.5
-                          "codeblock"
-                            "codeblock" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "code"
+                            "code" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1800.5 376x18
-                          "Code block size, times the text size."
-                            "Code block size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Inline code size, times the text size."
+                            "Inline code size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1785 260x30
-                        input#entry-type.codeblock 612,1785 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.code 612,1785 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1823.5 644x46.5 border-b=1 #eceef1
                       view 228,1827.5 376x37.5
                         text 228,1827.5 376x19.5
-                          "date"
-                            "date" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "codeblock"
+                            "codeblock" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1847 376x18
-                          "Date chip size, times the text size."
-                            "Date chip size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Code block size, times the text size."
+                            "Code block size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1831.5 260x30
-                        input#entry-type.date 612,1831.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.codeblock 612,1831.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1870 644x46.5 border-b=1 #eceef1
                       view 228,1874 376x37.5
                         text 228,1874 376x19.5
-                          "number"
-                            "number" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "date"
+                            "date" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1893.5 376x18
-                          "Numbered list numbers' size, times the text size."
-                            "Numbered list numbers' size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Date chip size, times the text size."
+                            "Date chip size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1878 260x30
-                        input#entry-type.number 612,1878 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.date 612,1878 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1916.5 644x46.5 border-b=1 #eceef1
                       view 228,1920.5 376x37.5
                         text 228,1920.5 376x19.5
-                          "math"
-                            "math" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "number"
+                            "number" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1940 376x18
-                          "LaTeX size, times the text size."
-                            "LaTeX size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Numbered list numbers' size, times the text size."
+                            "Numbered list numbers' size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1924.5 260x30
-                        input#entry-type.math 612,1924.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.number 612,1924.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,1963 644x46.5 border-b=1 #eceef1
                       view 228,1967 376x37.5
                         text 228,1967 376x19.5
-                          "toolbar"
-                            "toolbar" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "math"
+                            "math" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,1986.5 376x18
-                          "Phone toolbar buttons' text."
-                            "Phone toolbar buttons' text." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "LaTeX size, times the text size."
+                            "LaTeX size, times the text size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,1971 260x30
-                        input#entry-type.toolbar 612,1971 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.math 612,1971 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2009.5 644x46.5 border-b=1 #eceef1
                       view 228,2013.5 376x37.5
                         text 228,2013.5 376x19.5
-                          "head_tracking"
-                            "head_tracking" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "toolbar"
+                            "toolbar" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2033 376x18
-                          "Section heads' letter spacing, times their size."
-                            "Section heads' letter spacing, times their size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Phone toolbar buttons' text."
+                            "Phone toolbar buttons' text." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2017.5 260x30
-                        input#entry-type.head_tracking 612,2017.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.toolbar 612,2017.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2056 644x46.5 border-b=1 #eceef1
                       view 228,2060 376x37.5
                         text 228,2060 376x19.5
-                          "modal_title"
-                            "modal_title" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "head_tracking"
+                            "head_tracking" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2079.5 376x18
-                          "Dialog titles (the settings' heading)."
-                            "Dialog titles (the settings' heading)." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Section heads' letter spacing, times their size."
+                            "Section heads' letter spacing, times their size." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2064 260x30
-                        input#entry-type.modal_title 612,2064 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.head_tracking 612,2064 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2102.5 644x46.5 border-b=1 #eceef1
-                      view 228,2106.5 442.5x37.5
-                        text 228,2106.5 442.5x19.5
-                          "ui_mini"
-                            "ui_mini" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,2126 442.5x18
-                          "Glyph-sized app text: folder toggles, the date picker's info badge."
-                            "Glyph-sized app text: folder toggles, the date picker's info badge." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 678.5,2110.5 260x30
-                        input#entry-type.ui_mini 678.5,2110.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,2106.5 376x37.5
+                        text 228,2106.5 376x19.5
+                          "modal_title"
+                            "modal_title" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,2126 376x18
+                          "Dialog titles (the settings' heading)."
+                            "Dialog titles (the settings' heading)." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 612,2110.5 260x30
+                        input#entry-type.modal_title 612,2110.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2149 644x46.5 border-b=1 #eceef1
-                      view 228,2153 541.5x37.5
-                        text 228,2153 541.5x19.5
-                          "ui_large"
-                            "ui_large" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,2172.5 541.5x18
-                          "Large app text: search and capture inputs, search results, the phone action sheet."
-                            "Large app text: search and capture inputs, search results, the phone action sheet." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 777.5,2157 260x30
-                        input#entry-type.ui_large 777.5,2157 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,2153 442.5x37.5
+                        text 228,2153 442.5x19.5
+                          "ui_mini"
+                            "ui_mini" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,2172.5 442.5x18
+                          "Glyph-sized app text: folder toggles, the date picker's info badge."
+                            "Glyph-sized app text: folder toggles, the date picker's info badge." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 678.5,2157 260x30
+                        input#entry-type.ui_mini 678.5,2157 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2195.5 644x46.5 border-b=1 #eceef1
-                      view 228,2199.5 422.5x37.5
-                        text 228,2199.5 422.5x19.5
-                          "ui_head"
-                            "ui_head" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,2219 422.5x18
-                          "Panel heads: the help panel's title, a search result's document."
-                            "Panel heads: the help panel's title, a search result's document." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 658.5,2203.5 260x30
-                        input#entry-type.ui_head 658.5,2203.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,2199.5 541.5x37.5
+                        text 228,2199.5 541.5x19.5
+                          "ui_large"
+                            "ui_large" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,2219 541.5x18
+                          "Large app text: search and capture inputs, search results, the phone action sheet."
+                            "Large app text: search and capture inputs, search results, the phone action sheet." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 777.5,2203.5 260x30
+                        input#entry-type.ui_large 777.5,2203.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2242 644x46.5 border-b=1 #eceef1
-                      view 228,2246 469x37.5
-                        text 228,2246 469x19.5
-                          "ui_heading"
-                            "ui_heading" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,2265.5 469x18
-                          "Screen headings: the empty screen's title, the version history's title."
-                            "Screen headings: the empty screen's title, the version history's title." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 705,2250 260x30
-                        input#entry-type.ui_heading 705,2250 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,2246 422.5x37.5
+                        text 228,2246 422.5x19.5
+                          "ui_head"
+                            "ui_head" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,2265.5 422.5x18
+                          "Panel heads: the help panel's title, a search result's document."
+                            "Panel heads: the help panel's title, a search result's document." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 658.5,2250 260x30
+                        input#entry-type.ui_head 658.5,2250 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2288.5 644x46.5 border-b=1 #eceef1
-                      view 228,2292.5 376x37.5
-                        text 228,2292.5 376x19.5
-                          "finder"
-                            "finder" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,2312 376x18
-                          "The finder's (document switcher's) input."
-                            "The finder's (document switcher's) input." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 612,2296.5 260x30
-                        input#entry-type.finder 612,2296.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 228,2292.5 469x37.5
+                        text 228,2292.5 469x19.5
+                          "ui_heading"
+                            "ui_heading" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,2312 469x18
+                          "Screen headings: the empty screen's title, the version history's title."
+                            "Screen headings: the empty screen's title, the version history's title." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 705,2296.5 260x30
+                        input#entry-type.ui_heading 705,2296.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2335 644x46.5 border-b=1 #eceef1
                       view 228,2339 376x37.5
                         text 228,2339 376x19.5
-                          "results_title"
-                            "results_title" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "finder"
+                            "finder" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2358.5 376x18
-                          "The search results screen's heading."
-                            "The search results screen's heading." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "The finder's (document switcher's) input."
+                            "The finder's (document switcher's) input." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2343 260x30
-                        input#entry-type.results_title 612,2343 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.finder 612,2343 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2381.5 644x46.5 border-b=1 #eceef1
                       view 228,2385.5 376x37.5
                         text 228,2385.5 376x19.5
-                          "dp_nav"
-                            "dp_nav" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "results_title"
+                            "results_title" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2405 376x18
-                          "The date picker's month arrows."
-                            "The date picker's month arrows." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "The search results screen's heading."
+                            "The search results screen's heading." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2389.5 260x30
-                        input#entry-type.dp_nav 612,2389.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.results_title 612,2389.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2428 644x46.5 border-b=1 #eceef1
                       view 228,2432 376x37.5
                         text 228,2432 376x19.5
-                          "mm"
-                            "mm" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "dp_nav"
+                            "dp_nav" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2451.5 376x18
-                          "Mind map boxes' text."
-                            "Mind map boxes' text." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "The date picker's month arrows."
+                            "The date picker's month arrows." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2436 260x30
-                        input#entry-type.mm 612,2436 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.dp_nav 612,2436 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2474.5 644x46.5 border-b=1 #eceef1
                       view 228,2478.5 376x37.5
                         text 228,2478.5 376x19.5
-                          "mm_h1"
-                            "mm_h1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "mm"
+                            "mm" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2498 376x18
-                          "Mind map boxes' text, heading 1."
-                            "Mind map boxes' text, heading 1." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Mind map boxes' text."
+                            "Mind map boxes' text." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2482.5 260x30
-                        input#entry-type.mm_h1 612,2482.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.mm 612,2482.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2521 644x46.5 border-b=1 #eceef1
                       view 228,2525 376x37.5
                         text 228,2525 376x19.5
-                          "mm_h2"
-                            "mm_h2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                          "mm_h1"
+                            "mm_h1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
                         text 228,2544.5 376x18
-                          "Mind map boxes' text, heading 2."
-                            "Mind map boxes' text, heading 2." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                          "Mind map boxes' text, heading 1."
+                            "Mind map boxes' text, heading 1." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
                       view 612,2529 260x30
-                        input#entry-type.mm_h2 612,2529 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                        input#entry-type.mm_h1 612,2529 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
                     view#entry 228,2567.5 644x46.5 border-b=1 #eceef1
                       view 228,2571.5 376x37.5
                         text 228,2571.5 376x19.5
+                          "mm_h2"
+                            "mm_h2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
+                        text 228,2591 376x18
+                          "Mind map boxes' text, heading 2."
+                            "Mind map boxes' text, heading 2." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
+                      view 612,2575.5 260x30
+                        input#entry-type.mm_h2 612,2575.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                          ""
+                    view#entry 228,2614 644x46.5 border-b=1 #eceef1
+                      view 228,2618 376x37.5
+                        text 228,2618 376x19.5
                           "mm_h3"
                             "mm_h3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                        text 228,2591 376x18
+                        text 228,2637.5 376x18
                           "Mind map boxes' text, heading 3."
                             "Mind map boxes' text, heading 3." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 12/18 w400 #8b8f97
-                      view 612,2575.5 260x30
-                        input#entry-type.mm_h3 612,2575.5 260x30 bg=#ffffff r=6 border=1 #dfe1e5
+                      view 612,2622 260x30
+                        input#entry-type.mm_h3 612,2622 260x30 bg=#ffffff r=6 border=1 #dfe1e5
                           ""
-                view 228,2614 644x27.5
-                  view 228,2614 644x27.5
-                    text 228,2618 64.5x19.5
+                view 228,2660.5 644x27.5
+                  view 228,2660.5 644x27.5
+                    text 228,2664.5 64.5x19.5
                       "▸ [space]"
                         "▸ [space]" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
-                view 228,2641.5 644x27.5
-                  view 228,2641.5 644x27.5
-                    text 228,2645.5 71.5x19.5
+                view 228,2688 644x27.5
+                  view 228,2688 644x27.5
+                    text 228,2692 71.5x19.5
                       "▸ [radius]"
                         "▸ [radius]" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 13/19.5 w400 #222222
         view 210,728 680x56 border-t=1 #eceef1

@@ -336,7 +336,7 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   작업 공간(고정 문서 + 빈 문서)으로 띄워 같은 값을 잰다. 새 고정 상태: `looks-phone-files`(서랍), `inline-desktop-tags`,
   `inline-phone-tags`. 데스크톱 정답은 문서가 패널 오른쪽으로 옮겨져 모두 바뀌었다. 헤드리스 테스트 `tests/sidebar.rs` 7개.
   웹과 다른 점(아직 없는 기능): ~~폴더와 파일 메뉴(복사, 내보내기, 보관, 삭제 등), "New…" 메뉴(문서만 바로 만든다), 문서 끌어
-  옮기기~~(영역 11), 찾기·받은 편지함 버튼(그려만 둠), ~~모두 접기 버튼, 북마크(빈 안내만)~~(영역 11), 태그 누르기(검색 없음)와 태그 메뉴, ~~이름 바꾸기의
+  옮기기~~(영역 11), ~~찾기·받은 편지함 버튼(그려만 둠)~~(영역 14), ~~모두 접기 버튼, 북마크(빈 안내만)~~(영역 11), 태그 누르기(검색 없음)와 태그 메뉴, ~~이름 바꾸기의
   더블 클릭(NSH에 없어서 길게 누르기)~~(영역 11: NSH `PressEvent::clicks`로 더블 클릭), 서랍 여닫기 애니메이션, ~~정렬 설정·사이드바 너비의 저장~~(영역 11).
 - [x] 테마와 표시 설정 (2026-11-14, 영역 4): 설정 화면(데스크톱은 상단 바 톱니, 휴대폰은 상단 바 메뉴 > Settings)은 웹 설정
   대화상자에서 네이티브에 있는 탭만 둔다. Preferences: 테마(Auto-detect 기본: 시스템의 밝음/어둠을 따르고 바뀌면 바로 반영,
@@ -502,12 +502,48 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   backlinks; 데스크톱·휴대폰). `qa:model`이 search 상태를 웹에서 같은 질의로 재서 대조한다(이때 `.o-match` 글자색 차이를 찾아
   맞췄다). 기존 정답은 `[views]`의 들여쓰기만 바뀌었다(문서 영역과 목록 끝에 뷰가 하나씩 늘었다; `[model]`은 같음).
   웹과 다른 점: 링크 후보의 순서는 문서 순서다(웹은 노드 맵의 삽입 순서), 앱 주소가 없어 링크 URL에 origin이 없다(웹은 `#`로 시작하는
-  URL도 자기 것으로 연다), 결과 화면의 정렬과 내보내기의 들여쓰기는 `<select>` 대신 버튼, 북마크 별표는 그리기만 한다, 검색어는 웹처럼
+  URL도 자기 것으로 연다), 결과 화면의 정렬과 내보내기의 들여쓰기는 `<select>` 대신 버튼, ~~북마크 별표는 그리기만 한다~~(영역 14), 검색어는 웹처럼
   주소(route)에 남지 않는다, 문서별 "체크 항목 보기" 설정이 없어 다른 문서의 결과는 체크 항목을 보인다. 영역 12의 설정 화면에
   이 기능들의 설정 4개를 웹과 같은 이름·라벨·구역으로 더했다: Input의 "Auto-complete tags from all docs"
   (`global_tag_autocomplete`), "Internal links" 구역의 "Show backlinks"(`show_backlinks`), Advanced의 "Show search tip popup"
   (`show_search_tips`, 기본 켬)과 "Export visible items only (default)"(`export_visible_only`; 내보내기 대화상자의 체크도 이 값을 바꾼다).
   `[[`/`#` 목록은 캐럿의 화면 위치(`CaretEvent::page_bounds`) 아래에, 캐럿 위치를 모르면(헤드리스, 캐럿 보고 전) 입력란 아래에 둔다.
+- [x] 웹의 나머지 화면 (2026-11-15, 영역 14): 읽기 모드, Back/Forward, 도움말, 튜토리얼, 마인드맵, inbox, 파일 찾기를 웹처럼
+  옮겼고, 눌러도 아무 일이 없던 버튼을 모두 기능에 연결했다(`docview.rs`, `help.rs`, `mindmap.rs`, `inbox.rs`, `finder.rs`).
+  - 읽기 모드: 휴대폰 상단 바의 자물쇠 버튼과 데스크톱의 View options 메뉴("Lock document (read-only)")가 문서별 설정
+    `v_locked`를 웹과 같은 자리(작업 공간 문서의 파일 항목)에 저장한다. 잠긴 문서는 편집 캐럿이 놓이지 않고, 명령과 undo가
+    문서를 바꾸지 않으며, 휴대폰 툴바가 숨는다. 불릿으로 접고 펴기, 줌, 선택은 웹처럼 계속 된다.
+  - Back/Forward: 문서를 바꾸거나 줌한 모든 변경을 `store::edit`에서 기록하고(웹이 route마다 history를 쌓는 것과 같다, 100개까지),
+    데스크톱 상단 바의 Back/Forward와 Alt+←/→가 그 자리로 돌아간다. 돌아가면 아무것도 편집하지 않고(`setZoom`), 사라진 문서는
+    건너뛴다. 기존 Back 버튼은 줌 아웃만 했다.
+  - 도움말: Mod+/와 메뉴의 "Shortcuts & formatting"이 웹의 도움말 패널(트리거, 서식, 지금 키맵의 명령별 키를 그룹별로)을 연다.
+    데스크톱은 문서 오른쪽 340pt 패널, 휴대폰은 화면 전체다. 웹도 첫 실행에 투어를 자동으로 띄우지 않으므로, 메뉴에 Tutorial
+    (단계, 점, Skip/Next/Done, 끝내면 `finished_onboarding` 저장)과 "What's new"를 더했다.
+  - 마인드맵: View options의 "Layout: Mind map (read-only)"(`v_layout`)가 줌한 항목의 마인드맵을 화면 전체에 띄운다. 상자는 인라인
+    서식, 노트, 제목 크기, 색 라벨, 체크 모양을 갖고, 자식은 오른쪽 열에 선으로 잇는다. 상자의 버튼은 지도 안에서만 접고 펴며,
+    더블 클릭은 그 항목으로 줌하고(Back으로 돌아올 수 있음), 경로를 누르면 줌 아웃, −/+는 배율(0.3~2), "← Back to document"와
+    Escape는 목록으로 돌아간다.
+  - Inbox: 설정의 "Your inbox" 구역(목적지 표시와 Change… 찾기 창, "Move to position": `inbox_move_position`), 메뉴와 Mod+Shift+I의
+    "Capture to inbox"(여러 줄은 들여쓰기대로 여러 항목, Add 또는 Mod+Return), 메뉴와 사이드바 받은 편지함 버튼의 "Go to inbox".
+    목적지가 없으면 웹의 안내 알림을 보인다. 항목 메뉴의 "Set as inbox"는 영역 13의 항목 메뉴가 `inbox::set(doc, id)`를 부르면 된다.
+  - 찾기 창(`finder.rs`, 웹 `finder`): 퍼지 순위 50개, ↑/↓, Return, 누르기, Escape. Mod+O와 사이드바 찾기 버튼의 문서·북마크 찾기,
+    inbox 고르기, 휴대폰 툴바와 Mod+Shift+M의 "Move item to…"(같은 문서는 옮기고 다른 문서는 복사 후 지움, 웹처럼 목적지 끝에)가 쓴다.
+  - 그 밖의 버튼: 데스크톱 문서 오른쪽 위의 doc actions(Bookmark this view, View options), 검색 상자의 "Bookmark this search"
+    (검색어를 북마크에 넣고, 그 북마크를 열면 검색이 다시 열린다), 검색 상자 닫기 아이콘(경로가 비어 그려지지 않았다).
+  - 고친 버그: 대화상자나 메뉴에서 띄운 알림은 띄운 뷰가 사라지면 타이머가 취소되어 영영 남았다(`toast.rs`가 이제 owner 밖에서
+    타이머를 만든다).
+  - 새 토큰: `space.capture_vh`(캡처 상자 최소 높이, 웹의 40vh), `type.tour_line`(튜토리얼 줄 높이, 웹의 1.6). 웹 `styles.css`도
+    같은 값으로 이 변수를 읽는다.
+  - 테스트: 헤드리스 `tests/screens.rs` 10개(휴대폰 자물쇠와 데스크톱 메뉴의 잠금, Back/Forward와 키, 도움말의 사용자 키,
+    휴대폰 메뉴의 도움말·튜토리얼·What's new, 마인드맵 접기·더블 클릭 줌·경로·돌아가기, inbox 고르기·캡처·이동, 파일 찾기와
+    Mod+O, 검색 북마크, 다른 문서로 Move to). 구조 스냅샷에 고정 상태 6개(`looks`의 help, mindmap, tour; 데스크톱·휴대폰).
+    기존 정답은 데스크톱의 `[views]` 끝에 doc actions가, 설정 화면에 "Your inbox" 구역이 더해져서 바뀌었다(`[model]`은 같음).
+    `qa:model`은 차이 없음(알려진 차이 91개 그대로).
+  - 웹과 다른 점: View options는 레이아웃(List, Mind map)과 잠금만 있다(문서별 체크·노트 보기, Article 레이아웃, 글 방향은 아직
+    없다). 웹의 하위 메뉴 대신 한 메뉴에 "✓"로 표시한다. 메뉴에 Version history, Print, Sync status, About가 없다. 파일 찾기의 보조
+    줄은 바로 위 폴더 이름만 보인다(웹은 전체 경로). 마인드맵의 배율은 CSS `transform` 대신 크기 값을 곱해서 그린다. Flat search와
+    전체 검색의 북마크는 문서의 검색 상자로 연다. `move_item_sent_to_position` 설정이 없어 Move to는 늘 목적지 끝에 넣는다.
+- [ ] 버전 기록(웹 `history.ts`)과 공유(`share.ts`): 서버가 필요하다. 아래 서버 동기화와 함께 한다.
 - [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌.
 - [ ] 알려진 제약: Rust 문자열은 짝이 맞지 않는 UTF-16 서로게이트를 담을 수 없다. 웹이 이런 문자열을 보내면 역직렬화가 실패한다.
 - 명령:

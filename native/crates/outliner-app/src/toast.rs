@@ -31,10 +31,13 @@ thread_local! {
 pub fn show(text: impl Into<String>) {
     let serial = toast().with_untracked(|t| t.serial) + 1;
     toast().set(Toast { text: Some(text.into()), serial });
-    let timer = set_timeout(SHOWS, move || {
-        if toast().with_untracked(|t| t.serial) == serial {
-            toast().update(|t| t.text = None);
-        }
+    // under no view's owner: what showed it (a dialog's button, a menu) may go away before the message does
+    let timer = Owner::detached().run(|| {
+        set_timeout(SHOWS, move || {
+            if toast().with_untracked(|t| t.serial) == serial {
+                toast().update(|t| t.text = None);
+            }
+        })
     });
     TIMER.with(|t| *t.borrow_mut() = Some(timer));
 }

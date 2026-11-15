@@ -12,14 +12,19 @@ mod datepicker;
 #[allow(clippy::excessive_precision, clippy::approx_constant, clippy::unreadable_literal)]
 pub mod design;
 mod dialog;
+pub mod docview;
 mod export;
 pub mod find;
+mod finder;
 pub mod fixture;
+pub mod help;
 mod icons;
+pub mod inbox;
 pub mod menu;
 pub mod inline;
 pub mod keymap;
 mod links;
+mod mindmap;
 mod outline;
 pub mod settings;
 mod sidebar;
@@ -99,8 +104,8 @@ fn app_keys() -> impl IntoElement {
     view()
 }
 
-/// The app's screen over the open document: the top bar, the sidebar's panel (desktops) beside the outline, the
-/// phone toolbar, and the sidebar's drawer over all of it (phones).
+/// The app's screen over the open document: the top bar, the sidebar's panel (desktops) beside the outline and
+/// the help panel, the phone toolbar, the mind map over them, and the sidebar's drawer over all of it (phones).
 fn screen() -> View {
     view()
         .flex_1()
@@ -109,7 +114,14 @@ fn screen() -> View {
         .pb_keyboard()
         .bg(style::color::bg())
         .child(toolbar::topbar())
-        .child(view().flex_1().flex_row().child(sidebar::panel()).child(behaving(find::doc_area)))
+        .child(
+            view()
+                .flex_1()
+                .flex_row()
+                .child(sidebar::panel())
+                .child(behaving(find::doc_area))
+                .child(help::panel()),
+        )
         .child(toolbar::mobile_bar())
         // the keys of selected items, while there are some (no input has the focus then)
         .child(behaving(|| when(|| store::read(|s| s.block.is_some()), outline::block_keys)))
@@ -120,6 +132,8 @@ fn screen() -> View {
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
         .child(links::popup())
+        .child(mindmap::layer())
+        .child(help::sheet())
         .child(sidebar::drawer())
         .child(settings::menu())
         .child(settings::screen())

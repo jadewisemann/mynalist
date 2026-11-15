@@ -510,7 +510,7 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .replace-count { font-size: var(--type-ui-small); color: var(--muted); min-height: 1.4em; }
 .error-text { color: var(--danger); font-size: var(--type-ui-small); }
 .capture-wrap { margin: calc(-1 * var(--step-5)) calc(-1 * var(--step-6)); }
-.capture { width: 100%; min-height: 40vh; font: inherit; font-size: var(--type-ui-large); border: 0; outline: 0; resize: vertical; background: none; color: var(--fg); padding: var(--step-6); }
+.capture { width: 100%; min-height: calc(var(--space-capture-vh) * 100vh); font: inherit; font-size: var(--type-ui-large); border: 0; outline: 0; resize: vertical; background: none; color: var(--fg); padding: var(--step-6); }
 .pane-head.clickable { cursor: pointer; }
 .pane-empty { padding: var(--space-pane-empty-y) var(--space-pane-empty-x); color: var(--muted); font-size: var(--type-ui-small); }
 .tb-row { display: flex; justify-content: space-between; align-items: center; padding: var(--step-3) 0; font-size: var(--fs); }
@@ -575,7 +575,7 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .o-readonly .o-content, .o-readonly .o-note { cursor: default; }
 .img-preview { position: fixed; z-index: 66; max-width: var(--space-img-preview); max-height: var(--space-img-preview-h); border: var(--space-border) solid var(--chip-border); border-radius: var(--radius-block); box-shadow: 0 var(--step-5) var(--step-11) var(--shadow-float); background: var(--bg); pointer-events: none; }
 .tour h3 { margin: var(--step-4) 0 var(--step-6); }
-.tour p { line-height: 1.6; min-height: 5em; }
+.tour p { line-height: var(--type-tour-line); min-height: 5em; }
 .tour-dots { display: flex; gap: var(--step-5); justify-content: center; margin: var(--step-7) 0; }
 .tour-dots span { width: var(--step-6); height: var(--step-6); border-radius: 50%; background: var(--faint); cursor: pointer; }
 .tour-dots span.on { background: var(--accent); }
