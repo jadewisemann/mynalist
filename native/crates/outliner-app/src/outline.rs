@@ -14,6 +14,7 @@ use outliner_core::item;
 use crate::commands as cmd;
 use crate::inline::{self, Block};
 use crate::icons;
+use crate::keymap;
 use crate::store::{self, Row, Thread};
 use crate::style::{self, color, num};
 
@@ -36,6 +37,8 @@ impl Look {
 }
 
 fn look_of(id: &str) -> Look {
+    // notes hidden (`[data-notes='hide']`): none shows, unless it is edited
+    let notes = crate::settings::get().pick("show_notes") != "hide";
     store::read(|s| {
         let n = s.tree().get(id);
         Look {
@@ -43,14 +46,16 @@ fn look_of(id: &str) -> Look {
             checked: item::is_checked(n),
             checkbox: item::has_checkbox(n),
             label: item::color(n),
-            note: Some(item::note(n)).filter(|t| !t.trim().is_empty()).map(str::to_owned),
+            note: Some(item::note(n)).filter(|t| notes && !t.trim().is_empty()).map(str::to_owned),
         }
     })
 }
 
 pub fn outline() -> impl IntoElement {
-    // the rows of the bullet thread, read by every cell
-    let path = computed(|| store::read(|s| s.path_rows()));
+    let prefs = crate::settings::get();
+    // the rows of the bullet thread, read by every cell (none with "Bullet threading" off)
+    let threading = prefs.flag("bullet_threading");
+    let path = computed(move || if threading { store::read(|s| s.path_rows()) } else { Vec::new() });
     // the rows that show as selected, read by every cell
     let selected = computed(|| store::read(|s| s.selected_rows()));
     // Escape with nothing edited or selected: back where the last Escape left
@@ -66,6 +71,8 @@ pub fn outline() -> impl IntoElement {
         .footer(doc_end())
         .test_id("outline")
         .flex_1()
+        // the narrow document layout: no wider than `space.doc_max`, in the middle (`.doc-wrap`)
+        .max_w(if prefs.flag("center_doc") { px(num("space.doc_max")) } else { px(f32::MAX) })
         .bg(color::bg())
 }
 
@@ -126,12 +133,30 @@ fn doc_end() -> impl IntoElement {
         .on_press(cmd::focus_end)
 }
 
-/// A note (`.o-note`): 5/6 of the text in the note color, on 1.2 lines; formatted as the content is.
+/// A note (`.o-note`): 5/6 of the text in the note color, on 1.2 lines; formatted as the content is. With the
+/// notes setting on "1st line", one line cut with an ellipsis, its line breaks as spaces (`[data-notes='teaser']`:
+/// `white-space: nowrap`).
 fn note_text(src: &str, checked: bool) -> View {
     let size = style::efs() * num("type.note");
     let note_line = size * num("type.note_line");
     let fg = if checked { color::check() } else { color::note() };
     let look = inline::Look::new(size, store::now()).colored(fg, checked);
+    let teaser = crate::settings::get().pick("show_notes") == "teaser";
+    if teaser {
+        let one = src.replace('\n', " ");
+        let tokens = outliner_core::inline::parse_inline(&one);
+        let mut t = text("")
+            .font_family(style::editor_font())
+            .text_size(px(size))
+            .line_height(LineHeight::Points(px(note_line)))
+            .text_color(fg)
+            .children(inline::spans(&tokens, &look))
+            .truncate();
+        if checked {
+            t = t.line_through();
+        }
+        return view().test_id("note").child(t);
+    }
     view().test_id("note").children(inline::blocks(src).into_iter().map(move |b| match b {
         Block::Inline(tokens) => {
             let mut t = text("")
@@ -164,11 +189,16 @@ fn row(at: Position, path: Memo<Vec<usize>>, selected: Memo<Vec<Option<u16>>>) -
         let id = row.get().map(|r| r.id)?;
         store::read(|s| s.editing.as_ref().filter(|c| c.id == id).map(|c| c.note)).map(|note| (id, note))
     });
+    let highlight = crate::settings::get().flag("current_highlight");
     view()
         .test_id("row")
         .flex_row()
         .items_start()
         .py(px(style::pad()))
+        // the row being edited, with "Highlight current item" on (`.o-hl-current .o-current > .o-row`)
+        .bg(move || {
+            if highlight && editing.get().is_some() { AdaptiveColor::from(color::current()) } else { AdaptiveColor::TRANSPARENT }
+        })
         // the document's right padding: a list's padding does not reach its cells
         .pr(px(style::doc_pad().1))
         .pl(move || px(style::text_left(depth()) - style::body_gap() - bullet_w(row.get().map_or(0, |r| r.num))))
@@ -320,6 +350,9 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>, thread: Memo<Thread>) -> imp
             if let Some(r) = row.get_untracked() {
                 if store::peek(|s| s.select_mode) {
                     cmd::toggle_in_block(&r.id);
+                } else if crate::settings::get().flag("use_bullet_to_zoom") {
+                    // "Use bullet point to zoom in": the bullet zooms in on its item instead of folding it
+                    cmd::zoom_into(&r.id);
                 } else {
                     cmd::collapse(&[r.id], false);
                 }
@@ -502,22 +535,15 @@ fn item_keys(id: &str, note: bool) {
             }
         });
     };
-    bind("shift+tab", cmd::outdent);
-    bind("mod+up", cmd::move_up);
-    bind("mod+down", cmd::move_down);
-    bind("shift+mod+backspace", || cmd::delete_items(Dir::Left));
-    bind("mod+enter", || cmd::toggle_checked(false));
-    bind("shift+mod+c", cmd::toggle_checkbox);
-    bind("mod+.", || cmd::toggle_collapse(false));
-    bind("shift+mod+.", || cmd::toggle_collapse(true));
-    bind("mod+]", cmd::zoom_in);
-    bind("mod+[", cmd::zoom_out);
-    bind("mod+z", || cmd::undo(false));
-    bind("shift+mod+z", || cmd::undo(true));
-    bind("mod+y", || cmd::undo(true));
-    // between the content and the note (the web's `goto-note`)
-    bind("shift+enter", cmd::goto_note);
-    bind("shift+mod+a", cmd::select_all);
+    // the keymap's commands (`settings` > Keymap, `keymap::COMMANDS`); Tab is the input's own (below)
+    for (keys, run) in keymap::bindings(keymap::Scope::Editing, &["indent"]) {
+        let id = id.to_owned();
+        on_key_with(&keys, opts, move |_| {
+            if is_edited(&id, note) {
+                run();
+            }
+        });
+    }
     bind("escape", cmd::stop_editing);
     bind("mod+d", crate::datepicker::add_date);
 }
@@ -533,9 +559,9 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
 
     item_keys(&id, false);
     let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
-    {
+    for keys in keymap::keys_of("indent") {
         let id = id.clone();
-        on_key_with("tab", opts, move |_| {
+        on_key_with(&keys, opts, move |_| {
             if is_edited(&id, false) {
                 cmd::indent();
             }
@@ -581,7 +607,7 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
     // a multiline input breaks the line on Alt+Return: an item's text gets no line break from it
     on_key_with("alt+enter", opts, |_| {});
 
-    let (value_id, change_id, submit_id, key_id) = (id.clone(), id.clone(), id.clone(), id.clone());
+    let (value_id, change_id, submit_id, key_id, caret_id) = (id.clone(), id.clone(), id.clone(), id.clone(), id.clone());
     input()
         .element_ref(&field)
         .value(move || store::read(|s| store::content_of(s, &value_id)))
@@ -610,6 +636,8 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
             let b = c.bounds;
             // an empty caret: the platform could not place it
             caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
+            // the date picker opens under it
+            crate::datepicker::caret_at(&caret_id, false, c.page_bounds);
         })
         .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
         .on_selection_change(on_selection(&id, false, sel, sel_end))
@@ -702,7 +730,7 @@ fn note_input(id: String, checked: bool) -> impl IntoElement {
             }
         });
     }
-    let (value_id, change_id) = (id.clone(), id.clone());
+    let (value_id, change_id, caret_id) = (id.clone(), id.clone(), id.clone());
     let fg = if checked { color::check() } else { color::note() };
     view().test_id("note").child(
         input()
@@ -731,6 +759,7 @@ fn note_input(id: String, checked: bool) -> impl IntoElement {
             .on_caret_move(move |c: &CaretEvent| {
                 let b = c.bounds;
                 caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
+                crate::datepicker::caret_at(&caret_id, true, c.page_bounds);
             })
             .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
             .on_selection_change(on_selection(&id, true, sel, sel_end)),
@@ -745,7 +774,6 @@ pub(crate) fn block_keys() -> impl IntoElement {
     bind("escape", cmd::clear_block);
     bind("backspace", || cmd::delete_items(Dir::Left));
     bind("delete", || cmd::delete_items(Dir::Right));
-    bind("shift+mod+backspace", || cmd::delete_items(Dir::Left));
     bind("enter", cmd::replace_with_empty);
     bind("up", || cmd::leave_block("up"));
     bind("down", || cmd::leave_block("down"));
@@ -754,19 +782,10 @@ pub(crate) fn block_keys() -> impl IntoElement {
     bind("shift+up", || cmd::extend(false));
     bind("shift+down", || cmd::extend(true));
     bind("mod+a", cmd::select_more);
-    bind("shift+mod+a", cmd::select_all);
-    bind("tab", cmd::indent);
-    bind("shift+tab", cmd::outdent);
-    bind("mod+up", cmd::move_up);
-    bind("mod+down", cmd::move_down);
-    bind("mod+enter", || cmd::toggle_checked(false));
-    bind("shift+mod+c", cmd::toggle_checkbox);
-    bind("mod+.", || cmd::toggle_collapse(false));
-    bind("shift+mod+.", || cmd::toggle_collapse(true));
-    bind("mod+]", cmd::zoom_in);
-    bind("mod+z", || cmd::undo(false));
-    bind("shift+mod+z", || cmd::undo(true));
-    bind("mod+y", || cmd::undo(true));
+    // the keymap's commands (`settings` > Keymap)
+    for (keys, run) in keymap::bindings(keymap::Scope::Block, &[]) {
+        on_key_with(&keys, opts, move |_| run());
+    }
     bind("mod+c", || cmd::copy_block(false));
     bind("mod+x", || cmd::copy_block(true));
     view()

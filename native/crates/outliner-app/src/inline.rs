@@ -28,6 +28,10 @@ pub struct Look {
     pub mark_overdue: bool,
     /// `![]()` shows the picture instead of a link (`display_images_inline`, off by default).
     pub inline_images: bool,
+    /// The date display formats (`custom_date_display_format`, `.._no_time`): "" or `relative` for the relative
+    /// labels, else a pattern.
+    pub format: String,
+    pub format_no_time: String,
     /// The text's color and strike (a checked item's), for what does not inherit them: a chip's label is a text of
     /// its own.
     pub color: Rgba,
@@ -35,8 +39,20 @@ pub struct Look {
 }
 
 impl Look {
+    /// The look of text of `size` at time `now`, with the display settings in use.
     pub fn new(size: f32, now: i64) -> Self {
-        Look { size, now, hour12: true, mark_overdue: false, inline_images: false, color: color::fg(), struck: false }
+        let p = crate::settings::get();
+        Look {
+            size,
+            now,
+            hour12: p.pick("time_format") == "12h",
+            mark_overdue: p.flag("highlight_overdue"),
+            inline_images: p.flag("display_images_inline"),
+            format: p.text("custom_date_display_format").to_owned(),
+            format_no_time: p.text("custom_date_display_format_no_time").to_owned(),
+            color: color::fg(),
+            struck: false,
+        }
     }
 
     /// The same look for text in `color`, struck through or not.
@@ -148,6 +164,8 @@ fn image_span(alt: &str, url: &str, look: &Look) -> AnyElement {
 pub fn date_label(spec: &DateSpec, look: &Look) -> (String, bool) {
     let mut o = DateFormatOptions::new(look.now);
     o.hour12 = look.hour12;
+    o.format = Some(look.format.clone()).filter(|f| !f.is_empty());
+    o.format_no_time = Some(look.format_no_time.clone()).filter(|f| !f.is_empty());
     // a checked item is done: its dates are not overdue
     (dates::format_date_label(spec, &o), look.mark_overdue && !look.struck && dates::is_overdue(spec, look.now))
 }

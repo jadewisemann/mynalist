@@ -11,6 +11,7 @@ import '@fontsource/fira-sans/700-italic.css';
 import '@fontsource/fira-mono/400.css';
 import { DocSession, ROOT, Tx, extractTags, type Tree } from '@outliner/core';
 import { Editor, type EditorHost } from '../../src/editor/editor.ts';
+import { setRenderOptions } from '../../src/editor/render.ts';
 import { Sidebar, type PaneName, type SidebarHost } from '../../src/ui/sidebar.ts';
 import { Workspace } from '../../src/store/workspace.ts';
 import type { SyncClient } from '../../src/store/sync.ts';
@@ -360,18 +361,21 @@ function model(): string {
 }
 
 /** Shows `doc` in `modes` (`{ theme: 'dark', size: 'large' }`) with a user's appearance TOML, editing the item
- * `editing` (its caret at the end) when given (its note with `side` 'note'; selected instead with 'select', as the
- * native fixture's states), the sidebar on pane `side` (or as the device starts it: shown on
+ * `editing` (its caret at the end) when given (its note with `side` 'note'; selected instead with 'select'; with
+ * the settings of the native fixture's "prefs" state with 'prefs', as the native fixture's states), the sidebar on pane `side` (or as the device starts it: shown on
  * desktops, closed on phones); its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: PaneName | 'note' | 'select' | '' = '') => {
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: PaneName | 'note' | 'select' | 'prefs' | '' = '') => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
   const look = parseAppearance(toml);
   if ('error' in look) throw new Error(`line ${look.error.line}: ${look.error.message}`);
   applyAppearance(root, look.values);
-  const state = side === 'note' || side === 'select' ? side : '';
+  const state = side === 'note' || side === 'select' || side === 'prefs' ? side : '';
+  // 'prefs': the settings of the native fixture's "prefs" state (native `fixture::PREFS`)
+  setRenderOptions(state === 'prefs' ? { hour12: false } : {});
   showSidebar(show(doc), state ? '' : (side as PaneName | ''));
+  if (state === 'prefs') ed!.applyPrefs({ showChecked: false, showNotes: 'teaser', bulletThreading: false, highlightCurrent: true });
   if (editing && state === 'note') ed!.startEdit(editing, 'n', Number.MAX_SAFE_INTEGER);
   else if (editing && state === 'select') ed!.applySel({ k: 'block', ids: [editing], anchor: editing, focus: editing });
   else if (editing) ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);

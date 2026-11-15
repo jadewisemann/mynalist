@@ -80,6 +80,8 @@ pub struct State {
     pub select_mode: bool,
     /// The zoom root and the visibility options.
     pub view: View,
+    /// Checked items show (the `show_checked` setting): every document's view follows it.
+    pub show_checked: bool,
     /// The open document's id.
     pub doc: String,
     /// The local documents' ids, in the sidebar's order.
@@ -106,6 +108,7 @@ impl State {
             last_sel: None,
             select_mode: false,
             view: View::default(),
+            show_checked: true,
             doc,
             files,
             shelved,
@@ -156,6 +159,21 @@ impl State {
         id
     }
 
+    /// A new document named `title` holding `items` (an imported file), last in the list, opened; its id.
+    pub fn import(&mut self, title: &str, items: &[outliner_core::commands::Portable]) -> String {
+        let id = self.create();
+        let (ops, inverse) = {
+            let mut tx = outliner_core::tx::Tx::new(&mut self.session.live, now());
+            tx.set(ROOT, text_props(title));
+            outliner_core::commands::insert_portable(&mut tx, ROOT, None, items);
+            (std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
+        };
+        // not undoable, as the web's import
+        self.session.commit(ops, inverse, None, None, false);
+        self.reflow();
+        id
+    }
+
     /// Rename document `id`: its root's text (`Workspace.rename`), not undoable.
     pub fn rename(&mut self, id: &str, title: &str) {
         let session = if id == self.doc { Some(&mut self.session) } else { self.shelved.get_mut(id).map(|(s, _)| s) };
@@ -195,6 +213,7 @@ impl State {
 
     /// Recompute the visible rows: the items under the zoom root that the view shows, depth first.
     pub fn reflow(&mut self) {
+        self.view.show_checked = self.show_checked;
         let t = &self.session.live;
         if !t.is_attached(&self.view.zoom) {
             self.view.zoom = ROOT.to_owned();
@@ -341,7 +360,12 @@ pub fn quiet<R>(f: impl FnOnce(&mut State) -> R) -> R {
 
 /// Replace the documents (fresh sessions with their ids, e.g. for a test); the first is opened.
 pub fn open_all(docs: Vec<(String, Session)>) {
-    edit(|s| *s = State::new(docs));
+    edit(|s| {
+        let show_checked = s.show_checked;
+        *s = State::new(docs);
+        s.show_checked = show_checked;
+        s.reflow();
+    });
 }
 
 /// Whether the documents are still the empty one the store starts with.

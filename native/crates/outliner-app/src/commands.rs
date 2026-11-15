@@ -181,7 +181,9 @@ pub fn indent() {
 }
 
 pub fn outdent() {
-    run_items(|tx, v, ids, sel| core::outdent(tx, v, ids, sel, false));
+    // "Unindent items in-place": the siblings after it become its children
+    let in_place = crate::settings::get().flag("unindent_in_place");
+    run_items(move |tx, v, ids, sel| core::outdent(tx, v, ids, sel, in_place));
 }
 
 pub fn move_up() {
@@ -204,10 +206,15 @@ pub fn replace_with_empty() {
 }
 
 /// Mod+Enter (moves on to the next row) or the toolbar's check (`stay`).
+/// What checking an item with a recurring date does (the "Recurring date" setting).
+fn recurring() -> Recurring {
+    if crate::settings::get().pick("recurrence_check_behavior") == "update" { Recurring::Update } else { Recurring::NewInstance }
+}
+
 pub fn toggle_checked(stay: bool) {
     run_items(|tx, v, ids, sel| {
-        // a recurring date moves on, a checked copy staying above (the web's default `new_instance`)
-        let opts = CheckOptions { stay, recurring: Some(Recurring::NewInstance), now: None };
+        // a recurring date moves on: a checked copy staying above, or the date itself (`recurrence_check_behavior`)
+        let opts = CheckOptions { stay, recurring: Some(recurring()), now: None };
         core::toggle_checked(tx, v, ids, sel, &opts)
     });
 }
@@ -313,6 +320,12 @@ pub fn leave_note(id: &str) {
 /// Mod+]: show only this row and what is under it.
 pub fn zoom_in() {
     let Some(id) = store::peek(|s| targets(s).into_iter().next()) else { return };
+    zoom_into(&id);
+}
+
+/// Show only item `id` and what is under it (the caret on its first child).
+pub fn zoom_into(id: &str) {
+    let id = id.to_owned();
     store::edit(|s| {
         if s.tree().contains(&id) {
             s.view.zoom = id.clone();
@@ -574,7 +587,7 @@ pub fn copy_block(cut: bool) {
 /// A press on an item's checkbox: checks it or unchecks it, the selection staying.
 pub fn check(id: &str) {
     run(|tx, v, _, sel| {
-        let opts = CheckOptions { stay: true, recurring: Some(Recurring::NewInstance), now: None };
+        let opts = CheckOptions { stay: true, recurring: Some(recurring()), now: None };
         core::toggle_checked(tx, v, &[id.to_owned()], sel, &opts)
     });
 }

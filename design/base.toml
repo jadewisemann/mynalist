@@ -276,6 +276,7 @@ ac_min = 200
 ac_max = 440
 ac_item_y = 5
 datepicker = 292
+popup_room = 80
 dp_nav_h = 28
 dp_day = 32
 dp_day_phone = 36

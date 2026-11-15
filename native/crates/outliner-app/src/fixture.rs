@@ -42,6 +42,16 @@ pub fn selected_item(doc: &str) -> &'static str {
     }
 }
 
+/// The settings of the "prefs" state: checked items hidden, notes on their first line, no bullet thread, the
+/// current item highlighted, 24-hour times.
+pub const PREFS: &[(&str, &str)] = &[
+    ("show_checked", "false"),
+    ("show_notes", "teaser"),
+    ("bullet_threading", "false"),
+    ("current_highlight", "true"),
+    ("time_format", "24h"),
+];
+
 /// The modes of a fixture that uses the prefs kept on the device instead of modes of its own.
 pub const STORED: &str = "stored";
 
@@ -59,8 +69,9 @@ pub struct FixtureProps {
     #[prop(default)]
     pub appearance: Prop<String>,
     /// The sidebar: "" as the device starts it (shown on desktops, hidden on phones), or shown on a tab
-    /// ("files", "bookmarks", "tags"); or the settings shown, on Preferences ("settings") or on Look with the
-    /// `[type]` controls ("look"); or a state of the outline: the note of [`noted_item`] edited ("note"),
+    /// ("files", "bookmarks", "tags"); or the settings shown, on Preferences ("settings"), on Look with the
+    /// `[type]` controls ("look"), on Keymap ("keymap") or on Sync & data ("data"); or the outline with the
+    /// settings of [`PREFS`] ("prefs"); or a state of the outline: the note of [`noted_item`] edited ("note"),
     /// [`selected_item`] selected ("select").
     #[prop(default)]
     pub side: Prop<String>,
@@ -88,12 +99,28 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
     };
     // an empty document beside it, as the app has (the sidebar lists both)
     store::open_all(vec![(doc.clone(), first), ("untitled".into(), store::named("Untitled"))]);
+    // as the app starts (`App`): the first item edited with "Auto-focus on first item"
+    settings::document_opened();
     match props.side.get().as_str() {
         "" => {}
         "files" => sidebar::show(Tab::Files),
         "bookmarks" => sidebar::show(Tab::Bookmarks),
         "tags" => sidebar::show(Tab::Tags),
         "settings" => settings::open(settings::Tab::Prefs),
+        "keymap" => settings::open(settings::Tab::Keymap),
+        "data" => settings::open(settings::Tab::Data),
+        "prefs" => {
+            // the settings that change how the outline shows (the web's model page sets the same, qa/model.mjs)
+            let mut p = settings::get();
+            for (key, value) in PREFS {
+                if settings::FLAGS.iter().any(|f| f.key == *key) {
+                    p.set_flag(key, *value == "true");
+                } else {
+                    p.set_pick(key, value);
+                }
+            }
+            settings::use_prefs(p);
+        }
         "look" => {
             settings::open(settings::Tab::Look);
             settings::show_table("type");

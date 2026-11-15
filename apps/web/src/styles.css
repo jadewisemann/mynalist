@@ -358,6 +358,8 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .ac-aside { color: var(--muted); font-size: var(--type-ui-tiny); font-variant-numeric: tabular-nums; }
 .ac-sub { font-size: var(--type-ui-tiny); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* placePopup (ui/position.ts) keeps at least this much room for a popup under or above the caret */
+:root { --popup-room: var(--space-popup-room); }
 .dp { width: min(var(--space-datepicker), calc(100vw - var(--step-6))); padding: var(--step-7) var(--step-8); outline: none; user-select: none; }
 .dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--step-4); }
 .dp-title { font-weight: 600; }

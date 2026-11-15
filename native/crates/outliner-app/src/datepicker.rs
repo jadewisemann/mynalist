@@ -6,9 +6,10 @@
 //! While it shows, nothing is edited (the web keeps the item's caret and passes the keys to the picker; here the
 //! row's input lets go so the picker's own keys and fields take them), and the caret comes back when it closes.
 //! Its sizes are the web's `.dp*` tokens (`space.datepicker`, `space.dp_*`, the `space.stepN` scale).
-//! It sits in the middle of the screen on desktops and as a sheet at the bottom on phones, not at the caret as
-//! the web's popover. The week starts on Sunday and times are 12-hour (the web's defaults; the native app has no
-//! setting for them yet).
+//! On desktops it is a popover under the caret (or above it when there is more room there), at the caret's left
+//! as the web's `placePopup`; it sits in the middle when the caret's place is not known (items selected). Phones
+//! show it as a sheet at the bottom. The week's first day and the 12/24-hour clock are the settings' (`start_day`,
+//! `time_format`); a new date gets the local timezone with "Encode timezone in new dates" on.
 
 use nsh_base::{button, input};
 use nsh_core::keymap::When;
@@ -25,9 +26,10 @@ use crate::style::{self, color, num};
 
 const TIME_ERROR: &str = "Please enter a valid time format like 22:42";
 const COUNT_ERROR: &str = "Enter a whole number of 1 or more";
-/// The web's 12-hour default (`time_format`) and Sunday start (`start_day`).
-const HOUR12: bool = true;
-const START_DAY: i64 = 0;
+/// Times are 12-hour (`time_format`, the web's default) or 24-hour.
+fn hour12() -> bool {
+    crate::settings::get().pick("time_format") == "12h"
+}
 /// The share of the accent behind the days inside a range (`.dp-day.in-range`: `color-mix(.. 14%, transparent)`).
 const IN_RANGE_MIX: f32 = 0.14;
 
@@ -167,7 +169,7 @@ fn ordinal(n: i64) -> String {
 
 fn time_text(dt: Option<&DateTime>) -> String {
     match dt.and_then(|d| d.hour.map(|h| (h, d.minute.unwrap_or(0)))) {
-        Some((h, m)) => format_time(h, m, HOUR12),
+        Some((h, m)) => format_time(h, m, hour12()),
         None => String::new(),
     }
 }
@@ -203,6 +205,26 @@ struct Picker {
     from_completion: bool,
     error: Option<String>,
     custom: Option<Custom>,
+    /// The caret's box in the screen when the picker opened (left, top, bottom), if known: the desktop popover
+    /// goes under it.
+    anchor: Option<(f32, f32, f32)>,
+}
+
+/// An item, its note (or content), and a caret's left, top and bottom in the screen.
+type CaretAt = (String, bool, f32, f32, f32);
+
+thread_local! {
+    /// Where the caret of an input editing an item was last seen in the screen: the item, its note or content,
+    /// and the caret's left, top and bottom. Not a signal: only opening the picker reads it.
+    static CARET_BOX: std::cell::RefCell<Option<CaretAt>> = const { std::cell::RefCell::new(None) };
+}
+
+/// The caret of the input editing `id`'s content (or note) moved to `b` in the screen (the inputs report it).
+pub fn caret_at(id: &str, note: bool, b: Bounds<Points>) {
+    if b.size.height.0 > 0.0 {
+        let v = Some((id.to_owned(), note, b.origin.x.0, b.origin.y.0, b.origin.y.0 + b.size.height.0));
+        CARET_BOX.with(|c| *c.borrow_mut() = v);
+    }
 }
 
 fn picker_state() -> Signal<Picker> {
@@ -250,6 +272,10 @@ fn open(id: &str, note: bool, s: u32, e: u32, spec: Option<DateSpec>, typed: boo
         recur,
         error: None,
         custom: None,
+        anchor: CARET_BOX
+            .with(|c| c.borrow().clone())
+            .filter(|(i, n, ..)| i == id && *n == note)
+            .map(|(_, _, x, top, bottom)| (x, top, bottom)),
     };
     // the row's input lets go: the picker's keys and fields take the keys
     store::edit(|s| {
@@ -375,6 +401,8 @@ fn done() {
     close();
     let text = field_text(&p.id, p.note);
     let u: Vec<u16> = text.encode_utf16().collect();
+    // "Encode timezone in new dates": a date with a time gets the device's zone (`withLocalTz`)
+    let spec = if crate::settings::get().flag("show_timezone") { dates::with_local_tz(&spec) } else { spec };
     let mut token = format_date_token(&spec);
     if p.insert {
         if p.s > 0 && !is_ws(u.get(p.s as usize - 1).copied()) {
@@ -653,7 +681,7 @@ fn calendar(p: &Picker) -> View {
                 .test_id("dp-title"),
         )
         .child(nav(1, "Next month"));
-    let sd = START_DAY.rem_euclid(7);
+    let sd = crate::settings::get().start_day().rem_euclid(7);
     let week = |cells: Vec<AnyElement>| view().flex_row().gap(px(step(2))).children(cells);
     let names = (0..7)
         .map(|i| {
@@ -933,13 +961,35 @@ fn keys() -> impl IntoElement {
     view()
 }
 
-/// The picker, while it is open: a popover in the middle on desktops, a sheet at the bottom on phones, over a
-/// scrim that cancels it.
+/// Where the desktop popover goes (`placePopup`): under the caret's box `(left, top, bottom)`, or above it when
+/// there is more room there; at the caret's left, kept on the screen `(width, height)`; its height `h` cut to the
+/// room it has. Its left, top and the height it may take.
+fn place(anchor: (f32, f32, f32), w: f32, h: f32, screen: (f32, f32)) -> (f32, f32, f32) {
+    let (left, top, bottom) = anchor;
+    let gap = step(4);
+    let below = screen.1 - bottom - gap - gap;
+    let above = top - gap - gap;
+    let down = h <= below || below >= above;
+    let room = (if down { below } else { above }).max(num("space.popup_room"));
+    let h = h.min(room);
+    let y = if down { bottom + gap } else { top - gap - h };
+    let x = left.min(screen.0 - w - gap).max(gap);
+    (x, y.max(gap), room)
+}
+
+/// The picker, while it is open: a sheet at the bottom on phones, over a scrim that cancels it; on desktops a
+/// popover under the caret ([`place`]) or, where the caret is not known, in the middle.
 pub fn picker() -> impl IntoElement {
     when(
         || picker_state().with(|p| p.open),
         || {
             let phone = style::phone();
+            let anchor = picker_state().with_untracked(|p| p.anchor).filter(|_| !phone);
+            // the picker's natural height, to place it (measured inside its scroll)
+            let natural = signal(0.0_f32);
+            let content = view()
+                .on_layout(move |b: &Bounds<Points>| natural.set(b.size.height.0))
+                .child(dynamic(|| picker_state().with(body).into_element()));
             let card = view()
                 .test_id("datepicker")
                 .bg(color::bg())
@@ -948,14 +998,33 @@ pub fn picker() -> impl IntoElement {
                 .rounded(px(num("radius.menu")))
                 .px(px(step(8)))
                 .py(px(step(7)))
-                .child(keys())
-                .child(dynamic(|| picker_state().with(body).into_element()));
-            let card = if phone { card.self_stretch() } else { card.w(px(num("space.datepicker"))) };
-            let layer = view().absolute().inset(px(0.0)).items_center();
-            let layer = if phone { layer.justify_end() } else { layer.justify_center() };
-            layer
-                .child(view().test_id("dp-scrim").absolute().inset(px(0.0)).bg(color::scrim()).on_press(cancel))
-                .child(card)
+                .child(keys());
+            let layer = view().absolute().inset(px(0.0));
+            let Some(at) = anchor else {
+                let card = card.child(content);
+                let card = if phone { card.self_stretch() } else { card.w(px(num("space.datepicker"))) };
+                let layer = layer.items_center();
+                let layer = if phone { layer.justify_end() } else { layer.justify_center() };
+                return layer
+                    .child(view().test_id("dp-scrim").absolute().inset(px(0.0)).bg(color::scrim()).on_press(cancel))
+                    .child(card)
+                    .into_element();
+            };
+            // the popover: what is around it stays in view, a press there cancels it
+            let w = num("space.datepicker");
+            let pad = 2.0 * (step(7) + num("space.border"));
+            let spot = move || {
+                let win = window();
+                place(at, w, natural.get() + pad, (win.width.0, win.height.0))
+            };
+            let card = card
+                .absolute()
+                .w(px(w))
+                .left(move || px(spot().0))
+                .top(move || px(spot().1))
+                .max_h(move || px(spot().2))
+                .child(scroll().flex_shrink(1.0).child(content));
+            layer.child(view().test_id("dp-scrim").absolute().inset(px(0.0)).on_press(cancel)).child(card).into_element()
         },
     )
 }

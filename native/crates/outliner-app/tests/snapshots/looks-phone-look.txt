@@ -288,7 +288,7 @@ view 0,0 390x844
         text 11.5,101.5 367x48.5 border-b=1 #eceef1
           "Settings"
             "Settings" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/24 w400 #222222
-        scroll#settings-body 11.5,150 367x621 scroll 367x4276.5
+        scroll#settings-body 11.5,150 367x621 scroll 373.5x4276.5
           view 11.5,150 367x4276.5
             view#settings-tabs 29.5,162 331x40 border-b=1 #eceef1
               view 29.5,162 109x39 border-b=2 #00000000
@@ -299,6 +299,14 @@ view 0,0 390x844
                 text 154.5,170 31x21
                   "Look"
                     "Look" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+              view 201.5,162 70.5x39 border-b=2 #00000000
+                text 213.5,170 46.5x21
+                  "Keymap"
+                    "Keymap" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #8b8f97
+              view 276,162 109x39 border-b=2 #00000000
+                text 288,170 85x21
+                  "Sync & data"
+                    "Sync & data" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #8b8f97
             view#settings-look 29.5,212 331x4202.5
               text 29.5,212 331x58
                 "Change any part of the look over the chosen theme, size and density. It is a TOML file in the same format as the built-in themes (design/schema.md); only what you change is kept."

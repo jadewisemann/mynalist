@@ -280,6 +280,7 @@ ac_min = { kind = "length", min = 80, max = 600, doc = "The autocomplete popup's
 ac_max = { kind = "length", min = 100, max = 1000, doc = "The autocomplete popup's widest." }
 ac_item_y = { kind = "length", min = 0, max = 20, doc = "Autocomplete and search tip items: padding above and below." }
 datepicker = { kind = "length", min = 200, max = 600, doc = "The date picker's width." }
+popup_room = { kind = "length", min = 20, max = 400, doc = "The least height a popup under or above the caret keeps (it scrolls when it is taller)." }
 dp_nav_h = { kind = "length", min = 10, max = 60, doc = "The date picker's month buttons' height." }
 dp_day = { kind = "length", min = 16, max = 80, doc = "The date picker's day cells' height." }
 dp_day_phone = { kind = "length", min = 16, max = 80, doc = "The date picker's day cells' height on phones." }

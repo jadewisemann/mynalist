@@ -81,6 +81,13 @@ pub mod color {
         c.a *= super::num("color.selection_mix");
         c
     }
+    /// The current item's background (highlight on): the line color, `color.current_mix` of it over the page
+    /// (`.o-hl-current .o-current > .o-row`).
+    pub fn current() -> Rgba {
+        let mut c = line();
+        c.a *= super::num("color.current_mix");
+        c
+    }
     pub fn hover() -> Rgba {
         of("color.hover")
     }

@@ -381,11 +381,49 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   `space.dp_*`, `type.dp_nav`, `space.stepN`)을 읽는다. 구조 스냅샷에 고정 상태 6개(`looks`/`inline`의 노트 편집,
   `looks`의 l6 선택, 데스크톱·휴대폰): 렌더 모델에 노트 입력란(`note` 아래 `input`)과 ` selected=<색>`을 더했고 웹 측정기와
   `qa/model.mjs`가 같은 상태를 재서 대조한다(차이 없음, 기존 알려진 차이만). 기존 정답은 바뀌지 않았다.
-  웹과 다른 점: 선택기는 캐럿 옆 팝오버가 아니라 데스크톱은 가운데, 휴대폰은 아래 시트이고, 여는 동안 행 입력란이 닫힌다(닫으면
-  캐럿이 돌아옴). 주 시작 요일(일요일)과 12시간제는 웹 기본값으로 고정(네이티브에 설정 없음). 아직 없는 것: 날짜 칩을 눌러 여는
+  웹과 다른 점: ~~선택기는 캐럿 옆 팝오버가 아니라 데스크톱은 가운데~~(영역 12에서 캐럿 아래 팝오버), 휴대폰은 아래 시트이고, 여는 동안 행 입력란이 닫힌다(닫으면
+  캐럿이 돌아옴). ~~주 시작 요일(일요일)과 12시간제는 웹 기본값으로 고정~~(영역 12에서 설정). 아직 없는 것: 날짜 칩을 눌러 여는
   것, 데스크톱 Shift/Mod+클릭과 끌어서 선택, 선택 항목 드래그, 서식 키(Mod+B 등), 제목(줌 루트)의 노트 편집. TOML 오류 줄 선택은
-  헤드리스로 확인할 수 없다(nsh-testing 0.5.0에 선택 읽기 없음; 줄 계산만 단위 테스트). 웹 버그(고치지 않음, 영역 8에 전달): 범위가 아닐 때 PageUp/Down 뒤 Done을 누르면 이전 끝 날짜가
+  헤드리스로 확인할 수 없다(nsh-testing 0.5.0에 선택 읽기 없음; 줄 계산만 단위 테스트). 웹 버그(~~고치지 않음~~ 영역 12에서 고침): 범위가 아닐 때 PageUp/Down 뒤 Done을 누르면 이전 끝 날짜가
   시작으로 바뀌어 들어간다(`datepicker.ts` `done`의 swap); 네이티브는 범위가 아니면 끝을 시작과 함께 옮긴다.
+- [x] 나머지 설정 (2026-11-15, 영역 12): 설정 화면에 Keymap, Sync & data 탭을 더하고 Preferences를 웹의 구역대로 채웠다.
+  Preferences: 네이티브가 반영하는 웹 설정만 웹과 같은 이름·기본값으로 둔다. Appearance(현재 항목 강조 `current_highlight`,
+  `bullet_threading`, 좁은 문서 `center_doc`(`space.doc_max`), `display_images_inline`), Viewing(`show_checked`: 모든 문서의 보기,
+  `show_notes`: 보임/첫 줄(한 줄 말줄임, 줄바꿈은 공백)/숨김), Input(`word_count`: 오른쪽 아래 상태 막대, 웹과 같은 낱말 규칙,
+  `workflowy_shortcuts`), Date(`time_format`, `start_day`, 날짜 표시 형식 2개, `show_timezone`, `highlight_overdue`,
+  `recurrence_check_behavior`), Control(`use_bullet_to_zoom`, `unindent_in_place`), Advanced(`auto_focus_first_item`,
+  `dyslexia_font`: 글꼴 모드 `dyslexic`). 저장은 NSH storage에 웹 이름으로(참/거짓은 `true`/`false`, 키맵은 JSON)
+  하며, 바뀐 설정만 기록한다: 이 앱이 모르거나 읽지 못하는 저장값(예: `tag_bg`, 잘못된 값)은 지우지 않는다. 외형이 아닌 설정이
+  바뀌면 개요·키·상태 막대만 다시 만든다(`lib.rs` `behaving`; 설정 화면은 그대로라 스크롤이 유지된다).
+  Keymap: 웹 `keymap.ts`의 명령 90개·기본 키·WorkFlowy 키·`Keymap`(JS Map과 같은 덮어쓰기)을 `keymap.rs`로 옮기고, 단위
+  테스트가 `keymap.ts` 원문을 읽어 명령 목록이 같은지 확인한다. 편집기(`settings::keymap_pane`)는 검색, 키 칩(×로 제거), +로 녹화(수정
+  키가 있는 조합과 F키를 모두 듣다가 처음 눌린 것을 넣고 그 키를 가졌던 명령에서 뺀다, Escape로 중단, 플랫폼 예약 키 제외),
+  명령별 "Reset to default", "Reset all shortcuts". 고정 명령(undo, redo, select-up/down)은 "fixed". 저장은 `shortcut_override`.
+  데스크톱 키 바인딩(편집 중 `item_keys`, 선택 중 `block_keys`, 앱 전체 `app_keys`)이 이 키맵을 읽는다. 네이티브에 동작이 있는
+  명령만 묶인다(들여쓰기·내어쓰기·접기·확대/축소·삭제·노트 이동·완료·체크박스·이동·전체 선택·undo/redo·설정 열기·사이드바·
+  완료 항목/노트 보이기).
+  Sync & data: 동기화 서버 칸은 웹의 서버 없는 화면(URL, 비밀번호, Connect)만 두고 Connect는 "아직 없음"을 알린다. Backup은
+  웹 `backupZip`과 같은 zip(문서마다 `<제목>.txt`와 `.opml`, 대소문자 무시 고유 이름, 저장 방식 zip 작성기 `backup.rs`)을
+  데스크톱은 저장 대화상자로, 휴대폰은 NSH에 저장 대화상자가 없어 앱 데이터 폴더(`backups/`)에 저장하고 경로를 보인다.
+  Import는 OPML/텍스트 파일(여러 개)을 문서마다 하나씩 만들고 마지막 문서를 연다(`paste`/`export` 이식).
+  날짜 선택기(영역 9 결정): 데스크톱은 캐럿 아래 팝오버(웹 `placePopup`과 같은 규칙: 아래 공간이 모자라고 위가 더 넓으면 위,
+  화면 안으로 좌우 조정, 공간이 모자라면 높이를 줄이고 스크롤, 최소 높이는 새 토큰 `space.popup_room`(80, 웹 `position.ts`도
+  CSS로 읽음)). 캐럿 위치는 입력란의 `on_caret_move` `page_bounds`. 캐럿 위치를 모를 때(항목 선택 중)는 가운데. 휴대폰은
+  아래 시트 그대로. 주 시작 요일·12/24시간은 설정을 따른다(달력, 시간 칸, 날짜 칩), 새 날짜는 `show_timezone`이면 시간대를 붙인다.
+  웹 버그 수정: `datepicker.ts`에서 범위가 아닐 때 PageUp/Down이 끝 날짜를 시작과 함께 옮긴다(`pageMonth`, vitest
+  `apps/web/test/ui/datepicker.test.ts`).
+  테스트: 헤드리스 `tests/prefs.rs` 8개(노트 숨김/첫 줄·완료 항목 숨김과 재시작 후 유지·모르는 저장값 보존, 24시간·표시 형식·
+  월요일 시작, 팝오버 위치(데스크톱 캐럿 아래, 휴대폰 아래 시트), 불릿 확대·제자리 내어쓰기, 키 녹화·제거·새 키로 완료·전체 초기화,
+  WorkFlowy 키, 백업 zip·가져오기·동기화 안내, 낱말 수·첫 항목 자동 편집), 단위 테스트(키맵, zip/CRC, 파일 이름, 가져오기).
+  구조 스냅샷에 고정 상태 8개(`looks-{desktop,phone}-{keymap,data}`, `{looks,inline}-{desktop,phone}-prefs`: `fixture::PREFS`의
+  완료 숨김·노트 첫 줄·thread 끔·현재 항목 강조·24시간)를 더했고 `qa:model`이 웹에서 같은 설정으로 `prefs` 상태를 재서 대조한다
+  (휴대폰 편집 행 줄바꿈만 기존과 같은 이유의 알려진 차이). 설정 화면 정답 4개는 탭 2개와 Preferences 항목이 늘어 바뀌었다.
+  웹과 다른 점·아직 없는 것: 웹 설정 중 네이티브에 해당 기능이 없는 것은 화면에 두지 않았다(오른쪽에서 왼쪽 쓰기(NSH 레이아웃 방향은
+  있으나 안내선·thread가 왼쪽 기준), 맞춤법 검사, 모든 문서의 태그 자동 완성, 백링크 표시, 받은 편지함, 항목 hover 툴바, 검색 팁,
+  "Move item to" 위치, 개행 정리 메뉴, 보이는 항목만 내보내기, 태그 배경(`tag_bg`: NSH 글 구간에 안쪽 여백·테두리가 없음),
+  문서 테두리(`doc_border`), 동기화와 서버 부가 기능). 키 녹화에서 수정 키 없는 키는 무시된다(웹은 안내 토스트). 키 바인딩은
+  데스크톱만(NSH가 휴대폰에서 키를 보내지 않음). 웹의 WorkFlowy 확대/축소 키(Alt+→/←)는 같은 키의 Back/Forward가 목록 뒤에 있어
+  덮인다: 웹과 같게 두었다(확인 필요). 날짜 칩을 눌러 여는 선택기, 항목 선택 중 팝오버 위치는 아직 없다.
 - [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
 - [x] 남은 core 이식 (2026-11-15, 영역 7): `search.ts`(쿼리 언어, `searchTree`, 연산자 시간 값, 낱말 일치, 퍼지 일치),
   `refs.ts`(`parseItemUrl`, 백링크와 개수, 찾아 바꾸기), `paste.ts`(들여쓴 텍스트, 엔티티, 마크업 토크나이저, HTML → 텍스트,

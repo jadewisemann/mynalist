@@ -5,6 +5,7 @@
 //! `outliner-core`, the Rust port of `packages/core`.
 
 pub mod appearance;
+pub mod backup;
 pub mod commands;
 mod datepicker;
 /// Generated from `design/*.toml` by `design/build.mjs`.
@@ -13,6 +14,7 @@ pub mod design;
 pub mod fixture;
 mod icons;
 pub mod inline;
+pub mod keymap;
 mod outline;
 pub mod settings;
 mod sidebar;
@@ -50,6 +52,7 @@ pub fn App() -> impl IntoElement {
         let inline = std::env::var("OUTLINER_DEMO").is_ok_and(|d| d == "inline");
         let first = if inline { store::showcase() } else { store::demo(DEMO_ITEMS) };
         store::open_all(vec![("doc1".into(), first), ("doc2".into(), store::named("Untitled"))]);
+        settings::document_opened();
     }
     root()
 }
@@ -64,6 +67,25 @@ fn root() -> impl IntoElement {
     }))
 }
 
+/// `part`, made again when the settings that are not the look's change (the look's make the whole screen again):
+/// the outline and the keys read them as plain values.
+fn behaving<E: IntoElement>(part: impl Fn() -> E + 'static) -> impl IntoElement {
+    let prefs = computed(settings::behavior);
+    dynamic(move || {
+        prefs.get();
+        untracked(&part).into_element()
+    })
+}
+
+/// The keymap's app commands (`keymap::Scope::App`), whatever has the focus.
+fn app_keys() -> impl IntoElement {
+    let opts = KeyOptions { when: nsh_core::keymap::When::Always, ..Default::default() };
+    for (keys, run) in keymap::bindings(keymap::Scope::App, &[]) {
+        on_key_with(&keys, opts, move |_| run());
+    }
+    view()
+}
+
 /// The app's screen over the open document: the top bar, the sidebar's panel (desktops) beside the outline, the
 /// phone toolbar, and the sidebar's drawer over all of it (phones).
 fn screen() -> View {
@@ -74,10 +96,13 @@ fn screen() -> View {
         .pb_keyboard()
         .bg(style::color::bg())
         .child(toolbar::topbar())
-        .child(view().flex_1().flex_row().child(sidebar::panel()).child(outline::outline()))
+        .child(view().flex_1().flex_row().child(sidebar::panel()).child(behaving(outline::outline)))
         .child(toolbar::mobile_bar())
         // the keys of selected items, while there are some (no input has the focus then)
-        .child(when(|| store::read(|s| s.block.is_some()), outline::block_keys))
+        .child(behaving(|| when(|| store::read(|s| s.block.is_some()), outline::block_keys)))
+        // the app's keys (the keymap's: the settings, the sidebar, ...) and the word count
+        .child(behaving(app_keys))
+        .child(behaving(settings::status_bar))
         .child(datepicker::picker())
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))

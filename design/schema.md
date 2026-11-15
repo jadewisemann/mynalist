@@ -317,6 +317,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | ac_max | length | 100..1000 | `--space-ac-max` | `440` | The autocomplete popup's widest. |
 | ac_item_y | length | 0..20 | `--space-ac-item-y` | `5` | Autocomplete and search tip items: padding above and below. |
 | datepicker | length | 200..600 | `--space-datepicker` | `292` | The date picker's width. |
+| popup_room | length | 20..400 | `--space-popup-room` | `80` | The least height a popup under or above the caret keeps (it scrolls when it is taller). |
 | dp_nav_h | length | 10..60 | `--space-dp-nav-h` | `28` | The date picker's month buttons' height. |
 | dp_day | length | 16..80 | `--space-dp-day` | `32` | The date picker's day cells' height. |
 | dp_day_phone | length | 16..80 | `--space-dp-day-phone` | `36` | The date picker's day cells' height on phones. |

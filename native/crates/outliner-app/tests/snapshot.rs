@@ -686,6 +686,15 @@ fn structural_snapshots() {
     for (device, side) in [(DESKTOP, "settings"), (PHONE, "settings"), (DESKTOP, "look"), (PHONE, "look")] {
         more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
     }
+    for device in [DESKTOP, PHONE] {
+        for side in ["keymap", "data"] {
+            more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
+        }
+        // the settings that change the outline (`fixture::PREFS`), with an item edited
+        for doc in ["looks", "inline"] {
+            more.push((format!("{doc}-{}-prefs.txt", device.name), snapshot(doc, true, device, "", "prefs")));
+        }
+    }
     // a note being edited, and selected items (their background, the phone toolbar for them)
     for device in [DESKTOP, PHONE] {
         for (doc, side) in [("looks", "note"), ("inline", "note"), ("looks", "select")] {

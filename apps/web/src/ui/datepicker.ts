@@ -26,7 +26,7 @@ export interface DatePickerOptions {
   onClose(): void;
 }
 
-interface Day {
+export interface Day {
   year: number;
   month: number;
   day: number;
@@ -68,6 +68,16 @@ function addMonths(d: Day, n: number): Day {
   const year = Math.floor(idx / 12);
   const month = (idx % 12) + 1;
   return { year, month, day: Math.min(d.day, daysInMonth(year, month)) };
+}
+
+/**
+ * Page Up / Down: the date being picked a month earlier or later. Without a range the end goes along with the
+ * start (else `done` would take the old end, now earlier, as the start); in a range the other end stays.
+ */
+export function pageMonth(s: { start: Day; end: Day; range: boolean; picking: 'start' | 'end' }, n: number): { start: Day; end: Day } {
+  if (s.range && s.picking === 'end') return { start: s.start, end: addMonths(s.end, n) };
+  const start = addMonths(s.start, n);
+  return { start, end: s.range ? s.end : start };
 }
 
 function ordinal(n: number): string {
@@ -209,9 +219,9 @@ export class DatePicker {
       return true;
     }
     if (e.key === 'PageUp' || e.key === 'PageDown') {
-      const d = e.key === 'PageUp' ? -1 : 1;
-      if (this.range && this.picking === 'end') this.end = addMonths(this.end, d);
-      else this.start = addMonths(this.start, d);
+      const moved = pageMonth({ start: this.start, end: this.end, range: this.range, picking: this.picking }, e.key === 'PageUp' ? -1 : 1);
+      this.start = moved.start;
+      this.end = moved.end;
       this.syncAfterMove();
       return true;
     }

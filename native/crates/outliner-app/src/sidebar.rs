@@ -72,6 +72,9 @@ fn width() -> f32 {
 fn open_doc(id: &str) {
     let changed = store::peek(|s| s.doc != id);
     store::edit(|s| s.switch(id));
+    if changed {
+        crate::settings::document_opened();
+    }
     if changed && style::phone() {
         toggle(Some(false));
     }
