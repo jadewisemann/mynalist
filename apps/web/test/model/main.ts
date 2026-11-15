@@ -335,12 +335,20 @@ function model(): string {
     line += ` text=${len(content.getBoundingClientRect().left + px(cc.paddingLeft))}`;
     if (hex(cc.backgroundColor)) line += ` label=${hex(cc.backgroundColor)}`;
     if (node.classList.contains('o-current')) line += ' current';
+    // in a selected item: its row's background (the native app's `selected` view)
+    const picked = node.closest('.o-selected');
+    if (picked) line += ` selected=${hex(getComputedStyle(picked.querySelector(':scope > .o-row')!).backgroundColor)}`;
     out.push(line);
     // the item being edited shows its source, as the native app's input does
     if (content.classList.contains('o-editing')) out.push(`  input x=${len(content.getBoundingClientRect().left + px(cc.paddingLeft))} ${JSON.stringify(content.textContent)}`);
     else writeTexts(out, '  ', texts(content));
     const note = row.querySelector('.o-note');
-    if (note && note.textContent) {
+    if (note && note.classList.contains('o-editing')) {
+      // the note being edited shows its source, as the native app's input does
+      const nc = getComputedStyle(note);
+      out.push(`  note top=${len(note.getBoundingClientRect().top)}`);
+      out.push(`    input x=${len(note.getBoundingClientRect().left + px(nc.paddingLeft))} ${JSON.stringify(note.textContent)}`);
+    } else if (note && note.textContent) {
       out.push(`  note top=${len(note.getBoundingClientRect().top)}`);
       writeTexts(out, '    ', texts(note));
     }
@@ -352,17 +360,21 @@ function model(): string {
 }
 
 /** Shows `doc` in `modes` (`{ theme: 'dark', size: 'large' }`) with a user's appearance TOML, editing the item
- * `editing` (its caret at the end) when given, the sidebar on pane `side` (or as the device starts it: shown on
+ * `editing` (its caret at the end) when given (its note with `side` 'note'; selected instead with 'select', as the
+ * native fixture's states), the sidebar on pane `side` (or as the device starts it: shown on
  * desktops, closed on phones); its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: PaneName | '' = '') => {
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: PaneName | 'note' | 'select' | '' = '') => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
   const look = parseAppearance(toml);
   if ('error' in look) throw new Error(`line ${look.error.line}: ${look.error.message}`);
   applyAppearance(root, look.values);
-  showSidebar(show(doc), side);
-  if (editing) ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);
+  const state = side === 'note' || side === 'select' ? side : '';
+  showSidebar(show(doc), state ? '' : (side as PaneName | ''));
+  if (editing && state === 'note') ed!.startEdit(editing, 'n', Number.MAX_SAFE_INTEGER);
+  else if (editing && state === 'select') ed!.applySel({ k: 'block', ids: [editing], anchor: editing, focus: editing });
+  else if (editing) ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);
   await document.fonts.ready;
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   return model();

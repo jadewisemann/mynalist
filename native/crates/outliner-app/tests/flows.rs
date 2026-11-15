@@ -125,8 +125,7 @@ fn a_long_row_wraps_in_its_input_and_return_still_splits_it() {
     // the input grows with its text instead of scrolling it sideways
     let grew = app.wait_until("the input taller", SHOWS, |s| input_height_on(s).is_some_and(|h| h > 1.5 * one_line));
     assert!(grew.is_ok(), "the input is {:?} tall, one line {one_line}", input_height_on(app.screen()));
-    // Shift+Return and Alt+Return break no line in the item's text
-    app.press_key("shift+enter").unwrap();
+    // Alt+Return breaks no line in the item's text (Shift+Return goes to the note: tests/editing.rs)
     app.press_key("alt+enter").unwrap();
     expect_editing(&mut app, &source);
     // Return splits the row: the caret was at the end, an empty row below takes it

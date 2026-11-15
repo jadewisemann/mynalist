@@ -84,6 +84,19 @@ for (const [device, d] of Object.entries(DEVICES)) {
     }
     checked++;
   }
+  // a note being edited and a selected item (native `structural_snapshots`, `fixture::noted_item` / `selected_item`)
+  const STATES = [['looks', 'note', 'l3'], ['inline', 'note', 's5'], ['looks', 'select', 'l6']];
+  for (const [doc, state, id] of STATES) {
+    const name = `${doc}-${device}-${state}`;
+    const web = await measure(doc, {}, '', id, state);
+    writeFileSync(join(outDir, `${name}.web.txt`), web);
+    const native = readFileSync(join(goldens, `${name}.txt`), 'utf8');
+    for (const p of compareModels(parseModel(native), parseModel(web))) {
+      const k = KNOWN.find((k) => k.test(`${name}: ${p}`));
+      (k ? known : problems).push(`${name}: ${p}${k ? `  (known: ${k.why})` : ''}`);
+    }
+    checked++;
+  }
   // the sidebar on a pane (native `structural_snapshots`): the phone drawer on its files, the Tags tab
   const SIDES = { phone: [['looks', 'files'], ['inline', 'tags']], desktop: [['inline', 'tags']] };
   for (const [doc, side] of SIDES[device]) {

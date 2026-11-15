@@ -112,6 +112,14 @@ Read this first. Area notes in this folder say what each piece of work is.
   `dynamic` that reads a whole global struct runs again on any field: read the field through `computed`.
 - Settings tests: `fixture::root_with(doc, None, fixture::STORED, "")` uses the prefs in `config.storage`
   (`nsh_testing::MemoryStorage`); `on_pick` / `on_pick_save_path` answer file pickers.
+- Editing state (area 9): `store::Caret` has `note` (the note's input, test id `note-input`, is edited instead of the
+  content's `row-input`) and `end`; selected items are `State::block` (`store::Block`), undo keeps a `store::Mark`.
+  Commands in `commands.rs` act on the selection (`targets`: the selected items, or the item edited); the inputs keep
+  the store's caret current (`caret_moved`). Keys of selected items are bound by `outline::block_keys` while there are
+  some; Escape with nothing edited is bound in `outline()`. Fixture states: `side` "note" / "select"
+  (`fixture::noted_item` / `selected_item`); the model writes ` selected=<bg>` on rows in a selected item and the
+  note's `input`. nsh-testing 0.5.0 cannot read an input's selection; another input gets the focus with `clear`
+  (pressing a button does not take it).
 - Representative look combinations live in `design/test/combos.json`, read by both `tests/snapshot.rs` and
   `qa/model.mjs`.
 

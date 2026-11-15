@@ -25,6 +25,23 @@ pub fn edited_item(doc: &str) -> &'static str {
     }
 }
 
+/// The item whose note the "note" state edits, and the item the "select" state selects.
+pub fn noted_item(doc: &str) -> &'static str {
+    match doc {
+        "inline" => "s5",
+        "looks" => "l3",
+        _ => "d1",
+    }
+}
+
+pub fn selected_item(doc: &str) -> &'static str {
+    match doc {
+        "inline" => "s7",
+        "looks" => "l6",
+        _ => "d0",
+    }
+}
+
 /// The modes of a fixture that uses the prefs kept on the device instead of modes of its own.
 pub const STORED: &str = "stored";
 
@@ -43,7 +60,8 @@ pub struct FixtureProps {
     pub appearance: Prop<String>,
     /// The sidebar: "" as the device starts it (shown on desktops, hidden on phones), or shown on a tab
     /// ("files", "bookmarks", "tags"); or the settings shown, on Preferences ("settings") or on Look with the
-    /// `[type]` controls ("look").
+    /// `[type]` controls ("look"); or a state of the outline: the note of [`noted_item`] edited ("note"),
+    /// [`selected_item`] selected ("select").
     #[prop(default)]
     pub side: Prop<String>,
 }
@@ -79,6 +97,11 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
         "look" => {
             settings::open(settings::Tab::Look);
             settings::show_table("type");
+        }
+        "note" => commands::start_editing_note(noted_item(&doc)),
+        "select" => {
+            commands::start_editing(selected_item(&doc), Some(0));
+            commands::extend(true);
         }
         other => panic!("the fixture's sidebar: {other}"),
     }

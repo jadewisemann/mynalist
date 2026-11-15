@@ -123,6 +123,10 @@ pub mod color {
     pub fn topbar_border() -> Rgba {
         of("color.topbar_border")
     }
+    /// Top bar icons switched on (`.icon-btn[aria-pressed='true']`).
+    pub fn topbar_fg_on() -> Rgba {
+        of("color.topbar_fg_on")
+    }
     pub fn topbar_fg() -> Rgba {
         of("color.topbar_fg")
     }

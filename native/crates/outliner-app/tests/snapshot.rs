@@ -357,8 +357,12 @@ fn model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap<NodeId,
             }
         }
         // the row being edited (`.o-current`)
-        if inside.iter().any(|n| is(n, "row-input")) {
+        if inside.iter().any(|n| is(n, "row-input") || is(n, "note-input")) {
             let _ = write!(out, " current");
+        }
+        // in a selected item (`.o-selected`): its background
+        if let Some(bg) = inside.iter().find(|n| is(n, "selected")).and_then(|n| styles.get(&n.id)) {
+            let _ = write!(out, " selected={}", color(bg.background_color));
         }
         let _ = writeln!(out);
         if let Some(c) = content {
@@ -492,7 +496,11 @@ fn snapshot_in(doc: &str, editing: bool, device: Device, modes: &str, appearance
     let tree = Tree::new(shown(&app));
     let mut out = String::new();
     let mut state = if editing { format!("editing {}", outliner_app::fixture::edited_item(doc)) } else { "at rest".into() };
-    if !side.is_empty() {
+    if side == "note" {
+        state = format!("editing the note of {}", outliner_app::fixture::noted_item(doc));
+    } else if side == "select" {
+        state = format!("{} selected", outliner_app::fixture::selected_item(doc));
+    } else if !side.is_empty() {
         let _ = write!(state, ", the sidebar on {side}");
     }
     if !modes.is_empty() {
@@ -677,6 +685,12 @@ fn structural_snapshots() {
     }
     for (device, side) in [(DESKTOP, "settings"), (PHONE, "settings"), (DESKTOP, "look"), (PHONE, "look")] {
         more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
+    }
+    // a note being edited, and selected items (their background, the phone toolbar for them)
+    for device in [DESKTOP, PHONE] {
+        for (doc, side) in [("looks", "note"), ("inline", "note"), ("looks", "select")] {
+            more.push((format!("{doc}-{}-{side}.txt", device.name), snapshot(doc, false, device, "", side)));
+        }
     }
     for (name, got) in more {
         let path = dir.join(&name);

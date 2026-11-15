@@ -53,7 +53,7 @@ export function parseModel(text) {
         depth: num(t, 'depth'), top: num(t, 'top'), height: num(t, 'height'), bullet: num(t, 'bullet'),
         number: /number=("(?:[^"\\]|\\.)*")/.exec(t)?.[1], numberRight: num(t, 'number_right'), numberColor: /number_color=(\S+)/.exec(t)?.[1],
         dot: /dot=(\S+ bg=\S+ r=\S+(?: border=\S+ \S+)?)/.exec(t)?.[1], dotColor: /dot=\S+ bg=(\S+)/.exec(t)?.[1],
-        checkbox: num(t, 'checkbox'), text: num(t, 'text'), label: /label=(\S+)/.exec(t)?.[1], current: / current$/.test(t),
+        checkbox: num(t, 'checkbox'), text: num(t, 'text'), label: /label=(\S+)/.exec(t)?.[1], current: / current(?:\s|$)/.test(t), selected: /selected=(\S+)/.exec(t)?.[1],
         texts: [], notes: [], thread: [],
       };
       model.rows.push(row);
@@ -122,7 +122,7 @@ export function compareModels(a, b, tol = { pos: 1.5, size: 1 }) {
     near(`${w} bullet`, x.bullet, y.bullet, tol.pos, oa.x, ob.x);
     near(`${w} checkbox`, x.checkbox, y.checkbox, tol.pos, oa.x, ob.x);
     near(`${w} text`, x.text, y.text, tol.pos, oa.x, ob.x);
-    for (const k of ['number', 'numberColor', 'dot', 'label', 'current']) if (x[k] !== y[k]) out.push(`${w} ${k}: native ${x[k]}, web ${y[k]}`);
+    for (const k of ['number', 'numberColor', 'dot', 'label', 'current', 'selected']) if (x[k] !== y[k]) out.push(`${w} ${k}: native ${x[k]}, web ${y[k]}`);
     // the bullet thread: where each piece starts in its row, how long it is, where a turn ends
     if (x.thread.length !== y.thread.length) out.push(`${w} thread: native ${x.thread.length} pieces, web ${y.thread.length}`);
     x.thread.slice(0, y.thread.length).forEach((p, k) => {

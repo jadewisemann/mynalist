@@ -12,12 +12,47 @@ use outliner_core::view::{visible_children, View};
 use outliner_core::{item, DocSession, NodeId, Op, Props, Tree, ROOT};
 use serde_json::Value;
 
-/// Where the caret is: the item and a UTF-16 offset in its text (the unit the platforms' inputs use).
+/// Where the caret is: the item, the field (its content, or its note with `note`) and a UTF-16 offset in that
+/// field's text (the unit the platforms' inputs use).
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Caret {
     pub id: NodeId,
     pub at: u32,
+    /// The other end of the selection in the field (`at` when nothing is selected).
+    pub end: u32,
+    pub note: bool,
 }
+
+impl Caret {
+    /// A caret at `at` in the content of `id`.
+    pub fn text(id: &str, at: u32) -> Caret {
+        Caret { id: id.to_owned(), at, end: at, note: false }
+    }
+
+    /// A caret at `at` in the note of `id`.
+    pub fn note(id: &str, at: u32) -> Caret {
+        Caret { id: id.to_owned(), at, end: at, note: true }
+    }
+}
+
+/// Selected items (`Sel::Block` of the core): whole items, not text; `ids` in document order, none inside
+/// another, the selection running from `anchor` to `focus` (Shift+Up/Down move the focus).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Block {
+    pub ids: Vec<NodeId>,
+    pub anchor: NodeId,
+    pub focus: NodeId,
+}
+
+/// What undo and redo put back: the caret, or the selected items.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Mark {
+    Caret(Caret),
+    Block(Block),
+}
+
+/// A document with its history; each change remembers the [`Mark`] before and after it.
+pub type Session = DocSession<Option<Mark>>;
 
 /// One visible row of the outline.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -31,12 +66,18 @@ pub struct Row {
 }
 
 pub struct State {
-    pub session: DocSession<Option<Caret>>,
+    pub session: Session,
     pub rows: Vec<Row>,
     /// The item being edited, and where its caret goes when the row's input appears.
     pub editing: Option<Caret>,
     /// Bumped when a command (not typing) places the caret, so the row's input moves its selection there.
     pub caret_rev: u64,
+    /// The selected items, while items (not text) are selected; nothing is edited then.
+    pub block: Option<Block>,
+    /// Where Escape left the caret (nothing edited, nothing selected): a second Escape goes back there.
+    pub last_sel: Option<Caret>,
+    /// The phone's "Select multiple items" mode: a press on a row selects it or takes it out.
+    pub select_mode: bool,
     /// The zoom root and the visibility options.
     pub view: View,
     /// The open document's id.
@@ -44,13 +85,13 @@ pub struct State {
     /// The local documents' ids, in the sidebar's order.
     pub files: Vec<String>,
     /// The documents that are not open, with the view each was left in.
-    shelved: HashMap<String, (DocSession<Option<Caret>>, View)>,
+    shelved: HashMap<String, (Session, View)>,
     /// The number in the next new document's id.
     next_doc: u32,
 }
 
 impl State {
-    fn new(mut docs: Vec<(String, DocSession<Option<Caret>>)>) -> Self {
+    fn new(mut docs: Vec<(String, Session)>) -> Self {
         assert!(!docs.is_empty(), "a workspace holds a document");
         let files: Vec<String> = docs.iter().map(|(id, _)| id.clone()).collect();
         let (doc, session) = docs.remove(0);
@@ -61,6 +102,9 @@ impl State {
             rows: Vec::new(),
             editing: None,
             caret_rev: 0,
+            block: None,
+            last_sel: None,
+            select_mode: false,
             view: View::default(),
             doc,
             files,
@@ -96,6 +140,8 @@ impl State {
         let old_view = std::mem::replace(&mut self.view, view);
         self.shelved.insert(std::mem::replace(&mut self.doc, id.to_owned()), (old, old_view));
         self.editing = None;
+        self.block = None;
+        self.last_sel = None;
         self.caret_rev += 1;
         self.reflow();
     }
@@ -172,6 +218,24 @@ impl State {
 
     pub fn row_index(&self, id: &str) -> Option<usize> {
         self.rows.iter().position(|r| r.id == id)
+    }
+
+    /// Which rows show as selected (`.o-selected` on the web: a selected item's row and everything under it),
+    /// with the depth of the selected item each is in.
+    pub fn selected_rows(&self) -> Vec<Option<u16>> {
+        let mut out = vec![None; self.rows.len()];
+        let Some(b) = &self.block else { return out };
+        let mut inside: Option<u16> = None;
+        for (i, r) in self.rows.iter().enumerate() {
+            if inside.is_some_and(|d| r.depth <= d) {
+                inside = None;
+            }
+            if inside.is_none() && b.ids.contains(&r.id) {
+                inside = Some(r.depth);
+            }
+            out[i] = inside;
+        }
+        out
     }
 
     /// The rows of the bullet thread (`Editor.paintThread`): the row being edited and the rows of its ancestors
@@ -269,8 +333,14 @@ pub fn edit<R>(f: impl FnOnce(&mut State) -> R) -> R {
     out
 }
 
+/// Change what the store keeps without telling the readers (the caret moving as the input reports it: the input
+/// already shows it).
+pub fn quiet<R>(f: impl FnOnce(&mut State) -> R) -> R {
+    f(&mut shared().borrow_mut())
+}
+
 /// Replace the documents (fresh sessions with their ids, e.g. for a test); the first is opened.
-pub fn open_all(docs: Vec<(String, DocSession<Option<Caret>>)>) {
+pub fn open_all(docs: Vec<(String, Session)>) {
     edit(|s| *s = State::new(docs));
 }
 
@@ -280,7 +350,7 @@ pub fn is_blank() -> bool {
 }
 
 /// An empty document named `title`, as a new one is made (the name goes in as an op, as on the web).
-pub fn named(title: &str) -> DocSession<Option<Caret>> {
+pub fn named(title: &str) -> Session {
     let mut s = DocSession::default();
     let op = Op::Set { id: ROOT.to_owned(), props: text_props(title), ts: now() };
     s.transact(vec![op], None, None, false);
@@ -298,7 +368,7 @@ pub fn text_props(text: &str) -> Props {
 }
 
 /// A demo document: `n` items, a few levels deep, with inline formatting, for trying the list.
-pub fn demo(n: usize) -> DocSession<Option<Caret>> {
+pub fn demo(n: usize) -> Session {
     let mut s = DocSession::default();
     let ts = now();
     let samples = [
@@ -347,7 +417,7 @@ pub fn demo(n: usize) -> DocSession<Option<Caret>> {
 
 /// The inline showcase (`OUTLINER_DEMO=inline`): every kind of inline syntax, a note and a numbered list. Its
 /// dates are fixed past days, so their labels do not depend on today.
-pub fn showcase() -> DocSession<Option<Caret>> {
+pub fn showcase() -> Session {
     let mut s = DocSession::default();
     let ts = now();
     // content, note, other props
@@ -401,7 +471,7 @@ pub fn content_of(s: &State, id: &str) -> String {
 /// The looks of items (for the look checks, `fixture`): headings of three levels, checked items, checkboxes on
 /// and off, the six color labels, a folded item, a note under a checked item and levels four deep, with a sibling
 /// and its child above the deepest branch (the bullet thread runs past them while an item down there is edited).
-pub fn looks() -> DocSession<Option<Caret>> {
+pub fn looks() -> Session {
     let mut s = DocSession::default();
     let ts = now();
     // id, parent, content, note, other props

@@ -599,8 +599,23 @@ fn current_of(id: &str) -> Option<String> {
 /// The Look tab: the appearance TOML, its export and import, and a control per entry, table by table.
 fn look_pane() -> impl IntoElement {
     let text = signal(untracked(draft));
+    let field = element_ref();
+    // the TOML used when it is valid; else its error's line selected, so the eye goes there (the web's `change`)
+    let settle = move || {
+        let t = text.get_untracked();
+        if t == untracked(prefs).appearance {
+            return;
+        }
+        if !apply_toml(t.clone()) {
+            if let Some(e) = panel().with_untracked(|p| p.error.clone()).filter(|e| e.line > 0) {
+                let (a, b) = line_range(&t, e.line);
+                field.set_selection(a, b);
+            }
+        }
+    };
     let (size, line) = style::ui_sized("type.ui_small");
     let toml_input = nsh_base::input()
+        .element_ref(&field)
         .test_id("toml")
         .value(text.get_untracked())
         .placeholder("[color]\ntag = \"#008080\"\n\n[type]\nsize = 17")
@@ -632,7 +647,9 @@ fn look_pane() -> impl IntoElement {
                 p.draft = Some(t.to_owned());
                 p.error = error;
             });
-        });
+        })
+        // letting go of the text applies it as Apply does
+        .on_blur(settle);
     let danger = rgba(style::look().color("color.danger"));
     let error = view().test_id("toml-error").child(
         small(move || {
@@ -650,9 +667,7 @@ fn look_pane() -> impl IntoElement {
         .flex_wrap()
         .gap(px(num("space.modal_foot_gap")))
         .mb(px(num("space.field_bottom")))
-        .child(btn("Apply", false, move || {
-            apply_toml(text.get_untracked());
-        }))
+        .child(btn("Apply", false, settle))
         .child(btn("Export .toml", false, export))
         .child(btn("Import .toml", false, import));
     let mut tables: Vec<&'static str> = Vec::new();
@@ -710,6 +725,20 @@ fn look_pane() -> impl IntoElement {
         )
         .child(buttons)
         .child(controls)
+}
+
+/// The UTF-16 range of line `line` (from 1) of `text`, without its line break.
+fn line_range(text: &str, line: usize) -> (u32, u32) {
+    let mut start = 0u32;
+    for (i, l) in text.split('\n').enumerate() {
+        let len = l.encode_utf16().count() as u32;
+        if i + 1 == line {
+            return (start, start + len);
+        }
+        start += len + 1;
+    }
+    let end = text.encode_utf16().count() as u32;
+    (end, end)
 }
 
 fn field_hint() -> impl IntoElement {
@@ -901,6 +930,16 @@ mod tests {
         assert_eq!(black.modes(false).theme, "light");
         let sepia = Prefs { theme: "sepia".into(), true_black: true, ..Prefs::default() };
         assert_eq!(sepia.modes(true).theme, "sepia");
+    }
+
+    #[test]
+    fn an_error_line_is_found_in_utf16() {
+        let t = "[color]\nfg = \"한\"\ntag = 1\n";
+        assert_eq!(line_range(t, 1), (0, 7));
+        assert_eq!(line_range(t, 2), (8, 16));
+        assert_eq!(line_range(t, 3), (17, 24));
+        assert_eq!(line_range(t, 4), (25, 25));
+        assert_eq!(line_range(t, 9), (25, 25));
     }
 
     #[test]

@@ -5,6 +5,8 @@
 use nsh_base::button;
 use nsh_core::prelude::*;
 
+use outliner_core::commands::Dir;
+
 use crate::commands as cmd;
 use crate::icons::icon;
 use crate::store;
@@ -13,6 +15,16 @@ use crate::style::{self, color, num};
 /// An icon button of the top bar (`.icon-btn`): 30×30 with a rounded hover on desktops, 44×46 edge to edge on
 /// phones.
 fn top_button(name: &'static str, label: &'static str, run: impl Fn() + 'static) -> impl IntoElement {
+    top_toggle(name, label, run, || false)
+}
+
+/// [`top_button`] in the "on" color while `on` (`.icon-btn[aria-pressed='true']`).
+fn top_toggle(
+    name: &'static str,
+    label: &'static str,
+    run: impl Fn() + 'static,
+    on: impl Fn() -> bool + 'static,
+) -> impl IntoElement {
     let hover = color::hover();
     button()
         .h(px(num("space.topbar_tool")))
@@ -21,7 +33,7 @@ fn top_button(name: &'static str, label: &'static str, run: impl Fn() + 'static)
         .rounded(px(num("radius.topbar_tool")))
         .items_center()
         .justify_center()
-        .text_color(color::topbar_fg())
+        .text_color(move || if on() { color::topbar_fg_on() } else { color::topbar_fg() })
         .accessibility_label(Some(label.into()))
         .active(move |s| s.bg(hover))
         .on_press(run)
@@ -49,7 +61,15 @@ pub fn topbar() -> impl IntoElement {
     if phone {
         bar.child(view().flex_1())
             .child(top_button("undo", "Undo", || cmd::undo(false)))
-            .child(top_button("select", "Select multiple items", none))
+            .child(
+                // pressed while select mode is on (`[aria-pressed='true']`)
+                top_toggle(
+                    "select",
+                    "Select multiple items",
+                    || cmd::set_select_mode(!store::peek(|s| s.select_mode)),
+                    || store::read(|s| s.select_mode),
+                ),
+            )
             .child(top_button("search", "Search", none))
             .child(top_button("lock", "Read mode", none))
             .child(top_button("menu", "Menu", crate::settings::toggle_menu))
@@ -70,27 +90,31 @@ pub fn topbar() -> impl IntoElement {
     }
 }
 
-/// A button of the phone toolbar: 40×41, a 20pt icon in the muted color. It acts on the item being edited.
-fn tool(name: &'static str, _label: &'static str, run: impl Fn(&str, u32) + 'static) -> impl IntoElement {
-    button()
-        .w(px(num("space.toolbar_button")))
-        .h(px(num("space.toolbar")))
-        .items_center()
-        .justify_center()
-        .text_color(color::muted())
-        .active(|s| s.opacity(0.5))
-        .on_press(move || {
-            if let Some(c) = store::peek(|s| s.editing.clone()) {
-                run(&c.id, c.at);
-            }
-        })
-        .child(icon(name, num("space.toolbar_icon")))
+/// A button of the phone toolbar: 40×41, a 20pt icon in the muted color. It acts on the item being edited or the
+/// selected items; `single` ones only on one item (hidden while several are selected, as on the web).
+fn tool(name: &'static str, label: &'static str, single: bool, run: impl Fn() + 'static) -> impl IntoElement {
+    let run = std::rc::Rc::new(run);
+    let make = move || {
+        let run = run.clone();
+        button()
+            .w(px(num("space.toolbar_button")))
+            .h(px(num("space.toolbar")))
+            .items_center()
+            .justify_center()
+            .text_color(color::muted())
+            .accessibility_label(Some(label.into()))
+            .active(|s| s.opacity(0.5))
+            .on_press(move || run())
+            .child(icon(name, num("space.toolbar_icon")))
+    };
+    when(move || !single || store::read(|s| s.block.as_ref().is_none_or(|b| b.ids.len() == 1)), make)
 }
 
-/// The editing toolbar of phones, shown while an item is being edited, right above the keyboard.
+/// The editing toolbar of phones, right above the keyboard: shown while an item's content is being edited (not
+/// its note) or items are selected.
 pub fn mobile_bar() -> impl IntoElement {
     when(
-        || style::phone() && store::read(|s| s.editing.is_some()),
+        || style::phone() && store::read(|s| s.block.is_some() || s.editing.as_ref().is_some_and(|c| !c.note)),
         || {
             scroll()
                 .test_id("toolbar")
@@ -102,18 +126,18 @@ pub fn mobile_bar() -> impl IntoElement {
                 .child(
                     view()
                         .flex_row()
-                        .child(tool("unindent", "Unindent", cmd::outdent))
-                        .child(tool("indent", "Indent", cmd::indent))
-                        .child(tool("zoom", "Zoom in", |id, _| cmd::zoom_in(id)))
-                        .child(tool("trash", "Delete item", cmd::delete_item))
-                        .child(tool("check", "Check off", |id, at| cmd::toggle_checked(id, at, true)))
-                        .child(tool("note", "Edit note", |_, _| {}))
-                        .child(tool("date", "Add date", |_, _| {}))
-                        .child(tool("up", "Move up", cmd::move_up))
-                        .child(tool("down", "Move down", cmd::move_down))
-                        .child(tool("send", "Move item to", |_, _| {}))
-                        .child(tool("undo", "Undo", |_, _| cmd::undo(false)))
-                        .child(tool("redo", "Redo", |_, _| cmd::undo(true))),
+                        .child(tool("unindent", "Unindent", false, cmd::outdent))
+                        .child(tool("indent", "Indent", false, cmd::indent))
+                        .child(tool("zoom", "Zoom in", true, cmd::zoom_in))
+                        .child(tool("trash", "Delete item", false, || cmd::delete_items(Dir::Left)))
+                        .child(tool("check", "Check off", false, || cmd::toggle_checked(true)))
+                        .child(tool("note", "Edit note", true, cmd::goto_note))
+                        .child(tool("date", "Add date", true, crate::datepicker::add_date))
+                        .child(tool("up", "Move up", false, cmd::move_up))
+                        .child(tool("down", "Move down", false, cmd::move_down))
+                        .child(tool("send", "Move item to", false, || {}))
+                        .child(tool("undo", "Undo", false, || cmd::undo(false)))
+                        .child(tool("redo", "Redo", false, || cmd::undo(true))),
                 )
         },
     )

@@ -6,6 +6,7 @@
 
 pub mod appearance;
 pub mod commands;
+mod datepicker;
 /// Generated from `design/*.toml` by `design/build.mjs`.
 #[allow(clippy::excessive_precision, clippy::approx_constant, clippy::unreadable_literal)]
 pub mod design;
@@ -75,6 +76,9 @@ fn screen() -> View {
         .child(toolbar::topbar())
         .child(view().flex_1().flex_row().child(sidebar::panel()).child(outline::outline()))
         .child(toolbar::mobile_bar())
+        // the keys of selected items, while there are some (no input has the focus then)
+        .child(when(|| store::read(|s| s.block.is_some()), outline::block_keys))
+        .child(datepicker::picker())
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
         .child(sidebar::drawer())

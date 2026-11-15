@@ -268,3 +268,28 @@ fn the_appearance_exports_and_imports_as_a_toml_file() {
     assert!(app.screen().shows("Line 3: type.size: more than 40"));
     expect_row(&mut app, "as it was", 0x303030ff, None);
 }
+
+#[test]
+fn the_look_tab_applies_valid_toml_when_its_input_lets_go() {
+    let kept = storage(&[]);
+    let mut app = start(Os::MacOs, &kept, ColorScheme::Light);
+    let light = look("", "").color("color.fg");
+    app.press("label:Settings").unwrap();
+    app.press("label:Look").unwrap();
+    app.wait_for("id:toml").unwrap();
+    // another input to move the focus to
+    app.press("label:[type]").unwrap();
+    app.wait_for("id:entry-type.size").unwrap();
+    // an error: letting go keeps the look (its line is selected: nsh-testing 0.5.0 cannot read a selection)
+    app.type_text("id:toml", "[color]\nfg = \"#102030\"\ntag = \"teal\"\n").unwrap();
+    app.clear("id:entry-type.size").unwrap();
+    app.wait_for("text:Line 3: color.tag: not a color: teal").unwrap();
+    expect_row(&mut app, "unchanged", light, None);
+    // valid: letting go applies it, no Apply needed
+    app.clear("id:toml").unwrap();
+    let toml = "[color]\nfg = \"#102030\"\n";
+    app.type_text("id:toml", toml).unwrap();
+    app.clear("id:entry-type.size").unwrap();
+    expect_row(&mut app, "applied", 0x102030ff, None);
+    assert_eq!(entries(&kept).get("appearance").map(String::as_str), Some(toml));
+}

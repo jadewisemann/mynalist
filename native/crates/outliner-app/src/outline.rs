@@ -8,6 +8,7 @@ use nsh_core::element::Position;
 use nsh_core::LineHeight;
 use nsh_core::keymap::When;
 use nsh_core::prelude::*;
+use outliner_core::commands::Dir;
 use outliner_core::item;
 
 use crate::commands as cmd;
@@ -50,7 +51,15 @@ fn look_of(id: &str) -> Look {
 pub fn outline() -> impl IntoElement {
     // the rows of the bullet thread, read by every cell
     let path = computed(|| store::read(|s| s.path_rows()));
-    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path))
+    // the rows that show as selected, read by every cell
+    let selected = computed(|| store::read(|s| s.selected_rows()));
+    // Escape with nothing edited or selected: back where the last Escape left
+    on_key("escape", |_| {
+        if store::peek(|s| s.block.is_none() && s.editing.is_none()) {
+            cmd::resume();
+        }
+    });
+    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path, selected))
         .keys(|| store::read(|s| s.rows.iter().map(|r| r.id.clone()).collect::<Vec<_>>()))
         .estimated_item_size(px(style::line() + 2.0 * style::pad()))
         .header(title())
@@ -141,16 +150,19 @@ fn note_text(src: &str, checked: bool) -> View {
 }
 
 /// A cell, reused for other rows as the list scrolls: its bindings read the row where it is now.
-fn row(at: Position, path: Memo<Vec<usize>>) -> impl IntoElement {
+fn row(at: Position, path: Memo<Vec<usize>>, selected: Memo<Vec<Option<u16>>>) -> impl IntoElement {
     let row = computed(move || store::read(|s| s.rows.get(at.index()).cloned()));
     let look = computed(move || row.get().map(|r| look_of(&r.id)).unwrap_or_default());
     let thread = computed(move || row.get().map(|r| path.with(|p| Thread::of(p, at.index(), r.depth))).unwrap_or_default());
     let depth = move || row.get().map_or(0, |r| r.depth);
-    // the id of this row while it is the one being edited: the input is made for that item, and made again
-    // when the cell is reused for another row that is being edited too (after a zoom, say)
+    // the depth of the selected item this row is in (the item itself or one above it), while it is in one
+    let picked = computed(move || selected.with(|v| v.get(at.index()).copied().flatten()));
+    // the id of this row while it is the one being edited, and whether its note is: the input is made for that
+    // item and field, and made again when the cell is reused for another row that is being edited too (after a
+    // zoom, say)
     let editing = computed(move || {
         let id = row.get().map(|r| r.id)?;
-        store::read(|s| s.editing.as_ref().is_some_and(|c| c.id == id)).then_some(id)
+        store::read(|s| s.editing.as_ref().filter(|c| c.id == id).map(|c| c.note)).map(|note| (id, note))
     });
     view()
         .test_id("row")
@@ -160,10 +172,19 @@ fn row(at: Position, path: Memo<Vec<usize>>) -> impl IntoElement {
         // the document's right padding: a list's padding does not reach its cells
         .pr(px(style::doc_pad().1))
         .pl(move || px(style::text_left(depth()) - style::body_gap() - bullet_w(row.get().map_or(0, |r| r.num))))
-        // the guides of the levels above: one line per ancestor, under its bullet (`.o-kids` border)
+        // a selected item's background (`.o-selected > .o-row`), and under it that of its children's box
+        // (`.o-selected > .o-kids`)
+        .child(dynamic(move || match (picked.get(), row.get()) {
+            (Some(d), Some(r)) => selected_bg(d, &r).into_element(),
+            _ => view().into_element(),
+        }))
+        // the guides of the levels above: one line per ancestor, under its bullet (`.o-kids` border); a selected
+        // item's children's guide gives way to the selection's background (`.o-selected > .o-kids`: transparent)
         .child(dynamic(move || {
+            let hide = picked.get().filter(|&d| d < depth());
             (0..depth())
                 .map(|k| {
+                    let c = if Some(k) == hide { AdaptiveColor::TRANSPARENT } else { color::guide().into() };
                     view()
                         .test_id("guide")
                         .absolute()
@@ -171,7 +192,7 @@ fn row(at: Position, path: Memo<Vec<usize>>) -> impl IntoElement {
                         .bottom(px(0.0))
                         .left(px(style::guide_x(k)))
                         .w(px(num("space.guide_w")))
-                        .bg(color::guide())
+                        .bg(c)
                 })
                 .collect::<Vec<_>>()
         }))
@@ -189,18 +210,55 @@ fn row(at: Position, path: Memo<Vec<usize>>) -> impl IntoElement {
                 .pl(move || px(if look.get().checkbox { check_gap().max(0.0) } else { style::body_gap() }))
                 .ml(move || px(if look.get().checkbox { check_gap().min(0.0) } else { 0.0 }))
                 .child(dynamic(move || match editing.get() {
-                    Some(_) => row_input(row.get_untracked()).into_element(),
-                    None => row_text(row, look).into_element(),
+                    Some((_, false)) => row_input(row.get_untracked()).into_element(),
+                    _ => row_text(row, look).into_element(),
                 }))
-                // the note under the content (`.o-note`), while it has text
+                // the note under the content (`.o-note`), while it has text or is being edited
                 .child(dynamic(move || {
+                    if let Some((id, true)) = editing.get() {
+                        return note_input(id, look.get_untracked().checked).into_element();
+                    }
                     let l = look.get();
                     match &l.note {
-                        Some(n) => note_text(n, l.checked).into_element(),
+                        Some(n) => note_text(n, l.checked)
+                            .on_press(move || {
+                                if let Some(r) = row.get_untracked() {
+                                    press_row(&r.id, true);
+                                }
+                            })
+                            .into_element(),
                         None => view().into_element(),
                     }
                 })),
         )
+}
+
+/// The background of a row in a selected item at `depth` (`--sel`): the item's own row from its bullet, rounded
+/// (`.o-row`); a row under it from the selected item's children's guide, square (`.o-kids`).
+fn selected_bg(depth: u16, r: &Row) -> View {
+    let own = r.depth == depth;
+    let left = if own { style::text_left(depth) - style::body_gap() - bullet_w(r.num) } else { style::guide_x(depth) };
+    let bg = view()
+        .test_id("selected")
+        .absolute()
+        .top(px(0.0))
+        .bottom(px(0.0))
+        .left(px(left))
+        .right(px(style::doc_pad().1))
+        .bg(color::sel());
+    if own { bg.rounded(px(num("radius.row"))) } else { bg }
+}
+
+/// A press on a row's content (or its note, `note`): edits it there, or in select mode selects the item or takes
+/// it out of the selection.
+fn press_row(id: &str, note: bool) {
+    if store::peek(|s| s.select_mode) {
+        cmd::toggle_in_block(id);
+    } else if note {
+        cmd::start_editing_note(id);
+    } else {
+        cmd::start_editing(id, None);
+    }
 }
 
 /// The bullet thread's pieces in a row (`.o-thread` in the web's styles.css): straight through the row on the
@@ -260,7 +318,11 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>, thread: Memo<Thread>) -> imp
         .justify_center()
         .on_press(move || {
             if let Some(r) = row.get_untracked() {
-                cmd::toggle_collapse(&r.id, false);
+                if store::peek(|s| s.select_mode) {
+                    cmd::toggle_in_block(&r.id);
+                } else {
+                    cmd::collapse(&[r.id], false);
+                }
             }
         })
         .child(dynamic(move || {
@@ -353,7 +415,7 @@ fn checkbox(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
             .justify_center()
             .on_press(move || {
                 if let Some(r) = row.get_untracked() {
-                    cmd::toggle_checked(&r.id, 0, true);
+                    cmd::check(&r.id);
                 }
             })
             .child(when(on, move || text("✓").text_size(px(size * MARK)).text_color(color::bg()))),
@@ -372,7 +434,7 @@ fn row_text(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
         let shown = inline::Look::new(size, store::now()).colored(fg, l.checked);
         let edit = move || {
             if let Some(r) = row.get_untracked() {
-                cmd::start_editing(&r.id, None);
+                press_row(&r.id, false);
             }
         };
         let paragraph = |tokens: &[outliner_core::inline::Token]| {
@@ -414,78 +476,110 @@ fn row_text(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
     })
 }
 
+fn content_len(id: &str) -> u32 {
+    store::peek(|s| cmd::utf16_len(&store::content_of(s, id)))
+}
+
+fn note_of(id: &str) -> String {
+    store::peek(|s| item::note(s.tree().get(id)).to_owned())
+}
+
+/// Whether `id`'s content (or its note, `note`) is what is being edited: a spare cell out of view may still hold
+/// an input, whose keys must not act.
+fn is_edited(id: &str, note: bool) -> bool {
+    store::peek(|s| s.editing.as_ref().is_some_and(|c| c.id == id && c.note == note))
+}
+
+/// The keys of the item being edited, in its content or its note (`note`): bound with `When::Always`, so they
+/// reach the outliner before the input. They act on the store's caret, which the input keeps current.
+fn item_keys(id: &str, note: bool) {
+    let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
+    let bind = |keys: &str, f: fn()| {
+        let id = id.to_owned();
+        on_key_with(keys, opts, move |_| {
+            if is_edited(&id, note) {
+                f();
+            }
+        });
+    };
+    bind("shift+tab", cmd::outdent);
+    bind("mod+up", cmd::move_up);
+    bind("mod+down", cmd::move_down);
+    bind("shift+mod+backspace", || cmd::delete_items(Dir::Left));
+    bind("mod+enter", || cmd::toggle_checked(false));
+    bind("shift+mod+c", cmd::toggle_checkbox);
+    bind("mod+.", || cmd::toggle_collapse(false));
+    bind("shift+mod+.", || cmd::toggle_collapse(true));
+    bind("mod+]", cmd::zoom_in);
+    bind("mod+[", cmd::zoom_out);
+    bind("mod+z", || cmd::undo(false));
+    bind("shift+mod+z", || cmd::undo(true));
+    bind("mod+y", || cmd::undo(true));
+    // between the content and the note (the web's `goto-note`)
+    bind("shift+enter", cmd::goto_note);
+    bind("shift+mod+a", cmd::select_all);
+    bind("escape", cmd::stop_editing);
+    bind("mod+d", crate::datepicker::add_date);
+}
+
 /// The input of the row being edited. Made when editing moves to the row, gone when it moves away; the keys
 /// bound here live as long as it does. Its text is the item's (a command may change it while it shows), and a
 /// command that places the caret moves its selection there.
 fn row_input(row: Option<Row>) -> impl IntoElement {
     let Some(row) = row else { return view().into_element() };
     let id = row.id.clone();
-    let caret = store::peek(|s| s.editing.as_ref().map_or(0, |c| c.at));
-    let sel = signal(caret);
-    let sel_end = signal(caret);
     let field = element_ref();
+    let (sel, sel_end) = follow_caret(&id, false, field);
 
-    // a command (not typing) put the caret somewhere in this row: select it there
+    item_keys(&id, false);
+    let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
     {
         let id = id.clone();
-        let seen = std::cell::Cell::new(store::peek(|s| s.caret_rev));
-        effect(move || {
-            let (rev, at) = store::read(|s| (s.caret_rev, s.editing.as_ref().filter(|c| c.id == id).map(|c| c.at)));
-            if rev != seen.get() {
-                seen.set(rev);
-                if let Some(at) = at {
-                    sel.set(at);
-                    sel_end.set(at);
-                    field.set_selection(at, at);
-                }
+        on_key_with("tab", opts, move |_| {
+            if is_edited(&id, false) {
+                cmd::indent();
             }
         });
     }
-
-    let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
-    let bind = |keys: &str, f: fn(&str, u32)| {
-        let id = id.clone();
-        on_key_with(keys, opts, move |_| {
-            // only the row being edited acts (a spare cell out of view may still hold an input)
-            if store::peek(|s| s.editing.as_ref().is_some_and(|c| c.id == id)) {
-                f(&id, sel.get_untracked());
-            }
-        });
-    };
     // Up and Down move to the row above or below from the input's first or last line only (`verticalMove` on
-    // the web); elsewhere they go on to the input, which moves its caret between its lines
+    // the web); elsewhere they go on to the input, which moves its caret between its lines. Shift+Up and
+    // Shift+Down select the item there (`extendBlock`), and elsewhere extend the text selection.
     let caret_box = signal(None::<(f32, f32)>);
     let field_h = signal(0.0_f32);
-    for (keys, down) in [("up", false), ("down", true)] {
+    for (keys, down, select) in [("up", false, false), ("down", true, false), ("shift+up", false, true), ("shift+down", true, true)] {
         let id = id.clone();
         let opts = KeyOptions { pass_through: true, ..opts };
         on_key_with(keys, opts, move |_| {
-            if !store::peek(|s| s.editing.as_ref().is_some_and(|c| c.id == id)) {
+            if !is_edited(&id, false) {
                 return;
             }
-            if on_edge(caret_box.get_untracked(), field_h.get_untracked(), down) {
-                cmd::step(&id, down);
+            let edge = on_edge(caret_box.get_untracked(), field_h.get_untracked(), down);
+            if !select {
+                if edge {
+                    cmd::step(&id, down, false);
+                }
+                return;
+            }
+            let (a, b) = (sel.get_untracked(), sel_end.get_untracked());
+            let at_end = if down { b == content_len(&id) } else { a == 0 };
+            if edge || at_end {
+                cmd::extend(down);
             }
         });
     }
-    bind("tab", cmd::indent);
-    bind("shift+tab", cmd::outdent);
-    bind("mod+up", cmd::move_up);
-    bind("mod+down", cmd::move_down);
-    bind("shift+mod+backspace", cmd::delete_item);
-    bind("mod+enter", |id, at| cmd::toggle_checked(id, at, false));
-    bind("shift+mod+c", cmd::toggle_checkbox);
-    bind("mod+.", |id, _| cmd::toggle_collapse(id, false));
-    bind("shift+mod+.", |id, _| cmd::toggle_collapse(id, true));
-    bind("mod+]", |id, _| cmd::zoom_in(id));
-    bind("mod+[", |_, _| cmd::zoom_out());
-    bind("mod+z", |_, _| cmd::undo(false));
-    bind("shift+mod+z", |_, _| cmd::undo(true));
-    bind("mod+y", |_, _| cmd::undo(true));
-    // a multiline input breaks the line on Shift+Return and Alt+Return: an item's text gets no line break from
-    // these (on the web, Shift+Enter moves to the note, which the native app does not edit yet)
-    bind("shift+enter", |_, _| {});
-    bind("alt+enter", |_, _| {});
+    // Mod+A with all the text selected selects the item
+    {
+        let id = id.clone();
+        let opts = KeyOptions { pass_through: true, ..opts };
+        on_key_with("mod+a", opts, move |_| {
+            let len = content_len(&id);
+            if is_edited(&id, false) && sel.get_untracked() == 0 && sel_end.get_untracked() == len && len > 0 {
+                cmd::extend(true);
+            }
+        });
+    }
+    // a multiline input breaks the line on Alt+Return: an item's text gets no line break from it
+    on_key_with("alt+enter", opts, |_| {});
 
     let (value_id, change_id, submit_id, key_id) = (id.clone(), id.clone(), id.clone(), id.clone());
     input()
@@ -493,7 +587,7 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .value(move || store::read(|s| store::content_of(s, &value_id)))
         .test_id("row-input")
         .auto_focus(true)
-        .selected_range((caret, caret))
+        .selected_range((sel.get_untracked(), sel_end.get_untracked()))
         // several lines, as tall as its text (`.o-content` wraps); a plain return still submits (splits the row)
         .multiline(true)
         .submit_behavior(SubmitBehavior::Submit)
@@ -507,17 +601,18 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
         .min_h(px(style::line()))
         .text_color(color::fg())
         .selection_color(color::selection())
-        .on_change(move |t: &str| cmd::set_text(&change_id, t, sel.get_untracked()))
+        .on_change(move |t: &str| {
+            let old = store::peek(|s| store::content_of(s, &change_id));
+            cmd::set_text(&change_id, false, t, sel.get_untracked());
+            crate::datepicker::typed(&change_id, false, &old, t);
+        })
         .on_caret_move(move |c: &CaretEvent| {
             let b = c.bounds;
             // an empty caret: the platform could not place it
             caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
         })
         .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
-        .on_selection_change(move |s: &Selection| {
-            sel.set(s.start);
-            sel_end.set(s.end);
-        })
+        .on_selection_change(on_selection(&id, false, sel, sel_end))
         .on_submit(move |_: &str| cmd::enter(&submit_id, sel.get_untracked(), sel_end.get_untracked()))
         .on_key_press(move |k: &str| {
             if k == "Backspace" && sel.get_untracked() == 0 && sel_end.get_untracked() == 0 {
@@ -525,6 +620,156 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
             }
         })
         .into_element()
+}
+
+/// The selection of the input editing `id`'s content or note: starts where the store's caret is, follows the
+/// input (and tells the store), and moves the input's selection when a command (not typing) puts the caret
+/// somewhere in this field.
+fn follow_caret(id: &str, note: bool, field: ElementRef) -> (Signal<u32>, Signal<u32>) {
+    let (at, end) = store::peek(|s| s.editing.as_ref().map_or((0, 0), |c| (c.at, c.end)));
+    let sel = signal(at);
+    let sel_end = signal(end);
+    let id = id.to_owned();
+    let seen = std::cell::Cell::new(store::peek(|s| s.caret_rev));
+    {
+        effect(move || {
+            let (rev, at) = store::read(|s| {
+                (s.caret_rev, s.editing.as_ref().filter(|c| c.id == id && c.note == note).map(|c| (c.at, c.end)))
+            });
+            if rev != seen.get() {
+                seen.set(rev);
+                if let Some((a, b)) = at {
+                    sel.set(a);
+                    sel_end.set(b);
+                    field.set_selection(a, b);
+                }
+            }
+        });
+    }
+    (sel, sel_end)
+}
+
+/// The input's report of its selection: kept in `sel`..`sel_end` and in the store.
+fn on_selection(id: &str, note: bool, sel: Signal<u32>, sel_end: Signal<u32>) -> impl Fn(&Selection) + 'static {
+    let id = id.to_owned();
+    move |s: &Selection| {
+        sel.set(s.start);
+        sel_end.set(s.end);
+        cmd::caret_moved(&id, note, s.start, s.end);
+    }
+}
+
+/// The input of the note being edited (`.o-note.o-editing`): under the content, in the note's type; several
+/// lines (Return breaks the line, as in the web's notes). Shift+Return goes back to the content; Up from its first
+/// line goes there too, Down from its last to the row below; Backspace or Left at its start leave it for the end of
+/// the content (Backspace only when it is empty).
+fn note_input(id: String, checked: bool) -> impl IntoElement {
+    let size = style::efs() * num("type.note");
+    let note_line = size * num("type.note_line");
+    let field = element_ref();
+    let (sel, sel_end) = follow_caret(&id, true, field);
+    item_keys(&id, true);
+    let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
+    // Tab types a tab in a note (the item is not indented)
+    {
+        let id = id.clone();
+        on_key_with("tab", opts, move |_| {
+            if is_edited(&id, true) {
+                let (a, b) = (sel.get_untracked(), sel_end.get_untracked());
+                cmd::replace(&id, true, a.min(b), a.max(b), "\t", a.min(b) + 1);
+            }
+        });
+    }
+    let caret_box = signal(None::<(f32, f32)>);
+    let field_h = signal(0.0_f32);
+    for (keys, down) in [("up", false), ("down", true)] {
+        let id = id.clone();
+        let opts = KeyOptions { pass_through: true, ..opts };
+        on_key_with(keys, opts, move |_| {
+            if is_edited(&id, true) && on_edge(caret_box.get_untracked(), field_h.get_untracked(), down) {
+                cmd::step(&id, down, true);
+            }
+        });
+    }
+    // Left at the start, and Backspace at the start of an empty note, go to the end of the content
+    for (keys, empty) in [("left", false), ("backspace", true)] {
+        let id = id.clone();
+        let opts = KeyOptions { pass_through: true, ..opts };
+        on_key_with(keys, opts, move |_| {
+            let at_start = sel.get_untracked() == 0 && sel_end.get_untracked() == 0;
+            if is_edited(&id, true) && at_start && (!empty || note_of(&id).is_empty()) {
+                cmd::leave_note(&id);
+            }
+        });
+    }
+    let (value_id, change_id) = (id.clone(), id.clone());
+    let fg = if checked { color::check() } else { color::note() };
+    view().test_id("note").child(
+        input()
+            .element_ref(&field)
+            .value(move || store::read(|s| item::note(s.tree().get(&value_id)).to_owned()))
+            .test_id("note-input")
+            .auto_focus(true)
+            .selected_range((sel.get_untracked(), sel_end.get_untracked()))
+            .multiline(true)
+            .submit_behavior(SubmitBehavior::Newline)
+            .auto_correct(false)
+            .p_0()
+            .border(px(0.0))
+            .bg(AdaptiveColor::TRANSPARENT)
+            .font_family(style::editor_font())
+            .text_size(px(size))
+            .line_height(LineHeight::Points(px(note_line)))
+            .min_h(px(note_line))
+            .text_color(fg)
+            .selection_color(color::selection())
+            .on_change(move |t: &str| {
+                let old = note_of(&change_id);
+                cmd::set_text(&change_id, true, t, sel.get_untracked());
+                crate::datepicker::typed(&change_id, true, &old, t);
+            })
+            .on_caret_move(move |c: &CaretEvent| {
+                let b = c.bounds;
+                caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
+            })
+            .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
+            .on_selection_change(on_selection(&id, true, sel, sel_end)),
+    )
+}
+
+/// The keys of selected items (`handleHardKey` with a block selection on the web), bound while there are some:
+/// no input has the focus then.
+pub(crate) fn block_keys() -> impl IntoElement {
+    let opts = KeyOptions { repeat: true, ..Default::default() };
+    let bind = |keys: &str, f: fn()| on_key_with(keys, opts, move |_| f());
+    bind("escape", cmd::clear_block);
+    bind("backspace", || cmd::delete_items(Dir::Left));
+    bind("delete", || cmd::delete_items(Dir::Right));
+    bind("shift+mod+backspace", || cmd::delete_items(Dir::Left));
+    bind("enter", cmd::replace_with_empty);
+    bind("up", || cmd::leave_block("up"));
+    bind("down", || cmd::leave_block("down"));
+    bind("left", || cmd::leave_block("left"));
+    bind("right", || cmd::leave_block("right"));
+    bind("shift+up", || cmd::extend(false));
+    bind("shift+down", || cmd::extend(true));
+    bind("mod+a", cmd::select_more);
+    bind("shift+mod+a", cmd::select_all);
+    bind("tab", cmd::indent);
+    bind("shift+tab", cmd::outdent);
+    bind("mod+up", cmd::move_up);
+    bind("mod+down", cmd::move_down);
+    bind("mod+enter", || cmd::toggle_checked(false));
+    bind("shift+mod+c", cmd::toggle_checkbox);
+    bind("mod+.", || cmd::toggle_collapse(false));
+    bind("shift+mod+.", || cmd::toggle_collapse(true));
+    bind("mod+]", cmd::zoom_in);
+    bind("mod+z", || cmd::undo(false));
+    bind("shift+mod+z", || cmd::undo(true));
+    bind("mod+y", || cmd::undo(true));
+    bind("mod+c", || cmd::copy_block(false));
+    bind("mod+x", || cmd::copy_block(true));
+    view()
 }
 
 /// Whether the caret (its top and bottom in the input, `None` when unknown) is on the input's first line (`down`
