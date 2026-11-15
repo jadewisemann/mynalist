@@ -197,7 +197,6 @@ export const KNOWN = [
   { re: /^looks-phone-edit: row (18 height|19 top):/, why: 'the edited row\'s source (its ** marks shown) wraps on a phone in the snapshot\'s approximate text engine, whose glyphs are wider than Fira Sans' },
   { re: /^looks-phone-[\w-]*large[\w-]*: row (18 height|19 top):/, why: 'the large text wraps a long row on a phone where glyph widths decide it, which differ between text engines' },
   { re: /^looks-[\w-]*large[\w-]*: row 0 height:/, why: 'the snapshot\'s approximate text engine makes a text 1.2 times its size tall, taller than a large heading\'s line' },
-  { re: /"(highlight|mark)" .* #[0-9a-f]{6} bg=#ffdd0061 r=2; web .*"(highlight|mark)" .* #000000 bg=#ffdd0061/, why: 'the web\'s <mark> takes the browser\'s black text (a web quirk to decide on)' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));
 
 // ---- design/spec.json ----

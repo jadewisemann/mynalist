@@ -222,7 +222,7 @@ button { font: inherit; color: inherit; }
 .o-bold, .o-b { font-weight: var(--type-bold-weight); }
 .o-italic, .o-i { font-style: italic; }
 .o-strike, .o-s { text-decoration: line-through; }
-.o-highlight, .o-mark { background: var(--highlight); border-radius: var(--radius-mark); }
+.o-highlight, .o-mark { color: inherit; background: var(--highlight); border-radius: var(--radius-mark); }
 .o-code { font-family: var(--mono); font-size: calc(var(--type-code) * 1em); color: var(--code-fg); background: var(--code-bg); border-radius: var(--radius-code); padding: 0 var(--space-code-pad); }
 .o-codeblock { display: block; font-family: var(--mono); font-size: calc(var(--type-codeblock) * 1em); background: var(--chip); border: var(--space-border) solid var(--chip-border); border-radius: var(--radius-block); padding: var(--space-codeblock-y) var(--space-codeblock-x); white-space: pre; overflow-x: auto; margin: var(--space-codeblock-margin) 0; }
 .o-link { color: inherit; text-decoration: underline; }
