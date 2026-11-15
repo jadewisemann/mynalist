@@ -4,6 +4,15 @@ import type { Bookmark, FileEntry, Workspace } from '../store/workspace.ts';
 import { h, icon } from './dom.ts';
 import { modal, showMenu, type MenuItem } from './overlay.ts';
 
+/**
+ * Index among the siblings once `id` is taken out (what `Workspace.move` / `moveBookmark` take) for a drop before the
+ * sibling at `to` (`to` counted with `id` still in the list): a row dragged down within its own list lands one higher.
+ */
+export function dropIndex(siblings: readonly string[], id: string, to: number): number {
+  const from = siblings.indexOf(id);
+  return from >= 0 && from < to ? to - 1 : to;
+}
+
 export type PaneName = 'files' | 'bookmarks' | 'tags';
 
 /** dataTransfer type of a document dragged from the file pane (dropped onto an item: becomes that item) */
@@ -121,7 +130,7 @@ export class Sidebar {
     }
     const walk = (es: FileEntry[], depth: number, parent: string | null) => {
       es.forEach((e, i) => {
-        this.pane.append(this.fileRow(e, depth, parent, i));
+        this.pane.append(this.fileRow(e, depth, parent, i, es.map((x) => x.id)));
         if (e.kind === 'folder' && !e.collapsed) walk(e.children, depth + 1, e.id);
       });
     };
@@ -139,7 +148,7 @@ export class Sidebar {
     walk(this.ws.files());
   }
 
-  private fileRow(e: FileEntry, depth: number, parent: string | null, index: number): HTMLElement {
+  private fileRow(e: FileEntry, depth: number, parent: string | null, index: number, siblings: string[]): HTMLElement {
     const cur = this.host.currentDoc();
     const isFolder = e.kind === 'folder';
     const name = this.renaming === e.id ? this.renameInput(e) : h('span.name', {}, e.title);
@@ -198,7 +207,7 @@ export class Sidebar {
       if (!id || id === e.id) return;
       const z = zone(ev);
       if (z === 'into') this.ws.move(id, e.id, 1e9);
-      else this.ws.move(id, parent, z === 'before' ? index : index + 1);
+      else this.ws.move(id, parent, dropIndex(siblings, id, z === 'before' ? index : index + 1));
     });
     return row;
   }
@@ -327,10 +336,7 @@ export class Sidebar {
         this.dragBookmark = null;
         if (!id || id === b.id) return;
         const before = ev.clientY < row.getBoundingClientRect().top + row.offsetHeight / 2;
-        const from = list.findIndex((x) => x.id === id);
-        let to = before ? i : i + 1;
-        if (from < to) to--;
-        this.ws.moveBookmark(id, to);
+        this.ws.moveBookmark(id, dropIndex(list.map((x) => x.id), id, before ? i : i + 1));
       });
       this.pane.append(row);
     });

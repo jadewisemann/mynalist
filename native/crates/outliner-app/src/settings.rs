@@ -472,7 +472,7 @@ pub fn behavior() -> BTreeMap<&'static str, String> {
 }
 
 /// Applies the prefs and the system's appearance to the look (an effect of the app's root: it runs again when
-/// either changes), and the checked items' visibility to the documents.
+/// either changes).
 pub fn apply() {
     let p = prefs();
     let modes = p.modes(dark());
@@ -480,13 +480,7 @@ pub fn apply() {
         // kept only once valid: this is a stored value from elsewhere, so the look goes without it
         let _ = appearance::set(modes, "");
     }
-    let shown = p.flag("show_checked");
-    if store::peek(|s| s.show_checked != shown) {
-        store::edit(|s| {
-            s.show_checked = shown;
-            s.reflow();
-        });
-    }
+    // the checked items' visibility is the open document's (`docview::apply`)
 }
 
 /// A document was opened (the app started, another chosen): with "Auto-focus on first item" on, its first item is
@@ -1612,8 +1606,10 @@ pub fn menu() -> impl IntoElement {
                                 .child(item("Export…", crate::export::open))
                                 .child(item("Download backup", download_backup))
                                 .child(item("Import OPML / text…", || import_files(None)))
+                                .child(item("Import from WorkFlowy…", crate::help::workflowy_import))
                                 .child(item("Tutorial", crate::help::tutorial))
-                                .child(item("What's new", crate::help::whats_new)),
+                                .child(item("What's new", crate::help::whats_new))
+                                .child(item("About", crate::help::about)),
                         ),
                 )
         },

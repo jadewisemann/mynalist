@@ -212,7 +212,9 @@ fn the_mind_map_shows_the_zoomed_item_read_only() {
     let mut app = start_on(Os::MacOs, root, &fresh());
     app.wait_for("text:Heading one").unwrap();
     app.press("id:view-options").unwrap();
-    app.press("text:Layout: Mind map (read-only)").unwrap();
+    // the Layout submenu (a press opens it, as the pointer over it does)
+    app.press("text:Layout").unwrap();
+    app.press("id:submenu >> text:Mind map (read-only)").unwrap();
     app.wait_for("id:mindmap").unwrap();
     // a box per item, the title's at the root; a folded item starts folded, with its count
     let boxes = |s: &Screen| count(s, "mm-box");

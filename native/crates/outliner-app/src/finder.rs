@@ -139,7 +139,10 @@ pub fn go_anywhere() {
     let mut all: Vec<Choice> = docs
         .into_iter()
         .map(|(id, title)| {
-            let sub = crate::workspace::parent_of(&id).and_then(|f| crate::workspace::get(&f)).map(|f| f.title).unwrap_or_default();
+            // the folders it is in (`path`), and whether it is archived
+            let path = crate::workspace::path_of(&id);
+            let archived = crate::workspace::get(&id).is_some_and(|e| e.archived);
+            let sub = if archived { format!("{} (archived)", if path.is_empty() { "Document" } else { &path }) } else { path };
             Choice::new(title, sub, move || crate::sidebar::open_doc(&id))
         })
         .collect();
@@ -251,6 +254,108 @@ fn move_into(src: &str, ids: &[NodeId], doc: &str, target: &str, label: &str, bo
     });
     crate::workspace::changed(doc);
     crate::toast::show(format!("Moved to {label}"));
+}
+
+/// Items `ids` of the open document dragged onto the Files pane (`dropItems`): onto document `doc`, they go last
+/// among its top items (first: `move_item_sent_to_position`), copied there and deleted here unless `copy`; onto
+/// the pane itself (`None`), each becomes a new document in the open one's folder, named after it, holding its
+/// children.
+pub fn drop_items(doc: Option<&str>, ids: &[NodeId], copy: bool) {
+    let src = store::peek(|s| s.doc.clone());
+    if ids.is_empty() || crate::docview::is_locked(&src) {
+        return;
+    }
+    let bottom = crate::settings::get().pick("move_item_sent_to_position") != "top";
+    let Some(items) = store::peek(|s| {
+        let t = s.tree();
+        ids.iter().all(|id| t.get(id).is_some()).then(|| ids.iter().map(|id| commands::to_portable(t, id, None)).collect::<Vec<_>>())
+    }) else {
+        return;
+    };
+    let message = match doc {
+        Some(d) if d == src && !copy => {
+            // within the document: to its top level
+            store::edit(|s| {
+                let Some(session) = s.session_mut(&src) else { return };
+                let mut after = if bottom {
+                    session.live.get(ROOT).and_then(|n| n.children.iter().rfind(|c| !ids.contains(c)).cloned())
+                } else {
+                    None
+                };
+                let (ops, inverse) = {
+                    let mut tx = Tx::new(&mut session.live, store::now());
+                    for id in ids {
+                        tx.move_to(id, Some(ROOT), after.as_deref());
+                        after = Some(id.clone());
+                    }
+                    (std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
+                };
+                session.commit(ops, inverse, None, None, true);
+                s.editing = None;
+                s.block = None;
+                s.caret_rev += 1;
+                s.reflow();
+            });
+            crate::workspace::changed(&src);
+            return;
+        }
+        Some(d) if d == src => {
+            // a copy within the document, at its top level
+            insert_into(d, &items, bottom);
+            return;
+        }
+        Some(d) => {
+            insert_into(d, &items, bottom);
+            let what = if copy { "Copied" } else { "Moved" };
+            Some(format!("{what} to {}", store::peek(|s| s.title(d))))
+        }
+        None => {
+            let folder = crate::workspace::parent_of(&src);
+            for it in &items {
+                let plain = outliner_core::inline::inline_to_plain(it.props.get("c").and_then(|v| v.as_str()).unwrap_or(""), None);
+                let title = if plain.is_empty() { "Untitled".to_owned() } else { plain };
+                let id = crate::workspace::create(crate::workspace::Kind::Doc, folder.as_deref(), &title);
+                insert_into(&id, &it.children, true);
+            }
+            Some(if items.len() == 1 { "Created a document from the item".to_owned() } else { format!("Created {} documents", items.len()) })
+        }
+    };
+    if !copy {
+        store::edit(|s| {
+            let view = s.view.clone();
+            let Some(from) = s.session_mut(&src) else { return };
+            let (ops, inverse) = {
+                let mut tx = Tx::new(&mut from.live, store::now());
+                commands::delete_items(&mut tx, &view, ids, commands::Dir::Left);
+                (std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
+            };
+            from.commit(ops, inverse, None, None, true);
+            s.editing = None;
+            s.block = None;
+            s.caret_rev += 1;
+            s.reflow();
+        });
+        crate::workspace::changed(&src);
+    }
+    if let Some(m) = message {
+        crate::toast::show(m);
+    }
+}
+
+/// Copies `items` into document `doc`'s top level (`copyInto`): last, or first unless `bottom`.
+fn insert_into(doc: &str, items: &[commands::Portable], bottom: bool) {
+    store::edit(|s| {
+        let Some(dest) = s.session_mut(doc) else { return };
+        let after = if bottom { dest.live.get(ROOT).and_then(|n| n.children.last().cloned()) } else { None };
+        let (ops, inverse) = {
+            let mut tx = Tx::new(&mut dest.live, store::now());
+            commands::insert_portable(&mut tx, ROOT, after.as_deref(), items);
+            (std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
+        };
+        dest.commit(ops, inverse, None, None, true);
+        s.reflow();
+    });
+    crate::workspace::changed(doc);
 }
 
 /// An item of a document with some text, for the item finders: its document, id, text and the line under it.

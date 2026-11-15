@@ -150,50 +150,51 @@ view 0,0 1100x800
                     canvas 197,99.5 18x18
                   view#plus 221,93.5 30x30 r=6
                     canvas 227,99.5 18x18
-                view#file 0,129.5 259x28 bg=#d9eafd
-                  view 30,136 16x15
-                    canvas 30,136 15x15
-                  text#file-name 52,133 199x21
-                    "Looks"
-                      "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-                view#file 0,157.5 259x28
-                  view 30,164 16x15
-                    canvas 30,164 15x15
-                  text#file-name 52,161 199x21
-                    "Untitled"
-                      "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-                view#file 0,185.5 259x28
-                  view 8,192 16x15
-                    text#tog 13.5,192 5.5x15
-                      "▾"
-                        "▾" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 10/15 w400 #8b8f97
-                  view 30,192 16x15
-                    canvas 30,192 15x15
-                  text#file-name 52,189 199x21
-                    "Projects"
-                      "Projects" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-                view#file 0,213.5 259x28
-                  view 46,220 16x15
-                    canvas 46,220 15x15
-                  text#file-name 68,217 183x21
-                    "Plan"
-                      "Plan" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-                view#file 0,241.5 259x28 opacity=0.6
-                  view 46,248 16x15
-                    canvas 46,248 15x15
-                  text#file-name 68,245 183x21
-                    "Budget"
-                      "Budget" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-                view#file 0,269.5 259x28
-                  view 8,276 16x15
-                    text#tog 13.5,276 5.5x15
-                      "▸"
-                        "▸" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 10/15 w400 #8b8f97
-                  view 30,276 16x15
-                    canvas 30,276 15x15
-                  text#file-name 52,273 199x21
-                    "Old"
-                      "Old" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                view 0,129.5 259x168
+                  view#file 0,129.5 259x28 bg=#d9eafd
+                    view 30,136 16x15
+                      canvas 30,136 15x15
+                    text#file-name 52,133 199x21
+                      "Looks"
+                        "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                  view#file 0,157.5 259x28
+                    view 30,164 16x15
+                      canvas 30,164 15x15
+                    text#file-name 52,161 199x21
+                      "Untitled"
+                        "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                  view#file 0,185.5 259x28
+                    view 8,192 16x15
+                      text#tog 13.5,192 5.5x15
+                        "▾"
+                          "▾" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 10/15 w400 #8b8f97
+                    view 30,192 16x15
+                      canvas 30,192 15x15
+                    text#file-name 52,189 199x21
+                      "Projects"
+                        "Projects" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                  view#file 0,213.5 259x28
+                    view 46,220 16x15
+                      canvas 46,220 15x15
+                    text#file-name 68,217 183x21
+                      "Plan"
+                        "Plan" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                  view#file 0,241.5 259x28 opacity=0.6
+                    view 46,248 16x15
+                      canvas 46,248 15x15
+                    text#file-name 68,245 183x21
+                      "Budget"
+                        "Budget" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                  view#file 0,269.5 259x28
+                    view 8,276 16x15
+                      text#tog 13.5,276 5.5x15
+                        "▸"
+                          "▸" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 10/15 w400 #8b8f97
+                    view 30,276 16x15
+                      canvas 30,276 15x15
+                    text#file-name 52,273 199x21
+                      "Old"
+                        "Old" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
         view#splitter 257,45 6x755
       view 263,45 837x755
         scroll#outline 263,45 837x755 bg=#ffffff scroll 837x727.5

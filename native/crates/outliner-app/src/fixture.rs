@@ -110,7 +110,8 @@ pub struct FixtureProps {
     /// [`selected_item`] selected ("select"); searching for [`search_query`] ("search"); `[[` typed at the end of
     /// [`edited_item`] ("links"); an item linking to `looks`' "Levels", zoomed in on it with backlinks shown
     /// ("backlinks"); the help panel ("help"), the mind map ("mindmap"), the tutorial ("tour"); the item menu of
-    /// [`selected_item`] ("itemmenu"), the hover toolbar over it ("hoverbar"), an item dragged before it ("drop").
+    /// [`selected_item`] ("itemmenu"), the hover toolbar over it ("hoverbar"), an item dragged before it ("drop"); the
+/// document in the article layout ("article").
     #[prop(default)]
     pub side: Prop<String>,
 }
@@ -224,6 +225,8 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
         // the web's other screens (area 14): the help panel, the mind map, the tutorial, a locked document
         "help" => crate::help::toggle(Some(true)),
         "mindmap" => crate::docview::set_layout(crate::docview::MINDMAP),
+        // the article layout (area 15)
+        "article" => crate::docview::set_layout(crate::docview::ARTICLE),
         "tour" => crate::help::tutorial(),
         other => panic!("the fixture's sidebar: {other}"),
     }

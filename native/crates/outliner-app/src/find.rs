@@ -91,6 +91,11 @@ pub fn query() -> String {
     find().with_untracked(|f| if f.open { f.query.trim().to_owned() } else { String::new() })
 }
 
+/// The results screen showing, untracked.
+pub fn results_now() -> Option<Results> {
+    find().with_untracked(|f| f.results.clone())
+}
+
 /// Whether the search box shows (tracked).
 pub fn is_open() -> bool {
     find().with(|f| f.open)
@@ -193,12 +198,17 @@ fn global_search() {
 }
 
 fn show_results(mode: Mode, q: String) {
+    show_results_sorted(mode, q, None);
+}
+
+/// The results screen of `mode` for `q` over the open document's zoom, sorted by `sort` (a bookmark's).
+pub fn show_results_sorted(mode: Mode, q: String, sort: Option<SortMode>) {
     let (doc, zoom) = store::peek(|s| (s.doc.clone(), s.view.zoom.clone()));
     find().update(|f| {
         f.open = false;
         f.focused = false;
         f.query.clear();
-        f.results = Some(Results { mode, q, sort: None, doc, zoom });
+        f.results = Some(Results { mode, q, sort, doc, zoom });
     });
     run(false);
     store::edit(|s| {
@@ -486,8 +496,8 @@ fn gather(s: &store::State, r: &Results) -> (Vec<Group>, usize, usize) {
     for d in docs {
         let Some(t) = s.tree_of(&d) else { continue };
         let scope = if r.mode == Mode::Flat { r.zoom.as_str() } else { ROOT };
-        // the native app has no per-document "show checked" yet: the open document's view, else shown
-        let show_checked = if d == s.doc { s.view.show_checked } else { true };
+        // each document's own "Checked items" (`docShowChecked`)
+        let show_checked = if d == s.doc { s.view.show_checked } else { crate::docview::shows_checked(&d) };
         let shown = search_tree(t, &m, Some(scope), Some(show_checked)).matches;
         let all = if m.empty { shown.len() } else { search_tree(t, &m, Some(scope), Some(true)).matches.len() };
         filtered += all - shown.len();

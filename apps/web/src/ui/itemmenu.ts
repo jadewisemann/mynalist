@@ -14,10 +14,23 @@ export interface ItemMenuExtra {
   share(): void;
 }
 
+/**
+ * The items a menu (or hover bar) opened on `id` acts on: the selected items when `id` is one of them, else `id` alone
+ * (not the item being edited elsewhere). `block` is the raw block selection, `selected` its normalized form.
+ */
+export function menuTargets(id: NodeId, zoom: NodeId, block: readonly NodeId[] | null, selected: NodeId[]): NodeId[] {
+  return id !== zoom && block?.includes(id) ? selected : [id];
+}
+
+/** `menuTargets` for the editor's current selection. */
+export function itemTargets(editor: Editor, id: NodeId): NodeId[] {
+  return menuTargets(id, editor.view.zoom, editor.blockIds(), editor.targets());
+}
+
 export function itemMenu(editor: Editor, id: NodeId, x: number, y: number, extra: ItemMenuExtra) {
   const t = editor.tree;
   const v = editor.view;
-  const ids = id === editor.view.zoom ? [id] : editor.targets().length ? editor.targets() : [id];
+  const ids = itemTargets(editor, id);
   const multi = ids.length > 1;
   const n = t.get(id);
   if (!n) return;

@@ -51,8 +51,8 @@ pub struct Entry {
     pub children: Vec<Entry>,
 }
 
-/// A bookmark (`Bookmark`): a document, a zoomed item in it, or a search (made by the web; opened here as its
-/// document and zoom only, until search exists).
+/// A bookmark (`Bookmark`): a document, a zoomed item in it, or a search: in the document's search box, or the
+/// results screen of a flat search (`flat`) or of every document (`global`), sorted as it was (`sort`).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Bookmark {
     pub id: String,
@@ -62,6 +62,7 @@ pub struct Bookmark {
     pub q: Option<String>,
     pub flat: bool,
     pub global: bool,
+    pub sort: Option<String>,
 }
 
 struct Ws {
@@ -221,6 +222,20 @@ pub fn get(id: &str) -> Option<Entry> {
 /// The folder an entry is in (`parentOf`; `None` at the top level).
 pub fn parent_of(id: &str) -> Option<String> {
     peek(|t| t.get(id).and_then(|n| n.parent.clone())).filter(|p| p != FILES)
+}
+
+/// The folders an entry is in, from the top, as the finders show them (`allDocs`' `path`: "A / B"; "" at the top
+/// level).
+pub fn path_of(id: &str) -> String {
+    peek(|t| {
+        let names: Vec<String> = t
+            .ancestors(id)
+            .iter()
+            .filter(|a| t.get(a).is_some_and(|n| n.parent.is_some()) && a.as_str() != FILES)
+            .map(|a| text(t, a, "title").unwrap_or_else(|| "Untitled".into()))
+            .collect();
+        names.join(" / ")
+    })
 }
 
 /// Its position among its siblings (`indexOf`).
@@ -431,6 +446,7 @@ fn bookmarks_of(t: &Tree) -> Vec<Bookmark> {
                         q: text(t, id, "q"),
                         flat: flag(t, id, "flat"),
                         global: flag(t, id, "global"),
+                        sort: text(t, id, "sort"),
                     })
                     .collect()
             })
@@ -445,14 +461,30 @@ pub fn add_bookmark(title: &str, doc: &str, zoom: Option<&str>) {
 
 /// [`add_bookmark`] of a search (`q`) in the document.
 pub fn add_search_bookmark(title: &str, doc: &str, zoom: Option<&str>, q: Option<&str>) {
+    let b = Bookmark {
+        title: title.into(),
+        doc: doc.into(),
+        zoom: zoom.map(str::to_owned),
+        q: q.map(str::to_owned),
+        ..Default::default()
+    };
+    add(&b);
+}
+
+/// Adds bookmark `b` last (`addBookmark`; its id is made): the properties the web sets, none that are unset.
+pub fn add(b: &Bookmark) {
     run(|tx| {
         let last = tx.tree.get(BOOKMARKS).and_then(|n| n.children.last().cloned());
-        let mut p = props(&[("title", Value::String(title.into())), ("doc", Value::String(doc.into()))]);
-        if let Some(z) = zoom {
-            p.insert("zoom".into(), Value::String(z.into()));
+        let mut p = props(&[("title", Value::String(b.title.clone())), ("doc", Value::String(b.doc.clone()))]);
+        for (k, v) in [("zoom", &b.zoom), ("q", &b.q), ("sort", &b.sort)] {
+            if let Some(v) = v {
+                p.insert(k.into(), Value::String(v.clone()));
+            }
         }
-        if let Some(q) = q {
-            p.insert("q".into(), Value::String(q.into()));
+        for (k, on) in [("flat", b.flat), ("global", b.global)] {
+            if on {
+                p.insert(k.into(), Value::Bool(true));
+            }
         }
         tx.create(BOOKMARKS, last.as_deref(), p);
     });

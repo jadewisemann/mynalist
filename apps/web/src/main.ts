@@ -12,7 +12,7 @@ import { h, icon, toast } from './ui/dom.ts';
 import { finder, modal, showMenu, type MenuItem } from './ui/overlay.ts';
 import { DOC_DRAG_TYPE, Sidebar, type PaneName } from './ui/sidebar.ts';
 import { installDrag } from './editor/drag.ts';
-import { itemMenu } from './ui/itemmenu.ts';
+import { itemMenu, itemTargets } from './ui/itemmenu.ts';
 import { Popups } from './ui/popups.ts';
 import { ResultsView, breadcrumb } from './ui/results.ts';
 import { versionHistory } from './ui/history.ts';
@@ -103,7 +103,7 @@ class App {
           if (doc) this.ws.addBookmark({ title: inlineToPlain(String(this.editor.tree.get(id)?.props.c ?? '')) || 'Untitled', doc, zoom: id });
           toast('Bookmarked');
         },
-        exportItem: () => this.exportItems(this.editor.targets().length > 1 ? this.editor.targets() : [id]),
+        exportItem: () => this.exportItems(itemTargets(this.editor, id)),
         setInbox: () => {
           if (this.route.doc) this.ws.setPref('inbox_location', id === ROOT ? this.route.doc : `${this.route.doc}/${id}`);
           toast('Inbox set');

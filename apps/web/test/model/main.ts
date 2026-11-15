@@ -425,9 +425,9 @@ function model(): string {
 /** Shows `doc` in `modes` (`{ theme: 'dark', size: 'large' }`) with a user's appearance TOML, editing the item
  * `editing` (its caret at the end) when given (its note with `side` 'note'; selected instead with 'select'; with
  * the settings of the native fixture's "prefs" state with 'prefs'; with 'search', `editing` is a query searched for,
- * as the native fixture's states), the sidebar on pane `side` (or as the device starts it: shown on
+ * as the native fixture's states; in the article layout with 'article'), the sidebar on pane `side` (or as the device starts it: shown on
  * desktops, closed on phones); its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: SideState | 'note' | 'select' | 'prefs' | 'search' | 'itemmenu' = '') => {
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: SideState | 'note' | 'select' | 'prefs' | 'search' | 'itemmenu' | 'article' = '') => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
@@ -437,7 +437,9 @@ function model(): string {
   const state = side === 'note' || side === 'select' || side === 'prefs' || side === 'search' ? side : '';
   // 'prefs': the settings of the native fixture's "prefs" state (native `fixture::PREFS`)
   setRenderOptions(state === 'prefs' ? { hour12: false } : {});
-  showSidebar(show(doc), state || side === 'itemmenu' ? '' : (side as SideState));
+  showSidebar(show(doc), state || side === 'itemmenu' || side === 'article' ? '' : (side as SideState));
+  // 'article': the document in the article layout (the native fixture's "article", `applyDocPrefs`)
+  ed!.el.classList.toggle('o-article', side === 'article');
   // 'itemmenu': the item menu of the native fixture's selected item (`fixture::selected_item`), at `MENU_AT`
   if (side === 'itemmenu' && editing) {
     const nop = () => {};

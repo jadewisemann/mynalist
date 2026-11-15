@@ -763,8 +763,8 @@ fn structural_snapshots() {
             more.push((format!("{doc}-{}-{side}.txt", device.name), snapshot(doc, false, device, "", side)));
         }
         // the help panel, the mind map, the tutorial (area 14); the item menu with its swatches, a drop mark with
-        // the drag's label (area 13)
-        for side in ["help", "mindmap", "tour", "itemmenu", "drop"] {
+        // the drag's label (area 13); the article layout (area 15)
+        for side in ["help", "mindmap", "tour", "itemmenu", "drop", "article"] {
             more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
         }
     }

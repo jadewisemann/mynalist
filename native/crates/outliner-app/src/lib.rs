@@ -80,6 +80,7 @@ pub fn App() -> impl IntoElement {
 /// changes (its views read the look as plain values; what they show is kept in the store and the globals).
 fn root() -> impl IntoElement {
     effect(settings::apply);
+    effect(docview::apply);
     view().flex_1().child(dynamic(|| {
         appearance::current();
         untracked(screen)

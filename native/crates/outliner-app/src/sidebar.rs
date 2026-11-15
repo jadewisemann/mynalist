@@ -364,8 +364,13 @@ fn sidebar() -> View {
         .bg(color::side_bg())
         .child(tabs())
         .child(
-            scroll()
-                .test_id("pane")
+            {
+                let pane = element_ref();
+                PANE.with(|p| *p.borrow_mut() = Some(pane));
+                let pane_view = scroll().test_id("pane").element_ref(&pane);
+                // the pane while dragged items would become documents there
+                target_outline(pane_view, || item_target().with(|t| t.0 == Some(None)))
+            }
                 .flex_1()
                 .child(
                     view()
@@ -639,7 +644,80 @@ fn files() -> impl IntoElement {
                 }),
             ],
         ))
-        .child(each(move || rows.get(), |l: &Line| l.entry.id.clone(), move |line, index| file_row(line, index, rows)))
+        .child({
+            let list = element_ref();
+            FILE_LIST.with(|l| *l.borrow_mut() = Some(list));
+            view()
+                .element_ref(&list)
+                .child(each(move || rows.get(), |l: &Line| l.entry.id.clone(), move |line, index| file_row(line, index, rows)))
+        })
+}
+
+// ---- items dragged out of the editor onto the Files pane (`externalDrop`) -----------------------------------
+
+thread_local! {
+    /// The pane's scroll view and the file tree's rows, for the hit test of items dragged out of the editor.
+    static PANE: std::cell::RefCell<Option<ElementRef>> = const { std::cell::RefCell::new(None) };
+    static FILE_LIST: std::cell::RefCell<Option<ElementRef>> = const { std::cell::RefCell::new(None) };
+    /// Where they were when the drag began: the pane's box in the window (left, top, right, bottom) and the top
+    /// of the file tree's first row.
+    static TARGETS: std::cell::Cell<Option<([f32; 4], f32)>> = const { std::cell::Cell::new(None) };
+}
+
+/// Where dragged items would go in the Files pane (`drop-target`): onto a document (`Some(id)`), or onto the pane
+/// itself to become documents (`None`).
+#[derive(Debug, Clone, PartialEq, Default)]
+struct ItemTarget(Option<Option<String>>);
+
+fn item_target() -> Signal<ItemTarget> {
+    global::<ItemTarget>()
+}
+
+/// Measure where the Files pane and its rows are, as items begin to be dragged out of the editor (desktops,
+/// the panel showing the Files tab; otherwise nothing takes them).
+pub(crate) fn measure_item_targets() {
+    TARGETS.with(|t| t.set(None));
+    let on = !style::phone() && side().with_untracked(|s| s.open.unwrap_or(true) && s.tab == Tab::Files);
+    let (Some(pane), Some(list)) = (PANE.with(|p| *p.borrow()), FILE_LIST.with(|l| *l.borrow())) else { return };
+    if !on {
+        return;
+    }
+    let (pane, list) = (pane.measure(), list.measure());
+    spawn(async move {
+        let (Some(p), Some(l)) = (pane.await, list.await) else { return };
+        let (w, h) = (p.frame.size.width.0, p.frame.size.height.0);
+        if w > 0.0 && h > 0.0 {
+            TARGETS.with(|t| t.set(Some(([p.page.x.0, p.page.y.0, p.page.x.0 + w, p.page.y.0 + h], l.page.y.0))));
+        }
+    });
+}
+
+/// What dragged items over window point (`x`, `y`) would be dropped on (`externalDrop().hit`): the document row
+/// under it, else the pane; `None` outside the pane.
+pub(crate) fn item_target_at(x: f32, y: f32) -> Option<Option<String>> {
+    let ([l, t, r, b], top) = TARGETS.with(std::cell::Cell::get)?;
+    if x < l || x >= r || y < t || y >= b {
+        return None;
+    }
+    let at = ((y - top) / num("space.file_row")).floor();
+    let row = (at >= 0.0).then(|| lines(&workspace::files_now()).into_iter().nth(at as usize)).flatten();
+    Some(row.filter(|l| l.entry.kind == Kind::Doc).map(|l| l.entry.id))
+}
+
+/// Shows (or takes away, `None`) the mark of where dragged items would be dropped in the pane.
+pub(crate) fn show_item_target(t: Option<Option<String>>) {
+    let t = ItemTarget(t);
+    if item_target().with_untracked(|v| *v != t) {
+        item_target().set(t);
+    }
+}
+
+/// The dashed accent outline of a drop target (`.drop-target`), inside its box.
+fn target_outline<V: Styled>(v: V, on: impl Fn() -> bool + 'static) -> V {
+    v.outline(px(num("space.step2")))
+        .outline_dashed()
+        .outline_offset(px(-num("space.step2")))
+        .outline_color(move || if on() { color::accent().into() } else { AdaptiveColor::TRANSPARENT })
 }
 
 /// A row of the file tree (`.file-row`): the folder's fold mark, its icon and name, on the selection color
@@ -647,6 +725,7 @@ fn files() -> impl IntoElement {
 /// right click, a long press or the "⋯" under the pointer shows its menu; on desktops it drags.
 fn file_row(line: ReadSignal<Line>, index: ReadSignal<usize>, rows: Memo<Vec<Line>>) -> impl IntoElement {
     let id = line.get_untracked().entry.id;
+    let target = id.clone();
     let folder = line.get_untracked().entry.kind == Kind::Folder;
     let active = {
         let id = id.clone();
@@ -672,7 +751,7 @@ fn file_row(line: ReadSignal<Line>, index: ReadSignal<usize>, rows: Memo<Vec<Lin
         }
     };
     let at_menu = move |x: f32, y: f32| file_menu(&line.get_untracked().entry, x, y);
-    let mut row = view()
+    let row = view()
         .test_id("file")
         .group()
         .flex_row()
@@ -740,6 +819,9 @@ fn file_row(line: ReadSignal<Line>, index: ReadSignal<usize>, rows: Memo<Vec<Lin
                 .child(ui_text("⋯", (size, line_h)).text_color(color::muted())),
         )
         .child(drop_line(drop));
+    // the document row while dragged items would go into it
+    let row = target_outline(row, move || item_target().with(|t| t.0.as_ref().is_some_and(|d| d.as_deref() == Some(target.as_str()))));
+    let mut row = row;
     if !style::phone() {
         let count = move || rows.get_untracked().len();
         let folder_at = move |i: usize| rows.with_untracked(|r| r.get(i).is_some_and(|l| l.entry.kind == Kind::Folder));
@@ -795,46 +877,85 @@ fn rename_input(id: String) -> impl IntoElement {
 }
 
 /// Bookmark what the document shows (`bookmarkCurrent`): the document, or the item it is zoomed into, named
-/// after it; the Bookmarks tab shows.
+/// after it, with the search showing; or the results screen showing (its query, its sort, flat or of every
+/// document). The Bookmarks tab shows.
 pub fn bookmark_current() {
-    let (doc, zoom, title) = store::peek(|s| {
-        let z = s.view.zoom.clone();
-        let title = if z == ROOT {
-            s.title(&s.doc)
-        } else {
-            let plain = outliner_core::inline::inline_to_plain(item::content(s.tree().get(&z)), None);
-            if plain.trim().is_empty() { "Untitled".to_owned() } else { plain }
-        };
-        (s.doc.clone(), (z != ROOT).then_some(z), title)
-    });
-    // with the search showing, the bookmark keeps it
-    let q = crate::find::query();
-    let title = if q.is_empty() { title } else { format!("{title} ({q})") };
-    workspace::add_search_bookmark(&title, &doc, zoom.as_deref(), Some(q.as_str()).filter(|q| !q.is_empty()));
+    let results = crate::find::results_now();
+    let sort = results.as_ref().and_then(|r| r.sort).and_then(|m| serde_json::to_value(m).ok()).and_then(|v| v.as_str().map(str::to_owned));
+    let b = match &results {
+        Some(r) if r.mode == crate::find::Mode::Global => Bookmark {
+            title: format!("Search: {}", r.q),
+            doc: r.doc.clone(),
+            q: Some(r.q.clone()),
+            global: true,
+            sort,
+            ..Default::default()
+        },
+        _ => {
+            let (doc, zoom, title) = store::peek(|s| {
+                let (doc, z) = match &results {
+                    Some(r) => (r.doc.clone(), r.zoom.clone()),
+                    None => (s.doc.clone(), s.view.zoom.clone()),
+                };
+                let t = s.tree_of(&doc);
+                let title = if z == ROOT {
+                    s.title(&doc)
+                } else {
+                    let plain = outliner_core::inline::inline_to_plain(item::content(t.and_then(|t| t.get(&z))), None);
+                    if plain.trim().is_empty() { "Untitled".to_owned() } else { plain }
+                };
+                (doc, (z != ROOT).then_some(z), title)
+            });
+            // with the search showing, the bookmark keeps it
+            let q = match &results {
+                Some(r) => r.q.clone(),
+                None => crate::find::query(),
+            };
+            Bookmark {
+                title: if q.is_empty() { title } else { format!("{title} ({q})") },
+                doc,
+                zoom,
+                q: Some(q).filter(|q| !q.is_empty()),
+                flat: results.is_some(),
+                sort,
+                ..Default::default()
+            }
+        }
+    };
+    workspace::add(&b);
     side().update(|s| s.open = Some(true));
     set_tab(Tab::Bookmarks);
     toast::show("Bookmarked");
 }
 
-/// Open a bookmark (`openBookmark`): its document, zoomed as it was made, with its search (a flat search or a
-/// search of all documents opens as the document's search box).
+/// Open a bookmark (`openBookmark`): its document, zoomed as it was made, with its search; a flat search or a
+/// search of every document opens its results screen, sorted as it was.
 pub(crate) fn open_bookmark(b: &Bookmark) {
-    if store::peek(|s| s.tree_of(&b.doc).is_none()) {
+    let known = store::peek(|s| s.tree_of(&b.doc).is_some());
+    if !known && !b.global {
         return;
     }
-    let changed = store::peek(|s| s.doc != b.doc);
-    store::edit(|s| {
-        s.switch(&b.doc);
-        let zoom = b.zoom.clone().filter(|z| s.tree().is_attached(z)).unwrap_or_else(|| ROOT.to_owned());
-        if s.view.zoom != zoom {
-            s.view.zoom = zoom;
-            s.editing = None;
-            s.block = None;
-            s.reflow();
-        }
-    });
-    if let Some(q) = b.q.as_deref().filter(|q| !q.is_empty()) {
-        crate::find::open(Some(q));
+    let changed = known && store::peek(|s| s.doc != b.doc);
+    if known {
+        store::edit(|s| {
+            s.switch(&b.doc);
+            let zoom = b.zoom.clone().filter(|z| s.tree().is_attached(z)).unwrap_or_else(|| ROOT.to_owned());
+            if s.view.zoom != zoom {
+                s.view.zoom = zoom;
+                s.editing = None;
+                s.block = None;
+                s.reflow();
+            }
+        });
+    }
+    let q = b.q.clone().unwrap_or_default();
+    let sort = b.sort.as_ref().and_then(|v| serde_json::from_value(serde_json::Value::String(v.clone())).ok());
+    if b.global {
+        crate::find::show_results_sorted(crate::find::Mode::Global, q, sort);
+    } else if b.flat && !q.is_empty() {
+        crate::find::show_results_sorted(crate::find::Mode::Flat, q, sort);
+    } else if !q.is_empty() {
+        crate::find::open(Some(&q));
     }
     if changed && style::phone() {
         toggle(Some(false));

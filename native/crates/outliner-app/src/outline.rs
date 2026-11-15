@@ -39,7 +39,7 @@ impl Look {
 
 fn look_of(id: &str) -> Look {
     // notes hidden (`[data-notes='hide']`): none shows, unless it is edited
-    let notes = crate::settings::get().pick("show_notes") != "hide";
+    let notes = crate::docview::notes() != "hide";
     store::read(|s| {
         let n = s.tree().get(id);
         Look {
@@ -56,7 +56,9 @@ pub fn outline() -> impl IntoElement {
     let prefs = crate::settings::get();
     // the rows of the bullet thread, read by every cell (none with "Bullet threading" off)
     let threading = prefs.flag("bullet_threading");
-    let path = computed(move || if threading { store::read(|s| s.path_rows()) } else { Vec::new() });
+    // the open document's article layout (`.o-article`): no thread, guides or bullets but folded ones
+    let article = computed(|| crate::docview::layout() == crate::docview::ARTICLE);
+    let path = computed(move || if threading && !article.get() { store::read(|s| s.path_rows()) } else { Vec::new() });
     // the rows that show as selected, read by every cell
     let selected = computed(|| store::read(|s| s.selected_rows()));
     // how many items link to each item, while backlinks show (`show_backlinks`)
@@ -69,7 +71,15 @@ pub fn outline() -> impl IntoElement {
     });
     // Mod+F with nothing edited: the search box
     on_key("mod+f", |_| crate::find::open(None));
-    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path, selected, counts))
+    let list = element_ref();
+    LIST.with(|l| *l.borrow_mut() = Some(list));
+    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path, selected, counts, article))
+        .element_ref(&list)
+        // where the list is scrolled to and how far it can be, for the drags' scrolling
+        .on_scroll(|e: &ScrollEvent| {
+            let max = e.content_size.height.0 - e.size.height.0;
+            SCROLL.with(|s| s.set((e.offset.y.0, Some(max))));
+        })
         .keys(|| store::read(|s| s.rows.iter().map(|r| r.id.clone()).collect::<Vec<_>>()))
         .estimated_item_size(px(style::line() + 2.0 * style::pad()))
         .header(title())
@@ -242,7 +252,7 @@ fn note_text(src: &str, checked: bool, marks: &[String], id: &str) -> View {
     let note_line = size * num("type.note_line");
     let fg = if checked { color::check() } else { color::note() };
     let look = inline::Look::new(size, store::now()).colored(fg, checked).marking(marks, src).pressable().dates_of(id, true);
-    let teaser = crate::settings::get().pick("show_notes") == "teaser";
+    let teaser = crate::docview::notes() == "teaser";
     if teaser {
         let one = src.replace('\n', " ");
         let tokens = outliner_core::inline::parse_inline(&one);
@@ -281,6 +291,7 @@ fn row(
     path: Memo<Vec<usize>>,
     selected: Memo<Vec<Option<u16>>>,
     counts: Memo<std::collections::HashMap<outliner_core::NodeId, usize>>,
+    article: Memo<bool>,
 ) -> impl IntoElement {
     let row = computed(move || store::read(|s| s.rows.get(at.index()).cloned()));
     let look = computed(move || row.get().map(|r| look_of(&r.id)).unwrap_or_default());
@@ -314,9 +325,12 @@ fn row(
     }
     register_cell(at, cell);
     v.test_id("row")
+        .group_named("row")
         .flex_row()
         .items_start()
-        .py(px(style::pad()))
+        // the article layout's room above and below (`.o-article .o-row`)
+        .pt(move || px(style::pad() + if article.get() { num("space.article") } else { 0.0 }))
+        .pb(move || px(style::pad() + if article.get() { num("space.article") } else { 0.0 }))
         // the row being edited, with "Highlight current item" on (`.o-hl-current .o-current > .o-row`)
         .bg(move || {
             if highlight && editing.get().is_some() { AdaptiveColor::from(color::current()) } else { AdaptiveColor::TRANSPARENT }
@@ -334,9 +348,11 @@ fn row(
         // item's children's guide gives way to the selection's background (`.o-selected > .o-kids`: transparent)
         .child(dynamic(move || {
             let hide = picked.get().filter(|&d| d < depth());
+            // transparent in the article layout (`.o-article .o-kids`)
+            let none = article.get();
             (0..depth())
                 .map(|k| {
-                    let c = if Some(k) == hide { AdaptiveColor::TRANSPARENT } else { color::guide().into() };
+                    let c = if none || Some(k) == hide { AdaptiveColor::TRANSPARENT } else { color::guide().into() };
                     view()
                         .test_id("guide")
                         .absolute()
@@ -364,7 +380,7 @@ fn row(
                 None => view().into_element(),
             }
         }))
-        .child(bullet(row, look, thread))
+        .child(bullet(row, look, thread, article))
         .child(when(move || look.get().checkbox, move || checkbox(row, look)))
         .child(
             view()
@@ -495,7 +511,7 @@ fn bullet_w(n: u32) -> f32 {
 ///
 /// A right click (a long press on phones) opens the item menu; on desktops, dragging it moves the item (the
 /// selected items, when it is one of them) to where it is let go, a copy with the command key held.
-fn bullet(row: Memo<Option<Row>>, look: Memo<Look>, thread: Memo<Thread>) -> impl IntoElement {
+fn bullet(row: Memo<Option<Row>>, look: Memo<Look>, thread: Memo<Thread>, article: Memo<bool>) -> impl IntoElement {
     let folded = move || row.get().is_some_and(|r| r.has_kids && r.collapsed);
     let kids = move || row.get().is_some_and(|r| r.has_kids);
     let number = move || row.get().map_or(0, |r| r.num);
@@ -506,8 +522,11 @@ fn bullet(row: Memo<Option<Row>>, look: Memo<Look>, thread: Memo<Thread>) -> imp
         }
     };
     // the menu and the drag are the bullet's box's (a button takes none of them)
+    // the article layout shows a bullet only on a folded item or under the pointer (`.o-article .o-bullet`)
     let mut host = view()
         .test_id("bullet-box")
+        .opacity(move || if article.get() && !folded() { 0.0_f32 } else { 1.0 })
+        .group_hover_named("row", |s| s.opacity(1.0))
         .on_context_menu(move |c: &ContextMenuEvent| menu_at(c.page_position.x.0, c.page_position.y.0))
         .on_long_press(move |p: &PressEvent| menu_at(p.page_position.x.0, p.page_position.y.0));
     if !style::phone() {
@@ -1126,11 +1145,72 @@ struct Drag {
     left: Option<f32>,
     begun: bool,
     target: Option<DropAt>,
+    /// Over the Files pane instead: the document the items would go into, or the pane (`None`).
+    outside: Option<Option<NodeIdOf>>,
     at: (f32, f32),
 }
 
 thread_local! {
     static DRAG: std::cell::RefCell<Option<Drag>> = const { std::cell::RefCell::new(None) };
+    /// The list, where it is scrolled to and how far it can be (once it has scrolled), and its top and bottom in
+    /// the window when a drag began.
+    static LIST: std::cell::RefCell<Option<ElementRef>> = const { std::cell::RefCell::new(None) };
+    static SCROLL: std::cell::Cell<(f32, Option<f32>)> = const { std::cell::Cell::new((0.0, None)) };
+    static LIST_BOX: std::cell::Cell<Option<(f32, f32)>> = const { std::cell::Cell::new(None) };
+    /// The timer scrolling the list while items are dragged near its top or bottom.
+    static TICK: std::cell::RefCell<Option<Spawned<()>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// How close to the list's top or bottom a drag scrolls it, and how often (`autoscroll`).
+const SCROLL_EDGE: f32 = 50.0;
+const SCROLL_EVERY: std::time::Duration = std::time::Duration::from_millis(50);
+
+/// Where the dragged items would go, the pointer being at (`x`, `y`): a place in the list, else the Files pane.
+fn retarget(d: &mut Drag, x: f32, y: f32) {
+    d.target = hit(d, x, y);
+    d.outside = if d.target.is_none() { crate::sidebar::item_target_at(x, y) } else { None };
+}
+
+/// One step of the drag's scrolling (`autoscroll`): near the list's top or bottom it scrolls by 10 to 30 points,
+/// more the nearer the edge the pointer is; the rows are measured again and the place under the pointer found.
+fn autoscroll() {
+    let Some((_, y)) = DRAG.with(|d| d.borrow().as_ref().filter(|d| d.begun).map(|d| d.at)) else { return };
+    let Some((top, bottom)) = LIST_BOX.with(std::cell::Cell::get) else { return };
+    let (dir, depth) = if y < top + SCROLL_EDGE {
+        (-1.0, top + SCROLL_EDGE - y)
+    } else if y > bottom - SCROLL_EDGE {
+        (1.0, y - (bottom - SCROLL_EDGE))
+    } else {
+        return;
+    };
+    let (off, max) = SCROLL.with(std::cell::Cell::get);
+    let next = (off + dir * (10.0 + depth / 2.5).min(30.0)).max(0.0);
+    let next = max.map_or(next, |m| next.min(m.max(0.0)));
+    if next == off {
+        return;
+    }
+    SCROLL.with(|s| s.set((next, max)));
+    let Some(list) = LIST.with(|l| *l.borrow()) else { return };
+    list.scroll_to_offset(Points(next), false);
+    measure_rows(|_| {
+        let d = DRAG.with(|d| {
+            let mut b = d.borrow_mut();
+            let d = b.as_mut()?;
+            let (x, y) = d.at;
+            retarget(d, x, y);
+            Some(d.clone())
+        });
+        show_drag(d.as_ref());
+    });
+}
+
+/// Ends the drag's scrolling and its mark in the Files pane.
+fn end_drag() {
+    if let Some(t) = TICK.with(|t| t.borrow_mut().take()) {
+        t.cancel();
+    }
+    crate::sidebar::show_item_target(None);
+    show_drag(None);
 }
 
 /// What the views show of a drag: where it would drop and the pointer (a signal; the drag itself is above).
@@ -1175,6 +1255,10 @@ fn dropping_at(index: usize) -> Option<(DropMode, u16)> {
 /// The hit test (`hitTest`): the row under the pointer at window (`x`, `y`) and where in it the items would go.
 fn hit(d: &Drag, x: f32, y: f32) -> Option<DropAt> {
     let left = d.left?;
+    // left of the document (over the Files pane): not a place in the list
+    if x < left {
+        return None;
+    }
     let (index, frac) = row_at(y)?;
     store::peek(|s| {
         let t = s.tree();
@@ -1225,9 +1309,20 @@ fn drag_items(row: Memo<Option<Row>>) -> impl Fn(&TouchEvent) + 'static {
                     _ => vec![r.id.clone()],
                 });
                 DRAG.with(|d| {
-                    *d.borrow_mut() = Some(Drag { ids, start: (x, y), left: None, begun: false, target: None, at: (x, y) })
+                    *d.borrow_mut() =
+                        Some(Drag { ids, start: (x, y), left: None, begun: false, target: None, outside: None, at: (x, y) })
                 });
                 BOXES.with(|b| b.borrow_mut().clear());
+                LIST_BOX.with(|b| b.set(None));
+                crate::sidebar::measure_item_targets();
+                if let Some(list) = LIST.with(|l| *l.borrow()) {
+                    let m = list.measure();
+                    spawn(async move {
+                        if let Some(m) = m.await {
+                            LIST_BOX.with(|b| b.set(Some((m.page.y.0, m.page.y.0 + m.frame.size.height.0))));
+                        }
+                    });
+                }
                 measure_rows(|left| {
                     DRAG.with(|d| {
                         if let Some(d) = d.borrow_mut().as_mut() {
@@ -1243,25 +1338,34 @@ fn drag_items(row: Memo<Option<Row>>) -> impl Fn(&TouchEvent) + 'static {
                     d.at = (x, y);
                     if !d.begun && (x - d.start.0).hypot(y - d.start.1) > 3.0 {
                         d.begun = true;
+                        // the list scrolls while the pointer is near its top or bottom
+                        let tick = Owner::detached().run(|| set_interval(SCROLL_EVERY, autoscroll));
+                        if let Some(old) = TICK.with(|t| t.borrow_mut().replace(tick)) {
+                            old.cancel();
+                        }
                     }
                     if d.begun {
-                        d.target = hit(d, x, y);
+                        retarget(d, x, y);
                     }
                     Some(d.clone())
                 });
+                crate::sidebar::show_item_target(d.as_ref().and_then(|d| d.outside.clone()));
                 show_drag(d.as_ref());
             }
             TouchPhase::End => {
                 let d = DRAG.with(|d| d.borrow_mut().take());
-                show_drag(None);
-                if let Some(t) = d.as_ref().filter(|d| d.begun).and_then(|d| d.target.clone()) {
-                    let d = d.unwrap();
-                    cmd::move_items(&d.ids, &t.parent, t.after.as_deref(), COPY.with(std::cell::Cell::get));
+                end_drag();
+                let Some(d) = d.filter(|d| d.begun) else { return };
+                let copy = COPY.with(std::cell::Cell::get);
+                if let Some(doc) = &d.outside {
+                    crate::finder::drop_items(doc.as_deref(), &d.ids, copy);
+                } else if let Some(t) = &d.target {
+                    cmd::move_items(&d.ids, &t.parent, t.after.as_deref(), copy);
                 }
             }
             TouchPhase::Cancel => {
                 DRAG.with(|d| *d.borrow_mut() = None);
-                show_drag(None);
+                end_drag();
             }
         }
     }

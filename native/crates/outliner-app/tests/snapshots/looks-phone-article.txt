@@ -1,0 +1,307 @@
+# looks, phone 390x844 (Ios), at rest, the sidebar on article; clock 2024-06-15 12:00 UTC
+[model]
+topbar top=0 height=47
+title top=47 height=60
+  text x=10 top=61 "Looks"
+    "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
+row depth=0 top=107 height=47 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=116 "Heading one"
+    "Heading one" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 24/28 w700 #222222
+row depth=0 top=154 height=44.5 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=163 "Heading two"
+    "Heading two" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #222222
+row depth=0 top=198.5 height=42 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=207.5 "Heading three"
+    "Heading three" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 20/24 w700 #222222
+row depth=0 top=240.5 height=58 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=249.5 "A checked item"
+    "A checked item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+  note top=271.5
+    text x=36 top=271.5 "Its note is checked too."
+      "Its note is checked too." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #a7a7a7 strike
+row depth=0 top=298.5 height=43 bullet=21 dot=6 bg=#8b8f97 r=3 checkbox=32 text=58
+  text x=58 top=307.5 "A checkbox, off"
+    "A checkbox, off" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=0 top=341.5 height=43 bullet=21 dot=6 bg=#8b8f97 r=3 checkbox=32 text=58
+  text x=58 top=350.5 "A checkbox, on"
+    "A checkbox, on" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+row depth=0 top=384.5 height=40 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=393.5 "Color labels"
+    "Color labels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=424.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#f9d0c4
+  text x=57 top=433.5 "Label 1"
+    "Label 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=464.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#fed8b1
+  text x=57 top=473.5 "Label 2"
+    "Label 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=504.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#fef2c0
+  text x=57 top=513.5 "Label 3"
+    "Label 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=544.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#c8e3c0
+  text x=57 top=553.5 "Label 4"
+    "Label 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=584.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#c5def5
+  text x=57 top=593.5 "Label 5"
+    "Label 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=624.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57 label=#d4c5f9
+  text x=57 top=633.5 "Label 6"
+    "Label 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=0 top=664.5 height=40 bullet=21 dot=14 bg=#8b8f97 r=7 border=4 #c9ccd1 text=36 label=#c5def5
+  text x=36 top=673.5 "A folded item"
+    "A folded item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=0 top=704.5 height=40 bullet=21 dot=6 bg=#8b8f97 r=3 text=36
+  text x=36 top=713.5 "Levels"
+    "Levels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=744.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57
+  text x=57 top=753.5 "A sibling above"
+    "A sibling above" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=2 top=784.5 height=40 bullet=63 dot=6 bg=#8b8f97 r=3 text=78
+  text x=78 top=793.5 "Its child"
+    "Its child" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=1 top=824.5 height=40 bullet=42 dot=6 bg=#8b8f97 r=3 text=57
+  text x=57 top=833.5 "Second level"
+    "Second level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=2 top=864.5 height=40 bullet=63 dot=6 bg=#8b8f97 r=3 text=78
+  text x=78 top=873.5 "Third level with a bold word"
+    "Third level with a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+    "bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+    " word" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+row depth=3 top=904.5 height=40 bullet=84 dot=6 bg=#8b8f97 r=3 text=99
+  text x=99 top=913.5 "Fourth level"
+    "Fourth level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+[views]
+view 0,0 390x844
+  view 0,0 390x844 bg=#ffffff
+    view#topbar 0,0 390x47 bg=#ffffff border-b=1 #eceef1
+      view 0,0 44x46
+        canvas 12,13 20x20
+      view 170,0 44x46
+        canvas 182,13 20x20
+      view 214,0 44x46
+        canvas 226,13 20x20
+      view 258,0 44x46
+        canvas 270,13 20x20
+      view 302,0 44x46
+        canvas 314,13 20x20
+      view 346,0 44x46
+        canvas 358,13 20x20
+    view 0,47 390x797
+      view 0,47 390x797
+        scroll#outline 0,47 390x797 bg=#ffffff scroll 390x927.5
+          view 0,47 390x60
+            view#title 0,47 390x60
+              view#title-text 10,61 366x34
+                text 10,61 366x34
+                  "Looks"
+                    "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
+          view 0,944.5 390x30
+            view 0,944.5 390x30
+              view#doc-end 0,944.5 390x30
+          view 0,107 390x47
+            view#row 0,107 390x47
+              view#bullet-box 12,116 18x28 opacity=0
+                view 12,116 18x28
+                  view#bullet 18,127 6x6 bg=#8b8f97 r=3
+              view 30,116 346x29
+                text#row-text 36,116 145.5x29
+                  "Heading one"
+                    "Heading one" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 24/28 w700 #222222
+          view 0,154 390x44.5
+            view#row 0,154 390x44.5
+              view#bullet-box 12,163 18x26 opacity=0
+                view 12,163 18x26
+                  view#bullet 18,173 6x6 bg=#8b8f97 r=3
+              view 30,163 346x26.5
+                text#row-text 36,163 133.5x26.5
+                  "Heading two"
+                    "Heading two" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 22/26 w700 #222222
+          view 0,198.5 390x42
+            view#row 0,198.5 390x42
+              view#bullet-box 12,207.5 18x24 opacity=0
+                view 12,207.5 18x24
+                  view#bullet 18,216.5 6x6 bg=#8b8f97 r=3
+              view 30,207.5 346x24
+                text#row-text 36,207.5 143x24
+                  "Heading three"
+                    "Heading three" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 20/24 w700 #222222
+          view 0,240.5 390x58
+            view#row 0,240.5 390x58
+              view#bullet-box 12,249.5 18x22 opacity=0
+                view 12,249.5 18x22
+                  view#bullet 18,257.5 6x6 bg=#8b8f97 r=3
+              view 30,249.5 346x40
+                text#row-text 36,249.5 139x22
+                  "A checked item"
+                    "A checked item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+                view#note 36,271.5 340x18
+                  text 36,271.5 340x18
+                    "Its note is checked too."
+                      "Its note is checked too." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #a7a7a7 strike
+          view 0,298.5 390x43
+            view#row 0,298.5 390x43
+              view#bullet-box 12,307.5 18x22 opacity=0
+                view 12,307.5 18x22
+                  view#bullet 18,315.5 6x6 bg=#8b8f97 r=3
+              view#checkbox 32,304.5 28x28
+                view 38,310.5 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
+              view 58,307.5 318x22
+                text#row-text 58,307.5 148.5x22
+                  "A checkbox, off"
+                    "A checkbox, off" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,341.5 390x43
+            view#row 0,341.5 390x43
+              view#bullet-box 12,350.5 18x22 opacity=0
+                view 12,350.5 18x22
+                  view#bullet 18,358.5 6x6 bg=#8b8f97 r=3
+              view#checkbox 32,347.5 28x28
+                view 38,353.5 16x16 bg=#8b8f97 r=3 border=1.5 #8b8f97
+                  text 42.5,354.5 7x14.5
+                    "✓"
+                      "✓" system 12/0 w400 #ffffff
+              view 58,350.5 318x22
+                text#row-text 58,350.5 139x22
+                  "A checkbox, on"
+                    "A checkbox, on" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
+          view 0,384.5 390x40
+            view#row 0,384.5 390x40
+              view#bullet-box 12,393.5 18x22 opacity=0
+                view 12,393.5 18x22
+                  view#bullet 18,401.5 6x6 bg=#8b8f97 r=3
+              view 30,393.5 346x22
+                text#row-text 36,393.5 119x22
+                  "Color labels"
+                    "Color labels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,424.5 390x40
+            view#row 0,424.5 390x40
+              view#guide 21,424.5 1x40
+              view#bullet-box 33,433.5 18x22 opacity=0
+                view 33,433.5 18x22
+                  view#bullet 39,441.5 6x6 bg=#8b8f97 r=3
+              view 51,433.5 325x22
+                text#row-text 57,433.5 69.5x22 bg=#f9d0c4 r=3
+                  "Label 1"
+                    "Label 1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,464.5 390x40
+            view#row 0,464.5 390x40
+              view#guide 21,464.5 1x40
+              view#bullet-box 33,473.5 18x22 opacity=0
+                view 33,473.5 18x22
+                  view#bullet 39,481.5 6x6 bg=#8b8f97 r=3
+              view 51,473.5 325x22
+                text#row-text 57,473.5 69.5x22 bg=#fed8b1 r=3
+                  "Label 2"
+                    "Label 2" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,504.5 390x40
+            view#row 0,504.5 390x40
+              view#guide 21,504.5 1x40
+              view#bullet-box 33,513.5 18x22 opacity=0
+                view 33,513.5 18x22
+                  view#bullet 39,521.5 6x6 bg=#8b8f97 r=3
+              view 51,513.5 325x22
+                text#row-text 57,513.5 69.5x22 bg=#fef2c0 r=3
+                  "Label 3"
+                    "Label 3" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,544.5 390x40
+            view#row 0,544.5 390x40
+              view#guide 21,544.5 1x40
+              view#bullet-box 33,553.5 18x22 opacity=0
+                view 33,553.5 18x22
+                  view#bullet 39,561.5 6x6 bg=#8b8f97 r=3
+              view 51,553.5 325x22
+                text#row-text 57,553.5 69.5x22 bg=#c8e3c0 r=3
+                  "Label 4"
+                    "Label 4" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,584.5 390x40
+            view#row 0,584.5 390x40
+              view#guide 21,584.5 1x40
+              view#bullet-box 33,593.5 18x22 opacity=0
+                view 33,593.5 18x22
+                  view#bullet 39,601.5 6x6 bg=#8b8f97 r=3
+              view 51,593.5 325x22
+                text#row-text 57,593.5 69.5x22 bg=#c5def5 r=3
+                  "Label 5"
+                    "Label 5" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,624.5 390x40
+            view#row 0,624.5 390x40
+              view#guide 21,624.5 1x40
+              view#bullet-box 33,633.5 18x22 opacity=0
+                view 33,633.5 18x22
+                  view#bullet 39,641.5 6x6 bg=#8b8f97 r=3
+              view 51,633.5 325x22
+                text#row-text 57,633.5 69.5x22 bg=#d4c5f9 r=3
+                  "Label 6"
+                    "Label 6" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,664.5 390x40
+            view#row 0,664.5 390x40
+              view#bullet-box 12,673.5 18x22
+                view 12,673.5 18x22
+                  view#bullet 14,677.5 14x14 bg=#8b8f97 r=7 border=4 #c9ccd1
+              view 30,673.5 346x22
+                text#row-text 36,673.5 129x22 bg=#c5def5 r=3
+                  "A folded item"
+                    "A folded item" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,704.5 390x40
+            view#row 0,704.5 390x40
+              view#bullet-box 12,713.5 18x22 opacity=0
+                view 12,713.5 18x22
+                  view#bullet 18,721.5 6x6 bg=#8b8f97 r=3
+              view 30,713.5 346x22
+                text#row-text 36,713.5 59.5x22
+                  "Levels"
+                    "Levels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,744.5 390x40
+            view#row 0,744.5 390x40
+              view#guide 21,744.5 1x40
+              view#bullet-box 33,753.5 18x22 opacity=0
+                view 33,753.5 18x22
+                  view#bullet 39,761.5 6x6 bg=#8b8f97 r=3
+              view 51,753.5 325x22
+                text#row-text 57,753.5 148.5x22
+                  "A sibling above"
+                    "A sibling above" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,784.5 390x40
+            view#row 0,784.5 390x40
+              view#guide 21,784.5 1x40
+              view#guide 42,784.5 1x40
+              view#bullet-box 54,793.5 18x22 opacity=0
+                view 54,793.5 18x22
+                  view#bullet 60,801.5 6x6 bg=#8b8f97 r=3
+              view 72,793.5 304x22
+                text#row-text 78,793.5 89.5x22
+                  "Its child"
+                    "Its child" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,824.5 390x40
+            view#row 0,824.5 390x40
+              view#guide 21,824.5 1x40
+              view#bullet-box 33,833.5 18x22 opacity=0
+                view 33,833.5 18x22
+                  view#bullet 39,841.5 6x6 bg=#8b8f97 r=3
+              view 51,833.5 325x22
+                text#row-text 57,833.5 119x22
+                  "Second level"
+                    "Second level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,864.5 390x40
+            view#row 0,864.5 390x40
+              view#guide 21,864.5 1x40
+              view#guide 42,864.5 1x40
+              view#bullet-box 54,873.5 18x22 opacity=0
+                view 54,873.5 18x22
+                  view#bullet 60,881.5 6x6 bg=#8b8f97 r=3
+              view 72,873.5 304x22
+                text#row-text 78,873.5 277.5x22
+                  "Third level with a bold word"
+                    "Third level with a " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+                    "bold" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w700 #222222
+                    " word" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
+          view 0,904.5 390x40
+            view#row 0,904.5 390x40
+              view#guide 21,904.5 1x40
+              view#guide 42,904.5 1x40
+              view#guide 63,904.5 1x40
+              view#bullet-box 75,913.5 18x22 opacity=0
+                view 75,913.5 18x22
+                  view#bullet 81,921.5 6x6 bg=#8b8f97 r=3
+              view 93,913.5 283x22
+                text#row-text 99,913.5 119x22
+                  "Fourth level"
+                    "Fourth level" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222

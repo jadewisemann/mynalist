@@ -6,7 +6,7 @@ import { type NodeId, visibleChildren } from '@outliner/core';
 import type { Editor } from '../editor/editor.ts';
 import type { Workspace } from '../store/workspace.ts';
 import { h } from './dom.ts';
-import { swatches } from './itemmenu.ts';
+import { itemTargets, swatches } from './itemmenu.ts';
 import { showMenu } from './overlay.ts';
 
 type Btn = 'unindent' | 'indent' | 'zoom-in' | 'delete' | 'check' | 'note' | 'date' | 'upload' | 'checkbox' | 'color' | 'heading' | 'duplicate' | 'export' | 'newline';
@@ -72,7 +72,7 @@ export class HoverBar {
 
   /** the items a button acts on: the block selection when it covers the hovered item */
   private ids(id: NodeId): NodeId[] {
-    return this.editor.blockIds()?.includes(id) ? this.editor.targets() : [id];
+    return itemTargets(this.editor, id);
   }
 
   private rowOf(id: NodeId): HTMLElement | null {

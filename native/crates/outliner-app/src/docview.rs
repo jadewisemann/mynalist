@@ -1,6 +1,7 @@
 //! A document's view options, as the web keeps them on the document's entry in the workspace (`docPref`,
-//! `v_<key>`): read mode (`locked`: the document can be read, navigated and folded, not edited) and the layout
-//! (`layout`: the list, or the mind map of `mindmap.rs`). The web's "View options" menu sets them (`viewOptions`
+//! `v_<key>`): read mode (`locked`: the document can be read, navigated and folded, not edited), the layout
+//! (`layout`: the list, the article, or the mind map of `mindmap.rs`), whether checked items show (`checked`) and
+//! how notes do (`notes`), the last two "global" (the settings) unless chosen. The web's "View options" menu sets them (`viewOptions`
 //! in main.ts), opened from the doc actions beside the search box on desktops (`.doc-actions`: bookmark this
 //! view, view options); phones lock a document with the top bar's lock button.
 
@@ -15,8 +16,15 @@ use crate::workspace;
 
 const LOCKED: &str = "locked";
 const LAYOUT: &str = "layout";
+const CHECKED: &str = "checked";
+const NOTES: &str = "notes";
+/// A choice that follows the setting (`global`).
+const GLOBAL: &str = "global";
 /// The mind map layout's value (`Mind map (read-only)`).
 pub const MINDMAP: &str = "mindmap";
+/// The article layout's value (`.o-article`: no bullets but under the pointer or on folded items, no guides or
+/// thread, more room above and below the rows).
+pub const ARTICLE: &str = "article";
 
 /// Whether document `doc` is locked, untracked (the commands' check).
 pub fn is_locked(doc: &str) -> bool {
@@ -42,7 +50,7 @@ pub fn toggle_lock() {
     }
 }
 
-/// The open document's layout (tracked): "list" or [`MINDMAP`].
+/// The open document's layout (tracked): "list", [`ARTICLE`] or [`MINDMAP`].
 pub fn layout() -> String {
     let doc = store::read(|s| s.doc.clone());
     match workspace::doc_pref(&doc, LAYOUT) {
@@ -57,20 +65,82 @@ pub fn set_layout(value: &str) {
     workspace::set_doc_pref(&doc, LAYOUT, (value != "list").then(|| Value::String(value.to_owned())));
 }
 
-/// The "View options" menu's entries the native app has: the layout and the lock, the chosen ones ticked (the
-/// web shows them as submenus with checks).
+/// Document `doc`'s choice for view option `key` (a string), or `fallback` when it has none.
+fn choice(doc: &str, key: &str, fallback: &str, tracked: bool) -> String {
+    let v = if tracked { workspace::doc_pref(doc, key) } else { workspace::doc_pref_now(doc, key) };
+    match v {
+        Some(Value::String(v)) => v,
+        _ => fallback.to_owned(),
+    }
+}
+
+/// Whether document `doc` shows its checked items (`docShowChecked`): its own choice, else the "Show checked
+/// items" setting. Untracked.
+pub fn shows_checked(doc: &str) -> bool {
+    match choice(doc, CHECKED, GLOBAL, false).as_str() {
+        GLOBAL => crate::settings::get().flag("show_checked"),
+        v => v == "show",
+    }
+}
+
+/// How the open document shows notes (`docNotes`), tracked: "show", "teaser" (the first line) or "hide"; its own
+/// choice, else the "Notes" setting.
+pub fn notes() -> String {
+    let doc = store::read(|s| s.doc.clone());
+    match choice(&doc, NOTES, GLOBAL, true).as_str() {
+        GLOBAL => crate::settings::prefs().pick("show_notes").to_owned(),
+        v => v.to_owned(),
+    }
+}
+
+/// Applies the open document's "Checked items" to its view (an effect of the app's root: it runs again when the
+/// document, its choice or the setting changes).
+pub fn apply() {
+    let doc = store::read(|s| s.doc.clone());
+    let global = crate::settings::prefs().flag("show_checked");
+    let shown = match choice(&doc, CHECKED, GLOBAL, true).as_str() {
+        GLOBAL => global,
+        v => v == "show",
+    };
+    if store::peek(|s| s.show_checked != shown) {
+        store::edit(|s| {
+            s.show_checked = shown;
+            s.reflow();
+        });
+    }
+}
+
+/// The "View options" menu (`viewOptions`): checked items, notes and layout as submenus whose chosen entry is
+/// ticked (the first entry is the default, not kept), and the lock. The web's "Text direction" is left out: the
+/// native app has no right-to-left layout.
 pub fn options() -> Vec<menu::Item> {
     let doc = store::peek(|s| s.doc.clone());
-    let current = match workspace::doc_pref_now(&doc, LAYOUT) {
-        Some(Value::String(l)) => l,
-        _ => "list".to_owned(),
+    let opt = |key: &'static str, choices: &[(&'static str, &'static str)], global: Option<String>| -> Vec<menu::Item> {
+        let first = choices[0].0;
+        let cur = choice(&doc, key, first, false);
+        choices
+            .iter()
+            .map(|&(v, l)| {
+                let label = match &global {
+                    Some(g) if v == GLOBAL => format!("{l} ({g})"),
+                    _ => l.to_owned(),
+                };
+                let label = if cur == v { format!("✓ {label}") } else { label };
+                let doc = doc.clone();
+                menu::item(label, move || workspace::set_doc_pref(&doc, key, (v != first).then(|| Value::String(v.to_owned()))))
+            })
+            .collect()
     };
-    let tick = |on: bool, label: &str| if on { format!("✓ {label}") } else { label.to_owned() };
+    let p = crate::settings::get();
+    let g_checked = if p.flag("show_checked") { "show" } else { "hide" };
+    let g_notes = p.pick("show_notes").to_owned();
+    let locked = is_locked(&doc);
     vec![
-        menu::item(tick(current == "list", "Layout: List"), || set_layout("list")),
-        menu::item(tick(current == MINDMAP, "Layout: Mind map (read-only)"), || set_layout(MINDMAP)),
+        menu::sub("Checked items", opt(CHECKED, &[(GLOBAL, "Global"), ("show", "Show"), ("hide", "Hide")], Some(g_checked.to_owned()))),
+        menu::sub("Notes", opt(NOTES, &[(GLOBAL, "Global"), ("show", "Show"), ("teaser", "1st line"), ("hide", "Hide")], Some(g_notes))),
+        menu::sub("Layout", opt(LAYOUT, &[("list", "List"), (ARTICLE, "Article"), (MINDMAP, "Mind map (read-only)")], None)),
         menu::sep(),
-        menu::item(tick(is_locked(&doc), "Lock document (read-only)"), toggle_lock),
+        menu::item(if locked { "✓ Lock document (read-only)" } else { "Lock document (read-only)" }, toggle_lock),
     ]
 }
 

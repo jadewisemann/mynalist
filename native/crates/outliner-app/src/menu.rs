@@ -123,6 +123,15 @@ fn open_sub(x: f32, y: f32, items: Rc<Vec<Item>>) {
     });
 }
 
+/// Close the submenu, if one is open.
+fn close_sub() {
+    over().update(|o| {
+        if o.sub.take().is_some() {
+            o.rev += 1;
+        }
+    });
+}
+
 /// Close the menu (`closeMenu`).
 pub fn close() {
     over().update(|o| {
@@ -163,6 +172,7 @@ fn menu_view(x: f32, y: f32, items: Rc<Vec<Item>>, test_id: &str) -> impl IntoEl
     let (size, line) = style::ui();
     let hover = color::hover();
     let item_h = line + 2.0 * num("space.menu_item_y");
+    let nested = test_id == "submenu";
     let mut top = y + num("space.menu_y") + num("space.border");
     let rows: Vec<AnyElement> = items
         .iter()
@@ -183,6 +193,7 @@ fn menu_view(x: f32, y: f32, items: Rc<Vec<Item>>, test_id: &str) -> impl IntoEl
             }
             top += item_h;
             let (run, sub) = (it.run.clone(), it.sub.clone());
+            let hovered = sub.clone();
             // `.k`: the key at the right, muted and small; `▸` for a submenu
             let hint = it.key.clone().or_else(|| sub.is_some().then(|| "▸".to_owned()));
             view()
@@ -194,6 +205,19 @@ fn menu_view(x: f32, y: f32, items: Rc<Vec<Item>>, test_id: &str) -> impl IntoEl
                 .px(px(num("space.menu_item_x")))
                 .py(px(num("space.menu_item_y")))
                 .hover(move |s| s.bg(hover))
+                // the pointer over an entry of the menu (not of its submenu) opens that entry's submenu and
+                // closes any other (`onmouseenter`)
+                .on_mouse_enter(move |_: &MouseEvent| {
+                    if nested {
+                        return;
+                    }
+                    match &hovered {
+                        // already open: the menu is made again when it opens, under the same pointer
+                        Some(items) if over().with_untracked(|o| o.sub.as_ref().is_some_and(|s| Rc::ptr_eq(&s.2, items))) => {}
+                        Some(items) => open_sub(x, at, items.clone()),
+                        None => close_sub(),
+                    }
+                })
                 .on_press(move || {
                     if let Some(sub) = &sub {
                         open_sub(x, at, sub.clone());

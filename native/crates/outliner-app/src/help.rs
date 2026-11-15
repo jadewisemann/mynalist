@@ -270,3 +270,33 @@ pub fn whats_new() {
         dialog::modal("news-dialog", "What's new", body, vec![Button::close("Okay")])
     });
 }
+
+/// "About" (`aboutDialog`): what the app is, and where it syncs (this app: on the device only, for now).
+pub fn about() {
+    dialog::show(|| {
+        let ui = style::ui();
+        let para = |t: &'static str| ui_text(t, ui).text_color(color::fg()).mb(px(num("space.step6")));
+        let body = view()
+            .test_id("about")
+            .child(para("A self-hosted, keyboard-first outliner. Your documents live on this device and on your own sync server."))
+            .child(para("Its behaviour follows Dynalist, re-implemented from observation (no Dynalist code or assets)."))
+            .child(ui_text("Sync: local only", ui).text_color(color::muted()));
+        dialog::modal("about-dialog", "About Outliner", body, vec![Button::new("Okay", true, || true)])
+    });
+}
+
+/// "Import from WorkFlowy…": how to export a WorkFlowy list as OPML, and the OPML import.
+pub fn workflowy_import() {
+    dialog::show(|| {
+        let body = ui_text(
+            "In WorkFlowy, open the list you want, choose Export → OPML and save the file. Then import it here; each file becomes a document.",
+            style::ui(),
+        )
+        .text_color(color::fg());
+        let choose = Button::new("Choose OPML file…", true, || {
+            Owner::detached().run(|| crate::settings::import_files(None));
+            true
+        });
+        dialog::modal("workflowy-dialog", "Import from WorkFlowy", view().child(body), vec![Button::close("Cancel"), choose])
+    });
+}
