@@ -33,6 +33,7 @@
   --scrim: rgba(0,0,0,.3);
   --highlight: rgba(255, 221, 0, .38);
   --match: rgba(255, 221, 0, .45);
+  --match-fg: #000;
   --overdue-bg: rgba(217, 83, 79, .12);
   --overdue-border: rgba(217, 83, 79, .5);
   --hist-added: rgba(60, 180, 90, .22);
@@ -236,6 +237,10 @@
   --space-search-box-right: 64px;
   --space-search-tips-top: 40px;
   --space-search-tips-right: 76px;
+  --space-search-vw: 0.7;
+  --space-modal-vw: 0.92;
+  --space-modal-vh: 0.76;
+  --space-export-out: 280px;
   --space-crumb-max: 160px;
   --space-chunk-estimate: 3000px;
   --space-modal: 560px;

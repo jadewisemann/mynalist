@@ -43,6 +43,7 @@ overlay = { kind = "color", css = "--overlay", doc = "Behind dialogs." }
 scrim = { kind = "color", css = "--scrim", doc = "Behind sheets and the phone sidebar." }
 highlight = { kind = "color", css = "--highlight", doc = "Highlighted text (==text==)." }
 match = { kind = "color", css = "--match", doc = "Search matches." }
+match_fg = { kind = "color", css = "--match-fg", doc = "Search matches' text (the browser's `<mark>` text color, black in every theme)." }
 overdue_bg = { kind = "color", css = "--overdue-bg", doc = "Overdue dates' background." }
 overdue_border = { kind = "color", css = "--overdue-border", doc = "Overdue dates' border." }
 hist_added = { kind = "color", css = "--hist-added", doc = "Version history: added items." }
@@ -256,6 +257,10 @@ search_box = { kind = "length", min = 100, max = 800, doc = "The search box's an
 search_box_right = { kind = "length", min = 0, max = 200, doc = "Space right of the search box (room for the document buttons)." }
 search_tips_top = { kind = "length", min = 0, max = 100, doc = "The search tips popup's top, from the document's top." }
 search_tips_right = { kind = "length", min = 0, max = 200, doc = "The search tips popup's distance from the document's right." }
+search_vw = { kind = "ratio", min = 0.3, max = 1, doc = "The search box's and the search tips' widest, of the window's width." }
+modal_vw = { kind = "ratio", min = 0.5, max = 1, doc = "Dialogs' widest, of the window's width." }
+modal_vh = { kind = "ratio", min = 0.3, max = 1, doc = "Dialogs' tallest, of the window's height." }
+export_out = { kind = "length", min = 80, max = 800, doc = "The export dialog's output box's height." }
 crumb_max = { kind = "length", min = 40, max = 400, doc = "A breadcrumb's widest." }
 chunk_estimate = { kind = "length", min = 100, max = 10000, doc = "The height a block of rows is taken to have before it is laid out (long documents)." }
 modal = { kind = "length", min = 300, max = 1200, doc = "Dialogs' width (narrower windows: 92% of the window)." }

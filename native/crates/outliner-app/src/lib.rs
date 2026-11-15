@@ -11,15 +11,20 @@ mod datepicker;
 /// Generated from `design/*.toml` by `design/build.mjs`.
 #[allow(clippy::excessive_precision, clippy::approx_constant, clippy::unreadable_literal)]
 pub mod design;
+mod dialog;
+mod export;
+pub mod find;
 pub mod fixture;
 mod icons;
 pub mod inline;
 pub mod keymap;
+mod links;
 mod outline;
 pub mod settings;
 mod sidebar;
 pub mod store;
 pub mod style;
+mod toast;
 mod toolbar;
 
 use nsh_core::prelude::*;
@@ -96,7 +101,7 @@ fn screen() -> View {
         .pb_keyboard()
         .bg(style::color::bg())
         .child(toolbar::topbar())
-        .child(view().flex_1().flex_row().child(sidebar::panel()).child(behaving(outline::outline)))
+        .child(view().flex_1().flex_row().child(sidebar::panel()).child(behaving(find::doc_area)))
         .child(toolbar::mobile_bar())
         // the keys of selected items, while there are some (no input has the focus then)
         .child(behaving(|| when(|| store::read(|s| s.block.is_some()), outline::block_keys)))
@@ -106,7 +111,10 @@ fn screen() -> View {
         .child(datepicker::picker())
         // the home indicator's room, only while the keyboard does not cover it
         .child(when(|| keyboard_height() <= px(0.0), || view().pb_safe_area()))
+        .child(links::popup())
         .child(sidebar::drawer())
         .child(settings::menu())
         .child(settings::screen())
+        .child(dialog::overlay())
+        .child(toast::view_of())
 }

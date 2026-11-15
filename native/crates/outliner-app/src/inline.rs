@@ -11,6 +11,7 @@ use nsh_core::prelude::*;
 use nsh_core::LineHeight;
 use outliner_core::dates::{self, DateFormatOptions, DateSpec};
 use outliner_core::inline::{self as core, Kind, Token};
+use outliner_core::text16;
 
 use crate::icons;
 use crate::style::{self, color, num};
@@ -36,6 +37,12 @@ pub struct Look {
     /// its own.
     pub color: Rgba,
     pub struck: bool,
+    /// A search's words to mark in the text (`.o-match`), and the source the tokens came from (a link whose URL
+    /// holds a match shows its source, as the web's renderer reveals it).
+    pub marks: Vec<String>,
+    pub src: String,
+    /// Links and tags take presses (the outline's rows; not the results' rows, which open their item).
+    pub pressable: bool,
 }
 
 impl Look {
@@ -52,7 +59,20 @@ impl Look {
             format_no_time: p.text("custom_date_display_format_no_time").to_owned(),
             color: color::fg(),
             struck: false,
+            marks: Vec::new(),
+            src: String::new(),
+            pressable: false,
         }
+    }
+
+    /// The same look marking `terms` in text parsed from `src`.
+    pub fn marking(self, terms: &[String], src: &str) -> Self {
+        Look { marks: terms.iter().filter(|t| !t.is_empty()).cloned().collect(), src: src.to_owned(), ..self }
+    }
+
+    /// The same look with links and tags that take presses.
+    pub fn pressable(self) -> Self {
+        Look { pressable: true, ..self }
     }
 
     /// The same look for text in `color`, struck through or not.
@@ -107,9 +127,61 @@ fn em(look: &Look, k: f32) -> Length {
     px(look.size * k).into()
 }
 
+/// `s` with the look's search words marked (`<mark class="o-match">`: the match color behind them).
+fn marked(s: &str, look: &Look) -> Text {
+    if look.marks.is_empty() {
+        return text(s.to_owned());
+    }
+    let terms: Vec<&str> = look.marks.iter().map(String::as_str).collect();
+    let ranges = core::match_ranges(s, &terms);
+    if ranges.is_empty() {
+        return text(s.to_owned());
+    }
+    let mut parts: Vec<AnyElement> = Vec::new();
+    let mut last = 0;
+    for (a, b) in ranges {
+        if a > last {
+            parts.push(text(text16::slice(s, last, a).to_owned()).into_element());
+        }
+        parts.push(
+            text(text16::slice(s, a, b).to_owned())
+                .bg(color::matched())
+                .text_color(color::matched_fg())
+                .rounded(px(num("radius.mark")))
+                .into_element(),
+        );
+        last = b;
+    }
+    if last < text16::len(s) {
+        parts.push(text(text16::slice_from(s, last).to_owned()).into_element());
+    }
+    text("").children(parts)
+}
+
+/// A link's or an image's source when a search match in it falls outside its shown text (in the URL or the
+/// brackets): the link then shows its markup, so the match can be seen (the renderer's `revealed`).
+fn revealed(t: &Token, look: &Look) -> Option<String> {
+    if look.marks.is_empty() || look.src.is_empty() {
+        return None;
+    }
+    let raw = text16::slice(&look.src, t.start, t.end);
+    let (a, b) = (t.inner_start - t.start, t.inner_end - t.start);
+    let terms: Vec<&str> = look.marks.iter().map(String::as_str).collect();
+    core::match_ranges(raw, &terms).iter().any(|&(s, e)| s < a || e > b).then(|| raw.to_owned())
+}
+
+/// A link's span: pressing it opens it (an item of the app, or the browser) when the look takes presses.
+fn link(span: Text, url: &str, look: &Look) -> AnyElement {
+    match core::safe_url(url, false) {
+        Some(href) if look.pressable => span.on_press(move || crate::links::open(&href)).into_element(),
+        _ => span.into_element(),
+    }
+}
+
 fn span(t: &Token, look: &Look) -> AnyElement {
     match &t.kind {
-        Kind::Text { text: s } | Kind::Escape { text: s } => text(s.clone()).into_element(),
+        Kind::Text { text: s } => marked(s, look).into_element(),
+        Kind::Escape { text: s } => text(s.clone()).into_element(),
         Kind::Bold { children } => text("").font_weight(style::weight("type.bold_weight")).children(spans(children, look)).into_element(),
         Kind::Italic { children } => text("").italic().children(spans(children, look)).into_element(),
         Kind::Strike { children } => text("").line_through().children(spans(children, look)).into_element(),
@@ -121,7 +193,7 @@ fn span(t: &Token, look: &Look) -> AnyElement {
             .into_element(),
         // `.o-code`: Fira Mono at 8/9 of the text, red on a gray box. The web pads the box 5px each side; a span
         // here has no padding (narrow spaces would change the text that copies and screen readers get)
-        Kind::Code { text: s, .. } => text(s.clone())
+        Kind::Code { text: s, .. } => marked(s, look)
             .font_family(style::mono())
             .text_size(em(look, num("type.code")))
             .text_color(color::code_fg())
@@ -131,14 +203,28 @@ fn span(t: &Token, look: &Look) -> AnyElement {
         // `.o-latex`: no math typesetting here (the web uses KaTeX): the source, in the math font's place a mono one
         Kind::Latex { text: s } => text(s.clone()).font_family(style::mono()).text_size(em(look, num("type.code"))).into_element(),
         // `.o-link` keeps the text's color, underlined
-        Kind::Link { text: s, url, children, .. } => text(core::link_label(s, url, children, None)).underline().into_element(),
+        Kind::Link { text: s, url, children, .. } => {
+            let shown = match revealed(t, look) {
+                Some(raw) => marked(&raw, look),
+                None => marked(&core::link_label(s, url, children, None), look),
+            };
+            link(shown.underline(), url, look)
+        }
         Kind::Autolink { url } => match core::safe_url(url, false) {
-            Some(_) => text(url.clone()).underline().into_element(),
-            None => text(url.clone()).into_element(),
+            Some(_) => link(marked(url, look).underline(), url, look),
+            None => marked(url, look).into_element(),
         },
-        Kind::Image { text: alt, url, .. } => image_span(alt, url, look),
-        // `.o-tag`: gray, underlined
-        Kind::Tag { tag } => text(tag.clone()).text_color(color::tag()).underline().into_element(),
+        Kind::Image { text: alt, url, .. } => image_span(t, alt, url, look),
+        // `.o-tag`: gray, underlined; a press adds it to the search or takes it out (`toggleSearchTerm`)
+        Kind::Tag { tag } => {
+            let span = marked(tag, look).text_color(color::tag()).underline();
+            if look.pressable {
+                let tag = tag.clone();
+                span.on_press(move || crate::find::toggle_term(&tag)).into_element()
+            } else {
+                span.into_element()
+            }
+        }
         Kind::Date { date, .. } => date_chip(date, look).into_element(),
         // not inline: `blocks` takes code blocks out first; shown as their text if one gets here
         Kind::Codeblock { text: s, .. } => text(s.clone()).font_family(style::mono()).into_element(),
@@ -147,16 +233,20 @@ fn span(t: &Token, look: &Look) -> AnyElement {
 
 /// `![alt](url)`: a link in the accent color, underlined as links are (`a.o-image`), or the picture with
 /// `inline_images`.
-fn image_span(alt: &str, url: &str, look: &Look) -> AnyElement {
+fn image_span(t: &Token, alt: &str, url: &str, look: &Look) -> AnyElement {
     match core::safe_url(url, true) {
         Some(src) if look.inline_images => {
             // `.o-img`: at most the column's width, at its natural size otherwise
             image(src).max_w(px(480.0)).max_h(px(400.0)).align_text_bottom().into_element()
         }
-        _ => text(if alt.is_empty() { "Image".to_owned() } else { alt.to_owned() })
-            .text_color(color::accent())
-            .underline()
-            .into_element(),
+        _ => {
+            let shown = match revealed(t, look) {
+                Some(raw) => marked(&raw, look),
+                None if alt.is_empty() => text("Image"),
+                None => marked(alt, look),
+            };
+            link(shown.text_color(color::accent()).underline(), url, look)
+        }
     }
 }
 
@@ -216,7 +306,7 @@ pub fn code_block(source: &str, look: &Look) -> impl IntoElement {
         .rounded(px(num("radius.block")))
         .child({
             // the text's color, as the block inherits it (`.o-codeblock` sets none), struck on a checked item
-            let t = text(source.to_owned())
+            let t = marked(source, look)
                 .font_family(style::mono())
                 .text_size(px(size))
                 .line_height(LineHeight::Points(px(size * num("type.line"))))

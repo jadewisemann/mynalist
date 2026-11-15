@@ -106,6 +106,10 @@ pub const FLAGS: &[Flag] = &[
         hint: "Following siblings become children of the unindented item.",
     },
     flag("auto_focus_first_item", "Auto-focus on first item", false),
+    flag("global_tag_autocomplete", "Auto-complete tags from all docs", false),
+    flag("show_backlinks", "Show backlinks", false),
+    flag("show_search_tips", "Show search tip popup", true),
+    flag("export_visible_only", "Export visible items only (default)", false),
 ];
 
 /// The settings with choices the native app honors.
@@ -603,7 +607,7 @@ fn close() {
     });
 }
 
-/// Opens or closes the phone's top bar menu.
+/// Opens or closes the top bar's menu.
 pub fn toggle_menu() {
     panel().update(|p| p.menu = !p.menu);
 }
@@ -863,6 +867,7 @@ fn prefs_pane() -> impl IntoElement {
         ))
         .child(section("Input"))
         .child(flag_field("word_count"))
+        .child(flag_field("global_tag_autocomplete"))
         .child(flag_field("workflowy_shortcuts"))
         .child(section("Date"))
         .child(pick_field("time_format"))
@@ -872,6 +877,8 @@ fn prefs_pane() -> impl IntoElement {
         .child(flag_field("show_timezone"))
         .child(flag_field("highlight_overdue"))
         .child(pick_field("recurrence_check_behavior"))
+        .child(section("Internal links"))
+        .child(flag_field("show_backlinks"))
         .child(section("Control"))
         .child(flag_field("use_bullet_to_zoom"))
         .child(flag_field("unindent_in_place"))
@@ -887,7 +894,9 @@ fn prefs_pane() -> impl IntoElement {
         pane = pane
             .child(section("Advanced"))
             .child(flag_field("auto_focus_first_item"))
-            .child(pick_field("dyslexia_font"));
+            .child(flag_field("show_search_tips"))
+            .child(pick_field("dyslexia_font"))
+            .child(flag_field("export_visible_only"));
     }
     pane
 }
@@ -1505,7 +1514,8 @@ pub fn screen() -> impl IntoElement {
     )
 }
 
-/// The phone top bar's menu (`.menu`), while it shows: the settings (the web's other items are not here yet).
+/// The top bar's menu (`.menu`), while it shows: the settings, the search everywhere, the search and replace and
+/// the export (the web's other items are not here yet).
 pub fn menu() -> impl IntoElement {
     when(
         || panel().with(|p| p.menu),
@@ -1515,7 +1525,10 @@ pub fn menu() -> impl IntoElement {
                     .accessibility_label(Some(label.into()))
                     .px(px(num("space.menu_item_x")))
                     .py(px(num("space.menu_item_y")))
-                    .on_press(run)
+                    .on_press(move || {
+                        panel().update(|p| p.menu = false);
+                        run();
+                    })
                     .child(ui(label))
             };
             view()
@@ -1543,7 +1556,13 @@ pub fn menu() -> impl IntoElement {
                         .pt_safe_area()
                         .items_end()
                         .pr(px(num("space.topbar_pad")))
-                        .child(menu_box().child(item("Settings", || open(Tab::Prefs)))),
+                        .child(
+                            menu_box()
+                                .child(item("Settings", || open(Tab::Prefs)))
+                                .child(item("Search everywhere", crate::find::search_everywhere))
+                                .child(item("Search and replace", crate::find::replace_dialog))
+                                .child(item("Export…", crate::export::open)),
+                        ),
                 )
         },
     )

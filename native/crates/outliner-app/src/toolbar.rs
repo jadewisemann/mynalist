@@ -70,7 +70,7 @@ pub fn topbar() -> impl IntoElement {
                     || store::read(|s| s.select_mode),
                 ),
             )
-            .child(top_button("search", "Search", none))
+            .child(top_button("search", "Search", || crate::find::open(None)))
             .child(top_button("lock", "Read mode", none))
             .child(top_button("menu", "Menu", crate::settings::toggle_menu))
     } else {
@@ -84,9 +84,9 @@ pub fn topbar() -> impl IntoElement {
                     .text_color(color::topbar_fg())
                     .px(px(SYNC_PAD)),
             )
-            .child(top_button("search", "Search", none))
+            .child(top_button("search", "Search", || crate::find::open(None)))
             .child(top_button("gear", "Settings", || crate::settings::open(crate::settings::Tab::Prefs)))
-            .child(top_button("menu", "Menu", none))
+            .child(top_button("menu", "Menu", crate::settings::toggle_menu))
     }
 }
 

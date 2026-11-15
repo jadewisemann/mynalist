@@ -65,6 +65,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | scrim | color |  | `--scrim` | `rgba(0,0,0,.3)` | Behind sheets and the phone sidebar. |
 | highlight | color |  | `--highlight` | `rgba(255, 221, 0, .38)` | Highlighted text (==text==). |
 | match | color |  | `--match` | `rgba(255, 221, 0, .45)` | Search matches. |
+| match_fg | color |  | `--match-fg` | `#000` | Search matches' text (the browser's `<mark>` text color, black in every theme). |
 | overdue_bg | color |  | `--overdue-bg` | `rgba(217, 83, 79, .12)` | Overdue dates' background. |
 | overdue_border | color |  | `--overdue-border` | `rgba(217, 83, 79, .5)` | Overdue dates' border. |
 | hist_added | color |  | `--hist-added` | `rgba(60, 180, 90, .22)` | Version history: added items. |
@@ -293,6 +294,10 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | search_box_right | length | 0..200 | `--space-search-box-right` | `64` | Space right of the search box (room for the document buttons). |
 | search_tips_top | length | 0..100 | `--space-search-tips-top` | `40` | The search tips popup's top, from the document's top. |
 | search_tips_right | length | 0..200 | `--space-search-tips-right` | `76` | The search tips popup's distance from the document's right. |
+| search_vw | ratio | 0.3..1 | `--space-search-vw` | `0.7` | The search box's and the search tips' widest, of the window's width. |
+| modal_vw | ratio | 0.5..1 | `--space-modal-vw` | `0.92` | Dialogs' widest, of the window's width. |
+| modal_vh | ratio | 0.3..1 | `--space-modal-vh` | `0.76` | Dialogs' tallest, of the window's height. |
+| export_out | length | 80..800 | `--space-export-out` | `280` | The export dialog's output box's height. |
 | crumb_max | length | 40..400 | `--space-crumb-max` | `160` | A breadcrumb's widest. |
 | chunk_estimate | length | 100..10000 | `--space-chunk-estimate` | `3000` | The height a block of rows is taken to have before it is laid out (long documents). |
 | modal | length | 300..1200 | `--space-modal` | `560` | Dialogs' width (narrower windows: 92% of the window). |

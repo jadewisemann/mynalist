@@ -118,6 +118,14 @@ pub mod color {
     pub fn date_border() -> Rgba {
         of("color.date_border")
     }
+    /// A search match's background (`.o-match`).
+    pub fn matched() -> Rgba {
+        of("color.match")
+    }
+    /// A search match's text (`.o-match`).
+    pub fn matched_fg() -> Rgba {
+        of("color.match_fg")
+    }
     pub fn highlight() -> Rgba {
         of("color.highlight")
     }

@@ -14,7 +14,8 @@ Read this first. Area notes in this folder say what each piece of work is.
   bindings), `toolbar.rs` (top bar, phone toolbar), `sidebar.rs` (tabs, files, tags; desktop panel, phone drawer;
   its open/tab/width state is a global signal, not in the store), `style.rs`
   (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (the core's
-  inline tokens drawn as NSH text spans), `settings*` (settings screen), `datepicker.rs`.
+  inline tokens drawn as NSH text spans), `settings*` (settings screen), `datepicker.rs`, `find.rs` (search box, results, search and replace), `links.rs`
+  (`[[` / `#` suggestions, link presses, backlinks), `export.rs` (export dialog), `dialog.rs` (modal dialogs), `toast.rs`.
 - `crates/outliner-mac`: macOS binary, NSH's GPUI backend. Builds on Linux too (GPUI dev libs).
 - CI: `.github/workflows/ci.yml` job `native-core` (fixtures + tests + clippy); `.github/workflows/native.yml` builds
   the macOS .app and the Android APK as artifacts on every push touching `native/`.
@@ -121,6 +122,12 @@ Read this first. Area notes in this folder say what each piece of work is.
   (pressing a button does not take it).
 - Representative look combinations live in `design/test/combos.json`, read by both `tests/snapshot.rs` and
   `qa/model.mjs`.
+- Search, links (area 10): fixture states `side` "search" (`fixture::search_query`), "links" (`[[` typed in the edited
+  item), "backlinks" (`looks`: an item links to l15/l16, zoomed in on l15). Their prefs are `settings::FLAGS`
+  (`show_backlinks`, `show_search_tips`, `global_tag_autocomplete`, `export_visible_only`), read with `find::pref`;
+  `find::set_pref` overrides one for a run. The `[[`/`#` list goes under the caret's `page_bounds`; with no caret
+  reported (headless) under the row input, measured (`links::register` when an input appears). `qa:model` needs
+  `CHROMIUM_PATH=/opt/pw-browsers/chromium` in these sessions (the pinned Playwright's headless shell is not installed).
 
 ## Conventions
 

@@ -700,6 +700,10 @@ fn structural_snapshots() {
         for (doc, side) in [("looks", "note"), ("inline", "note"), ("looks", "select")] {
             more.push((format!("{doc}-{}-{side}.txt", device.name), snapshot(doc, false, device, "", side)));
         }
+        // a search (the box, the rows it leaves, the words marked), the `[[` suggestions, backlinks
+        for (doc, side) in [("looks", "search"), ("inline", "search"), ("looks", "links"), ("looks", "backlinks")] {
+            more.push((format!("{doc}-{}-{side}.txt", device.name), snapshot(doc, false, device, "", side)));
+        }
     }
     for (name, got) in more {
         let path = dir.join(&name);

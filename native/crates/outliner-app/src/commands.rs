@@ -147,6 +147,11 @@ pub fn set_text(id: &str, note: bool, text: &str, caret: u32) {
 
 /// Replace `s..e` of the field the caret is in with `with`, the caret going to `caret` (one undo step).
 pub fn replace(id: &str, note: bool, s: u32, e: u32, with: &str, caret: u32) {
+    replace_range(id, note, s, e, with, caret, caret);
+}
+
+/// [`replace`] leaving `sel_a..sel_b` selected.
+pub fn replace_range(id: &str, note: bool, s: u32, e: u32, with: &str, sel_a: u32, sel_b: u32) {
     let key = if note { "n" } else { "c" };
     run(|tx, _, _, _| {
         let n = tx.tree.get(id)?;
@@ -157,7 +162,7 @@ pub fn replace(id: &str, note: bool, s: u32, e: u32, with: &str, caret: u32) {
         props.insert(key.into(), Value::String(text));
         tx.set(id, props);
         let f = if note { Field::Note } else { Field::Content };
-        Some(CmdResult { sel: Sel::Text { id: id.to_owned(), f, s: caret as usize, e: caret as usize }, zoom: None })
+        Some(CmdResult { sel: Sel::Text { id: id.to_owned(), f, s: sel_a as usize, e: sel_b as usize }, zoom: None })
     });
 }
 
@@ -577,6 +582,11 @@ fn plain(items: &[core::Portable], numbered: bool, out: &mut String) {
 /// Mod+C / Mod+X on selected items: their text to the clipboard (cut: the items deleted).
 pub fn copy_block(cut: bool) {
     if let Some(text) = block_text() {
+        let items = store::peek(|s| {
+            let ids = s.block.as_ref().map(|b| b.ids.clone()).unwrap_or_default();
+            ids.iter().map(|id| core::to_portable(s.tree(), id, Some(&s.view))).collect()
+        });
+        remember_clip(&text, items);
         nsh_core::prelude::set_clipboard(text);
         if cut {
             delete_items(Dir::Left);
@@ -590,4 +600,106 @@ pub fn check(id: &str) {
         let opts = CheckOptions { stay: true, recurring: Some(recurring()), now: None };
         core::toggle_checked(tx, v, &[id.to_owned()], sel, &opts)
     });
+}
+
+/// Put back a selection kept earlier (the search box closing), when its items are still there and shown.
+pub fn restore(mark: Option<Mark>) {
+    store::edit(|s| {
+        let shown = |id: &str| s.rows.iter().any(|r| r.id == id) || id == s.view.zoom;
+        let ok = match &mark {
+            Some(Mark::Caret(c)) => shown(&c.id),
+            Some(Mark::Block(b)) => b.ids.iter().all(|id| shown(id)),
+            None => false,
+        };
+        if ok {
+            place(s, mark);
+        }
+    });
+}
+
+/// "Replace all" of the search and replace dialog: every match of `find` under the zoom root replaced with
+/// `with`, as one undoable change; how many were replaced.
+pub fn replace_all(find: &str, with: &str, match_case: bool) -> usize {
+    let mut n = 0;
+    run(|tx, v, _, _| {
+        n = outliner_core::refs::replace_all(tx, &v.zoom, find, with, match_case);
+        (n > 0).then_some(CmdResult { sel: Sel::None, zoom: None })
+    });
+    n
+}
+
+/// What the app copied last (Mod+C on selected items): its text, and the items it came from, which a paste of
+/// that same text puts back whole (the web's `clip`).
+#[derive(Clone, Default)]
+struct Clip(Option<(String, Vec<core::Portable>)>);
+
+thread_local! {
+    static CLIP: std::cell::RefCell<Clip> = std::cell::RefCell::new(Clip::default());
+}
+
+fn remember_clip(text: &str, items: Vec<core::Portable>) {
+    CLIP.with(|c| *c.borrow_mut() = Clip(Some((text.to_owned(), items))));
+}
+
+/// A paste into the row being edited (`onPaste`): its text, HTML and OPML (what the platform gives) become items.
+/// In a note or the title the text goes in as it is; one line without children stays text in the field; several
+/// lines, HTML or OPML become items at the caret (`paste_items`). Returns whether the paste was taken (else
+/// nothing usable was on the clipboard).
+pub fn paste(id: &str, note: bool, s: u32, e: u32, plain: &str, html: &str) -> bool {
+    use outliner_core::paste::{normalize_newlines, parse_clipboard, ClipboardData};
+    let text = normalize_newlines(plain);
+    let (a, b) = (s.min(e), s.max(e));
+    let title = store::peek(|st| st.view.zoom == id);
+    if note || title {
+        replace(id, note, a, b, &text, a + utf16_len(&text));
+        return true;
+    }
+    let ours = CLIP.with(|c| c.borrow().0.clone()).filter(|(t, _)| *t == text).map(|(_, items)| items);
+    let items = match ours {
+        Some(items) => items,
+        None => {
+            let data = ClipboardData {
+                plain: Some(text.clone()).filter(|t| !t.is_empty()),
+                html: Some(html.to_owned()).filter(|h| !h.is_empty()),
+                opml: None,
+            };
+            match parse_clipboard(&data) {
+                Some(p) => p.items,
+                None => return false,
+            }
+        }
+    };
+    if items.is_empty() {
+        return false;
+    }
+    if items.len() == 1 && items[0].children.is_empty() && !text.contains('\n') {
+        let one = items[0].props.get("c").and_then(Value::as_str).unwrap_or("").to_owned();
+        replace(id, false, a, b, &one, a + utf16_len(&one));
+        return true;
+    }
+    run(|tx, v, _, _| core::paste_items(tx, v, id, a as usize, b as usize, &items));
+    true
+}
+
+/// A paste on selected items: they are replaced by the pasted items, the caret at the end of the last.
+pub fn paste_over_block(plain: &str) -> bool {
+    use outliner_core::paste::{normalize_newlines, parse_clipboard, ClipboardData};
+    let text = normalize_newlines(plain);
+    let ours = CLIP.with(|c| c.borrow().0.clone()).filter(|(t, _)| *t == text).map(|(_, items)| items);
+    let items = ours.or_else(|| {
+        parse_clipboard(&ClipboardData { plain: Some(text.clone()).filter(|t| !t.is_empty()), html: None, opml: None })
+            .map(|p| p.items)
+    });
+    let Some(items) = items.filter(|i| !i.is_empty()) else { return false };
+    run_items(|tx, _, ids, _| {
+        let parent = tx.tree.get(&ids[0])?.parent.clone()?;
+        let after = tx.tree.prev_sibling(&ids[0]).cloned();
+        for id in ids {
+            tx.move_to(id, None, None);
+        }
+        let nids = core::insert_portable(tx, &parent, after.as_deref(), &items);
+        let last = nids.last()?.clone();
+        let at = text16::len(item::content(tx.tree.get(&last)));
+        Some(CmdResult { sel: core::caret(&last, at), zoom: None })
+    })
 }

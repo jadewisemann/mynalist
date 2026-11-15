@@ -34,6 +34,15 @@ pub fn noted_item(doc: &str) -> &'static str {
     }
 }
 
+/// The query the "search" state searches for.
+pub fn search_query(doc: &str) -> &'static str {
+    match doc {
+        "inline" => "code",
+        "looks" => "level",
+        _ => "plain",
+    }
+}
+
 pub fn selected_item(doc: &str) -> &'static str {
     match doc {
         "inline" => "s7",
@@ -72,7 +81,9 @@ pub struct FixtureProps {
     /// ("files", "bookmarks", "tags"); or the settings shown, on Preferences ("settings"), on Look with the
     /// `[type]` controls ("look"), on Keymap ("keymap") or on Sync & data ("data"); or the outline with the
     /// settings of [`PREFS`] ("prefs"); or a state of the outline: the note of [`noted_item`] edited ("note"),
-    /// [`selected_item`] selected ("select").
+    /// [`selected_item`] selected ("select"); searching for [`search_query`] ("search"); `[[` typed at the end of
+    /// [`edited_item`] ("links"); an item linking to `looks`' "Levels", zoomed in on it with backlinks shown
+    /// ("backlinks").
     #[prop(default)]
     pub side: Prop<String>,
 }
@@ -129,6 +140,23 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
         "select" => {
             commands::start_editing(selected_item(&doc), Some(0));
             commands::extend(true);
+        }
+        "search" => crate::find::open(Some(search_query(&doc))),
+        "links" => {
+            // `[[` typed at the end of the edited item: the items suggested
+            let id = edited_item(&doc);
+            let old = store::peek(|s| store::content_of(s, id));
+            let new = format!("{old} [[");
+            commands::set_text(id, false, &new, commands::utf16_len(&new));
+            commands::start_editing(id, None);
+            crate::links::typed(id, false, &old, &new);
+        }
+        "backlinks" => {
+            // an item linking to "Levels" and to its child, zoomed in on "Levels", backlinks shown
+            crate::find::set_pref("show_backlinks", true);
+            let src = format!("A checkbox, off [Levels]({}) [Second]({})", crate::links::item_url(&doc, "l15"), crate::links::item_url(&doc, "l16"));
+            commands::set_text("l4", false, &src, 0);
+            crate::links::go(&doc, "l15");
         }
         other => panic!("the fixture's sidebar: {other}"),
     }

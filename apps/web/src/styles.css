@@ -240,7 +240,7 @@ button { font: inherit; color: inherit; }
 .o-checked > .o-row .o-date.o-overdue { background: var(--code-bg); border-color: var(--date-border); }
 .o-image { color: var(--accent); }
 .o-latex { font-family: var(--math-font); }
-.o-match { background: var(--match); border-radius: var(--radius-mark); }
+.o-match { background: var(--match); color: var(--match-fg); border-radius: var(--radius-mark); }
 
 /* ---- overlays ---- */
 .overlay { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: flex-start; justify-content: center; padding-top: calc(var(--space-overlay-top) * 100vh); z-index: 50; }

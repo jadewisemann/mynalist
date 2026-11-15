@@ -434,7 +434,40 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   검출했다. 웹과 다른 점: 검색 연산자 시간의 `Date.parse` 대체 경로는 ISO 8601과 `2026/10/22`, `10/22/2026` 꼴만 읽는다
   (V8은 `1`, `next 3`도 날짜로 읽는다). TS가 일반 객체로 찾아서 생기는 버그(엔티티·속성 이름이 `constructor`, `toString` 같은
   `Object.prototype` 멤버일 때)는 옮기지 않았다. 앱 연결(검색 화면, `[[` 링크, 붙여넣기, 내보내기)은 영역 9/10에서 한다.
-- [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌, 검색.
+- [x] 검색, 항목 링크, 붙여넣기, 내보내기 (2026-11-15, 영역 10): 영역 7의 core 이식을 앱에 연결했다(`find.rs`, `links.rs`,
+  `export.rs`, 공용 대화상자 `dialog.rs`, 알림 `toast.rs`). 검색: 상단 바의 검색 버튼(데스크톱·휴대폰)과 Mod+F가 문서 위에 웹의
+  검색 상자를 연다(데스크톱 320pt, 휴대폰은 문서 폭). 입력하는 동안 `compile_query`(입력 중이면 마지막 낱말은 접두어)와
+  `search_tree`로 걸러 일치 항목과 조상만 보이고(보기의 filter), 일치 항목의 일치 낱말에 `.o-match` 배경을 칠한다(본문, 노트, 코드,
+  태그, 링크 글자; URL 안에서 일치하면 링크 원문을 드러냄). Escape와 닫기 버튼은 검색을 끝내고 열기 전의 캐럿·선택으로 돌아간다.
+  검색 팁(`show_search_tips`, 기본 켬)에서 Flat search(Shift+Enter)와 Search in all documents(Mod+Enter, 메뉴의 "Search everywhere")가
+  결과 화면을 연다: 결과 수, 체크 필터로 숨은 수, 정렬(`sort_comparator`, 웹의 `<select>` 대신 버튼), "Go back [Esc]", 문서별
+  카드(전체 검색), 결과를 누르면 그 문서를 열고 항목을 편집한다(`revealItem`). 태그를 누르면 검색어에 넣거나 뺀다. 다른 문서를 열면
+  검색이 끝난다. 찾아 바꾸기: 메뉴의 "Search and replace"(Find, Match case, Replace with, 줌 범위의 일치 수, Replace all은 undo 한 번,
+  결과는 알림). 항목 링크: 공백 뒤 `[[`가 모든 문서의 항목(열린 문서 먼저)을 `fuzzy_filter`로 제안하고(10개, 일치 글자 강조, 경로),
+  `#`/`@`가 쓰인 태그를 제안한다(8개, 개수; `global_tag_autocomplete`면 모든 문서). ↑/↓, Return/Tab, 누르기로 고르고 Escape는 목록만
+  닫는다. 링크는 웹 형식 `[제목](#d=<문서>&z=<항목>)`로 넣고 제목을 선택한다. 행의 링크를 누르면 로컬 문서의 항목이면 그 항목으로
+  줌하고, 아니면 브라우저로 연다. `show_backlinks`가 켜지면 줌한 항목을 가리키는 항목을 문서 아래에("This item is referenced in:"),
+  가리켜진 행에는 개수 칩(`.o-backlinks`)을 보이고 칩을 누르면 References 대화상자가 열린다. 붙여넣기: 행 입력란이 붙여넣기를
+  직접 처리한다(NSH `PasteBehavior::Report`): 여러 줄, HTML, OPML은 `parse_clipboard` → `paste_items`로 항목이 되고(undo 한 번),
+  한 줄은 입력란의 글로 남는다. 노트와 제목에는 글 그대로. 앱에서 복사한 항목을 같은 글로 붙이면 구조째 되살린다(웹의 `clip`).
+  선택한 항목에 Mod+V는 그 항목을 붙인 항목으로 바꾼다. 내보내기: 메뉴의 "Export…"가 선택한 항목, 줌한 항목 또는 문서를
+  Plain text(들여쓰기 4종)/HTML/OPML로, 보이는 것만(`export_visible_only`, 기기에 저장, 검색 중이면 검색 결과만) 보여 준다.
+  데스크톱은 Download(저장 대화상자)와 Copy, 휴대폰은 Copy만(NSH 0.5.0에 공유 시트 없음). 데스크톱 상단 바의 Menu 버튼이 이제
+  메뉴(휴대폰과 같은 것)를 연다. 새 토큰: `color.match_fg`(웹 `<mark>`의 검정 글자; 웹 `.o-match`도 이 변수를 쓰도록 바꿨고 계산값은
+  같다), `space.search_vw`, `space.modal_vw`, `space.modal_vh`, `space.export_out`(웹의 70vw, 92vw, 76vh, 280px 리터럴).
+  테스트: 헤드리스 `tests/search.rs` 13개(거르기·강조·Escape, 캐럿 복귀, 태그 누르기, Flat/전체 결과와 결과 열기, 휴대폰 검색,
+  찾아 바꾸기와 undo, `[[` 제안·고르기·링크 누르기, `#` 제안과 Escape, 백링크 개수·References·목록, 여러 줄/한 줄/HTML 붙여넣기,
+  내보내기 세 형식·Copy, 휴대폰 선택 항목 내보내기). 구조 스냅샷에 고정 상태 8개(`looks`/`inline`의 search, `looks`의 links와
+  backlinks; 데스크톱·휴대폰). `qa:model`이 search 상태를 웹에서 같은 질의로 재서 대조한다(이때 `.o-match` 글자색 차이를 찾아
+  맞췄다). 기존 정답은 `[views]`의 들여쓰기만 바뀌었다(문서 영역과 목록 끝에 뷰가 하나씩 늘었다; `[model]`은 같음).
+  웹과 다른 점: 링크 후보의 순서는 문서 순서다(웹은 노드 맵의 삽입 순서), 앱 주소가 없어 링크 URL에 origin이 없다(웹은 `#`로 시작하는
+  URL도 자기 것으로 연다), 결과 화면의 정렬과 내보내기의 들여쓰기는 `<select>` 대신 버튼, 북마크 별표는 그리기만 한다, 검색어는 웹처럼
+  주소(route)에 남지 않는다, 문서별 "체크 항목 보기" 설정이 없어 다른 문서의 결과는 체크 항목을 보인다. 영역 12의 설정 화면에
+  이 기능들의 설정 4개를 웹과 같은 이름·라벨·구역으로 더했다: Input의 "Auto-complete tags from all docs"
+  (`global_tag_autocomplete`), "Internal links" 구역의 "Show backlinks"(`show_backlinks`), Advanced의 "Show search tip popup"
+  (`show_search_tips`, 기본 켬)과 "Export visible items only (default)"(`export_visible_only`; 내보내기 대화상자의 체크도 이 값을 바꾼다).
+  `[[`/`#` 목록은 캐럿의 화면 위치(`CaretEvent::page_bounds`) 아래에, 캐럿 위치를 모르면(헤드리스, 캐럿 보고 전) 입력란 아래에 둔다.
+- [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌.
 - [ ] 알려진 제약: Rust 문자열은 짝이 맞지 않는 UTF-16 서로게이트를 담을 수 없다. 웹이 이런 문자열을 보내면 역직렬화가 실패한다.
 - 명령:
   ```sh

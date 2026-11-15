@@ -139,6 +139,8 @@ impl State {
             return;
         }
         let Some((session, view)) = self.shelved.remove(id) else { return };
+        // a search filters the document it was made in only
+        self.view.filter = None;
         let old = std::mem::replace(&mut self.session, session);
         let old_view = std::mem::replace(&mut self.view, view);
         self.shelved.insert(std::mem::replace(&mut self.doc, id.to_owned()), (old, old_view));

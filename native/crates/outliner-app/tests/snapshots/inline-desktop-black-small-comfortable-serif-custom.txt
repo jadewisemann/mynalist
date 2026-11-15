@@ -162,185 +162,187 @@ view 0,0 1100x800
                       "Untitled"
                         "Untitled" Georgia, 'Times New Roman', serif 14/21 w400 #102030
         view#splitter 257,45 6x755
-      scroll#outline 263,45 837x755 bg=#000000 scroll 837x603
-        view 263,45 837x64
-          view#title 263,45 837x64
-            view 313,65 747x32
-              text 313,65 747x32
-                "Inline"
-                  "Inline" Georgia, 'Times New Roman', serif 26.5/32 w400 #102030
-        view 263,615 837x33
-          view#doc-end 263,615 837x33
-        view 263,109 837x33
-          view#row 263,109 837x33
-            view 315,115 18x21
-              view#bullet 321,122.5 6x6 bg=#8a8e95 r=3
-            view 333,115 727x20.5
-              text#row-text 339,115 318x20.5
-                "Bold, italic, strike and highlight"
-                  "Bold" Georgia, 'Times New Roman', serif 17/21 w700 #102030
-                  ", " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "italic" Georgia, 'Times New Roman', serif 17/21 w400 #102030 italic
-                  ", " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "strike" Georgia, 'Times New Roman', serif 17/21 w400 #102030 strike
-                  " and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "highlight" Georgia, 'Times New Roman', serif 17/21 w400 #102030 bg=#ffdd0061 r=2
-        view 263,142 837x33
-          view#row 263,142 837x33
-            view 315,148 18x21
-              view#bullet 321,155.5 6x6 bg=#8a8e95 r=3
-            view 333,148 727x20.5
-              text#row-text 339,148 477x20.5
-                "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
-                  "Code " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "let x = 1;" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15/21 w400 #ef7a98 bg=#1e1f21 r=4
-                  ", an escaped *star* and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "e^{i\\pi}+1=0" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15/21 w400 #102030
-        view 263,175 837x33
-          view#row 263,175 837x33
-            view 315,181 18x21
-              view#bullet 321,188.5 6x6 bg=#8a8e95 r=3
-            view 333,181 727x20.5
-              text#row-text 339,181 421x20.5
-                "A link, https://example.org/docs and #tag @me"
-                  "A " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "link" Georgia, 'Times New Roman', serif 17/21 w400 #102030 underline
-                  ", " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "https://example.org/docs" Georgia, 'Times New Roman', serif 17/21 w400 #102030 underline
-                  " and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "#tag" Georgia, 'Times New Roman', serif 17/21 w400 #008080 underline
-                  " " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "@me" Georgia, 'Times New Roman', serif 17/21 w400 #008080 underline
-        view 263,208 837x33
-          view#row 263,208 837x33
-            view 315,214 18x21
-              view#bullet 321,221.5 6x6 bg=#8a8e95 r=3
-            view 333,214 727x20.5
-              text#row-text 339,214 103x20.5
-                "Due ￼ and ￼"
-                  "Due ￼ and ￼" Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                view 376.5,214 199x20.5 bg=#1e1f21 r=4 border=1 #333333
-                  view 381.5,218 12x12.5
-                    canvas 381.5,218 12x12.5
-                  text 397.5,215 175x18.5
-                    "Fri, January 5th 2024"
-                      "Fri, January 5th 2024" Georgia, 'Times New Roman', serif 15/18.5 w400 #102030
-                view 432.5,214 323.5x20.5 bg=#1e1f21 r=4 border=1 #333333
-                  view 437.5,218 12x12.5
-                    canvas 437.5,218 12x12.5
-                  text 453.5,215 299.5x18.5
-                    "Sun, March 10th 2024, 3:30 pm - 5 pm"
-                      "Sun, March 10th 2024, 3:30 pm - 5 pm" Georgia, 'Times New Roman', serif 15/18.5 w400 #102030
-        view 263,241 837x33
-          view#row 263,241 837x33
-            view 315,247 18x21
-              view#bullet 321,254.5 6x6 bg=#8a8e95 r=3
-            view 333,247 727x20.5
-              text#row-text 339,247 243.5x20.5
-                "Every week ￼ and a picture"
-                  "Every week ￼ and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "a picture" Georgia, 'Times New Roman', serif 17/21 w400 #5aa4f5 underline
-                view 442,247 440x20.5 bg=#1e1f21 r=4 border=1 #333333
-                  view 447,251 12x12.5
-                    canvas 447,251 12x12.5
-                  text 463,248 416x18.5
-                    "Mon, January 8th 2024, every week on Mon, Wed, Fri"
-                      "Mon, January 8th 2024, every week on Mon, Wed, Fri" Georgia, 'Times New Roman', serif 15/18.5 w400 #102030
-        view 263,274 837x49.5
-          view#row 263,274 837x49.5
-            view 315,280 18x21
-              view#bullet 321,287.5 6x6 bg=#8a8e95 r=3
-            view 333,280 727x37.5
-              text#row-text 339,280 150x20.5
-                "Item with a note"
-                  "Item with a note" Georgia, 'Times New Roman', serif 17/21 w400 #102030
-              view#note 339,300.5 721x17
-                text 339,300.5 721x17
-                  "A note under the item, with bold and a #tag."
-                    "A note under the item, with " Georgia, 'Times New Roman', serif 14/17 w400 #a3a6ab
-                    "bold" Georgia, 'Times New Roman', serif 14/17 w700 #a3a6ab
-                    " and a " Georgia, 'Times New Roman', serif 14/17 w400 #a3a6ab
-                    "#tag" Georgia, 'Times New Roman', serif 14/17 w400 #008080 underline
-                    "." Georgia, 'Times New Roman', serif 14/17 w400 #a3a6ab
-        view 263,323.5 837x89.5
-          view#row 263,323.5 837x89.5
-            view 315,329.5 18x21
-              view#bullet 321,337 6x6 bg=#8a8e95 r=3
-            view 333,329.5 727x77.5
-              view#row-text 339,329.5 721x77.5
-                text 339,329.5 721x20.5
-                  "Code block:"
-                    "Code block:" Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                view 339,352 721x53 bg=#1e1f21 r=6 border=1 #333333
-                  text 350,361 699x35
-                    "const a = 1;\nconsole.log(a);"
-                      "const a = 1;\nconsole.log(a);" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 14.5/17.5 w400 #102030
-        view 263,413 837x33
-          view#row 263,413 837x33
-            view 315,419 18x21
-              view 321,426.5 6x6
-                view#bullet 321,426.5 6x6 bg=#8a8e95 r=3
-            view 333,419 727x20.5
-              text#row-text 339,419 122x20.5
-                "Numbered list"
-                  "Numbered list" Georgia, 'Times New Roman', serif 17/21 w400 #102030
-        view 263,446 837x33
-          view#row 263,446 837x33
-            view#guide 324,446 1x33 bg=#2a2c2f
-            view 341,452 28x21
-              view#bullet 341,453.5 28x17.5
-                text 347,453.5 16x17.5
-                  "1."
-                    "1." Georgia, 'Times New Roman', serif 14.5/0 w400 #8a8e95 variant=FontVariant(8)
-            view 369,452 691x20.5
-              text#row-text 375,452 47x20.5
-                "First"
-                  "First" Georgia, 'Times New Roman', serif 17/21 w400 #102030
-        view 263,479 837x33
-          view#row 263,479 837x33
-            view#guide 324,479 1x33 bg=#2a2c2f
-            view 341,485 28x21
-              view#bullet 341,486.5 28x17.5
-                text 347,486.5 16x17.5
-                  "2."
-                    "2." Georgia, 'Times New Roman', serif 14.5/0 w400 #8a8e95 variant=FontVariant(8)
-            view 369,485 691x20.5
-              text#row-text 375,485 150x20.5
-                "Second with mark"
-                  "Second with " Georgia, 'Times New Roman', serif 17/21 w400 #102030
-                  "mark" Georgia, 'Times New Roman', serif 17/21 w400 #102030 bg=#ffdd0061 r=2
-        view 263,512 837x33
-          view#row 263,512 837x33
-            view#guide 324,512 1x33 bg=#2a2c2f
-            view 341,518 28x21
-              view#bullet 341,519.5 28x17.5
-                text 347,519.5 16x17.5
-                  "3."
-                    "3." Georgia, 'Times New Roman', serif 14.5/0 w400 #8a8e95 variant=FontVariant(8)
-            view 369,518 691x20.5
-              text#row-text 375,518 47x20.5
-                "Third"
-                  "Third" Georgia, 'Times New Roman', serif 17/21 w400 #102030
-        view 263,545 837x33
-          view#row 263,545 837x33
-            view 315,551 18x21
-              view#bullet 321,558.5 6x6 bg=#8a8e95 r=3
-            view 333,551 727x20.5
-              text#row-text 339,551 196.5x20.5
-                "Checked with a date ￼"
-                  "Checked with a date ￼" Georgia, 'Times New Roman', serif 17/21 w400 #6b6f76 strike
-                view 526,551 199x20.5 bg=#1e1f21 r=4 border=1 #333333
-                  view 531,555 12x12.5
-                    canvas 531,555 12x12.5
-                  text 547,552 175x18.5
-                    "Fri, January 5th 2024"
-                      "Fri, January 5th 2024" Georgia, 'Times New Roman', serif 15/18.5 w400 #6b6f76 strike
-        view 263,578 837x37
-          view#row 263,578 837x37
-            view 315,584 18x24.5
-              view#bullet 321,593.5 6x6 bg=#8a8e95 r=3
-            view 333,584 727x25
-              text#row-text 339,584 194.5x25
-                "Heading with gone"
-                  "Heading with " Georgia, 'Times New Roman', serif 21/24.5 w600 #102030
-                  "gone" Georgia, 'Times New Roman', serif 21/24.5 w600 #102030 strike
+      view 263,45 837x755
+        scroll#outline 263,45 837x755 bg=#000000 scroll 837x603
+          view 263,45 837x64
+            view#title 263,45 837x64
+              view 313,65 747x32
+                text 313,65 747x32
+                  "Inline"
+                    "Inline" Georgia, 'Times New Roman', serif 26.5/32 w400 #102030
+          view 263,615 837x33
+            view 263,615 837x33
+              view#doc-end 263,615 837x33
+          view 263,109 837x33
+            view#row 263,109 837x33
+              view 315,115 18x21
+                view#bullet 321,122.5 6x6 bg=#8a8e95 r=3
+              view 333,115 727x20.5
+                text#row-text 339,115 318x20.5
+                  "Bold, italic, strike and highlight"
+                    "Bold" Georgia, 'Times New Roman', serif 17/21 w700 #102030
+                    ", " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "italic" Georgia, 'Times New Roman', serif 17/21 w400 #102030 italic
+                    ", " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "strike" Georgia, 'Times New Roman', serif 17/21 w400 #102030 strike
+                    " and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "highlight" Georgia, 'Times New Roman', serif 17/21 w400 #102030 bg=#ffdd0061 r=2
+          view 263,142 837x33
+            view#row 263,142 837x33
+              view 315,148 18x21
+                view#bullet 321,155.5 6x6 bg=#8a8e95 r=3
+              view 333,148 727x20.5
+                text#row-text 339,148 477x20.5
+                  "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
+                    "Code " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "let x = 1;" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15/21 w400 #ef7a98 bg=#1e1f21 r=4
+                    ", an escaped *star* and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "e^{i\\pi}+1=0" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15/21 w400 #102030
+          view 263,175 837x33
+            view#row 263,175 837x33
+              view 315,181 18x21
+                view#bullet 321,188.5 6x6 bg=#8a8e95 r=3
+              view 333,181 727x20.5
+                text#row-text 339,181 421x20.5
+                  "A link, https://example.org/docs and #tag @me"
+                    "A " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "link" Georgia, 'Times New Roman', serif 17/21 w400 #102030 underline
+                    ", " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "https://example.org/docs" Georgia, 'Times New Roman', serif 17/21 w400 #102030 underline
+                    " and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "#tag" Georgia, 'Times New Roman', serif 17/21 w400 #008080 underline
+                    " " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "@me" Georgia, 'Times New Roman', serif 17/21 w400 #008080 underline
+          view 263,208 837x33
+            view#row 263,208 837x33
+              view 315,214 18x21
+                view#bullet 321,221.5 6x6 bg=#8a8e95 r=3
+              view 333,214 727x20.5
+                text#row-text 339,214 103x20.5
+                  "Due ￼ and ￼"
+                    "Due ￼ and ￼" Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                  view 376.5,214 199x20.5 bg=#1e1f21 r=4 border=1 #333333
+                    view 381.5,218 12x12.5
+                      canvas 381.5,218 12x12.5
+                    text 397.5,215 175x18.5
+                      "Fri, January 5th 2024"
+                        "Fri, January 5th 2024" Georgia, 'Times New Roman', serif 15/18.5 w400 #102030
+                  view 432.5,214 323.5x20.5 bg=#1e1f21 r=4 border=1 #333333
+                    view 437.5,218 12x12.5
+                      canvas 437.5,218 12x12.5
+                    text 453.5,215 299.5x18.5
+                      "Sun, March 10th 2024, 3:30 pm - 5 pm"
+                        "Sun, March 10th 2024, 3:30 pm - 5 pm" Georgia, 'Times New Roman', serif 15/18.5 w400 #102030
+          view 263,241 837x33
+            view#row 263,241 837x33
+              view 315,247 18x21
+                view#bullet 321,254.5 6x6 bg=#8a8e95 r=3
+              view 333,247 727x20.5
+                text#row-text 339,247 243.5x20.5
+                  "Every week ￼ and a picture"
+                    "Every week ￼ and " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "a picture" Georgia, 'Times New Roman', serif 17/21 w400 #5aa4f5 underline
+                  view 442,247 440x20.5 bg=#1e1f21 r=4 border=1 #333333
+                    view 447,251 12x12.5
+                      canvas 447,251 12x12.5
+                    text 463,248 416x18.5
+                      "Mon, January 8th 2024, every week on Mon, Wed, Fri"
+                        "Mon, January 8th 2024, every week on Mon, Wed, Fri" Georgia, 'Times New Roman', serif 15/18.5 w400 #102030
+          view 263,274 837x49.5
+            view#row 263,274 837x49.5
+              view 315,280 18x21
+                view#bullet 321,287.5 6x6 bg=#8a8e95 r=3
+              view 333,280 727x37.5
+                text#row-text 339,280 150x20.5
+                  "Item with a note"
+                    "Item with a note" Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                view#note 339,300.5 721x17
+                  text 339,300.5 721x17
+                    "A note under the item, with bold and a #tag."
+                      "A note under the item, with " Georgia, 'Times New Roman', serif 14/17 w400 #a3a6ab
+                      "bold" Georgia, 'Times New Roman', serif 14/17 w700 #a3a6ab
+                      " and a " Georgia, 'Times New Roman', serif 14/17 w400 #a3a6ab
+                      "#tag" Georgia, 'Times New Roman', serif 14/17 w400 #008080 underline
+                      "." Georgia, 'Times New Roman', serif 14/17 w400 #a3a6ab
+          view 263,323.5 837x89.5
+            view#row 263,323.5 837x89.5
+              view 315,329.5 18x21
+                view#bullet 321,337 6x6 bg=#8a8e95 r=3
+              view 333,329.5 727x77.5
+                view#row-text 339,329.5 721x77.5
+                  text 339,329.5 721x20.5
+                    "Code block:"
+                      "Code block:" Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                  view 339,352 721x53 bg=#1e1f21 r=6 border=1 #333333
+                    text 350,361 699x35
+                      "const a = 1;\nconsole.log(a);"
+                        "const a = 1;\nconsole.log(a);" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 14.5/17.5 w400 #102030
+          view 263,413 837x33
+            view#row 263,413 837x33
+              view 315,419 18x21
+                view 321,426.5 6x6
+                  view#bullet 321,426.5 6x6 bg=#8a8e95 r=3
+              view 333,419 727x20.5
+                text#row-text 339,419 122x20.5
+                  "Numbered list"
+                    "Numbered list" Georgia, 'Times New Roman', serif 17/21 w400 #102030
+          view 263,446 837x33
+            view#row 263,446 837x33
+              view#guide 324,446 1x33 bg=#2a2c2f
+              view 341,452 28x21
+                view#bullet 341,453.5 28x17.5
+                  text 347,453.5 16x17.5
+                    "1."
+                      "1." Georgia, 'Times New Roman', serif 14.5/0 w400 #8a8e95 variant=FontVariant(8)
+              view 369,452 691x20.5
+                text#row-text 375,452 47x20.5
+                  "First"
+                    "First" Georgia, 'Times New Roman', serif 17/21 w400 #102030
+          view 263,479 837x33
+            view#row 263,479 837x33
+              view#guide 324,479 1x33 bg=#2a2c2f
+              view 341,485 28x21
+                view#bullet 341,486.5 28x17.5
+                  text 347,486.5 16x17.5
+                    "2."
+                      "2." Georgia, 'Times New Roman', serif 14.5/0 w400 #8a8e95 variant=FontVariant(8)
+              view 369,485 691x20.5
+                text#row-text 375,485 150x20.5
+                  "Second with mark"
+                    "Second with " Georgia, 'Times New Roman', serif 17/21 w400 #102030
+                    "mark" Georgia, 'Times New Roman', serif 17/21 w400 #102030 bg=#ffdd0061 r=2
+          view 263,512 837x33
+            view#row 263,512 837x33
+              view#guide 324,512 1x33 bg=#2a2c2f
+              view 341,518 28x21
+                view#bullet 341,519.5 28x17.5
+                  text 347,519.5 16x17.5
+                    "3."
+                      "3." Georgia, 'Times New Roman', serif 14.5/0 w400 #8a8e95 variant=FontVariant(8)
+              view 369,518 691x20.5
+                text#row-text 375,518 47x20.5
+                  "Third"
+                    "Third" Georgia, 'Times New Roman', serif 17/21 w400 #102030
+          view 263,545 837x33
+            view#row 263,545 837x33
+              view 315,551 18x21
+                view#bullet 321,558.5 6x6 bg=#8a8e95 r=3
+              view 333,551 727x20.5
+                text#row-text 339,551 196.5x20.5
+                  "Checked with a date ￼"
+                    "Checked with a date ￼" Georgia, 'Times New Roman', serif 17/21 w400 #6b6f76 strike
+                  view 526,551 199x20.5 bg=#1e1f21 r=4 border=1 #333333
+                    view 531,555 12x12.5
+                      canvas 531,555 12x12.5
+                    text 547,552 175x18.5
+                      "Fri, January 5th 2024"
+                        "Fri, January 5th 2024" Georgia, 'Times New Roman', serif 15/18.5 w400 #6b6f76 strike
+          view 263,578 837x37
+            view#row 263,578 837x37
+              view 315,584 18x24.5
+                view#bullet 321,593.5 6x6 bg=#8a8e95 r=3
+              view 333,584 727x25
+                text#row-text 339,584 194.5x25
+                  "Heading with gone"
+                    "Heading with " Georgia, 'Times New Roman', serif 21/24.5 w600 #102030
+                    "gone" Georgia, 'Times New Roman', serif 21/24.5 w600 #102030 strike

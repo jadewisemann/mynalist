@@ -58,17 +58,21 @@ pub fn outline() -> impl IntoElement {
     let path = computed(move || if threading { store::read(|s| s.path_rows()) } else { Vec::new() });
     // the rows that show as selected, read by every cell
     let selected = computed(|| store::read(|s| s.selected_rows()));
+    // how many items link to each item, while backlinks show (`show_backlinks`)
+    let counts = computed(crate::links::counts);
     // Escape with nothing edited or selected: back where the last Escape left
     on_key("escape", |_| {
         if store::peek(|s| s.block.is_none() && s.editing.is_none()) {
             cmd::resume();
         }
     });
-    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path, selected))
+    // Mod+F with nothing edited: the search box
+    on_key("mod+f", |_| crate::find::open(None));
+    virtual_list(|| store::read(|s| s.rows.len()), move |at| row(at, path, selected, counts))
         .keys(|| store::read(|s| s.rows.iter().map(|r| r.id.clone()).collect::<Vec<_>>()))
         .estimated_item_size(px(style::line() + 2.0 * style::pad()))
         .header(title())
-        .footer(doc_end())
+        .footer(view().child(doc_end()).child(crate::links::backlinks()))
         .test_id("outline")
         .flex_1()
         // the narrow document layout: no wider than `space.doc_max`, in the middle (`.doc-wrap`)
@@ -119,7 +123,7 @@ fn title() -> impl IntoElement {
                 .into_element()
         }))
         .child(dynamic(move || match note.get() {
-            Some(n) => note_text(&n, false).mt(px(num("space.title_note"))).into_element(),
+            Some(n) => note_text(&n, false, &[]).mt(px(num("space.title_note"))).into_element(),
             None => view().into_element(),
         }))
 }
@@ -136,11 +140,11 @@ fn doc_end() -> impl IntoElement {
 /// A note (`.o-note`): 5/6 of the text in the note color, on 1.2 lines; formatted as the content is. With the
 /// notes setting on "1st line", one line cut with an ellipsis, its line breaks as spaces (`[data-notes='teaser']`:
 /// `white-space: nowrap`).
-fn note_text(src: &str, checked: bool) -> View {
+fn note_text(src: &str, checked: bool, marks: &[String]) -> View {
     let size = style::efs() * num("type.note");
     let note_line = size * num("type.note_line");
     let fg = if checked { color::check() } else { color::note() };
-    let look = inline::Look::new(size, store::now()).colored(fg, checked);
+    let look = inline::Look::new(size, store::now()).colored(fg, checked).marking(marks, src).pressable();
     let teaser = crate::settings::get().pick("show_notes") == "teaser";
     if teaser {
         let one = src.replace('\n', " ");
@@ -175,7 +179,12 @@ fn note_text(src: &str, checked: bool) -> View {
 }
 
 /// A cell, reused for other rows as the list scrolls: its bindings read the row where it is now.
-fn row(at: Position, path: Memo<Vec<usize>>, selected: Memo<Vec<Option<u16>>>) -> impl IntoElement {
+fn row(
+    at: Position,
+    path: Memo<Vec<usize>>,
+    selected: Memo<Vec<Option<u16>>>,
+    counts: Memo<std::collections::HashMap<outliner_core::NodeId, usize>>,
+) -> impl IntoElement {
     let row = computed(move || store::read(|s| s.rows.get(at.index()).cloned()));
     let look = computed(move || row.get().map(|r| look_of(&r.id)).unwrap_or_default());
     let thread = computed(move || row.get().map(|r| path.with(|p| Thread::of(p, at.index(), r.depth))).unwrap_or_default());
@@ -231,6 +240,17 @@ fn row(at: Position, path: Memo<Vec<usize>>, selected: Memo<Vec<Option<u16>>>) -
             let (t, r) = (thread.get(), row.get());
             r.map(|r| thread_marks(&t, &r, look.get().type_size().1)).unwrap_or_default()
         }))
+        // the count of the items linking here (`.o-backlinks`), left of the bullet
+        .child(dynamic(move || {
+            let Some(r) = row.get() else { return view().into_element() };
+            match counts.with(|c| c.get(&r.id).copied()) {
+                Some(n) => {
+                    let left = style::text_left(r.depth) - style::body_gap() - bullet_w(r.num);
+                    crate::links::badge(&r.id, n, look.get().type_size().1, left).into_element()
+                }
+                None => view().into_element(),
+            }
+        }))
         .child(bullet(row, look, thread))
         .child(when(move || look.get().checkbox, move || checkbox(row, look)))
         .child(
@@ -249,8 +269,9 @@ fn row(at: Position, path: Memo<Vec<usize>>, selected: Memo<Vec<Option<u16>>>) -
                         return note_input(id, look.get_untracked().checked).into_element();
                     }
                     let l = look.get();
+                    let marks = row.get().map(|r| crate::find::highlight(&r.id)).unwrap_or_default();
                     match &l.note {
-                        Some(n) => note_text(n, l.checked)
+                        Some(n) => note_text(n, l.checked, &marks)
                             .on_press(move || {
                                 if let Some(r) = row.get_untracked() {
                                     press_row(&r.id, true);
@@ -464,7 +485,9 @@ fn row_text(row: Memo<Option<Row>>, look: Memo<Look>) -> impl IntoElement {
         let (size, line) = l.type_size();
         let src = content.get();
         let fg = if l.checked { color::check() } else { color::fg() };
-        let shown = inline::Look::new(size, store::now()).colored(fg, l.checked);
+        // a search's words marked in a matching item (`.o-match`)
+        let marks = row.get().map(|r| crate::find::highlight(&r.id)).unwrap_or_default();
+        let shown = inline::Look::new(size, store::now()).colored(fg, l.checked).marking(&marks, &src).pressable();
         let edit = move || {
             if let Some(r) = row.get_untracked() {
                 press_row(&r.id, false);
@@ -546,6 +569,7 @@ fn item_keys(id: &str, note: bool) {
     }
     bind("escape", cmd::stop_editing);
     bind("mod+d", crate::datepicker::add_date);
+    bind("mod+f", || crate::find::open(None));
 }
 
 /// The input of the row being edited. Made when editing moves to the row, gone when it moves away; the keys
@@ -556,6 +580,7 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
     let id = row.id.clone();
     let field = element_ref();
     let (sel, sel_end) = follow_caret(&id, false, field);
+    crate::links::register(field);
 
     item_keys(&id, false);
     let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
@@ -607,7 +632,8 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
     // a multiline input breaks the line on Alt+Return: an item's text gets no line break from it
     on_key_with("alt+enter", opts, |_| {});
 
-    let (value_id, change_id, submit_id, key_id, caret_id) = (id.clone(), id.clone(), id.clone(), id.clone(), id.clone());
+    let (value_id, change_id, submit_id, key_id, caret_id, paste_id) =
+        (id.clone(), id.clone(), id.clone(), id.clone(), id.clone(), id.clone());
     input()
         .element_ref(&field)
         .value(move || store::read(|s| store::content_of(s, &value_id)))
@@ -631,13 +657,20 @@ fn row_input(row: Option<Row>) -> impl IntoElement {
             let old = store::peek(|s| store::content_of(s, &change_id));
             cmd::set_text(&change_id, false, t, sel.get_untracked());
             crate::datepicker::typed(&change_id, false, &old, t);
+            crate::links::typed(&change_id, false, &old, t);
+        })
+        // a paste is the app's: several lines, HTML or OPML become items (`onPaste`)
+        .paste_behavior(PasteBehavior::Report)
+        .on_paste(move |p: &PasteEvent| {
+            cmd::paste(&paste_id, false, sel.get_untracked(), sel_end.get_untracked(), &p.text, &p.html);
         })
         .on_caret_move(move |c: &CaretEvent| {
             let b = c.bounds;
             // an empty caret: the platform could not place it
             caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
-            // the date picker opens under it
+            // the date picker and the suggestions open under it
             crate::datepicker::caret_at(&caret_id, false, c.page_bounds);
+            crate::links::caret_at(c.page_bounds);
         })
         .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
         .on_selection_change(on_selection(&id, false, sel, sel_end))
@@ -684,6 +717,7 @@ fn on_selection(id: &str, note: bool, sel: Signal<u32>, sel_end: Signal<u32>) ->
         sel.set(s.start);
         sel_end.set(s.end);
         cmd::caret_moved(&id, note, s.start, s.end);
+        crate::links::caret_moved(&id, note, s.end);
     }
 }
 
@@ -696,6 +730,7 @@ fn note_input(id: String, checked: bool) -> impl IntoElement {
     let note_line = size * num("type.note_line");
     let field = element_ref();
     let (sel, sel_end) = follow_caret(&id, true, field);
+    crate::links::register(field);
     item_keys(&id, true);
     let opts = KeyOptions { when: When::Always, repeat: true, ..Default::default() };
     // Tab types a tab in a note (the item is not indented)
@@ -730,7 +765,7 @@ fn note_input(id: String, checked: bool) -> impl IntoElement {
             }
         });
     }
-    let (value_id, change_id, caret_id) = (id.clone(), id.clone(), id.clone());
+    let (value_id, change_id, caret_id, paste_id) = (id.clone(), id.clone(), id.clone(), id.clone());
     let fg = if checked { color::check() } else { color::note() };
     view().test_id("note").child(
         input()
@@ -755,11 +790,18 @@ fn note_input(id: String, checked: bool) -> impl IntoElement {
                 let old = note_of(&change_id);
                 cmd::set_text(&change_id, true, t, sel.get_untracked());
                 crate::datepicker::typed(&change_id, true, &old, t);
+                crate::links::typed(&change_id, true, &old, t);
+            })
+            // a note takes a paste as text, line breaks and all
+            .paste_behavior(PasteBehavior::Report)
+            .on_paste(move |p: &PasteEvent| {
+                cmd::paste(&paste_id, true, sel.get_untracked(), sel_end.get_untracked(), &p.text, &p.html);
             })
             .on_caret_move(move |c: &CaretEvent| {
                 let b = c.bounds;
                 caret_box.set((b.size.height.0 > 0.0).then_some((b.origin.y.0, b.origin.y.0 + b.size.height.0)));
                 crate::datepicker::caret_at(&caret_id, true, c.page_bounds);
+                crate::links::caret_at(c.page_bounds);
             })
             .on_layout(move |b: &Bounds<Points>| field_h.set(b.size.height.0))
             .on_selection_change(on_selection(&id, true, sel, sel_end)),
@@ -788,6 +830,14 @@ pub(crate) fn block_keys() -> impl IntoElement {
     }
     bind("mod+c", || cmd::copy_block(false));
     bind("mod+x", || cmd::copy_block(true));
+    bind("mod+f", || crate::find::open(None));
+    // a paste replaces the selected items with what is on the clipboard
+    bind("mod+v", || {
+        spawn(async {
+            let text = clipboard_string().await;
+            cmd::paste_over_block(&text);
+        });
+    });
     view()
 }
 

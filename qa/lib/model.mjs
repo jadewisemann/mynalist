@@ -193,6 +193,7 @@ export const KNOWN = [
   { re: /row \d+ spans: native "const a = 1;/, why: 'the native app has no syntax highlighting in code blocks yet' },
   { re: /e\^\{i\\\\pi\}\+1=0.*Latin Modern Math|Latin Modern Math.*e\^\{i/, why: 'the native app shows LaTeX source in the mono font; the web typesets it (KaTeX)' },
   { re: /^inline-[\w-]+: row [12] (height|top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source' },
+  { re: /^inline-[\w-]*search: row (0 height|1 top):/, why: 'the web typesets LaTeX (KaTeX), a taller line than its source (the search leaves its row first)' },
   { re: /^inline-phone-[\w-]+: row \d+ (height|top):/, why: 'where a long line wraps on a phone depends on glyph widths, which differ between text engines and machines' },
   { re: /^looks-phone-(edit: row (18 height|19 top)|prefs: row (16 height|17 top)):/, why: 'the edited row\'s source (its ** marks shown) wraps on a phone in the snapshot\'s approximate text engine, whose glyphs are wider than Fira Sans' },
   { re: /^looks-phone-[\w-]*large[\w-]*: row (18 height|19 top):/, why: 'the large text wraps a long row on a phone where glyph widths decide it, which differ between text engines' },
