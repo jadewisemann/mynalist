@@ -21,7 +21,7 @@ function url(): string {
   ]);
 }
 
-const WORDS = ['apple', 'Apple', 'APPLE', 'pie', 'a.b', 'a*b', '(x)', '[y]', 'ß', 'İ', 'i', '한글', '😀', 'aa', 'aaa', 'Ab'];
+const WORDS = ['aaaa', 'aAa', 'apple', 'Apple', 'APPLE', 'pie', 'a.b', 'a*b', '(x)', '[y]', 'ß', 'İ', 'i', '한글', '😀', 'aa', 'aaa', 'Ab'];
 function text(): string {
   const parts: string[] = [];
   const n = int(5);
@@ -55,7 +55,7 @@ const cases = Array.from({ length: 120 }, () => {
     const t = trees[k]!.tree;
     const ids = [...t.nodes.keys()];
     const scope = rand() < 0.4 ? ROOT : pick(ids);
-    const find = pick([...WORDS, '', 'a', 'p', 'n', '.', '*', '#', 'd=']);
+    const find = rand() < 0.2 ? pick(['aa', 'AA', 'aaa']) : pick([...WORDS, '', 'a', 'p', 'n', '.', '*', '#', 'd=']);
     const replace = pick(['', 'X', '$&', '$1', 'ß', '😀']);
     const matchCase = rand() < 0.5;
     const count = countMatches(t, scope, find, matchCase);

@@ -20,7 +20,8 @@ reseed(0x5eac4);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const ZONES = ['UTC', 'America/New_York', 'Asia/Seoul', 'Australia/Lord_Howe'];
-const NOWS = [Date.UTC(2026, 9, 22, 2, 0), Date.UTC(2026, 2, 8, 6, 30), Date.UTC(2026, 9, 4, 15, 45), Date.UTC(2024, 1, 29, 12, 0)];
+// month ends too, so `1m` / `-1m` clamp the day
+const NOWS = [Date.UTC(2026, 9, 22, 2, 0), Date.UTC(2026, 2, 8, 6, 30), Date.UTC(2026, 9, 4, 15, 45), Date.UTC(2024, 1, 29, 12, 0), Date.UTC(2026, 0, 31, 12, 0), Date.UTC(2026, 4, 31, 12, 0)];
 
 function localDate(t: number, time: boolean): string {
   const d = new Date(t);
@@ -89,13 +90,15 @@ function query(now: number): string {
     if (rand() < 0.15) t = '-' + t;
     parts.push(t);
   }
+  // a scope switch before a plain word, so the scopes split items
+  if (rand() < 0.25) parts.unshift(`in:${pick(['title', 'content', 'note', 'notes', 'all', 'both'])}`, pick(WORDS));
   return parts.join(pick([' ', ' ', '  ', '\t'])) + (rand() < 0.3 ? ' ' : '');
 }
 
 function zoneCases(count: number) {
   const out: unknown[] = [];
   for (let k = 0; k < count; k++) {
-    const now = pick(NOWS) + Math.floor((rand() - 0.5) * 6 * 86400000);
+    const now = pick(NOWS) + (rand() < 0.5 ? 0 : Math.floor((rand() - 0.5) * 6 * 86400000));
     const tree = randomTree(4 + int(14), { texts: () => itemText(now), notes: () => pick(['', ' ', 'apple note', '#work\nmore', itemText(now)]) });
     // edits around now so edited:/created: thresholds split items
     for (const n of tree.nodes.values()) {

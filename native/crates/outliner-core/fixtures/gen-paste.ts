@@ -53,7 +53,8 @@ function attr(): string {
 function tag(): string {
   const r = rand();
   if (r < 0.1) return pick(['<!-- c -->', '<!--', '<![CDATA[<b>x</b>]]>', '<!DOCTYPE html>', '<?xml version="1.0"?>', '<', '< b>', '</>', '<3', '</ p>']);
-  const name = pick(TAGS);
+  // names past the tokenizer's 64-unit window, too
+  const name = rand() < 0.03 ? 'b' + 'x'.repeat(55 + int(15)) : pick(TAGS);
   if (r < 0.4) return `</${name}${rand() < 0.1 ? ' ' : ''}>`;
   const attrs = Array.from({ length: int(3) }, attr).map((a) => ' ' + a).join('');
   return `<${name}${attrs}${pick(['>', '>', '/>', ' />', ''])}`;

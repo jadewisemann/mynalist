@@ -253,7 +253,7 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   - Exact(expo/exact), gpui-mobile도 검토했다. Exact는 macOS가 AppKit뿐이고 Android 지원이 초기 단계라서, gpui-mobile은 Android에서 IME 조합 입력이 없어서 제외했다.
 - **구조:**
   - `crates/outliner-core`: `packages/core`의 Rust 이식. 지금은 tree, item, ids, session(undo, sync), history, Tx, commands,
-    view, inline, dates. `fixtures/gen*.ts`가 TS 코어의 동작을 무작위 시나리오로 기록하고 `tests/*.rs`가 대조한다
+    view, inline, dates, search, refs, paste, export(HTML 렌더러 포함), calendar. `fixtures/gen*.ts`가 TS 코어의 동작을 무작위 시나리오로 기록하고 `tests/*.rs`가 대조한다
     (CI `native-core`). 날짜 사례는 시간대 5곳(UTC, 뉴욕, 서울, 산티아고, 로드하우)에서 기록해 서머타임 경계까지 대조한다.
   - `crates/outliner-app`: NSH UI. 가상 리스트, 인라인 서식 행, 편집 중인 행만 네이티브 입력란, 키 바인딩(`When::Always`), 터치용 툴바.
     헤드리스 테스트 `tests/flows.rs` (1만 개 행 문서).
@@ -387,12 +387,20 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   헤드리스로 확인할 수 없다(nsh-testing 0.5.0에 선택 읽기 없음; 줄 계산만 단위 테스트). 웹 버그(고치지 않음, 영역 8에 전달): 범위가 아닐 때 PageUp/Down 뒤 Done을 누르면 이전 끝 날짜가
   시작으로 바뀌어 들어간다(`datepicker.ts` `done`의 swap); 네이티브는 범위가 아니면 끝을 시작과 함께 옮긴다.
 - [ ] 실기기 확인 (사용자): macOS 앱과 Android APK에서 한글 입력, 키 바인딩(↑/↓, Tab/Shift+Tab, ⌘Z), 스크롤 성능, 메모리.
-- [ ] 남은 core 이식: `search.ts`, `paste.ts`, `export.ts`(HTML 렌더러 포함), `refs.ts`, `calendar.ts`.
+- [x] 남은 core 이식 (2026-11-15, 영역 7): `search.ts`(쿼리 언어, `searchTree`, 연산자 시간 값, 낱말 일치, 퍼지 일치),
+  `refs.ts`(`parseItemUrl`, 백링크와 개수, 찾아 바꾸기), `paste.ts`(들여쓴 텍스트, 엔티티, 마크업 토크나이저, HTML → 텍스트,
+  OPML, 클립보드 우선순위), `export.ts`(텍스트·HTML·OPML, `inline.ts`의 HTML 렌더러 `render.rs`), `calendar.ts`(ICS).
+  모듈마다 생성기(`fixtures/gen-{search,refs,paste,export,calendar}.ts`, 공용 `fixtures/lib.ts`)와 대조 테스트
+  (`tests/{search,refs,paste,export,calendar}.rs`)를 두었다. 대조 약 4만 6천 건(search 23,420, paste 14,110, export 6,000,
+  refs 2,640, calendar 150(피드 전체 비교, 일정 약 1,500개)), 검색과 렌더러는 시간대 여러 곳에서 기록했다. 변이 25개를 모두
+  검출했다. 웹과 다른 점: 검색 연산자 시간의 `Date.parse` 대체 경로는 ISO 8601과 `2026/10/22`, `10/22/2026` 꼴만 읽는다
+  (V8은 `1`, `next 3`도 날짜로 읽는다). TS가 일반 객체로 찾아서 생기는 버그(엔티티·속성 이름이 `constructor`, `toString` 같은
+  `Object.prototype` 멤버일 때)는 옮기지 않았다. 앱 연결(검색 화면, `[[` 링크, 붙여넣기, 내보내기)은 영역 9/10에서 한다.
 - [ ] 서버 동기화 연결(HTTP/WS 클라이언트, 로그인), 문서 목록, 줌, 검색.
 - [ ] 알려진 제약: Rust 문자열은 짝이 맞지 않는 UTF-16 서로게이트를 담을 수 없다. 웹이 이런 문자열을 보내면 역직렬화가 실패한다.
 - 명령:
   ```sh
-  for g in gen gen-commands gen-inline; do node native/crates/outliner-core/fixtures/$g.ts; done
+  for g in gen gen-commands gen-inline gen-search gen-refs gen-paste gen-export gen-calendar; do node native/crates/outliner-core/fixtures/$g.ts; done
   (cd native && cargo test)                                                      # core 대조 + 앱 헤드리스 테스트
   (cd native && UPDATE_SNAPSHOTS=1 cargo test -p outliner-app --test snapshot)   # 구조 스냅샷 정답 갱신 (커밋에 이유)
   node design/build.mjs                                                          # design/*.toml → CSS 변수, tokens.ts, design.rs
