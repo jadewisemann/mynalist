@@ -7,14 +7,13 @@ Read this first. Area notes in this folder say what each piece of work is.
 - `native/` is a Cargo workspace (Rust stable). The web app (`apps/web`, TS) and the server (`apps/server`) stay as
   they are; the native app (Android + macOS) syncs with the same server and must match the web app's behavior and look.
 - `crates/outliner-core`: Rust port of `packages/core` (no UI deps). Done so far: tree, item, ids, session (undo,
-  sync), history, tx, view, commands, text16 (UTF-16 offsets). Not yet: inline, dates, search, paste, export, refs,
-  calendar.
+  sync), history, tx, view, commands, text16 (UTF-16 offsets), inline, dates, search, refs, paste, export (+ `render`), calendar.
 - `crates/outliner-app`: the UI on NSH (Native Shell, https://github.com/longbridge/nsh, crates pinned `=0.5.0`).
   `store.rs` (the local documents and the open one: rows, editing caret, view; `switch`, `create`, `rename`,
   `tags_in`), `commands.rs` (app commands over core commands), `outline.rs` (virtual list, rows, row input, key
   bindings), `toolbar.rs` (top bar, phone toolbar), `sidebar.rs` (tabs, files, tags; desktop panel, phone drawer;
   its open/tab/width state is a global signal, not in the store), `style.rs`
-  (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (a
+  (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (inline
   temporary subset parser, to be replaced by the core port).
 - `crates/outliner-mac`: macOS binary, NSH's GPUI backend. Builds on Linux too (GPUI dev libs).
 - CI: `.github/workflows/ci.yml` job `native-core` (fixtures + tests + clippy); `.github/workflows/native.yml` builds
