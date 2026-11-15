@@ -823,7 +823,7 @@ pub fn token_path_at(tokens: &[Token], offset: usize) -> Vec<&Token> {
 }
 
 /// JS's case-insensitive comparison key for one UTF-16 unit (`Canonicalize` without the `u` flag).
-fn canonicalize(u: u16) -> u16 {
+pub(crate) fn canonicalize(u: u16) -> u16 {
     let Some(c) = char::from_u32(u32::from(u)) else { return u };
     let mut up = c.to_uppercase();
     match (up.next(), up.next()) {

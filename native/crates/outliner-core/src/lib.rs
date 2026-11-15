@@ -3,12 +3,18 @@
 //! The wire format (ops, serialized trees, sync requests) is the TS one, so the native app syncs with the same
 //! server as the web app. `tests/parity.rs` checks this crate against fixtures recorded from the TS code.
 
+pub mod calendar;
 pub mod commands;
 pub mod dates;
+pub mod export;
 pub mod history;
 pub mod ids;
 pub mod inline;
 pub mod item;
+pub mod paste;
+pub mod refs;
+pub mod render;
+pub mod search;
 pub mod session;
 pub mod text16;
 pub mod tree;

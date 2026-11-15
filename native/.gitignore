@@ -1,5 +1,4 @@
 target/
-/crates/outliner-core/fixtures/core.json
 /crates/outliner-app/.nsh
-/crates/outliner-core/fixtures/commands.json
-/crates/outliner-core/fixtures/inline.json
+# fixtures recorded from packages/core by fixtures/gen*.ts
+/crates/outliner-core/fixtures/*.json

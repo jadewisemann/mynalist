@@ -11,3 +11,5 @@ serde_json.workspace = true
 getrandom.workspace = true
 # local time zone for date labels and recurrences (TZ, /etc/localtime, Android's tzdata)
 chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+# general categories (\p{L}, \p{N}, \p{Lu}, \p{Ll}) for the search word rules, as the TS regexes take them
+unicode-properties = { version = "0.1.5", default-features = false, features = ["general-category"] }
