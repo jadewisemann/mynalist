@@ -149,6 +149,17 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | toolbar | length | 8..32 | `--type-toolbar` | `15` | Phone toolbar buttons' text. |
 | head_tracking | ratio | 0..0.5 | `--type-head-tracking` | `0.04` | Section heads' letter spacing, times their size. |
 | modal_title | length | 8..32 | `--type-modal-title` | `16` | Dialog titles (the settings' heading). |
+| ui_mini | length | 6..24 | `--type-ui-mini` | `10` | Glyph-sized app text: folder toggles, the date picker's info badge. |
+| ui_large | length | 8..32 | `--type-ui-large` | `16` | Large app text: search and capture inputs, search results, the phone action sheet. |
+| ui_head | length | 8..32 | `--type-ui-head` | `15` | Panel heads: the help panel's title, a search result's document. |
+| ui_heading | length | 8..40 | `--type-ui-heading` | `18` | Screen headings: the empty screen's title, the version history's title. |
+| finder | length | 8..40 | `--type-finder` | `17` | The finder's (document switcher's) input. |
+| results_title | length | 8..48 | `--type-results-title` | `22` | The search results screen's heading. |
+| dp_nav | length | 8..40 | `--type-dp-nav` | `18` | The date picker's month arrows. |
+| mm | length | 8..32 | `--type-mm` | `15` | Mind map boxes' text. |
+| mm_h1 | length | 8..48 | `--type-mm-h1` | `20` | Mind map boxes' text, heading 1. |
+| mm_h2 | length | 8..48 | `--type-mm-h2` | `18` | Mind map boxes' text, heading 2. |
+| mm_h3 | length | 8..48 | `--type-mm-h3` | `16` | Mind map boxes' text, heading 3. |
 
 ## [space]
 
@@ -266,6 +277,66 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | menu_min | length | 100..400 | `--space-menu-min` | `210` | Menus' least width. |
 | menu_item_x | length | 0..30 | `--space-menu-item-x` | `14` | Menu items' padding left and right. |
 | menu_item_y | length | 0..20 | `--space-menu-item-y` | `6` | Menu items' padding above and below. |
+| step1 | length | 0..4 | `--step-1` | `1` | Spacing scale, step 1 (base 1px): web-only screens' paddings, gaps and small sizes. |
+| step2 | length | 0..6 | `--step-2` | `2` | Spacing scale, step 2 (base 2px): web-only screens' paddings, gaps and small sizes. |
+| step3 | length | 0..9 | `--step-3` | `3` | Spacing scale, step 3 (base 3px): web-only screens' paddings, gaps and small sizes. |
+| step4 | length | 0..12 | `--step-4` | `4` | Spacing scale, step 4 (base 4px): web-only screens' paddings, gaps and small sizes. |
+| step5 | length | 0..18 | `--step-5` | `6` | Spacing scale, step 5 (base 6px): web-only screens' paddings, gaps and small sizes. |
+| step6 | length | 0..24 | `--step-6` | `8` | Spacing scale, step 6 (base 8px): web-only screens' paddings, gaps and small sizes. |
+| step7 | length | 0..30 | `--step-7` | `10` | Spacing scale, step 7 (base 10px): web-only screens' paddings, gaps and small sizes. |
+| step8 | length | 0..36 | `--step-8` | `12` | Spacing scale, step 8 (base 12px): web-only screens' paddings, gaps and small sizes. |
+| step9 | length | 0..48 | `--step-9` | `16` | Spacing scale, step 9 (base 16px): web-only screens' paddings, gaps and small sizes. |
+| step10 | length | 0..60 | `--step-10` | `20` | Spacing scale, step 10 (base 20px): web-only screens' paddings, gaps and small sizes. |
+| step11 | length | 0..72 | `--step-11` | `24` | Spacing scale, step 11 (base 24px): web-only screens' paddings, gaps and small sizes. |
+| step12 | length | 0..90 | `--step-12` | `30` | Spacing scale, step 12 (base 30px): web-only screens' paddings, gaps and small sizes. |
+| search_box | length | 100..800 | `--space-search-box` | `320` | The search box's and the search tips' width. |
+| search_box_right | length | 0..200 | `--space-search-box-right` | `64` | Space right of the search box (room for the document buttons). |
+| search_tips_top | length | 0..100 | `--space-search-tips-top` | `40` | The search tips popup's top, from the document's top. |
+| search_tips_right | length | 0..200 | `--space-search-tips-right` | `76` | The search tips popup's distance from the document's right. |
+| crumb_max | length | 40..400 | `--space-crumb-max` | `160` | A breadcrumb's widest. |
+| chunk_estimate | length | 100..10000 | `--space-chunk-estimate` | `3000` | The height a block of rows is taken to have before it is laid out (long documents). |
+| modal | length | 300..1200 | `--space-modal` | `560` | Dialogs' width (narrower windows: 92% of the window). |
+| shadow_modal | length | 0..100 | `--space-shadow-modal` | `40` | The blur of dialogs' shadow. |
+| shadow_popup | length | 0..100 | `--space-shadow-popup` | `28` | The blur of popups' shadow (autocomplete, date picker). |
+| finder_x | length | 0..40 | `--space-finder-x` | `18` | The finder's input and results: padding left and right. |
+| finder_y | length | 0..40 | `--space-finder-y` | `14` | The finder's input: padding above and below. |
+| finder_res_y | length | 0..30 | `--space-finder-res-y` | `7` | The finder's results: padding above and below. |
+| swatch_h | length | 8..60 | `--space-swatch-h` | `22` | Color label swatches' height in menus. |
+| sheet | length | 200..800 | `--space-sheet` | `360` | The phone action sheet's widest. |
+| sheet_pad | length | 0..40 | `--space-sheet-pad` | `15` | Space around the phone action sheet. |
+| sheet_button | length | 20..80 | `--space-sheet-button` | `44` | The phone action sheet's buttons' height. |
+| row_btn | length | 10..60 | `--space-row-btn` | `22` | The width of the buttons left of a row (menu, zoom). |
+| menu_btn_x | length | 0..120 | `--space-menu-btn-x` | `44` | The row menu button's distance left of the row. |
+| zoom_btn_x | length | 0..160 | `--space-zoom-btn-x` | `66` | The row zoom button's distance left of the row. |
+| zoom_ring | length | 2..30 | `--space-zoom-ring` | `9` | The zoom button's ring's diameter. |
+| zoom_ring_border | length | 0..6 | `--space-zoom-ring-border` | `1.5` | The zoom button's ring's line width. |
+| backlinks_h | length | 8..40 | `--space-backlinks-h` | `18` | The backlink count chip's height and least width. |
+| backlinks_x | length | 0..120 | `--space-backlinks-x` | `40` | The backlink count chip's distance left of the row. |
+| backlinks_hover_x | length | 0..200 | `--space-backlinks-hover-x` | `90` | The backlink count chip's distance left of a hovered row (room for the row buttons). |
+| ac_min | length | 80..600 | `--space-ac-min` | `200` | The autocomplete popup's least width. |
+| ac_max | length | 100..1000 | `--space-ac-max` | `440` | The autocomplete popup's widest. |
+| ac_item_y | length | 0..20 | `--space-ac-item-y` | `5` | Autocomplete and search tip items: padding above and below. |
+| datepicker | length | 200..600 | `--space-datepicker` | `292` | The date picker's width. |
+| dp_nav_h | length | 10..60 | `--space-dp-nav-h` | `28` | The date picker's month buttons' height. |
+| dp_day | length | 16..80 | `--space-dp-day` | `32` | The date picker's day cells' height. |
+| dp_day_phone | length | 16..80 | `--space-dp-day-phone` | `36` | The date picker's day cells' height on phones. |
+| dp_label | length | 20..200 | `--space-dp-label` | `78` | The date picker's field labels' width. |
+| dp_custom_label | length | 20..200 | `--space-dp-custom-label` | `96` | The custom repeat dialog's field labels' width. |
+| dp_every | length | 20..200 | `--space-dp-every` | `72` | The custom repeat dialog's interval input's widest. |
+| dp_info | length | 8..40 | `--space-dp-info` | `15` | The date picker's info badge's size. |
+| history | length | 400..2000 | `--space-history` | `980` | The version history dialog's width (narrower windows: 96% of the window). |
+| history_list | length | 100..600 | `--space-history-list` | `220` | The version history's list of versions: width. |
+| help | length | 200..800 | `--space-help` | `340` | The help panel's width. |
+| help_sec_top | length | 0..40 | `--space-help-sec-top` | `14` | Space above a help panel section's head. |
+| copy_btn | length | 10..60 | `--space-copy-btn` | `22` | Code blocks' copy button's size. |
+| copy_icon | length | 6..40 | `--space-copy-icon` | `13` | Code blocks' copy button's icon size. |
+| mm_box_max | length | 100..800 | `--space-mm-box-max` | `280` | Mind map boxes' widest. |
+| mm_box_gap | length | 0..30 | `--space-mm-box-gap` | `5` | Space above and below a mind map box. |
+| mm_toggle_x | length | 0..40 | `--space-mm-toggle-x` | `11` | How far a mind map box's fold button sticks out on its right. |
+| img_preview | length | 100..1000 | `--space-img-preview` | `320` | The image preview's widest. |
+| img_preview_h | length | 100..1000 | `--space-img-preview-h` | `240` | The image preview's tallest. |
+| share_input_min | length | 50..600 | `--space-share-input-min` | `200` | The share dialog's inputs' least width. |
+| share_link_min | length | 50..600 | `--space-share-link-min` | `120` | The share dialog's links' least width. |
 
 ## [radius]
 
@@ -283,3 +354,4 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | tool | length | 0..20 | `--radius-tool` | `6` | Icon buttons. |
 | topbar_tool | length | 0..20 | `--radius-topbar-tool` | `6` | The top bar's buttons. |
 | elbow | length | 0..20 | `--radius-elbow` | `8` | The bullet thread's turn. |
+| backlinks | length | 0..20 | `--radius-backlinks` | `9` | The backlink count chip. |

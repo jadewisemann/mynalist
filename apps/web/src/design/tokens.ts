@@ -862,6 +862,116 @@ export const SCHEMA: Entry[] = [
     "max": 32
   },
   {
+    "table": "type",
+    "key": "ui_mini",
+    "id": "type.ui_mini",
+    "kind": "length",
+    "doc": "Glyph-sized app text: folder toggles, the date picker's info badge.",
+    "css": "--type-ui-mini",
+    "min": 6,
+    "max": 24
+  },
+  {
+    "table": "type",
+    "key": "ui_large",
+    "id": "type.ui_large",
+    "kind": "length",
+    "doc": "Large app text: search and capture inputs, search results, the phone action sheet.",
+    "css": "--type-ui-large",
+    "min": 8,
+    "max": 32
+  },
+  {
+    "table": "type",
+    "key": "ui_head",
+    "id": "type.ui_head",
+    "kind": "length",
+    "doc": "Panel heads: the help panel's title, a search result's document.",
+    "css": "--type-ui-head",
+    "min": 8,
+    "max": 32
+  },
+  {
+    "table": "type",
+    "key": "ui_heading",
+    "id": "type.ui_heading",
+    "kind": "length",
+    "doc": "Screen headings: the empty screen's title, the version history's title.",
+    "css": "--type-ui-heading",
+    "min": 8,
+    "max": 40
+  },
+  {
+    "table": "type",
+    "key": "finder",
+    "id": "type.finder",
+    "kind": "length",
+    "doc": "The finder's (document switcher's) input.",
+    "css": "--type-finder",
+    "min": 8,
+    "max": 40
+  },
+  {
+    "table": "type",
+    "key": "results_title",
+    "id": "type.results_title",
+    "kind": "length",
+    "doc": "The search results screen's heading.",
+    "css": "--type-results-title",
+    "min": 8,
+    "max": 48
+  },
+  {
+    "table": "type",
+    "key": "dp_nav",
+    "id": "type.dp_nav",
+    "kind": "length",
+    "doc": "The date picker's month arrows.",
+    "css": "--type-dp-nav",
+    "min": 8,
+    "max": 40
+  },
+  {
+    "table": "type",
+    "key": "mm",
+    "id": "type.mm",
+    "kind": "length",
+    "doc": "Mind map boxes' text.",
+    "css": "--type-mm",
+    "min": 8,
+    "max": 32
+  },
+  {
+    "table": "type",
+    "key": "mm_h1",
+    "id": "type.mm_h1",
+    "kind": "length",
+    "doc": "Mind map boxes' text, heading 1.",
+    "css": "--type-mm-h1",
+    "min": 8,
+    "max": 48
+  },
+  {
+    "table": "type",
+    "key": "mm_h2",
+    "id": "type.mm_h2",
+    "kind": "length",
+    "doc": "Mind map boxes' text, heading 2.",
+    "css": "--type-mm-h2",
+    "min": 8,
+    "max": 48
+  },
+  {
+    "table": "type",
+    "key": "mm_h3",
+    "id": "type.mm_h3",
+    "kind": "length",
+    "doc": "Mind map boxes' text, heading 3.",
+    "css": "--type-mm-h3",
+    "min": 8,
+    "max": 48
+  },
+  {
     "table": "space",
     "key": "pad",
     "id": "space.pad",
@@ -1982,6 +2092,606 @@ export const SCHEMA: Entry[] = [
     "max": 20
   },
   {
+    "table": "space",
+    "key": "step1",
+    "id": "space.step1",
+    "kind": "length",
+    "doc": "Spacing scale, step 1 (base 1px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-1",
+    "min": 0,
+    "max": 4
+  },
+  {
+    "table": "space",
+    "key": "step2",
+    "id": "space.step2",
+    "kind": "length",
+    "doc": "Spacing scale, step 2 (base 2px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-2",
+    "min": 0,
+    "max": 6
+  },
+  {
+    "table": "space",
+    "key": "step3",
+    "id": "space.step3",
+    "kind": "length",
+    "doc": "Spacing scale, step 3 (base 3px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-3",
+    "min": 0,
+    "max": 9
+  },
+  {
+    "table": "space",
+    "key": "step4",
+    "id": "space.step4",
+    "kind": "length",
+    "doc": "Spacing scale, step 4 (base 4px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-4",
+    "min": 0,
+    "max": 12
+  },
+  {
+    "table": "space",
+    "key": "step5",
+    "id": "space.step5",
+    "kind": "length",
+    "doc": "Spacing scale, step 5 (base 6px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-5",
+    "min": 0,
+    "max": 18
+  },
+  {
+    "table": "space",
+    "key": "step6",
+    "id": "space.step6",
+    "kind": "length",
+    "doc": "Spacing scale, step 6 (base 8px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-6",
+    "min": 0,
+    "max": 24
+  },
+  {
+    "table": "space",
+    "key": "step7",
+    "id": "space.step7",
+    "kind": "length",
+    "doc": "Spacing scale, step 7 (base 10px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-7",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "step8",
+    "id": "space.step8",
+    "kind": "length",
+    "doc": "Spacing scale, step 8 (base 12px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-8",
+    "min": 0,
+    "max": 36
+  },
+  {
+    "table": "space",
+    "key": "step9",
+    "id": "space.step9",
+    "kind": "length",
+    "doc": "Spacing scale, step 9 (base 16px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-9",
+    "min": 0,
+    "max": 48
+  },
+  {
+    "table": "space",
+    "key": "step10",
+    "id": "space.step10",
+    "kind": "length",
+    "doc": "Spacing scale, step 10 (base 20px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-10",
+    "min": 0,
+    "max": 60
+  },
+  {
+    "table": "space",
+    "key": "step11",
+    "id": "space.step11",
+    "kind": "length",
+    "doc": "Spacing scale, step 11 (base 24px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-11",
+    "min": 0,
+    "max": 72
+  },
+  {
+    "table": "space",
+    "key": "step12",
+    "id": "space.step12",
+    "kind": "length",
+    "doc": "Spacing scale, step 12 (base 30px): web-only screens' paddings, gaps and small sizes.",
+    "css": "--step-12",
+    "min": 0,
+    "max": 90
+  },
+  {
+    "table": "space",
+    "key": "search_box",
+    "id": "space.search_box",
+    "kind": "length",
+    "doc": "The search box's and the search tips' width.",
+    "css": "--space-search-box",
+    "min": 100,
+    "max": 800
+  },
+  {
+    "table": "space",
+    "key": "search_box_right",
+    "id": "space.search_box_right",
+    "kind": "length",
+    "doc": "Space right of the search box (room for the document buttons).",
+    "css": "--space-search-box-right",
+    "min": 0,
+    "max": 200
+  },
+  {
+    "table": "space",
+    "key": "search_tips_top",
+    "id": "space.search_tips_top",
+    "kind": "length",
+    "doc": "The search tips popup's top, from the document's top.",
+    "css": "--space-search-tips-top",
+    "min": 0,
+    "max": 100
+  },
+  {
+    "table": "space",
+    "key": "search_tips_right",
+    "id": "space.search_tips_right",
+    "kind": "length",
+    "doc": "The search tips popup's distance from the document's right.",
+    "css": "--space-search-tips-right",
+    "min": 0,
+    "max": 200
+  },
+  {
+    "table": "space",
+    "key": "crumb_max",
+    "id": "space.crumb_max",
+    "kind": "length",
+    "doc": "A breadcrumb's widest.",
+    "css": "--space-crumb-max",
+    "min": 40,
+    "max": 400
+  },
+  {
+    "table": "space",
+    "key": "chunk_estimate",
+    "id": "space.chunk_estimate",
+    "kind": "length",
+    "doc": "The height a block of rows is taken to have before it is laid out (long documents).",
+    "css": "--space-chunk-estimate",
+    "min": 100,
+    "max": 10000
+  },
+  {
+    "table": "space",
+    "key": "modal",
+    "id": "space.modal",
+    "kind": "length",
+    "doc": "Dialogs' width (narrower windows: 92% of the window).",
+    "css": "--space-modal",
+    "min": 300,
+    "max": 1200
+  },
+  {
+    "table": "space",
+    "key": "shadow_modal",
+    "id": "space.shadow_modal",
+    "kind": "length",
+    "doc": "The blur of dialogs' shadow.",
+    "css": "--space-shadow-modal",
+    "min": 0,
+    "max": 100
+  },
+  {
+    "table": "space",
+    "key": "shadow_popup",
+    "id": "space.shadow_popup",
+    "kind": "length",
+    "doc": "The blur of popups' shadow (autocomplete, date picker).",
+    "css": "--space-shadow-popup",
+    "min": 0,
+    "max": 100
+  },
+  {
+    "table": "space",
+    "key": "finder_x",
+    "id": "space.finder_x",
+    "kind": "length",
+    "doc": "The finder's input and results: padding left and right.",
+    "css": "--space-finder-x",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "finder_y",
+    "id": "space.finder_y",
+    "kind": "length",
+    "doc": "The finder's input: padding above and below.",
+    "css": "--space-finder-y",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "finder_res_y",
+    "id": "space.finder_res_y",
+    "kind": "length",
+    "doc": "The finder's results: padding above and below.",
+    "css": "--space-finder-res-y",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "swatch_h",
+    "id": "space.swatch_h",
+    "kind": "length",
+    "doc": "Color label swatches' height in menus.",
+    "css": "--space-swatch-h",
+    "min": 8,
+    "max": 60
+  },
+  {
+    "table": "space",
+    "key": "sheet",
+    "id": "space.sheet",
+    "kind": "length",
+    "doc": "The phone action sheet's widest.",
+    "css": "--space-sheet",
+    "min": 200,
+    "max": 800
+  },
+  {
+    "table": "space",
+    "key": "sheet_pad",
+    "id": "space.sheet_pad",
+    "kind": "length",
+    "doc": "Space around the phone action sheet.",
+    "css": "--space-sheet-pad",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "sheet_button",
+    "id": "space.sheet_button",
+    "kind": "length",
+    "doc": "The phone action sheet's buttons' height.",
+    "css": "--space-sheet-button",
+    "min": 20,
+    "max": 80
+  },
+  {
+    "table": "space",
+    "key": "row_btn",
+    "id": "space.row_btn",
+    "kind": "length",
+    "doc": "The width of the buttons left of a row (menu, zoom).",
+    "css": "--space-row-btn",
+    "min": 10,
+    "max": 60
+  },
+  {
+    "table": "space",
+    "key": "menu_btn_x",
+    "id": "space.menu_btn_x",
+    "kind": "length",
+    "doc": "The row menu button's distance left of the row.",
+    "css": "--space-menu-btn-x",
+    "min": 0,
+    "max": 120
+  },
+  {
+    "table": "space",
+    "key": "zoom_btn_x",
+    "id": "space.zoom_btn_x",
+    "kind": "length",
+    "doc": "The row zoom button's distance left of the row.",
+    "css": "--space-zoom-btn-x",
+    "min": 0,
+    "max": 160
+  },
+  {
+    "table": "space",
+    "key": "zoom_ring",
+    "id": "space.zoom_ring",
+    "kind": "length",
+    "doc": "The zoom button's ring's diameter.",
+    "css": "--space-zoom-ring",
+    "min": 2,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "zoom_ring_border",
+    "id": "space.zoom_ring_border",
+    "kind": "length",
+    "doc": "The zoom button's ring's line width.",
+    "css": "--space-zoom-ring-border",
+    "min": 0,
+    "max": 6
+  },
+  {
+    "table": "space",
+    "key": "backlinks_h",
+    "id": "space.backlinks_h",
+    "kind": "length",
+    "doc": "The backlink count chip's height and least width.",
+    "css": "--space-backlinks-h",
+    "min": 8,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "backlinks_x",
+    "id": "space.backlinks_x",
+    "kind": "length",
+    "doc": "The backlink count chip's distance left of the row.",
+    "css": "--space-backlinks-x",
+    "min": 0,
+    "max": 120
+  },
+  {
+    "table": "space",
+    "key": "backlinks_hover_x",
+    "id": "space.backlinks_hover_x",
+    "kind": "length",
+    "doc": "The backlink count chip's distance left of a hovered row (room for the row buttons).",
+    "css": "--space-backlinks-hover-x",
+    "min": 0,
+    "max": 200
+  },
+  {
+    "table": "space",
+    "key": "ac_min",
+    "id": "space.ac_min",
+    "kind": "length",
+    "doc": "The autocomplete popup's least width.",
+    "css": "--space-ac-min",
+    "min": 80,
+    "max": 600
+  },
+  {
+    "table": "space",
+    "key": "ac_max",
+    "id": "space.ac_max",
+    "kind": "length",
+    "doc": "The autocomplete popup's widest.",
+    "css": "--space-ac-max",
+    "min": 100,
+    "max": 1000
+  },
+  {
+    "table": "space",
+    "key": "ac_item_y",
+    "id": "space.ac_item_y",
+    "kind": "length",
+    "doc": "Autocomplete and search tip items: padding above and below.",
+    "css": "--space-ac-item-y",
+    "min": 0,
+    "max": 20
+  },
+  {
+    "table": "space",
+    "key": "datepicker",
+    "id": "space.datepicker",
+    "kind": "length",
+    "doc": "The date picker's width.",
+    "css": "--space-datepicker",
+    "min": 200,
+    "max": 600
+  },
+  {
+    "table": "space",
+    "key": "dp_nav_h",
+    "id": "space.dp_nav_h",
+    "kind": "length",
+    "doc": "The date picker's month buttons' height.",
+    "css": "--space-dp-nav-h",
+    "min": 10,
+    "max": 60
+  },
+  {
+    "table": "space",
+    "key": "dp_day",
+    "id": "space.dp_day",
+    "kind": "length",
+    "doc": "The date picker's day cells' height.",
+    "css": "--space-dp-day",
+    "min": 16,
+    "max": 80
+  },
+  {
+    "table": "space",
+    "key": "dp_day_phone",
+    "id": "space.dp_day_phone",
+    "kind": "length",
+    "doc": "The date picker's day cells' height on phones.",
+    "css": "--space-dp-day-phone",
+    "min": 16,
+    "max": 80
+  },
+  {
+    "table": "space",
+    "key": "dp_label",
+    "id": "space.dp_label",
+    "kind": "length",
+    "doc": "The date picker's field labels' width.",
+    "css": "--space-dp-label",
+    "min": 20,
+    "max": 200
+  },
+  {
+    "table": "space",
+    "key": "dp_custom_label",
+    "id": "space.dp_custom_label",
+    "kind": "length",
+    "doc": "The custom repeat dialog's field labels' width.",
+    "css": "--space-dp-custom-label",
+    "min": 20,
+    "max": 200
+  },
+  {
+    "table": "space",
+    "key": "dp_every",
+    "id": "space.dp_every",
+    "kind": "length",
+    "doc": "The custom repeat dialog's interval input's widest.",
+    "css": "--space-dp-every",
+    "min": 20,
+    "max": 200
+  },
+  {
+    "table": "space",
+    "key": "dp_info",
+    "id": "space.dp_info",
+    "kind": "length",
+    "doc": "The date picker's info badge's size.",
+    "css": "--space-dp-info",
+    "min": 8,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "history",
+    "id": "space.history",
+    "kind": "length",
+    "doc": "The version history dialog's width (narrower windows: 96% of the window).",
+    "css": "--space-history",
+    "min": 400,
+    "max": 2000
+  },
+  {
+    "table": "space",
+    "key": "history_list",
+    "id": "space.history_list",
+    "kind": "length",
+    "doc": "The version history's list of versions: width.",
+    "css": "--space-history-list",
+    "min": 100,
+    "max": 600
+  },
+  {
+    "table": "space",
+    "key": "help",
+    "id": "space.help",
+    "kind": "length",
+    "doc": "The help panel's width.",
+    "css": "--space-help",
+    "min": 200,
+    "max": 800
+  },
+  {
+    "table": "space",
+    "key": "help_sec_top",
+    "id": "space.help_sec_top",
+    "kind": "length",
+    "doc": "Space above a help panel section's head.",
+    "css": "--space-help-sec-top",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "copy_btn",
+    "id": "space.copy_btn",
+    "kind": "length",
+    "doc": "Code blocks' copy button's size.",
+    "css": "--space-copy-btn",
+    "min": 10,
+    "max": 60
+  },
+  {
+    "table": "space",
+    "key": "copy_icon",
+    "id": "space.copy_icon",
+    "kind": "length",
+    "doc": "Code blocks' copy button's icon size.",
+    "css": "--space-copy-icon",
+    "min": 6,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "mm_box_max",
+    "id": "space.mm_box_max",
+    "kind": "length",
+    "doc": "Mind map boxes' widest.",
+    "css": "--space-mm-box-max",
+    "min": 100,
+    "max": 800
+  },
+  {
+    "table": "space",
+    "key": "mm_box_gap",
+    "id": "space.mm_box_gap",
+    "kind": "length",
+    "doc": "Space above and below a mind map box.",
+    "css": "--space-mm-box-gap",
+    "min": 0,
+    "max": 30
+  },
+  {
+    "table": "space",
+    "key": "mm_toggle_x",
+    "id": "space.mm_toggle_x",
+    "kind": "length",
+    "doc": "How far a mind map box's fold button sticks out on its right.",
+    "css": "--space-mm-toggle-x",
+    "min": 0,
+    "max": 40
+  },
+  {
+    "table": "space",
+    "key": "img_preview",
+    "id": "space.img_preview",
+    "kind": "length",
+    "doc": "The image preview's widest.",
+    "css": "--space-img-preview",
+    "min": 100,
+    "max": 1000
+  },
+  {
+    "table": "space",
+    "key": "img_preview_h",
+    "id": "space.img_preview_h",
+    "kind": "length",
+    "doc": "The image preview's tallest.",
+    "css": "--space-img-preview-h",
+    "min": 100,
+    "max": 1000
+  },
+  {
+    "table": "space",
+    "key": "share_input_min",
+    "id": "space.share_input_min",
+    "kind": "length",
+    "doc": "The share dialog's inputs' least width.",
+    "css": "--space-share-input-min",
+    "min": 50,
+    "max": 600
+  },
+  {
+    "table": "space",
+    "key": "share_link_min",
+    "id": "space.share_link_min",
+    "kind": "length",
+    "doc": "The share dialog's links' least width.",
+    "css": "--space-share-link-min",
+    "min": 50,
+    "max": 600
+  },
+  {
     "table": "radius",
     "key": "row",
     "id": "radius.row",
@@ -2100,10 +2810,20 @@ export const SCHEMA: Entry[] = [
     "css": "--radius-elbow",
     "min": 0,
     "max": 20
+  },
+  {
+    "table": "radius",
+    "key": "backlinks",
+    "id": "radius.backlinks",
+    "kind": "length",
+    "doc": "The backlink count chip.",
+    "css": "--radius-backlinks",
+    "min": 0,
+    "max": 20
   }
 ];
 
-export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["type.head_tracking",0.04],["type.modal_title",16],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.sidebar_min",160],["space.sidebar_drag_max",520],["space.splitter",6],["space.drawer",0.82],["space.drawer_shadow",40],["space.side_tab_y",8],["space.side_tab_bar",2],["space.pane_head_left",12],["space.pane_head_right",8],["space.pane_head_y",6],["space.pane_top",4],["space.pane_bottom",24],["space.file_pad",8],["space.file_indent",16],["space.file_gap",6],["space.file_box",16],["space.file_icon",15],["space.tag_row_x",12],["space.tag_row_y",3],["space.pane_empty_x",14],["space.pane_empty_y",8],["space.link_y",4],["space.rename_x",4],["space.rename_y",1],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["space.overlay_top",0.12],["space.settings",680],["space.settings_vw",0.94],["space.settings_vh",0.86],["space.modal_x",18],["space.modal_head_y",14],["space.modal_body_y",12],["space.modal_foot_y",10],["space.modal_foot_gap",8],["space.btn_x",14],["space.btn_y",6],["space.field_gap",4],["space.field_row_gap",8],["space.field_bottom",12],["space.input_x",8],["space.input_y",6],["space.set_tab_x",12],["space.set_tab_y",8],["space.set_tab_bar",2],["space.set_tabs_gap",4],["space.set_tabs_bottom",10],["space.set_head_top",14],["space.set_head_bottom",8],["space.km_y",4],["space.km_gap",8],["space.toml_min",100],["space.menu_y",4],["space.menu_min",210],["space.menu_item_x",14],["space.menu_item_y",6],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8]];
+export const BASE: [string, Value][] = [["color.scheme","light"],["color.bg","#ffffff"],["color.paper","#fff"],["color.fg","#222222"],["color.muted","#8b8f97"],["color.faint","#c9ccd1"],["color.line","#eceef1"],["color.guide","#e3e5e8"],["color.accent","#2f8cf0"],["color.hover","#eef5fe"],["color.sel","#d9eafd"],["color.thread","{color.accent}"],["color.selection_mix",0.3],["color.current_mix",0.45],["color.side_bg","#f7f8fa"],["color.chip","#f1f2f4"],["color.chip_border","#dfe1e5"],["color.check","#a7a7a7"],["color.note","#4e4e4e"],["color.tag","#7a7a7a"],["color.code_fg","#c7254e"],["color.code_bg","#f5f5f5"],["color.date_border","#cccccc"],["color.danger","#d9534f"],["color.danger_strong","#c0392b"],["color.on_accent","#fff"],["color.toast_bg","#333"],["color.toast_fg","#fff"],["color.overlay","rgba(0,0,0,.25)"],["color.scrim","rgba(0,0,0,.3)"],["color.highlight","rgba(255, 221, 0, .38)"],["color.match","rgba(255, 221, 0, .45)"],["color.overdue_bg","rgba(217, 83, 79, .12)"],["color.overdue_border","rgba(217, 83, 79, .5)"],["color.hist_added","rgba(60, 180, 90, .22)"],["color.hist_removed","rgba(217, 83, 79, .22)"],["color.hist_edited","rgba(230, 180, 40, .2)"],["color.topbar_bg","transparent"],["color.topbar_border","{color.line}"],["color.topbar_fg","{color.muted}"],["color.topbar_fg_hover","{color.fg}"],["color.topbar_fg_on","{color.accent}"],["color.topbar_error","{color.danger}"],["color.shadow_strong","rgba(0,0,0,.3)"],["color.shadow_modal","rgba(0,0,0,.25)"],["color.shadow_float","rgba(0,0,0,.2)"],["color.shadow_menu","rgba(0,0,0,.18)"],["color.shadow_tips","rgba(0,0,0,.14)"],["color.shadow_bar","rgba(0,0,0,.12)"],["color.shadow_toolbar","rgba(0,0,0,.06)"],["label.1","#f9d0c4"],["label.2","#fed8b1"],["label.3","#fef2c0"],["label.4","#c8e3c0"],["label.5","#c5def5"],["label.6","#d4c5f9"],["syntax.keyword","#a626a4"],["syntax.string","#50a14f"],["syntax.number","#986801"],["syntax.comment","#a0a1a7"],["font.ui","'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],["font.editor","{font.ui}"],["font.mono","'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"],["font.math","'Latin Modern Math', 'STIX Two Math', serif"],["type.ui",14],["type.ui_line",1.5],["type.ui_small",13],["type.ui_tiny",12],["type.ui_micro",11],["type.ui_icon",14],["type.size",18],["type.line",1.2223],["type.title",1.5556],["type.title_line",1.2143],["type.title_weight",400],["type.h1",1.3333],["type.h1_line",1.1667],["type.h1_box",1.5556],["type.h2",1.2222],["type.h2_line",1.1818],["type.h2_box",1.4444],["type.h3",1.1111],["type.h3_line",1.2],["type.h3_box",1.3333],["type.heading_weight",700],["type.bold_weight",700],["type.note",0.8333],["type.note_line",1.2],["type.code",0.8889],["type.codeblock",0.85],["type.date",0.8889],["type.number",0.85],["type.math",1.05],["type.toolbar",15],["type.head_tracking",0.04],["type.modal_title",16],["type.ui_mini",10],["type.ui_large",16],["type.ui_head",15],["type.ui_heading",18],["type.finder",17],["type.results_title",22],["type.dp_nav",18],["type.mm",15],["type.mm_h1",20],["type.mm_h2",18],["type.mm_h3",16],["space.pad",4],["space.indent",38],["space.guide",9],["space.guide_w",1],["space.gutter",50],["space.bullet",18],["space.dot",6],["space.fold_ring",4],["space.fold_mark",10],["space.fold_mark_h",6],["space.number",28],["space.number_gap",6],["space.body_gap",6],["space.check",16],["space.check_border",1.5],["space.check_left",2],["space.check_gap",4],["space.check_hit",16],["space.check_mark_x",4],["space.check_mark_y",0],["space.title_offset",26],["space.title_top",2],["space.title_bottom",12],["space.title_note",2],["space.label_pad",4],["space.thread",2],["space.elbow_end",37],["space.elbow_end_numbered",22],["space.article",5],["space.topbar",44],["space.topbar_pad",10],["space.topbar_gap",4],["space.topbar_tool",30],["space.topbar_tool_min",30],["space.topbar_tool_pad",6],["space.topbar_icon",18],["space.tool",30],["space.tool_min",30],["space.tool_pad",6],["space.tool_icon",18],["space.toolbar",41],["space.toolbar_button",40],["space.toolbar_icon",20],["space.sidebar",260],["space.sidebar_max",320],["space.file_row",28],["space.sidebar_min",160],["space.sidebar_drag_max",520],["space.splitter",6],["space.drawer",0.82],["space.drawer_shadow",40],["space.side_tab_y",8],["space.side_tab_bar",2],["space.pane_head_left",12],["space.pane_head_right",8],["space.pane_head_y",6],["space.pane_top",4],["space.pane_bottom",24],["space.file_pad",8],["space.file_indent",16],["space.file_gap",6],["space.file_box",16],["space.file_icon",15],["space.tag_row_x",12],["space.tag_row_y",3],["space.pane_empty_x",14],["space.pane_empty_y",8],["space.link_y",4],["space.rename_x",4],["space.rename_y",1],["space.doc_max",860],["space.doc_top",18],["space.doc_right",40],["space.doc_left",70],["space.code_pad",5],["space.date_pad",2],["space.codeblock_x",10],["space.codeblock_y",8],["space.codeblock_margin",2],["space.tag_pad",6],["space.row_estimate",30],["space.border",1],["space.overlay_top",0.12],["space.settings",680],["space.settings_vw",0.94],["space.settings_vh",0.86],["space.modal_x",18],["space.modal_head_y",14],["space.modal_body_y",12],["space.modal_foot_y",10],["space.modal_foot_gap",8],["space.btn_x",14],["space.btn_y",6],["space.field_gap",4],["space.field_row_gap",8],["space.field_bottom",12],["space.input_x",8],["space.input_y",6],["space.set_tab_x",12],["space.set_tab_y",8],["space.set_tab_bar",2],["space.set_tabs_gap",4],["space.set_tabs_bottom",10],["space.set_head_top",14],["space.set_head_bottom",8],["space.km_y",4],["space.km_gap",8],["space.toml_min",100],["space.menu_y",4],["space.menu_min",210],["space.menu_item_x",14],["space.menu_item_y",6],["space.step1",1],["space.step2",2],["space.step3",3],["space.step4",4],["space.step5",6],["space.step6",8],["space.step7",10],["space.step8",12],["space.step9",16],["space.step10",20],["space.step11",24],["space.step12",30],["space.search_box",320],["space.search_box_right",64],["space.search_tips_top",40],["space.search_tips_right",76],["space.crumb_max",160],["space.chunk_estimate",3000],["space.modal",560],["space.shadow_modal",40],["space.shadow_popup",28],["space.finder_x",18],["space.finder_y",14],["space.finder_res_y",7],["space.swatch_h",22],["space.sheet",360],["space.sheet_pad",15],["space.sheet_button",44],["space.row_btn",22],["space.menu_btn_x",44],["space.zoom_btn_x",66],["space.zoom_ring",9],["space.zoom_ring_border",1.5],["space.backlinks_h",18],["space.backlinks_x",40],["space.backlinks_hover_x",90],["space.ac_min",200],["space.ac_max",440],["space.ac_item_y",5],["space.datepicker",292],["space.dp_nav_h",28],["space.dp_day",32],["space.dp_day_phone",36],["space.dp_label",78],["space.dp_custom_label",96],["space.dp_every",72],["space.dp_info",15],["space.history",980],["space.history_list",220],["space.help",340],["space.help_sec_top",14],["space.copy_btn",22],["space.copy_icon",13],["space.mm_box_max",280],["space.mm_box_gap",5],["space.mm_toggle_x",11],["space.img_preview",320],["space.img_preview_h",240],["space.share_input_min",200],["space.share_link_min",120],["radius.row",3],["radius.label",3],["radius.check",3],["radius.mark",2],["radius.code",4],["radius.block",6],["radius.menu",8],["radius.modal",10],["radius.tag",10],["radius.tool",6],["radius.topbar_tool",6],["radius.elbow",8],["radius.backlinks",9]];
 
 export const GROUPS: Group[] = [
   {

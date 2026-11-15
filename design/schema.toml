@@ -115,6 +115,17 @@ math = { kind = "ratio", min = 0.5, max = 2, doc = "LaTeX size, times the text s
 toolbar = { kind = "length", min = 8, max = 32, doc = "Phone toolbar buttons' text." }
 head_tracking = { kind = "ratio", min = 0, max = 0.5, doc = "Section heads' letter spacing, times their size." }
 modal_title = { kind = "length", min = 8, max = 32, doc = "Dialog titles (the settings' heading)." }
+ui_mini = { kind = "length", min = 6, max = 24, doc = "Glyph-sized app text: folder toggles, the date picker's info badge." }
+ui_large = { kind = "length", min = 8, max = 32, doc = "Large app text: search and capture inputs, search results, the phone action sheet." }
+ui_head = { kind = "length", min = 8, max = 32, doc = "Panel heads: the help panel's title, a search result's document." }
+ui_heading = { kind = "length", min = 8, max = 40, doc = "Screen headings: the empty screen's title, the version history's title." }
+finder = { kind = "length", min = 8, max = 40, doc = "The finder's (document switcher's) input." }
+results_title = { kind = "length", min = 8, max = 48, doc = "The search results screen's heading." }
+dp_nav = { kind = "length", min = 8, max = 40, doc = "The date picker's month arrows." }
+mm = { kind = "length", min = 8, max = 32, doc = "Mind map boxes' text." }
+mm_h1 = { kind = "length", min = 8, max = 48, doc = "Mind map boxes' text, heading 1." }
+mm_h2 = { kind = "length", min = 8, max = 48, doc = "Mind map boxes' text, heading 2." }
+mm_h3 = { kind = "length", min = 8, max = 48, doc = "Mind map boxes' text, heading 3." }
 
 [space]
 pad = { kind = "length", min = 0, max = 20, css = "--pad", doc = "Space above and below each row's text (density)." }
@@ -229,6 +240,66 @@ menu_y = { kind = "length", min = 0, max = 20, doc = "Menus' padding above and b
 menu_min = { kind = "length", min = 100, max = 400, doc = "Menus' least width." }
 menu_item_x = { kind = "length", min = 0, max = 30, doc = "Menu items' padding left and right." }
 menu_item_y = { kind = "length", min = 0, max = 20, doc = "Menu items' padding above and below." }
+step1 = { kind = "length", min = 0, max = 4, css = "--step-1", doc = "Spacing scale, step 1 (base 1px): web-only screens' paddings, gaps and small sizes." }
+step2 = { kind = "length", min = 0, max = 6, css = "--step-2", doc = "Spacing scale, step 2 (base 2px): web-only screens' paddings, gaps and small sizes." }
+step3 = { kind = "length", min = 0, max = 9, css = "--step-3", doc = "Spacing scale, step 3 (base 3px): web-only screens' paddings, gaps and small sizes." }
+step4 = { kind = "length", min = 0, max = 12, css = "--step-4", doc = "Spacing scale, step 4 (base 4px): web-only screens' paddings, gaps and small sizes." }
+step5 = { kind = "length", min = 0, max = 18, css = "--step-5", doc = "Spacing scale, step 5 (base 6px): web-only screens' paddings, gaps and small sizes." }
+step6 = { kind = "length", min = 0, max = 24, css = "--step-6", doc = "Spacing scale, step 6 (base 8px): web-only screens' paddings, gaps and small sizes." }
+step7 = { kind = "length", min = 0, max = 30, css = "--step-7", doc = "Spacing scale, step 7 (base 10px): web-only screens' paddings, gaps and small sizes." }
+step8 = { kind = "length", min = 0, max = 36, css = "--step-8", doc = "Spacing scale, step 8 (base 12px): web-only screens' paddings, gaps and small sizes." }
+step9 = { kind = "length", min = 0, max = 48, css = "--step-9", doc = "Spacing scale, step 9 (base 16px): web-only screens' paddings, gaps and small sizes." }
+step10 = { kind = "length", min = 0, max = 60, css = "--step-10", doc = "Spacing scale, step 10 (base 20px): web-only screens' paddings, gaps and small sizes." }
+step11 = { kind = "length", min = 0, max = 72, css = "--step-11", doc = "Spacing scale, step 11 (base 24px): web-only screens' paddings, gaps and small sizes." }
+step12 = { kind = "length", min = 0, max = 90, css = "--step-12", doc = "Spacing scale, step 12 (base 30px): web-only screens' paddings, gaps and small sizes." }
+search_box = { kind = "length", min = 100, max = 800, doc = "The search box's and the search tips' width." }
+search_box_right = { kind = "length", min = 0, max = 200, doc = "Space right of the search box (room for the document buttons)." }
+search_tips_top = { kind = "length", min = 0, max = 100, doc = "The search tips popup's top, from the document's top." }
+search_tips_right = { kind = "length", min = 0, max = 200, doc = "The search tips popup's distance from the document's right." }
+crumb_max = { kind = "length", min = 40, max = 400, doc = "A breadcrumb's widest." }
+chunk_estimate = { kind = "length", min = 100, max = 10000, doc = "The height a block of rows is taken to have before it is laid out (long documents)." }
+modal = { kind = "length", min = 300, max = 1200, doc = "Dialogs' width (narrower windows: 92% of the window)." }
+shadow_modal = { kind = "length", min = 0, max = 100, doc = "The blur of dialogs' shadow." }
+shadow_popup = { kind = "length", min = 0, max = 100, doc = "The blur of popups' shadow (autocomplete, date picker)." }
+finder_x = { kind = "length", min = 0, max = 40, doc = "The finder's input and results: padding left and right." }
+finder_y = { kind = "length", min = 0, max = 40, doc = "The finder's input: padding above and below." }
+finder_res_y = { kind = "length", min = 0, max = 30, doc = "The finder's results: padding above and below." }
+swatch_h = { kind = "length", min = 8, max = 60, doc = "Color label swatches' height in menus." }
+sheet = { kind = "length", min = 200, max = 800, doc = "The phone action sheet's widest." }
+sheet_pad = { kind = "length", min = 0, max = 40, doc = "Space around the phone action sheet." }
+sheet_button = { kind = "length", min = 20, max = 80, doc = "The phone action sheet's buttons' height." }
+row_btn = { kind = "length", min = 10, max = 60, doc = "The width of the buttons left of a row (menu, zoom)." }
+menu_btn_x = { kind = "length", min = 0, max = 120, doc = "The row menu button's distance left of the row." }
+zoom_btn_x = { kind = "length", min = 0, max = 160, doc = "The row zoom button's distance left of the row." }
+zoom_ring = { kind = "length", min = 2, max = 30, doc = "The zoom button's ring's diameter." }
+zoom_ring_border = { kind = "length", min = 0, max = 6, doc = "The zoom button's ring's line width." }
+backlinks_h = { kind = "length", min = 8, max = 40, doc = "The backlink count chip's height and least width." }
+backlinks_x = { kind = "length", min = 0, max = 120, doc = "The backlink count chip's distance left of the row." }
+backlinks_hover_x = { kind = "length", min = 0, max = 200, doc = "The backlink count chip's distance left of a hovered row (room for the row buttons)." }
+ac_min = { kind = "length", min = 80, max = 600, doc = "The autocomplete popup's least width." }
+ac_max = { kind = "length", min = 100, max = 1000, doc = "The autocomplete popup's widest." }
+ac_item_y = { kind = "length", min = 0, max = 20, doc = "Autocomplete and search tip items: padding above and below." }
+datepicker = { kind = "length", min = 200, max = 600, doc = "The date picker's width." }
+dp_nav_h = { kind = "length", min = 10, max = 60, doc = "The date picker's month buttons' height." }
+dp_day = { kind = "length", min = 16, max = 80, doc = "The date picker's day cells' height." }
+dp_day_phone = { kind = "length", min = 16, max = 80, doc = "The date picker's day cells' height on phones." }
+dp_label = { kind = "length", min = 20, max = 200, doc = "The date picker's field labels' width." }
+dp_custom_label = { kind = "length", min = 20, max = 200, doc = "The custom repeat dialog's field labels' width." }
+dp_every = { kind = "length", min = 20, max = 200, doc = "The custom repeat dialog's interval input's widest." }
+dp_info = { kind = "length", min = 8, max = 40, doc = "The date picker's info badge's size." }
+history = { kind = "length", min = 400, max = 2000, doc = "The version history dialog's width (narrower windows: 96% of the window)." }
+history_list = { kind = "length", min = 100, max = 600, doc = "The version history's list of versions: width." }
+help = { kind = "length", min = 200, max = 800, doc = "The help panel's width." }
+help_sec_top = { kind = "length", min = 0, max = 40, doc = "Space above a help panel section's head." }
+copy_btn = { kind = "length", min = 10, max = 60, doc = "Code blocks' copy button's size." }
+copy_icon = { kind = "length", min = 6, max = 40, doc = "Code blocks' copy button's icon size." }
+mm_box_max = { kind = "length", min = 100, max = 800, doc = "Mind map boxes' widest." }
+mm_box_gap = { kind = "length", min = 0, max = 30, doc = "Space above and below a mind map box." }
+mm_toggle_x = { kind = "length", min = 0, max = 40, doc = "How far a mind map box's fold button sticks out on its right." }
+img_preview = { kind = "length", min = 100, max = 1000, doc = "The image preview's widest." }
+img_preview_h = { kind = "length", min = 100, max = 1000, doc = "The image preview's tallest." }
+share_input_min = { kind = "length", min = 50, max = 600, doc = "The share dialog's inputs' least width." }
+share_link_min = { kind = "length", min = 50, max = 600, doc = "The share dialog's links' least width." }
 
 [radius]
 row = { kind = "length", min = 0, max = 20, doc = "Rows (selection, current item)." }
@@ -243,3 +314,4 @@ tag = { kind = "length", min = 0, max = 20, doc = "Tags (tag background on)." }
 tool = { kind = "length", min = 0, max = 20, doc = "Icon buttons." }
 topbar_tool = { kind = "length", min = 0, max = 20, doc = "The top bar's buttons." }
 elbow = { kind = "length", min = 0, max = 20, doc = "The bullet thread's turn." }
+backlinks = { kind = "length", min = 0, max = 20, doc = "The backlink count chip." }
