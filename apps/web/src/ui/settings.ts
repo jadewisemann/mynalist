@@ -68,6 +68,12 @@ export function settingsDialog(host: SettingsHost, tab: 'prefs' | 'look' | 'keym
         'Also used when dropping onto a collapsed item.'),
       row('Show "Clean up newlines" in document menu', chk('show_cleanup_newlines_option', false)),
       row('Export visible items only (default)', chk('export_visible_only', false)),
+      // Custom CSS was replaced by the Look tab; a stored `custom_css` is kept (user data) but no longer applied.
+      h('div.field.css-gone', {}, 'Custom CSS',
+        h('span.hint', {}, ws.pref('custom_css', '')
+          ? 'No longer supported: your saved CSS is kept but not applied. Change colors, type and sizes in the '
+          : 'No longer supported. Change colors, type and sizes in the ',
+        h('button.btn.link', { type: 'button', onclick: () => show('look') }, 'Look tab'), '.')),
     ));
   const prefs = h('div', {},
     section('Appearance',
