@@ -5,6 +5,7 @@
 //!
 //! While it shows, nothing is edited (the web keeps the item's caret and passes the keys to the picker; here the
 //! row's input lets go so the picker's own keys and fields take them), and the caret comes back when it closes.
+//! Its sizes are the web's `.dp*` tokens (`space.datepicker`, `space.dp_*`, the `space.stepN` scale).
 //! It sits in the middle of the screen on desktops and as a sheet at the bottom on phones, not at the caret as
 //! the web's popover. The week starts on Sunday and times are 12-hour (the web's defaults; the native app has no
 //! setting for them yet).
@@ -27,18 +28,13 @@ const COUNT_ERROR: &str = "Enter a whole number of 1 or more";
 /// The web's 12-hour default (`time_format`) and Sunday start (`start_day`).
 const HOUR12: bool = true;
 const START_DAY: i64 = 0;
-/// The popover's metrics: literals in the web's styles.css (`.dp`, `.dp-day`, `.dp-nav`, `.dp-row > span`), not
-/// design entries.
-const WIDTH: f32 = 292.0;
-const PAD_X: f32 = 12.0;
-const PAD_Y: f32 = 10.0;
-const DAY_H: f32 = 32.0;
-const DAY_H_PHONE: f32 = 36.0;
-const GRID_GAP: f32 = 2.0;
-const NAV_W: f32 = 30.0;
-const NAV_H: f32 = 28.0;
-const LABEL_W: f32 = 78.0;
-const GAP: f32 = 6.0;
+/// The share of the accent behind the days inside a range (`.dp-day.in-range`: `color-mix(.. 14%, transparent)`).
+const IN_RANGE_MIX: f32 = 0.14;
+
+/// A step of the web-only screens' spacing scale (`--step-N`, `space.stepN`).
+fn step(n: u8) -> f32 {
+    num(&format!("space.step{n}"))
+}
 
 /// A calendar day.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
@@ -542,8 +538,8 @@ fn foot_button(label: &'static str, kind: u8, run: impl Fn() + 'static) -> impl 
     };
     button()
         .accessibility_label(Some(label.into()))
-        .px(px(num("space.btn_x")))
-        .py(px(num("space.input_y")))
+        .px(px(step(7)))
+        .py(px(step(4)))
         .bg(bg)
         .border(px(num("space.border")))
         .border_color(border)
@@ -570,7 +566,7 @@ fn check_row(label: &'static str, on: bool, enabled: bool, flip: impl Fn() + 'st
         .selected(on)
         .flex_row()
         .items_center()
-        .gap(px(GAP))
+        .gap(px(step(5)))
         .on_press(move || {
             if enabled {
                 flip();
@@ -597,8 +593,8 @@ fn time_field(test_id: &'static str, end: bool) -> impl IntoElement {
         .border(px(num("space.border")))
         .border_color(color::chip_border())
         .rounded(px(num("radius.block")))
-        .px(px(num("space.input_x")))
-        .py(px(num("space.input_y")))
+        .px(px(step(5)))
+        .py(px(step(4)))
         .on_change(move |t: &str| {
             let t = t.to_owned();
             typed_state().update(move |x| if end { x.end_time = t } else { x.time = t });
@@ -616,11 +612,16 @@ fn time_field(test_id: &'static str, end: bool) -> impl IntoElement {
 }
 
 fn row(label: &'static str, child: impl IntoElement) -> impl IntoElement {
+    row_with(label, num("space.dp_label"), child)
+}
+
+/// A field's row with its label `w` wide (`.dp-custom .dp-row`: wider).
+fn row_with(label: &'static str, w: f32, child: impl IntoElement) -> impl IntoElement {
     view()
         .flex_row()
         .items_center()
-        .gap(px(8.0))
-        .child(ui_text(label, "type.ui_small").text_color(color::muted()).w(px(LABEL_W)))
+        .gap(px(step(6)))
+        .child(ui_text(label, "type.ui_small").text_color(color::muted()).w(px(w)))
         .child(child)
 }
 
@@ -628,23 +629,23 @@ fn row(label: &'static str, child: impl IntoElement) -> impl IntoElement {
 fn calendar(p: &Picker) -> View {
     let v = p.view;
     let today = Day::today();
-    let day_h = if style::phone() { DAY_H_PHONE } else { DAY_H };
+    let day_h = num(if style::phone() { "space.dp_day_phone" } else { "space.dp_day" });
     let nav = |d: i64, label: &'static str| {
         button()
             .accessibility_label(Some(label.into()))
-            .w(px(NAV_W))
-            .h(px(NAV_H))
+            .w(px(step(12)))
+            .h(px(num("space.dp_nav_h")))
             .rounded(px(num("radius.block")))
             .items_center()
             .justify_center()
             .on_press(move || picker_state().update(|p| p.view = p.view.add_months(d)))
-            .child(text(if d < 0 { "‹" } else { "›" }).text_size(px(18.0)).text_color(color::muted()))
+            .child(text(if d < 0 { "‹" } else { "›" }).text_size(px(num("type.dp_nav"))).text_color(color::muted()))
     };
     let head = view()
         .flex_row()
         .items_center()
         .justify_between()
-        .mb(px(4.0))
+        .mb(px(step(4)))
         .child(nav(-1, "Previous month"))
         .child(
             ui_text(format!("{} {}", MONTH_NAMES[v.month as usize - 1], v.year), "type.ui")
@@ -653,14 +654,14 @@ fn calendar(p: &Picker) -> View {
         )
         .child(nav(1, "Next month"));
     let sd = START_DAY.rem_euclid(7);
-    let week = |cells: Vec<AnyElement>| view().flex_row().gap(px(GRID_GAP)).children(cells);
+    let week = |cells: Vec<AnyElement>| view().flex_row().gap(px(step(2))).children(cells);
     let names = (0..7)
         .map(|i| {
             let name = WEEKDAY_NAMES[((sd + i) % 7) as usize];
             view()
                 .flex_1()
                 .items_center()
-                .py(px(2.0))
+                .py(px(step(2)))
                 .child(ui_text(&name[..2], "type.ui_micro").text_color(color::muted()))
                 .into_element()
         })
@@ -696,7 +697,7 @@ fn calendar(p: &Picker) -> View {
                         weight = FontWeight::SEMIBOLD;
                     } else if in_range {
                         let mut c = color::accent();
-                        c.a *= 0.14;
+                        c.a *= IN_RANGE_MIX;
                         b = b.bg(c).rounded(px(num("radius.code")));
                     }
                     b.child(ui_text(d.day.to_string(), "type.ui_small").text_color(fg).font_weight(weight).tabular_nums())
@@ -706,7 +707,7 @@ fn calendar(p: &Picker) -> View {
         )
         .into_element()
     });
-    view().child(head).child(week(names)).child(view().flex_col().gap(px(GRID_GAP)).children(weeks))
+    view().child(head).child(week(names)).child(view().flex_col().gap(px(step(2))).children(weeks))
 }
 
 fn summary(p: &Picker) -> String {
@@ -771,7 +772,7 @@ fn repeat(p: &Picker) -> View {
         })
         .into_element(),
     );
-    view().flex_row().flex_wrap().gap(px(4.0)).flex_1().children(opts)
+    view().flex_row().flex_wrap().gap(px(step(4))).flex_1().children(opts)
 }
 
 fn custom(c: &Custom) -> View {
@@ -780,7 +781,7 @@ fn custom(c: &Custom) -> View {
         .test_id("dp-n")
         .value(typed_state().with_untracked(|t| t.n.clone()))
         .keyboard_type(KeyboardType::Number)
-        .w(px(72.0))
+        .w(px(num("space.dp_every")))
         .font_family(style::font())
         .text_size(px(size))
         .line_height(nsh_core::LineHeight::Points(px(line)))
@@ -789,14 +790,14 @@ fn custom(c: &Custom) -> View {
         .border(px(num("space.border")))
         .border_color(color::chip_border())
         .rounded(px(num("radius.block")))
-        .px(px(num("space.input_x")))
-        .py(px(num("space.input_y")))
+        .px(px(step(5)))
+        .py(px(step(4)))
         .on_change(|t: &str| {
             let t = t.to_owned();
             typed_state().update(move |x| x.n = t);
         });
     let units = [(RecurUnit::D, "Day"), (RecurUnit::W, "Week"), (RecurUnit::M, "Month"), (RecurUnit::Y, "Year")];
-    let unit_row = view().flex_row().flex_wrap().gap(px(4.0)).children(units.into_iter().map(|(u, l)| {
+    let unit_row = view().flex_row().flex_wrap().gap(px(step(4))).children(units.into_iter().map(|(u, l)| {
         small_button(l, c.unit == u, move || {
             picker_state().update(move |p| {
                 if let Some(c) = p.custom.as_mut() {
@@ -809,18 +810,18 @@ fn custom(c: &Custom) -> View {
     let mut body = view()
         .test_id("dp-custom")
         .flex_col()
-        .gap(px(GAP))
-        .child(row("Repeat every", view().flex_row().gap(px(GAP)).child(n).child(unit_row)));
+        .gap(px(step(5)))
+        .child(row_with("Repeat every", num("space.dp_custom_label"), view().flex_row().gap(px(step(5))).child(n).child(unit_row)));
     if c.unit == RecurUnit::W {
-        let days = view().flex_row().flex_wrap().gap(px(4.0)).children((1..=7).map(|d| {
+        let days = view().flex_row().flex_wrap().gap(px(step(4))).children((1..=7).map(|d| {
             let on = c.weekdays.contains(&d);
             let letter = &"MTWTFSS"[d as usize - 1..d as usize];
             button()
                 .accessibility_label(Some(WEEKDAY_NAMES[(d % 7) as usize].into()))
                 .selected(on)
-                .w(px(NAV_W))
-                .h(px(NAV_W))
-                .rounded(px(NAV_W / 2.0))
+                .w(px(step(12)))
+                .h(px(step(12)))
+                .rounded(px(step(12) / 2.0))
                 .items_center()
                 .justify_center()
                 .border(px(num("space.border")))
@@ -844,7 +845,7 @@ fn custom(c: &Custom) -> View {
                 }))
                 .into_element()
         }));
-        body = body.child(row("Repeat on", days));
+        body = body.child(row_with("Repeat on", num("space.dp_custom_label"), days));
     }
     if c.error {
         body = body.child(ui_text(COUNT_ERROR, "type.ui_tiny").text_color(rgba(style::look().color("color.danger"))));
@@ -852,7 +853,7 @@ fn custom(c: &Custom) -> View {
     body.child(
         view()
             .flex_row()
-            .gap(px(GAP))
+            .gap(px(step(5)))
             .justify_end()
             .child(foot_button("Cancel", 0, || picker_state().update(|p| p.custom = None)))
             .child(foot_button("Set repeat", 1, finish_custom)),
@@ -862,9 +863,9 @@ fn custom(c: &Custom) -> View {
 fn body(p: &Picker) -> View {
     let fields = view()
         .flex_col()
-        .gap(px(GAP))
-        .mt(px(GAP))
-        .pt(px(8.0))
+        .gap(px(step(5)))
+        .mt(px(step(5)))
+        .pt(px(step(6)))
         .border_t(px(num("space.border")))
         .border_color(color::line())
         .child(row("Time", time_field("dp-time", false)));
@@ -893,7 +894,7 @@ fn body(p: &Picker) -> View {
     fields = fields.child(check_row("From completion", p.from_completion, p.recur.is_some(), || {
         picker_state().update(|p| p.from_completion = !p.from_completion)
     }));
-    let mut foot = view().flex_row().items_center().gap(px(GAP)).mt(px(10.0));
+    let mut foot = view().flex_row().items_center().gap(px(step(5))).mt(px(step(7)));
     if p.existing {
         foot = foot.child(foot_button("Delete date", 2, remove));
     }
@@ -903,8 +904,8 @@ fn body(p: &Picker) -> View {
         .child(
             view()
                 .items_center()
-                .mt(px(GAP))
-                .mb(px(2.0))
+                .mt(px(step(5)))
+                .mb(px(step(2)))
                 .child(ui_text(summary(p), "type.ui_tiny").text_color(color::muted()).test_id("dp-summary")),
         )
         .child(fields)
@@ -945,11 +946,11 @@ pub fn picker() -> impl IntoElement {
                 .border(px(num("space.border")))
                 .border_color(color::chip_border())
                 .rounded(px(num("radius.menu")))
-                .px(px(PAD_X))
-                .py(px(PAD_Y))
+                .px(px(step(8)))
+                .py(px(step(7)))
                 .child(keys())
                 .child(dynamic(|| picker_state().with(body).into_element()));
-            let card = if phone { card.self_stretch() } else { card.w(px(WIDTH)) };
+            let card = if phone { card.self_stretch() } else { card.w(px(num("space.datepicker"))) };
             let layer = view().absolute().inset(px(0.0)).items_center();
             let layer = if phone { layer.justify_end() } else { layer.justify_center() };
             layer

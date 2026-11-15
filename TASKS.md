@@ -377,7 +377,8 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   (`ElementRef::set_selection`). 휴대폰 내보내기는 NSH 0.5.0에 공유 시트가 없어 클립보드 그대로다.
   테스트: 헤드리스 `tests/editing.rs` 11개(노트 오가기·경계·빈 노트·Tab, 휴대폰 노트 버튼, Shift+↓/↑·Escape·Mod+Shift+A,
   선택 항목에 Tab·Backspace·undo·Return, 복사, 휴대폰 선택 모드, 날짜 넣기·고치기·시간 오류·삭제, 선택기 키·반복·범위·취소,
-  `!` 입력, 휴대폰 날짜 버튼), `tests/settings.rs`에 포커스 이탈 적용 1개. 구조 스냅샷에 고정 상태 6개(`looks`/`inline`의 노트 편집,
+  `!` 입력, 휴대폰 날짜 버튼), `tests/settings.rs`에 포커스 이탈 적용 1개. 선택기의 치수는 웹과 같은 토큰(`space.datepicker`,
+  `space.dp_*`, `type.dp_nav`, `space.stepN`)을 읽는다. 구조 스냅샷에 고정 상태 6개(`looks`/`inline`의 노트 편집,
   `looks`의 l6 선택, 데스크톱·휴대폰): 렌더 모델에 노트 입력란(`note` 아래 `input`)과 ` selected=<색>`을 더했고 웹 측정기와
   `qa/model.mjs`가 같은 상태를 재서 대조한다(차이 없음, 기존 알려진 차이만). 기존 정답은 바뀌지 않았다.
   웹과 다른 점: 선택기는 캐럿 옆 팝오버가 아니라 데스크톱은 가운데, 휴대폰은 아래 시트이고, 여는 동안 행 입력란이 닫힌다(닫으면
