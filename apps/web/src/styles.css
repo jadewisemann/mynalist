@@ -86,7 +86,7 @@ button { font: inherit; color: inherit; }
 .doc-tools > * { pointer-events: auto; }
 .search-box {
   display: flex; align-items: center; gap: var(--step-4); background: var(--bg); border: var(--space-border) solid var(--chip-border);
-  border-radius: var(--radius-block); padding: 0 var(--step-4) 0 var(--step-6); height: var(--step-12); width: var(--space-search-box); max-width: 70vw;
+  border-radius: var(--radius-block); padding: 0 var(--step-4) 0 var(--step-6); height: var(--step-12); width: var(--space-search-box); max-width: calc(var(--space-search-vw) * 100vw);
 }
 .search-box input { flex: 1; border: 0; outline: 0; background: none; font: inherit; font-size: var(--fs); color: var(--fg); }
 .empty-state { color: var(--muted); text-align: center; margin-top: 18vh; line-height: 2; }
@@ -439,7 +439,7 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .doc-actions { position: absolute; top: var(--step-5); right: var(--step-8); display: flex; gap: var(--step-2); }
 .doc-tools .search-box { margin-right: var(--space-search-box-right); }
 .search-tips {
-  position: absolute; top: var(--space-search-tips-top); right: var(--space-search-tips-right); width: var(--space-search-box); max-width: 70vw; background: var(--bg); border: var(--space-border) solid var(--chip-border);
+  position: absolute; top: var(--space-search-tips-top); right: var(--space-search-tips-right); width: var(--space-search-box); max-width: calc(var(--space-search-vw) * 100vw); background: var(--bg); border: var(--space-border) solid var(--chip-border);
   border-radius: var(--radius-menu); box-shadow: 0 var(--step-5) var(--step-11) var(--shadow-tips); font-size: var(--type-ui-small); padding: var(--step-4) 0;
 }
 .search-tips .tip { display: flex; justify-content: space-between; padding: var(--space-ac-item-y) var(--step-8); cursor: pointer; }
@@ -506,6 +506,7 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .km-x { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0 var(--step-4); }
 .km-add { padding: 0 var(--step-6); font-size: var(--type-ui-small); }
 .keymap > input { width: 100%; font: inherit; padding: var(--step-5) var(--step-6); border: var(--space-border) solid var(--chip-border); border-radius: var(--radius-block); background: var(--bg); color: var(--fg); }
+.export-out { height: var(--space-export-out); }
 .replace-count { font-size: var(--type-ui-small); color: var(--muted); min-height: 1.4em; }
 .error-text { color: var(--danger); font-size: var(--type-ui-small); }
 .capture-wrap { margin: calc(-1 * var(--step-5)) calc(-1 * var(--step-6)); }

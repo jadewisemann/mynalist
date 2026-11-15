@@ -27,7 +27,7 @@ export function exportDialog(tree: Tree, sel: NodeId | NodeId[], title: string, 
   let format: Format = 'text';
   let indent: 'spaces' | 'asterisks' | 'dashes' | 'none' = 'spaces';
   const visibleOnly = h('input', { type: 'checkbox', checked: !!opts.visibleOnly });
-  const out = h('textarea', { readOnly: true, style: 'width:100%;height:280px;font:13px var(--mono);resize:vertical' });
+  const out = h('textarea.export-out', { readOnly: true, style: 'width:100%;font:13px var(--mono);resize:vertical' });
   const list = Array.isArray(sel) ? sel : [sel];
   // exporting the document root exports its children (the root is the title)
   const ids = () => (list.length === 1 && list[0] === ROOT ? tree.get(ROOT)!.children : list);

@@ -494,7 +494,8 @@ P1과 P2는 모두 구현했다. 구현 내용은 위 "지금까지 한 일" 10�
   Plain text(들여쓰기 4종)/HTML/OPML로, 보이는 것만(`export_visible_only`, 기기에 저장, 검색 중이면 검색 결과만) 보여 준다.
   데스크톱은 Download(저장 대화상자)와 Copy, 휴대폰은 Copy만(NSH 0.5.0에 공유 시트 없음). 데스크톱 상단 바의 Menu 버튼이 이제
   메뉴(휴대폰과 같은 것)를 연다. 새 토큰: `color.match_fg`(웹 `<mark>`의 검정 글자; 웹 `.o-match`도 이 변수를 쓰도록 바꿨고 계산값은
-  같다), `space.search_vw`, `space.modal_vw`, `space.modal_vh`, `space.export_out`(웹의 70vw, 92vw, 76vh, 280px 리터럴).
+  같다), `space.search_vw`, `space.modal_vw`, `space.modal_vh`, `space.export_out`(웹의 70vw, 92vw, 76vh, 280px 리터럴; 웹
+  `styles.css`와 내보내기 출력란(`.export-out`)도 같은 값으로 이 변수를 읽는다).
   테스트: 헤드리스 `tests/search.rs` 13개(거르기·강조·Escape, 캐럿 복귀, 태그 누르기, Flat/전체 결과와 결과 열기, 휴대폰 검색,
   찾아 바꾸기와 undo, `[[` 제안·고르기·링크 누르기, `#` 제안과 Escape, 백링크 개수·References·목록, 여러 줄/한 줄/HTML 붙여넣기,
   내보내기 세 형식·Copy, 휴대폰 선택 항목 내보내기). 구조 스냅샷에 고정 상태 8개(`looks`/`inline`의 search, `looks`의 links와
