@@ -100,7 +100,11 @@ for (const [device, d] of Object.entries(DEVICES)) {
     checked++;
   }
   // the sidebar on a pane (native `structural_snapshots`): the phone drawer on its files, the Tags tab
-  const SIDES = { phone: [['looks', 'files'], ['inline', 'tags']], desktop: [['inline', 'tags']] };
+  // and (area 11) folders in the file tree, a folder's menu, bookmarks
+  const SIDES = {
+    phone: [['looks', 'files'], ['inline', 'tags'], ['looks', 'folders'], ['looks', 'menu'], ['looks', 'marks']],
+    desktop: [['inline', 'tags'], ['looks', 'folders'], ['looks', 'menu'], ['looks', 'marks']],
+  };
   for (const [doc, side] of SIDES[device]) {
     const name = `${doc}-${device}-${side}`;
     const web = await measure(doc, {}, '', undefined, side);

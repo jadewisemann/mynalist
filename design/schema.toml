@@ -26,6 +26,7 @@ thread = { kind = "color", css = "--thread", doc = "The bullet thread: the line 
 selection_mix = { kind = "ratio", min = 0, max = 1, doc = "Selected text's background: this much of the accent color over the page." }
 current_mix = { kind = "ratio", min = 0, max = 1, doc = "The current item's background (highlight on): this much of the line color over the page." }
 side_bg = { kind = "color", css = "--side-bg", doc = "Sidebar background." }
+archived_opacity = { kind = "ratio", min = 0, max = 1, doc = "The opacity of an archived document's row in the sidebar." }
 chip = { kind = "color", css = "--chip", doc = "Chips: code blocks, keys, counts." }
 chip_border = { kind = "color", css = "--chip-border", doc = "Borders of chips, inputs, menus and buttons." }
 check = { kind = "color", css = "--check", doc = "Checked items' text and the checkbox border." }

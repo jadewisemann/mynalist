@@ -7,7 +7,7 @@ use nsh_core::prelude::*;
 use crate::appearance::{self, Modes};
 use crate::settings::{self, Prefs};
 use crate::sidebar::{self, Tab};
-use crate::{commands, store};
+use crate::{commands, store, workspace};
 
 /// The documents a fixture opens.
 pub const DOCS: [&str; 3] = ["demo", "inline", "looks"];
@@ -61,6 +61,31 @@ pub const PREFS: &[(&str, &str)] = &[
     ("time_format", "24h"),
 ];
 
+/// The documents in the folders of the file tree states ("folders", "menu"): "Projects" (open) holds the first
+/// two, the second archived; "Old" (folded) the last.
+pub const FOLDER_DOCS: [(&str, &str); 3] = [("p1", "Plan"), ("p2", "Budget"), ("o1", "Notes")];
+
+/// Where the "menu" state shows the menu of folder "Projects".
+pub const MENU_AT: (f32, f32) = (40.0, 160.0);
+
+/// A fixture document's name (its root's text).
+pub fn doc_title(doc: &str) -> &'static str {
+    match doc {
+        "inline" => "Inline",
+        "looks" => "Looks",
+        _ => "Demo",
+    }
+}
+
+/// The item the "marks" state's second bookmark zooms into, and its name.
+pub fn zoomed_item(doc: &str) -> (&'static str, &'static str) {
+    match doc {
+        "inline" => ("s7", "Numbered list"),
+        "looks" => ("l6", "Color labels"),
+        _ => ("d0", "Plain item 1"),
+    }
+}
+
 /// The modes of a fixture that uses the prefs kept on the device instead of modes of its own.
 pub const STORED: &str = "stored";
 
@@ -78,7 +103,8 @@ pub struct FixtureProps {
     #[prop(default)]
     pub appearance: Prop<String>,
     /// The sidebar: "" as the device starts it (shown on desktops, hidden on phones), or shown on a tab
-    /// ("files", "bookmarks", "tags"); or the settings shown, on Preferences ("settings"), on Look with the
+    /// ("files", "bookmarks", "tags"), with folders in the file tree ("folders"; "menu": and the menu of a folder
+    /// open), or with two bookmarks ("marks"); or the settings shown, on Preferences ("settings"), on Look with the
     /// `[type]` controls ("look"), on Keymap ("keymap") or on Sync & data ("data"); or the outline with the
     /// settings of [`PREFS`] ("prefs"); or a state of the outline: the note of [`noted_item`] edited ("note"),
     /// [`selected_item`] selected ("select"); searching for [`search_query`] ("search"); `[[` typed at the end of
@@ -108,15 +134,42 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
         "demo" => store::demo(DEMO_SMALL),
         other => panic!("no fixture document {other}"),
     };
-    // an empty document beside it, as the app has (the sidebar lists both)
-    store::open_all(vec![(doc.clone(), first), ("untitled".into(), store::named("Untitled"))]);
+    // an empty document beside it, as the app has (the sidebar lists both); the file tree states add folders
+    let side = props.side.get();
+    let tree = matches!(side.as_str(), "folders" | "menu");
+    let mut docs = vec![(doc.clone(), first), ("untitled".to_owned(), store::named("Untitled"))];
+    if tree {
+        for (id, name) in FOLDER_DOCS {
+            docs.push((id.to_owned(), store::named(name)));
+        }
+    }
+    store::open_all(docs);
+    workspace::reset();
+    let top = [(doc.as_str(), doc_title(&doc)), ("untitled", "Untitled")];
+    if tree {
+        workspace::list(&top, &[("f1", "Projects", false, &FOLDER_DOCS[..2]), ("f2", "Old", true, &FOLDER_DOCS[2..])]);
+        workspace::set_archived("p2", true);
+    } else {
+        workspace::list(&top, &[]);
+    }
     // as the app starts (`App`): the first item edited with "Auto-focus on first item"
     settings::document_opened();
-    match props.side.get().as_str() {
+    match side.as_str() {
         "" => {}
         "files" => sidebar::show(Tab::Files),
         "bookmarks" => sidebar::show(Tab::Bookmarks),
         "tags" => sidebar::show(Tab::Tags),
+        "folders" => sidebar::show(Tab::Files),
+        "menu" => {
+            sidebar::show(Tab::Files);
+            sidebar::file_menu_at("f1", MENU_AT.0, MENU_AT.1);
+        }
+        "marks" => {
+            let (item, name) = zoomed_item(&doc);
+            workspace::add_bookmark(doc_title(&doc), &doc, None);
+            workspace::add_bookmark(name, &doc, Some(item));
+            sidebar::show(Tab::Bookmarks);
+        }
         "settings" => settings::open(settings::Tab::Prefs),
         "keymap" => settings::open(settings::Tab::Keymap),
         "data" => settings::open(settings::Tab::Data),
@@ -213,4 +266,23 @@ pub fn items_json(doc: &str) -> String {
         stack.extend(n.children.iter().rev().cloned());
     }
     out
+}
+
+/// The app as it starts, on the documents kept in the storage the engine is given (`config.storage`); on a first
+/// start the small demo (id "demo") and an empty document ("untitled"), as the app's first start has the large
+/// demo and an empty one.
+#[component]
+pub fn Started() -> impl IntoElement {
+    workspace::start(|| {
+        vec![
+            ("demo".to_owned(), "Demo".to_owned(), store::demo(DEMO_SMALL)),
+            ("untitled".to_owned(), "Untitled".to_owned(), store::named("Untitled")),
+        ]
+    });
+    crate::root()
+}
+
+/// The root of [`Started`].
+pub fn started_root() -> Root {
+    Root::of::<Started>()
 }

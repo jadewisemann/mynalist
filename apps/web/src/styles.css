@@ -63,7 +63,7 @@ button { font: inherit; color: inherit; }
 }
 .file-row:hover { background: var(--hover); }
 .file-row.active { background: var(--sel); }
-.file-row.archived { opacity: .6; }
+.file-row.archived { opacity: var(--color-archived-opacity); }
 .file-row .tog { width: var(--space-file-box); flex: none; color: var(--muted); text-align: center; font-size: var(--type-ui-mini); }
 .file-row .ico { width: var(--space-file-box); flex: none; color: var(--muted); display: inline-flex; }
 .file-row .ico svg { width: var(--space-file-icon); height: var(--space-file-icon); }
@@ -244,7 +244,7 @@ button { font: inherit; color: inherit; }
 
 /* ---- overlays ---- */
 .overlay { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: flex-start; justify-content: center; padding-top: calc(var(--space-overlay-top) * 100vh); z-index: 50; }
-.modal { background: var(--bg); color: var(--fg); border-radius: var(--radius-modal); box-shadow: 0 var(--step-7) var(--space-shadow-modal) var(--shadow-modal); width: min(var(--space-modal), 92vw); max-height: 76vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal { background: var(--bg); color: var(--fg); border-radius: var(--radius-modal); box-shadow: 0 var(--step-7) var(--space-shadow-modal) var(--shadow-modal); width: min(var(--space-modal), calc(var(--space-modal-vw) * 100vw)); max-height: calc(var(--space-modal-vh) * 100vh); display: flex; flex-direction: column; overflow: hidden; }
 .modal h2 { margin: 0; font-size: var(--type-modal-title); padding: var(--space-modal-head-y) var(--space-modal-x); border-bottom: var(--space-border) solid var(--line); }
 .modal .body { padding: var(--space-modal-body-y) var(--space-modal-x); overflow: auto; }
 .modal .foot { padding: var(--space-modal-foot-y) var(--space-modal-x); border-top: var(--space-border) solid var(--line); display: flex; justify-content: flex-end; gap: var(--space-modal-foot-gap); }

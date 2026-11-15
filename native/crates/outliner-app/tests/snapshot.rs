@@ -416,7 +416,8 @@ fn sidebar_model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap
             };
             let b = n.bounds;
             let _ = write!(out, "  {kind} top={} height={}", len(b.origin.y.0), len(b.size.height.0));
-            // the active tab's underline, the open file's background
+            // the active tab's underline, the open file's background, a folder's fold mark, an archived file's
+            // opacity
             let s = styles.get(&n.id);
             if kind == "tab" && s.is_some_and(|s| s.borders.widths.bottom.0 > 0.0 && !transparent(s.borders.colors[2])) {
                 let _ = write!(out, " active");
@@ -424,14 +425,53 @@ fn sidebar_model(out: &mut String, app: &Headless, tree: &Tree, styles: &HashMap
             if let Some(c) = bg(n.id) {
                 let _ = write!(out, " bg={}", color(c));
             }
+            if kind == "file" {
+                let tog = tree.inside(n.id).into_iter().find(|t| t.test_id.as_deref() == Some("tog")).and_then(|t| t.text.as_ref());
+                if let Some(t) = tog {
+                    let _ = write!(out, " tog={:?}", t.text.text);
+                }
+                if let Some(o) = s.map(|s| s.opacity).filter(|o| *o < 1.0) {
+                    let _ = write!(out, " opacity={}", (o * 100.0).round() / 100.0);
+                }
+            }
             let _ = writeln!(out);
-            write_texts(out, app, tree, n.id, "    ");
+            if kind == "file" {
+                // the name only (the web's `.name`)
+                for t in tree.inside(n.id).into_iter().filter(|t| t.test_id.as_deref() == Some("file-name")) {
+                    write_texts_of(out, app, t, "    ");
+                }
+            } else {
+                write_texts(out, app, tree, n.id, "    ");
+            }
         }
     }
     for scrim in tree.with_id("scrim") {
         let b = scrim.bounds;
         let c = bg(scrim.id).map(color).unwrap_or_default();
         let _ = writeln!(out, "scrim width={} height={} bg={c}", len(b.size.width.0), len(b.size.height.0));
+    }
+    // a popup menu (`.menu`): its box, then its items and separators
+    for menu in tree.with_id("popup") {
+        let b = menu.bounds;
+        let _ = write!(out, "menu x={} top={} height={}", len(b.origin.x.0), len(b.origin.y.0), len(b.size.height.0));
+        if let Some(c) = bg(menu.id) {
+            let _ = write!(out, " bg={}", color(c));
+        }
+        let _ = writeln!(out);
+        for n in tree.inside(menu.id) {
+            let kind = match n.test_id.as_deref() {
+                Some("menu-item") => "item",
+                Some("menu-sep") => "sep",
+                _ => continue,
+            };
+            let nb = n.bounds;
+            let _ = write!(out, "  {kind} top={} height={}", len(nb.origin.y.0), len(nb.size.height.0));
+            if let Some(c) = bg(n.id) {
+                let _ = write!(out, " bg={}", color(c));
+            }
+            let _ = writeln!(out);
+            write_texts(out, app, tree, n.id, "    ");
+        }
     }
 }
 
@@ -661,7 +701,18 @@ fn structural_snapshots() {
         }
     }
     // the sidebar: the phone drawer open on its files, the Tags tab beside the inline showcase's tags
-    for (doc, device, side) in [("looks", PHONE, "files"), ("inline", DESKTOP, "tags"), ("inline", PHONE, "tags")] {
+    // the file tree with folders, a folder's menu, bookmarks (area 11)
+    for (doc, device, side) in [
+        ("looks", PHONE, "files"),
+        ("inline", DESKTOP, "tags"),
+        ("inline", PHONE, "tags"),
+        ("looks", DESKTOP, "folders"),
+        ("looks", PHONE, "folders"),
+        ("looks", DESKTOP, "menu"),
+        ("looks", PHONE, "menu"),
+        ("looks", DESKTOP, "marks"),
+        ("looks", PHONE, "marks"),
+    ] {
         let name = format!("{doc}-{}-{side}.txt", device.name);
         let got = snapshot(doc, false, device, "", side);
         let path = dir.join(&name);

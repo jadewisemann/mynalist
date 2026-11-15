@@ -143,19 +143,18 @@ view 0,0 1100x800
                     canvas 197,99.5 18x18
                   view#plus 221,93.5 30x30 r=6
                     canvas 227,99.5 18x18
-                view 0,129.5 259x56
-                  view#file 0,129.5 259x28 bg=#d9eafd
-                    view 30,136 16x15
-                      canvas 30,136 15x15
-                    text 52,133 199x21
-                      "Inline"
-                        "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
-                  view#file 0,157.5 259x28
-                    view 30,164 16x15
-                      canvas 30,164 15x15
-                    text 52,161 199x21
-                      "Untitled"
-                        "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                view#file 0,129.5 259x28 bg=#d9eafd
+                  view 30,136 16x15
+                    canvas 30,136 15x15
+                  text#file-name 52,133 199x21
+                    "Inline"
+                      "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
+                view#file 0,157.5 259x28
+                  view 30,164 16x15
+                    canvas 30,164 15x15
+                  text#file-name 52,161 199x21
+                    "Untitled"
+                      "Untitled" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 14/21 w400 #222222
         view#splitter 257,45 6x755
       view 263,45 837x755
         scroll#outline 263,45 837x755 bg=#ffffff scroll 837x567.5

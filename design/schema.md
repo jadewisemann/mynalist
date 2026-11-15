@@ -48,6 +48,7 @@ Kinds: `color` ("#rrggbb", "#rgb", "#rrggbbaa", "rgba(r, g, b, a)", "transparent
 | selection_mix | ratio | 0..1 | `--color-selection-mix` | `0.3` | Selected text's background: this much of the accent color over the page. |
 | current_mix | ratio | 0..1 | `--color-current-mix` | `0.45` | The current item's background (highlight on): this much of the line color over the page. |
 | side_bg | color |  | `--side-bg` | `#f7f8fa` | Sidebar background. |
+| archived_opacity | ratio | 0..1 | `--color-archived-opacity` | `0.6` | The opacity of an archived document's row in the sidebar. |
 | chip | color |  | `--chip` | `#f1f2f4` | Chips: code blocks, keys, counts. |
 | chip_border | color |  | `--chip-border` | `#dfe1e5` | Borders of chips, inputs, menus and buttons. |
 | check | color |  | `--check` | `#a7a7a7` | Checked items' text and the checkbox border. |

@@ -1314,7 +1314,7 @@ fn data_pane() -> impl IntoElement {
         )
         .child(
             data_section("Import")
-                .child(btn("Import OPML / text files…", false, import_files))
+                .child(btn("Import OPML / text files…", false, || import_files(None)))
                 .child(hint("From WorkFlowy: export as OPML there, then import the file here.").mt(px(num("space.field_gap")))),
         )
         .child(view().mt(px(num("space.field_bottom"))).child(status))
@@ -1356,9 +1356,9 @@ fn download_backup() {
     });
 }
 
-/// Import OPML / text files (`importOpmlFile`): each file a new document (OPML with its title), the last one
-/// opened.
-fn import_files() {
+/// Import OPML / text files (`importOpmlFile`): each file a new document (OPML with its title) in folder
+/// `parent` (the top level for `None`), the last one opened.
+pub(crate) fn import_files(parent: Option<String>) {
     spawn(async move {
         let mut request = FilePickRequest::new(true, 0);
         request.filters = vec![FileFilter::new("OPML or text", ["opml", "xml", "txt", "md"])];
@@ -1371,7 +1371,7 @@ fn import_files() {
             let text = String::from_utf8_lossy(f.data.bytes()).into_owned();
             match crate::backup::import_file(&f.name, &text) {
                 Some((title, items)) => {
-                    store::edit(|s| s.import(&title, &items));
+                    crate::workspace::import(parent.as_deref(), &title, &items);
                     done.push(f.name.clone());
                 }
                 None => done.push(format!("Could not read {}", f.name)),

@@ -16,6 +16,7 @@ mod export;
 pub mod find;
 pub mod fixture;
 mod icons;
+pub mod menu;
 pub mod inline;
 pub mod keymap;
 mod links;
@@ -26,6 +27,7 @@ pub mod store;
 pub mod style;
 mod toast;
 mod toolbar;
+pub mod workspace;
 
 use nsh_core::prelude::*;
 
@@ -53,10 +55,16 @@ fn native(registry: &mut Registry) {
 #[component]
 pub fn App() -> impl IntoElement {
     if store::is_blank() {
-        // `OUTLINER_DEMO=inline`: the inline showcase instead of the large demo; an empty document beside it
-        let inline = std::env::var("OUTLINER_DEMO").is_ok_and(|d| d == "inline");
-        let first = if inline { store::showcase() } else { store::demo(DEMO_ITEMS) };
-        store::open_all(vec![("doc1".into(), first), ("doc2".into(), store::named("Untitled"))]);
+        // the documents kept on the device; on a first start the demo (`OUTLINER_DEMO=inline`: the inline
+        // showcase) and an empty document beside it
+        workspace::start(|| {
+            let inline = std::env::var("OUTLINER_DEMO").is_ok_and(|d| d == "inline");
+            let (first, title) = if inline { (store::showcase(), "Inline") } else { (store::demo(DEMO_ITEMS), "Demo") };
+            vec![
+                (outliner_core::new_id(), title.to_owned(), first),
+                (outliner_core::new_id(), "Untitled".to_owned(), store::named("Untitled")),
+            ]
+        });
         settings::document_opened();
     }
     root()
@@ -117,4 +125,5 @@ fn screen() -> View {
         .child(settings::screen())
         .child(dialog::overlay())
         .child(toast::view_of())
+        .child(menu::layer())
 }

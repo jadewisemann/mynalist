@@ -22,7 +22,7 @@ export function parseStyle(s) {
 const styleKey = (st) => (st.raw ? st.raw : `${st.family} ${st.size}/${st.line} w${st.weight} ${st.color}${st.rest ? ' ' + st.rest : ''}`);
 
 export function parseModel(text) {
-  const model = { topbar: null, title: null, rows: [], toolbar: null, sidebar: null, scrim: null };
+  const model = { topbar: null, title: null, rows: [], toolbar: null, sidebar: null, scrim: null, menu: null };
   let texts = null;
   let curText = null;
   for (const line of text.split('\n')) {
@@ -36,9 +36,23 @@ export function parseModel(text) {
       model.scrim = { width: num(t, 'width'), height: num(t, 'height'), bg: /bg=(\S+)/.exec(t)?.[1] };
       continue;
     }
+    if (t.startsWith('menu ')) {
+      model.menu = { x: num(t, 'x'), top: num(t, 'top'), height: num(t, 'height'), bg: /bg=(\S+)/.exec(t)?.[1], items: [] };
+      continue;
+    }
+    const entry = /^(item|sep) top=/.exec(t);
+    if (entry && model.menu) {
+      const it = { kind: entry[1], top: num(t, 'top'), height: num(t, 'height'), bg: /bg=(\S+)/.exec(t)?.[1], texts: [] };
+      model.menu.items.push(it);
+      texts = it.texts;
+      continue;
+    }
     const item = /^(tab|head|file|tag) top=/.exec(t);
     if (item && model.sidebar) {
-      const it = { kind: item[1], top: num(t, 'top'), height: num(t, 'height'), active: / active\b/.test(t), bg: /bg=(\S+)/.exec(t)?.[1], texts: [] };
+      const it = {
+        kind: item[1], top: num(t, 'top'), height: num(t, 'height'), active: / active\b/.test(t), bg: /bg=(\S+)/.exec(t)?.[1],
+        tog: /tog=("(?:[^"\\]|\\.)*")/.exec(t)?.[1], opacity: num(t, 'opacity'), texts: [],
+      };
       model.sidebar.items.push(it);
       texts = it.texts;
       continue;
@@ -170,6 +184,8 @@ function compareSidebar(a, b, tol, out) {
       near(`${w} height`, x.height, y.height, tol.size);
       if (x.active !== y.active) out.push(`${w} active: native ${x.active}, web ${y.active}`);
       if (x.bg !== y.bg) out.push(`${w} bg: native ${x.bg}, web ${y.bg}`);
+      if (x.tog !== y.tog) out.push(`${w} fold mark: native ${x.tog}, web ${y.tog}`);
+      if (x.opacity !== y.opacity) out.push(`${w} opacity: native ${x.opacity}, web ${y.opacity}`);
       if (x.texts.length !== y.texts.length) return out.push(`${w}: ${x.texts.length} texts native, ${y.texts.length} web`);
       x.texts.forEach((p, k) => {
         const q = y.texts[k];
@@ -181,11 +197,48 @@ function compareSidebar(a, b, tol, out) {
       });
     });
   }
-  if (!a.scrim !== !b.scrim) return out.push(`scrim: native ${a.scrim ? 'shown' : 'none'}, web ${b.scrim ? 'shown' : 'none'}`);
-  if (a.scrim) {
+  if (!a.scrim !== !b.scrim) out.push(`scrim: native ${a.scrim ? 'shown' : 'none'}, web ${b.scrim ? 'shown' : 'none'}`);
+  else if (a.scrim) {
     if (a.scrim.bg !== b.scrim.bg) out.push(`scrim bg: native ${a.scrim.bg}, web ${b.scrim.bg}`);
     if (Math.abs(a.scrim.width - b.scrim.width) > tol.size) out.push(`scrim width: native ${a.scrim.width}, web ${b.scrim.width}`);
   }
+  compareMenu(a, b, tol, out);
+}
+
+/** Differences in a popup menu (positions from its box: where it opens is the caller's), as lines. */
+function compareMenu(a, b, tol, out) {
+  if (!a.menu !== !b.menu) return out.push(`menu: native ${a.menu ? 'shown' : 'none'}, web ${b.menu ? 'shown' : 'none'}`);
+  if (!a.menu) return;
+  const [ma, mb] = [a.menu, b.menu];
+  const near = (what, x, y, t) => {
+    if (x === undefined && y === undefined) return;
+    if (x === undefined || y === undefined || Math.abs(x - y) > t) out.push(`${what}: native ${x}, web ${y}`);
+  };
+  if (ma.bg !== mb.bg) out.push(`menu bg: native ${ma.bg}, web ${mb.bg}`);
+  const label = (i) => (i.kind === 'sep' ? '—' : i.texts[0]?.text ?? '?');
+  const labels = (m) => m.items.map(label).join(' ');
+  const same = labels(ma) === labels(mb);
+  if (!same) out.push(`menu items: native ${labels(ma)}; web ${labels(mb)}`);
+  else near('menu height', ma.height, mb.height, tol.size);
+  // the items both have, in order: their height and text; their place too when the lists are the same
+  let k = 0;
+  ma.items.forEach((x, i) => {
+    while (k < mb.items.length && label(mb.items[k]) !== label(x)) k++;
+    const y = mb.items[k++];
+    if (!y) return;
+    const w = `menu ${x.kind} ${i}`;
+    if (same) near(`${w} top`, x.top - ma.top, y.top - mb.top, tol.pos);
+    near(`${w} height`, x.height, y.height, tol.size);
+    if (x.bg !== y.bg) out.push(`${w} bg: native ${x.bg}, web ${y.bg}`);
+    x.texts.forEach((p, n) => {
+      const q = y.texts[n];
+      if (!q) return out.push(`${w} text ${n}: native ${p.text}, web none`);
+      near(`${w} text x`, p.x - ma.x, q.x - mb.x, tol.pos);
+      near(`${w} text top`, p.top - x.top, q.top - y.top, tol.pos);
+      const st = (t) => t.spans.map((s) => `${s.text} ${styleKey(s.style)}`).join(' | ');
+      if (st(p) !== st(q)) out.push(`${w} text spans: native ${st(p)}; web ${st(q)}`);
+    });
+  });
 }
 
 /** Differences that are known and not this check's to fix: each says why. */
@@ -198,6 +251,7 @@ export const KNOWN = [
   { re: /^looks-phone-(edit: row (18 height|19 top)|prefs: row (16 height|17 top)):/, why: 'the edited row\'s source (its ** marks shown) wraps on a phone in the snapshot\'s approximate text engine, whose glyphs are wider than Fira Sans' },
   { re: /^looks-phone-[\w-]*large[\w-]*: row (18 height|19 top):/, why: 'the large text wraps a long row on a phone where glyph widths decide it, which differ between text engines' },
   { re: /^looks-[\w-]*large[\w-]*: row 0 height:/, why: 'the snapshot\'s approximate text engine makes a text 1.2 times its size tall, taller than a large heading\'s line' },
+  { re: /^looks-phone-menu: menu items: native "New document" "New folder" "Import OPML…" — "Move to…" "Rename" "Delete"; web "New document" "New folder" "Import OPML…" — "Rename" "Delete"$/, why: 'phones cannot drag a file row (the web has no touch drag either), so the native menu adds "Move to…"' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));
 
 // ---- design/spec.json ----

@@ -18,6 +18,7 @@ thread = "{color.accent}"
 selection_mix = 0.3
 current_mix = 0.45
 side_bg = "#f7f8fa"
+archived_opacity = 0.6
 chip = "#f1f2f4"
 chip_border = "#dfe1e5"
 check = "#a7a7a7"

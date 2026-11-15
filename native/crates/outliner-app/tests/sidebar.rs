@@ -80,6 +80,7 @@ fn an_empty_document_gets_its_first_item_from_a_press_below_the_title() {
 fn a_new_document_opens_with_its_name_being_edited() {
     let mut app = start(Os::MacOs);
     app.press("id:plus").unwrap();
+    app.press("text:New document").unwrap();
     app.wait_for("id:rename").unwrap();
     assert_eq!(app.screen().input_text("id:rename").unwrap(), Some("Untitled"));
     // the new document is open: the demo's rows are gone
@@ -99,13 +100,16 @@ fn a_long_press_renames_a_document_and_a_blank_name_is_not_kept() {
     let mut app = start(Os::Ios);
     app.press("label:Toggle sidebar").unwrap();
     app.wait_for("id:sidebar").unwrap();
+    // a long press shows the file's menu (the web's context menu), which renames it
     app.long_press("id:sidebar >> text:Demo").unwrap();
+    app.press("text:Rename").unwrap();
     app.wait_for("id:rename").unwrap();
     app.clear("id:rename").unwrap();
     app.submit("id:rename").unwrap();
     app.wait_for_gone("id:rename", SHOWS).unwrap();
     app.wait_for("id:sidebar >> text:Demo").unwrap();
     app.long_press("id:sidebar >> text:Demo").unwrap();
+    app.press("text:Rename").unwrap();
     app.wait_for("id:rename").unwrap();
     app.clear("id:rename").unwrap();
     app.type_text("id:rename", "Work").unwrap();

@@ -88,8 +88,6 @@ pub struct State {
     pub files: Vec<String>,
     /// The documents that are not open, with the view each was left in.
     shelved: HashMap<String, (Session, View)>,
-    /// The number in the next new document's id.
-    next_doc: u32,
 }
 
 impl State {
@@ -98,7 +96,6 @@ impl State {
         let files: Vec<String> = docs.iter().map(|(id, _)| id.clone()).collect();
         let (doc, session) = docs.remove(0);
         let shelved = docs.into_iter().map(|(id, s)| (id, (s, View::default()))).collect();
-        let next_doc = files.len() as u32 + 1;
         let mut s = State {
             session,
             rows: Vec::new(),
@@ -112,7 +109,6 @@ impl State {
             doc,
             files,
             shelved,
-            next_doc,
         };
         s.reflow();
         s
@@ -151,29 +147,69 @@ impl State {
         self.reflow();
     }
 
-    /// A new empty document named "Untitled", last in the list, opened (`Workspace.create`); its id.
-    pub fn create(&mut self) -> String {
-        let id = format!("doc{}", self.next_doc);
-        self.next_doc += 1;
-        self.shelved.insert(id.clone(), (named("Untitled"), View::default()));
-        self.files.push(id.clone());
-        self.switch(&id);
-        id
+    /// Add document `id` (not opened), last in the list; the workspace orders the list ([`State::set_files`]).
+    pub fn add(&mut self, id: &str, session: Session) {
+        if self.tree_of(id).is_some() {
+            return;
+        }
+        self.shelved.insert(id.to_owned(), (session, View::default()));
+        self.files.push(id.to_owned());
     }
 
-    /// A new document named `title` holding `items` (an imported file), last in the list, opened; its id.
-    pub fn import(&mut self, title: &str, items: &[outliner_core::commands::Portable]) -> String {
-        let id = self.create();
+    /// Forget document `id` (its entry left the file tree); when it is open, `next` opens first.
+    pub fn remove(&mut self, id: &str, next: &str) {
+        if id == self.doc {
+            if next == id {
+                return;
+            }
+            self.switch(next);
+        }
+        self.shelved.remove(id);
+        self.files.retain(|f| f != id);
+    }
+
+    /// The documents in the sidebar's order (the workspace's file tree, depth first).
+    pub fn set_files(&mut self, ids: Vec<String>) {
+        self.files = ids;
+    }
+
+    /// The session of document `id` (open or not).
+    pub fn session_of(&self, id: &str) -> Option<&Session> {
+        if id == self.doc {
+            Some(&self.session)
+        } else {
+            self.shelved.get(id).map(|(s, _)| s)
+        }
+    }
+
+    pub fn session_mut(&mut self, id: &str) -> Option<&mut Session> {
+        if id == self.doc {
+            Some(&mut self.session)
+        } else {
+            self.shelved.get_mut(id).map(|(s, _)| s)
+        }
+    }
+
+    /// The view of document `id` (open or not), e.g. its zoom root.
+    pub fn view_of(&mut self, id: &str) -> Option<&mut View> {
+        if id == self.doc {
+            Some(&mut self.view)
+        } else {
+            self.shelved.get_mut(id).map(|(_, v)| v)
+        }
+    }
+
+    /// Fill document `id` (just made, holding only its name) with `items` (an imported file), and open it.
+    pub fn import(&mut self, id: &str, items: &[outliner_core::commands::Portable]) {
+        self.switch(id);
         let (ops, inverse) = {
             let mut tx = outliner_core::tx::Tx::new(&mut self.session.live, now());
-            tx.set(ROOT, text_props(title));
             outliner_core::commands::insert_portable(&mut tx, ROOT, None, items);
             (std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
         };
         // not undoable, as the web's import
         self.session.commit(ops, inverse, None, None, false);
         self.reflow();
-        id
     }
 
     /// Rename document `id`: its root's text (`Workspace.rename`), not undoable.

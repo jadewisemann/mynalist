@@ -85,7 +85,16 @@ function tagCounts(trees: Tree[]): [string, number][] {
   return [...m.values()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
 
-function showSidebar(doc: DocSession, pane: PaneName | '') {
+/** The sidebar states beyond a pane (native `fixture::FixtureProps::side`): folders in the file tree, a folder's
+ * menu open over them, two bookmarks. */
+type SideState = PaneName | 'folders' | 'menu' | 'marks' | '';
+
+/** Where the 'menu' state opens the folder's menu (native `fixture::MENU_AT`). */
+const MENU_AT = [40, 160];
+
+function showSidebar(doc: DocSession, state: SideState) {
+  document.querySelector('.menu')?.remove();
+  const pane: PaneName | '' = state === 'folders' || state === 'menu' ? 'files' : state === 'marks' ? 'bookmarks' : state;
   if (side) for (const el of Object.values(side)) el.remove();
   const sessions = new Map<string, DocSession>();
   const sync = {
@@ -106,6 +115,21 @@ function showSidebar(doc: DocSession, pane: PaneName | '') {
     findFile: nop, gotoInbox: nop, copyDoc: nop, versionHistory: nop, share: nop, cleanNewlines: nop, dropItems: nop,
     tags: () => ({ doc: tagCounts([doc.live]), all: tagCounts([doc.live, sync.doc(empty).live]) }),
   };
+  // the file tree states: "Projects" (open) holds "Plan" and "Budget" (archived), "Old" (folded) holds "Notes"
+  if (state === 'folders' || state === 'menu') {
+    const projects = ws.create('folder', null, 'Projects');
+    ws.create('doc', projects, 'Plan');
+    ws.setArchived(ws.create('doc', projects, 'Budget'), true);
+    const old = ws.create('folder', null, 'Old');
+    ws.create('doc', old, 'Notes');
+    ws.setCollapsed(old, true);
+  }
+  if (state === 'marks') {
+    const zoomed: Record<string, [string, string]> = { inline: ['s7', 'Numbered list'], looks: ['l6', 'Color labels'] };
+    const [zoom, name] = zoomed[String(doc.live.root().props.c ?? '').toLowerCase()] ?? ['', ''];
+    ws.addBookmark({ title: String(doc.live.root().props.c ?? ''), doc: open });
+    ws.addBookmark({ title: name, doc: open, zoom });
+  }
   const bar = new Sidebar(ws, host);
   bar.show(pane || 'files');
   side = { el: bar.el, splitter: Object.assign(document.createElement('div'), { className: 'splitter' }), scrim: Object.assign(document.createElement('div'), { className: 'scrim' }) };
@@ -114,6 +138,10 @@ function showSidebar(doc: DocSession, pane: PaneName | '') {
   main.prepend(side.el, side.splitter, side.scrim);
   // shown on desktops from the start; on phones only when asked (the drawer)
   document.querySelector('.app')!.classList.toggle('side-open', pane !== '');
+  if (state === 'menu') {
+    const row = [...side.el.querySelectorAll<HTMLElement>('.file-row')].find((r) => r.querySelector('.name')?.textContent === 'Projects')!;
+    row.dispatchEvent(new MouseEvent('contextmenu', { clientX: MENU_AT[0], clientY: MENU_AT[1], bubbles: true, cancelable: true }));
+  }
 }
 
 // ---- measuring ----
@@ -276,6 +304,11 @@ function sidebarModel(out: string[]) {
     let line = `  ${kind} top=${len(ir.top)} height=${len(ir.height)}`;
     if (kind === 'tab' && item.classList.contains('active')) line += ' active';
     if (bgOf(item)) line += ` bg=${bgOf(item)}`;
+    // a folder's fold mark, an archived file's opacity
+    const tog = item.querySelector('.tog')?.textContent;
+    if (kind === 'file' && tog) line += ` tog=${JSON.stringify(tog)}`;
+    const opacity = Number(getComputedStyle(item).opacity);
+    if (kind === 'file' && opacity < 1) line += ` opacity=${Math.round(opacity * 100) / 100}`;
     out.push(line);
     const texts = kind === 'tab' ? [item] : kind === 'file' ? [item.querySelector('.name')!] : [...item.children].filter((c) => c.textContent);
     for (const t of texts) {
@@ -294,6 +327,28 @@ function sidebarModel(out: string[]) {
   if (scrim && bgOf(scrim)) {
     const sr = scrim.getBoundingClientRect();
     out.push(`scrim width=${len(sr.width)} height=${len(sr.height)} bg=${bgOf(scrim)}`);
+  }
+  // a popup menu: its box, its items (`.mi`) and separators (`.sep`) with their texts
+  const menu = document.querySelector('.menu');
+  if (menu) {
+    const mr = menu.getBoundingClientRect();
+    let head = `menu x=${len(mr.left)} top=${len(mr.top)} height=${len(mr.height)}`;
+    if (bgOf(menu)) head += ` bg=${bgOf(menu)}`;
+    out.push(head);
+    for (const item of menu.querySelectorAll('.mi, .sep')) {
+      const ir = item.getBoundingClientRect();
+      const kind = item.classList.contains('sep') ? 'sep' : 'item';
+      let line = `  ${kind} top=${len(ir.top)} height=${len(ir.height)}`;
+      if (bgOf(item)) line += ` bg=${bgOf(item)}`;
+      out.push(line);
+      for (const t of [...item.children].filter((c) => c.textContent)) {
+        const c = getComputedStyle(t);
+        const tr = t.getBoundingClientRect();
+        const s = t.textContent ?? '';
+        out.push(`    text x=${len(tr.left + px(c.paddingLeft))} top=${len(tr.top + px(c.paddingTop))} ${JSON.stringify(s)}`);
+        out.push(`      ${JSON.stringify(s)} ${spanStyle(t, t)}`);
+      }
+    }
   }
 }
 
@@ -365,7 +420,7 @@ function model(): string {
  * the settings of the native fixture's "prefs" state with 'prefs'; with 'search', `editing` is a query searched for,
  * as the native fixture's states), the sidebar on pane `side` (or as the device starts it: shown on
  * desktops, closed on phones); its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: PaneName | 'note' | 'select' | 'prefs' | 'search' | '' = '') => {
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: SideState | 'note' | 'select' | 'prefs' | 'search' = '') => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
@@ -375,7 +430,7 @@ function model(): string {
   const state = side === 'note' || side === 'select' || side === 'prefs' || side === 'search' ? side : '';
   // 'prefs': the settings of the native fixture's "prefs" state (native `fixture::PREFS`)
   setRenderOptions(state === 'prefs' ? { hour12: false } : {});
-  showSidebar(show(doc), state ? '' : (side as PaneName | ''));
+  showSidebar(show(doc), state ? '' : (side as SideState));
   if (state === 'prefs') ed!.applyPrefs({ showChecked: false, showNotes: 'teaser', bulletThreading: false, highlightCurrent: true });
   if (editing && state === 'note') ed!.startEdit(editing, 'n', Number.MAX_SAFE_INTEGER);
   else if (editing && state === 'select') ed!.applySel({ k: 'block', ids: [editing], anchor: editing, focus: editing });
