@@ -48,7 +48,7 @@ view 0,0 390x844
         scroll#outline 0,83 390x761 bg=#ffffff scroll 390x230.5
           view 0,83 390x60
             view#title 0,83 390x60
-              view 10,97 366x34
+              view#title-text 10,97 366x34
                 text 10,97 366x34
                   "Inline"
                     "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
@@ -57,8 +57,9 @@ view 0,0 390x844
               view#doc-end 0,283.5 390x30
           view 0,143 390x51.5
             view#row 0,143 390x51.5
-              view 12,147 18x22
-                view#bullet 18,155 6x6 bg=#8b8f97 r=3
+              view#bullet-box 12,147 18x22
+                view 12,147 18x22
+                  view#bullet 18,155 6x6 bg=#8b8f97 r=3
               view 30,147 346x43.5
                 text#row-text 36,147 340x43.5
                   "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
@@ -69,8 +70,9 @@ view 0,0 390x844
                     "e^{i\\pi}+1=0" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #222222
           view 0,194.5 390x89
             view#row 0,194.5 390x89
-              view 12,198.5 18x22
-                view#bullet 18,206.5 6x6 bg=#8b8f97 r=3
+              view#bullet-box 12,198.5 18x22
+                view 12,198.5 18x22
+                  view#bullet 18,206.5 6x6 bg=#8b8f97 r=3
               view 30,198.5 346x81
                 view#row-text 36,198.5 340x81
                   text 36,198.5 340x22

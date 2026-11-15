@@ -202,7 +202,7 @@ view 0,0 1100x800
         scroll#outline 263,45 837x755 bg=#ffffff scroll 837x567.5
           view 263,45 837x66
             view#title 263,45 837x66
-              view 313,65 747x34
+              view#title-text 313,65 747x34
                 text 313,65 747x34
                   "Inline"
                     "Inline" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
@@ -211,8 +211,9 @@ view 0,0 1100x800
               view#doc-end 263,582.5 837x30
           view 263,111 837x30
             view#row 263,111 837x30
-              view 315,115 18x22
-                view#bullet 321,123 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,115 18x22
+                view 315,115 18x22
+                  view#bullet 321,123 6x6 bg=#8b8f97 r=3
               view 333,115 727x22
                 text#row-text 339,115 337x22
                   "Bold, italic, strike and highlight"
@@ -225,8 +226,9 @@ view 0,0 1100x800
                     "highlight" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222 bg=#ffdd0061 r=2
           view 263,141 837x30
             view#row 263,141 837x30
-              view 315,145 18x22
-                view#bullet 321,153 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,145 18x22
+                view 315,145 18x22
+                  view#bullet 321,153 6x6 bg=#8b8f97 r=3
               view 333,145 727x22
                 text#row-text 339,145 505x22
                   "Code let x = 1;, an escaped *star* and e^{i\\pi}+1=0"
@@ -236,8 +238,9 @@ view 0,0 1100x800
                     "e^{i\\pi}+1=0" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 16/22 w400 #222222
           view 263,171 837x30
             view#row 263,171 837x30
-              view 315,175 18x22
-                view#bullet 321,183 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,175 18x22
+                view 315,175 18x22
+                  view#bullet 321,183 6x6 bg=#8b8f97 r=3
               view 333,175 727x22
                 text#row-text 339,175 445.5x22
                   "A link, https://example.org/docs and #tag @me"
@@ -251,19 +254,20 @@ view 0,0 1100x800
                     "@me" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #7a7a7a underline
           view 263,201 837x30
             view#row 263,201 837x30
-              view 315,205 18x22
-                view#bullet 321,213 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,205 18x22
+                view 315,205 18x22
+                  view#bullet 321,213 6x6 bg=#8b8f97 r=3
               view 333,205 727x22
                 text#row-text 339,205 109x22
                   "Due ￼ and ￼"
                     "Due ￼ and ￼" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
-                  view 378.5,205 210x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+                  view#date-chip 378.5,205 210x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
                     view 383.5,209.5 13x12.5
                       canvas 383.5,209.5 13x12.5
                     text 400.5,206 185x19.5
                       "Fri, January 5th 2024"
                         "Fri, January 5th 2024" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #222222
-                  view 438,205 342x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+                  view#date-chip 438,205 342x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
                     view 443,209.5 13x12.5
                       canvas 443,209.5 13x12.5
                     text 460,206 317x19.5
@@ -271,14 +275,15 @@ view 0,0 1100x800
                         "Sun, March 10th 2024, 3:30 pm - 5 pm" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #222222
           view 263,231 837x30
             view#row 263,231 837x30
-              view 315,235 18x22
-                view#bullet 321,243 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,235 18x22
+                view 315,235 18x22
+                  view#bullet 321,243 6x6 bg=#8b8f97 r=3
               view 333,235 727x22
                 text#row-text 339,235 257.5x22
                   "Every week ￼ and a picture"
                     "Every week ￼ and " 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
                     "a picture" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #2f8cf0 underline
-                  view 448,235 465.5x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+                  view#date-chip 448,235 465.5x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
                     view 453,239.5 13x12.5
                       canvas 453,239.5 13x12.5
                     text 470,236 440.5x19.5
@@ -286,8 +291,9 @@ view 0,0 1100x800
                         "Mon, January 8th 2024, every week on Mon, Wed, Fri" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #222222
           view 263,261 837x48
             view#row 263,261 837x48
-              view 315,265 18x22
-                view#bullet 321,273 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,265 18x22
+                view 315,265 18x22
+                  view#bullet 321,273 6x6 bg=#8b8f97 r=3
               view 333,265 727x40
                 text#row-text 339,265 158.5x22
                   "Item with a note"
@@ -302,8 +308,9 @@ view 0,0 1100x800
                       "." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15/18 w400 #4e4e4e
           view 263,309 837x89
             view#row 263,309 837x89
-              view 315,313 18x22
-                view#bullet 321,321 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,313 18x22
+                view 315,313 18x22
+                  view#bullet 321,321 6x6 bg=#8b8f97 r=3
               view 333,313 727x81
                 view#row-text 339,313 721x81
                   text 339,313 721x22
@@ -315,9 +322,10 @@ view 0,0 1100x800
                         "const a = 1;\nconsole.log(a);" 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace 15.5/18.5 w400 #222222
           view 263,398 837x30
             view#row 263,398 837x30
-              view 315,402 18x22
-                view 321,410 6x6
-                  view#bullet 321,410 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,402 18x22
+                view 315,402 18x22
+                  view 321,410 6x6
+                    view#bullet 321,410 6x6 bg=#8b8f97 r=3
               view 333,402 727x22
                 text#row-text 339,402 129x22
                   "Numbered list"
@@ -325,11 +333,12 @@ view 0,0 1100x800
           view 263,428 837x30
             view#row 263,428 837x30
               view#guide 324,428 1x30 bg=#e3e5e8
-              view 335,432 28x22
-                view#bullet 335,434 28x18.5
-                  text 340,434 17x18.5
-                    "1."
-                      "1." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
+              view#bullet-box 335,432 28x22
+                view 335,432 28x22
+                  view#bullet 335,434 28x18.5
+                    text 340,434 17x18.5
+                      "1."
+                        "1." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
               view 363,432 697x22
                 text#row-text 369,432 49.5x22
                   "First"
@@ -337,11 +346,12 @@ view 0,0 1100x800
           view 263,458 837x30
             view#row 263,458 837x30
               view#guide 324,458 1x30 bg=#e3e5e8
-              view 335,462 28x22
-                view#bullet 335,464 28x18.5
-                  text 340,464 17x18.5
-                    "2."
-                      "2." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
+              view#bullet-box 335,462 28x22
+                view 335,462 28x22
+                  view#bullet 335,464 28x18.5
+                    text 340,464 17x18.5
+                      "2."
+                        "2." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
               view 363,462 697x22
                 text#row-text 369,462 158.5x22
                   "Second with mark"
@@ -350,24 +360,26 @@ view 0,0 1100x800
           view 263,488 837x30
             view#row 263,488 837x30
               view#guide 324,488 1x30 bg=#e3e5e8
-              view 335,492 28x22
-                view#bullet 335,494 28x18.5
-                  text 340,494 17x18.5
-                    "3."
-                      "3." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
+              view#bullet-box 335,492 28x22
+                view 335,492 28x22
+                  view#bullet 335,494 28x18.5
+                    text 340,494 17x18.5
+                      "3."
+                        "3." 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 15.5/0 w400 #8b8f97 variant=FontVariant(8)
               view 363,492 697x22
                 text#row-text 369,492 49.5x22
                   "Third"
                     "Third" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,518 837x30
             view#row 263,518 837x30
-              view 315,522 18x22
-                view#bullet 321,530 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,522 18x22
+                view 315,522 18x22
+                  view#bullet 321,530 6x6 bg=#8b8f97 r=3
               view 333,522 727x22
                 text#row-text 339,522 208x22
                   "Checked with a date ￼"
                     "Checked with a date ￼" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #a7a7a7 strike
-                  view 537,522 210x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
+                  view#date-chip 537,522 210x21.5 bg=#f5f5f5 r=4 border=1 #cccccc
                     view 542,526.5 13x12.5
                       canvas 542,526.5 13x12.5
                     text 559,523 185x19.5
@@ -375,8 +387,9 @@ view 0,0 1100x800
                         "Fri, January 5th 2024" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/19.5 w400 #a7a7a7 strike
           view 263,548 837x34.5
             view#row 263,548 837x34.5
-              view 315,552 18x26
-                view#bullet 321,562 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,552 18x26
+                view 315,552 18x26
+                  view#bullet 321,562 6x6 bg=#8b8f97 r=3
               view 333,552 727x26.5
                 text#row-text 339,552 206x26.5
                   "Heading with gone"

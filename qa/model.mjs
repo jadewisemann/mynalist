@@ -87,7 +87,7 @@ for (const [device, d] of Object.entries(DEVICES)) {
   // a note being edited, a selected item and a search (native `structural_snapshots`, `fixture::noted_item` /
   // `selected_item` / `search_query`), and the settings that change the outline (native `fixture::PREFS`), with
   // the edited item
-  const STATES = [['looks', 'note', 'l3'], ['inline', 'note', 's5'], ['looks', 'select', 'l6'], ['looks', 'prefs', 'l17'], ['inline', 'prefs', 's0'], ['looks', 'search', 'level'], ['inline', 'search', 'code']];
+  const STATES = [['looks', 'note', 'l3'], ['inline', 'note', 's5'], ['looks', 'select', 'l6'], ['looks', 'itemmenu', 'l6'], ['looks', 'prefs', 'l17'], ['inline', 'prefs', 's0'], ['looks', 'search', 'level'], ['inline', 'search', 'code']];
   for (const [doc, state, id] of STATES) {
     const name = `${doc}-${device}-${state}`;
     const web = await measure(doc, {}, '', id, state);

@@ -117,6 +117,17 @@ pub fn show(tab: Tab) {
     });
 }
 
+/// The keymap's "Toggle … pane" (`togglePane`): the sidebar hides when it shows `tab`, else it shows on `tab`.
+pub fn toggle_tab(tab: Tab) {
+    let (open, now) = side().with_untracked(|s| (s.open.unwrap_or(!style::phone()), s.tab));
+    if open && now == tab {
+        toggle(Some(false));
+    } else {
+        set_tab(tab);
+        toggle(Some(true));
+    }
+}
+
 fn set_tab(tab: Tab) {
     side().update(|s| s.tab = tab);
     keep(TAB, tab.name().to_owned());

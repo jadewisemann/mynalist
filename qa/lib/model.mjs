@@ -252,6 +252,8 @@ export const KNOWN = [
   { re: /^looks-phone-[\w-]*large[\w-]*: row (18 height|19 top):/, why: 'the large text wraps a long row on a phone where glyph widths decide it, which differ between text engines' },
   { re: /^looks-[\w-]*large[\w-]*: row 0 height:/, why: 'the snapshot\'s approximate text engine makes a text 1.2 times its size tall, taller than a large heading\'s line' },
   { re: /^looks-phone-menu: menu items: native "New document" "New folder" "Import OPML…" — "Move to…" "Rename" "Delete"; web "New document" "New folder" "Import OPML…" — "Rename" "Delete"$/, why: 'phones cannot drag a file row (the web has no touch drag either), so the native menu adds "Move to…"' },
+  { re: /^looks-(desktop|phone)-itemmenu: menu items: native "Collapse" "Collapse all" "Collapse all siblings" .* "Get link" "Show all references" "Export…" "Set as inbox" —; web "Collapse" "Collapse all" "Expand to level" "Collapse all siblings" .* "Get link" "Share…" "Show all references" "Export…" "Set as inbox" —$/, why: 'the native item menu has no Share… (it needs the server); its "Expand to level" row is a row of its own, the web\'s a .mi the model counts' },
+  { re: /^looks-(desktop|phone)-itemmenu: menu item \d+ text (x|spans): /, why: 'the native fixtures have Apple keyboards (⌘⇧ keys), the web page runs on Linux (Ctrl+Shift+): the keys read differently, and the right-aligned keys and ▸ sit where the menu\'s width puts them' },
 ].map((k) => ({ ...k, test: (p) => k.re.test(p) }));
 
 // ---- design/spec.json ----

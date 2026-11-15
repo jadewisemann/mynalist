@@ -14,12 +14,13 @@ pub mod design;
 mod dialog;
 pub mod docview;
 mod export;
-pub mod find;
 mod finder;
+pub mod find;
 pub mod fixture;
 pub mod help;
 mod icons;
 pub mod inbox;
+mod itemmenu;
 pub mod menu;
 pub mod inline;
 pub mod keymap;
@@ -139,5 +140,6 @@ fn screen() -> View {
         .child(settings::screen())
         .child(dialog::overlay())
         .child(toast::view_of())
+        .child(outline::drag_label())
         .child(menu::layer())
 }

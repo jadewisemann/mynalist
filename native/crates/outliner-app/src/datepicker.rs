@@ -325,6 +325,16 @@ pub fn add_date() {
     open(&c.id, c.note, caret as u32, caret as u32, None, false, true);
 }
 
+/// A press on a date chip (`openDateChip`): the picker on the date at `s..e` of `id`'s content (or note), under
+/// the chip (`chip`: its left, top and bottom in the screen).
+pub fn open_chip(id: &str, note: bool, s: u32, e: u32, chip: (f32, f32, f32)) {
+    let text = field_text(id, note);
+    let found = dates::find_dates(&text).into_iter().find(|d| d.start as u32 == s || (d.start as u32) < e && s < d.end as u32);
+    let Some(d) = found else { return };
+    CARET_BOX.with(|c| *c.borrow_mut() = Some((id.to_owned(), note, chip.0, chip.1, chip.2)));
+    open(id, note, d.start as u32, d.end as u32, Some(d.spec), false, false);
+}
+
 /// Typing: `old` became `new` in `id`'s content or note. A `!` typed after a space (or at the start) opens the
 /// picker to replace it.
 pub fn typed(id: &str, note: bool, old: &str, new: &str) {

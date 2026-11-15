@@ -62,6 +62,12 @@ fn targets(s: &State) -> Vec<NodeId> {
 /// Run `f` on the open document's selection as one undoable change; the selection becomes what its result says.
 /// Returns whether it did something.
 fn run(f: impl FnOnce(&mut Tx<'_>, &View, &[NodeId], Sel) -> Option<CmdResult>) -> bool {
+    let ids = store::peek(targets);
+    run_on(&ids, f)
+}
+
+/// [`run`] on items `ids` (the item menu's: the item it was opened on, or the selected ones).
+fn run_on(ids: &[NodeId], f: impl FnOnce(&mut Tx<'_>, &View, &[NodeId], Sel) -> Option<CmdResult>) -> bool {
     // a locked document (read mode) is not changed (`Editor.run`)
     if store::peek(|s| crate::docview::is_locked(&s.doc)) {
         return false;
@@ -69,10 +75,9 @@ fn run(f: impl FnOnce(&mut Tx<'_>, &View, &[NodeId], Sel) -> Option<CmdResult>) 
     store::edit(|s| {
         let v = s.view.clone();
         let before = current(s);
-        let ids = targets(s);
         let (res, ops, inverse) = {
             let mut tx = Tx::new(&mut s.session.live, store::now());
-            let res = f(&mut tx, &v, &ids, sel_of(&before));
+            let res = f(&mut tx, &v, ids, sel_of(&before));
             (res, std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
         };
         let done = res.is_some() || !ops.is_empty();
@@ -242,6 +247,12 @@ pub fn toggle_collapse(recursive: bool) {
 
 /// Fold or unfold `ids` (the bullet's press).
 pub fn collapse(ids: &[NodeId], recursive: bool) {
+    fold(ids, |tx, v, ids| core::toggle_collapse(tx, v, ids, recursive));
+}
+
+/// Fold or unfold with `f` on `ids` (folding is not undoable); a selected item hidden under a fold leaves the
+/// selection.
+fn fold(ids: &[NodeId], f: impl FnOnce(&mut Tx<'_>, &View, &[NodeId])) {
     if ids.is_empty() {
         return;
     }
@@ -249,7 +260,7 @@ pub fn collapse(ids: &[NodeId], recursive: bool) {
         let v = s.view.clone();
         let ops = {
             let mut tx = Tx::new(&mut s.session.live, store::now());
-            core::toggle_collapse(&mut tx, &v, ids, recursive);
+            f(&mut tx, &v, ids);
             (std::mem::take(&mut tx.ops), std::mem::take(&mut tx.inverse))
         };
         let c = current(s);
@@ -710,5 +721,381 @@ pub fn paste_over_block(plain: &str) -> bool {
         let last = nids.last()?.clone();
         let at = text16::len(item::content(tx.tree.get(&last)));
         Some(CmdResult { sel: core::caret(&last, at), zoom: None })
+    })
+}
+
+// ---- the keymap's commands (the web's `Editor.exec`) --------------------------------------------------------
+
+/// The items the commands of the keymap act on (`Editor.targets`): the selected ones, or the one being edited,
+/// the zoom root (the title) included.
+fn all_targets(s: &State) -> Vec<NodeId> {
+    match (&s.block, &s.editing) {
+        (Some(b), _) => b.ids.clone(),
+        (None, Some(c)) => vec![c.id.clone()],
+        _ => Vec::new(),
+    }
+}
+
+/// The items `exec` acts on now.
+pub fn exec_targets() -> Vec<NodeId> {
+    store::peek(all_targets)
+}
+
+/// Run keymap command `id` on what is selected or edited (`Editor.exec`). Returns whether it was one of the
+/// editor's commands (the app's are `keymap.rs`'s).
+pub fn exec(id: &str) -> bool {
+    let ids = exec_targets();
+    exec_on(&ids, id)
+}
+
+/// The sort a `sort-…` command names (`sort-asc` and `sort-desc` are the title's).
+fn sort_mode(id: &str) -> Option<core::SortMode> {
+    let name = match id {
+        "sort-asc" => "title-asc",
+        "sort-desc" => "title-desc",
+        _ => id.strip_prefix("sort-")?,
+    };
+    serde_json::from_value(Value::String(name.to_owned())).ok()
+}
+
+/// Run keymap command `id` on items `ids` (`Editor.execOn`, the item menu's), as the web's `exec` does.
+pub fn exec_on(ids: &[NodeId], id: &str) -> bool {
+    let zoom = zoom_now();
+    let has = !ids.is_empty();
+    let not_title: Vec<NodeId> = ids.iter().filter(|x| **x != zoom).cloned().collect();
+    let some = !not_title.is_empty();
+    let in_place = || crate::settings::get().flag("unindent_in_place");
+    match id {
+        "indent" => has && run_on(&not_title, core::indent),
+        "unindent" => {
+            let p = in_place();
+            has && run_on(&not_title, move |tx, v, ids, sel| core::outdent(tx, v, ids, sel, p))
+        }
+        "collapse" => {
+            fold(&not_title, |tx, v, ids| core::toggle_collapse(tx, v, ids, false));
+            some
+        }
+        "collapse-all" => {
+            fold(ids, |tx, v, ids| core::toggle_collapse(tx, v, ids, true));
+            has
+        }
+        "toggle-siblings" => {
+            fold(ids, |tx, _, ids| core::toggle_siblings(tx, &ids[0]));
+            has
+        }
+        "expand-1" | "expand-2" | "expand-3" | "expand-4" => {
+            let level = id[7..].parse().unwrap_or(1);
+            fold(ids, move |tx, _, ids| core::expand_to_level(tx, ids, level));
+            has
+        }
+        "zoom-in" => match ids.first() {
+            Some(t) => {
+                zoom_into(t);
+                true
+            }
+            None => false,
+        },
+        "zoom-out" => {
+            zoom_out();
+            true
+        }
+        "zoom-prev-sibling" | "zoom-next-sibling" => {
+            store::edit(|s| {
+                let t = s.tree();
+                let sib = if id == "zoom-prev-sibling" { t.prev_sibling(&zoom) } else { t.next_sibling(&zoom) }.cloned();
+                if let Some(sib) = sib {
+                    s.view.zoom = sib;
+                    s.reflow();
+                    place(s, None);
+                }
+            });
+            true
+        }
+        "delete-left" | "delete-right" => {
+            let dir = if id == "delete-left" { Dir::Left } else { Dir::Right };
+            some && run_on(&not_title, move |tx, v, ids, _| core::delete_items(tx, v, ids, dir))
+        }
+        "goto-note-of" => match ids.first() {
+            Some(t) => {
+                start_editing_note(t);
+                true
+            }
+            None => false,
+        },
+        "goto-note" => {
+            goto_note();
+            true
+        }
+        "toggle-checked" | "toggle-checked-here" => {
+            let stay = id == "toggle-checked-here";
+            some && run_on(&not_title, move |tx, v, ids, sel| {
+                let opts = CheckOptions { stay, recurring: Some(recurring()), now: None };
+                core::toggle_checked(tx, v, ids, sel, &opts)
+            })
+        }
+        "uncheck-children" => has && run_on(ids, |tx, _, ids, sel| Some(core::uncheck_descendants(tx, ids, sel))),
+        "toggle-checkbox" => has && run_on(ids, |tx, _, ids, sel| Some(core::toggle_prop(tx, ids, "cb", sel))),
+        "toggle-children-checkbox" => has && run_on(ids, |tx, _, ids, sel| Some(core::set_children_checkbox(tx, ids, sel))),
+        "toggle-numbered" => has && run_on(ids, |tx, _, ids, sel| Some(core::toggle_prop(tx, ids, "num", sel))),
+        "duplicate" => some && run_on(&not_title, |tx, _, ids, _| core::duplicate(tx, ids)),
+        "select-up" | "select-down" => {
+            extend(id == "select-down");
+            true
+        }
+        "select-all" => {
+            select_all();
+            true
+        }
+        "undo" | "redo" => {
+            undo(id == "redo");
+            true
+        }
+        "delete-checked" => {
+            let scope = if has { ids.to_vec() } else { vec![zoom.clone()] };
+            run_on(&scope, |tx, _, scope, _| {
+                fn walk(tx: &mut Tx<'_>, x: &str) {
+                    let kids = tx.tree.get(x).map(|n| n.children.clone()).unwrap_or_default();
+                    for c in kids {
+                        if item::is_checked(tx.tree.get(&c)) {
+                            tx.move_to(&c, None, None);
+                        } else {
+                            walk(tx, &c);
+                        }
+                    }
+                }
+                for x in scope {
+                    walk(tx, x);
+                }
+                Some(CmdResult { sel: Sel::None, zoom: None })
+            })
+        }
+        "swap-up" => some && run_on(&not_title, core::move_up),
+        "swap-down" => some && run_on(&not_title, core::move_down),
+        "goto-parent" => {
+            store::edit(|s| {
+                let p = ids.first().filter(|t| **t != zoom).and_then(|t| s.tree().get(t)).and_then(|n| n.parent.clone());
+                if let Some(p) = p {
+                    place_caret(s, Caret::text(&p, 0));
+                }
+            });
+            true
+        }
+        "goto-prev-sibling" | "goto-next-sibling" => {
+            store::edit(|s| {
+                let Some(t) = ids.first().filter(|t| **t != zoom) else { return };
+                let sib = if id == "goto-prev-sibling" {
+                    view::prev_visible_sibling(s.tree(), t, &s.view)
+                } else {
+                    view::next_visible_sibling(s.tree(), t, &s.view)
+                };
+                if let Some(sib) = sib {
+                    place_caret(s, Caret::text(&sib, 0));
+                }
+            });
+            true
+        }
+        "goto-item-start" | "goto-item-end" => store::edit(|s| {
+            let Some(c) = s.editing.clone() else { return false };
+            let n = s.tree().get(&c.id);
+            let len = utf16_len(if c.note { item::note(n) } else { item::content(n) });
+            let at = if id == "goto-item-start" { 0 } else { len };
+            place_caret(s, Caret { at, end: at, ..c });
+            true
+        }),
+        "goto-first" => {
+            store::edit(|s| {
+                if let Some(first) = view::visible_children(s.tree(), &s.view.zoom, &s.view).first().cloned() {
+                    place_caret(s, Caret::text(&first, 0));
+                }
+            });
+            true
+        }
+        "goto-last" => {
+            store::edit(|s| {
+                if let Some(last) = s.rows.last().map(|r| r.id.clone()) {
+                    let at = content_len(s.tree(), &last);
+                    place_caret(s, Caret::text(&last, at));
+                }
+            });
+            true
+        }
+        "bold" => format(ids, "**"),
+        "italic" => format(ids, "__"),
+        "code" => format(ids, "`"),
+        "strike" => format(ids, "~~"),
+        "highlight" => format(ids, "=="),
+        "latex" => format(ids, "$$"),
+        "code-block" => format(ids, "```"),
+        "link" => edit_text(core::wrap_link),
+        "newline" => edit_text(|t, s, e| insert_at(t, s, e, "\n")),
+        "insert-date" | "insert-time" => {
+            let token = now_token(id == "insert-time");
+            edit_text(move |t, s, e| insert_at(t, s, e, &token))
+        }
+        "cycle-heading" => has && run_on(ids, |tx, _, ids, sel| Some(core::cycle_level(tx, ids, "h", 3, sel))),
+        "cycle-color" => has && run_on(ids, |tx, _, ids, sel| Some(core::cycle_level(tx, ids, "cl", 6, sel))),
+        _ => {
+            if let Some(mode) = sort_mode(id) {
+                return has && run_on(ids, move |tx, _, ids, sel| Some(core::sort_children(tx, ids, mode, sel)));
+            }
+            let level = |p: &str| id.strip_prefix(p).and_then(|n| n.parse::<i64>().ok()).filter(|n| (0..=6).contains(n));
+            if let Some(n) = level("heading-").filter(|n| *n <= 3) {
+                return has && run_on(ids, move |tx, _, ids, sel| Some(core::set_level(tx, ids, "h", n, sel)));
+            }
+            if let Some(n) = level("color-") {
+                return has && run_on(ids, move |tx, _, ids, sel| Some(core::set_level(tx, ids, "cl", n, sel)));
+            }
+            false
+        }
+    }
+}
+
+fn zoom_now() -> NodeId {
+    store::peek(|s| s.view.zoom.clone())
+}
+
+/// `text` with `s..e` replaced by `with`, the caret after it.
+fn insert_at(text: &str, s: usize, e: usize, with: &str) -> core::TextEdit {
+    let (a, b) = (text16::byte_at(text, s), text16::byte_at(text, e));
+    let at = s + text16::len(with);
+    core::TextEdit { text: format!("{}{with}{}", &text[..a], &text[b..]), s: at, e: at }
+}
+
+/// Today's date (`insert-date`) or now (`insert-time`, with the zone when "Encode timezone in new dates" is on)
+/// as a date token: `!(2024-06-15)`, `!(2024-06-15 09:05)`.
+fn now_token(with_time: bool) -> String {
+    use outliner_core::dates;
+    let now = store::now();
+    let f = dates::fields(now);
+    let mut out = format!("!({:04}-{:02}-{:02}", f.year, f.month0 + 1, f.day);
+    if with_time {
+        out.push_str(&format!(" {:02}:{:02}", f.hours, f.minutes));
+        if crate::settings::get().flag("show_timezone") {
+            out.push(' ');
+            out.push_str(&dates::local_tz(now));
+        }
+    }
+    out.push(')');
+    out
+}
+
+/// Bold, italic, ... (`Editor.format`): the selected items' whole texts, or the text selected in the field being
+/// edited (the word at the caret when nothing is selected), wrapped in `d` or unwrapped.
+fn format(ids: &[NodeId], d: &str) -> bool {
+    if store::peek(|s| s.block.is_some()) {
+        let d = d.to_owned();
+        return run_on(ids, move |tx, _, ids, sel| {
+            core::toggle_wrap_items(tx, ids, &d);
+            Some(CmdResult { sel, zoom: None })
+        });
+    }
+    let d = d.to_owned();
+    edit_text(move |t, s, e| core::toggle_wrap(t, s, e, &d))
+}
+
+/// Change the text of the field being edited with `f` (its text and selection in, the new text and selection
+/// out), as one undo step (`Editor.editText`). Returns whether a field was being edited.
+fn edit_text(f: impl FnOnce(&str, usize, usize) -> core::TextEdit) -> bool {
+    let Some(c) = store::peek(|s| s.editing.clone()) else { return false };
+    let text = store::peek(|s| {
+        let n = s.tree().get(&c.id);
+        if c.note { item::note(n) } else { item::content(n) }.to_owned()
+    });
+    let r = f(&text, c.at.min(c.end) as usize, c.at.max(c.end) as usize);
+    replace_range(&c.id, c.note, 0, utf16_len(&text), &r.text, r.s as u32, r.e as u32);
+    true
+}
+
+/// Move items `ids` under `parent` after `after` (`None`: first), as one undoable change, the moved items
+/// selected (a drop of dragged items); with `copy`, copies of them go there instead (Mod held).
+pub fn move_items(ids: &[NodeId], parent: &str, after: Option<&str>, copy: bool) -> bool {
+    let (parent, after) = (parent.to_owned(), after.map(str::to_owned));
+    run_on(ids, move |tx, _, ids, _| {
+        if copy {
+            let items: Vec<core::Portable> = ids.iter().map(|i| core::to_portable(tx.tree, i, None)).collect();
+            let nids = core::insert_portable(tx, &parent, after.as_deref(), &items);
+            let (a, f) = (nids.first()?.clone(), nids.last()?.clone());
+            return Some(CmdResult { sel: Sel::Block { ids: nids, anchor: a, focus: f }, zoom: None });
+        }
+        if parent != ROOT {
+            tx.collapse(&parent, false);
+        }
+        let mut after = after;
+        for i in ids {
+            if after.as_deref() == Some(i.as_str()) {
+                continue;
+            }
+            tx.move_to(i, Some(&parent), after.as_deref());
+            after = Some(i.clone());
+        }
+        let (a, f) = (ids.first()?.clone(), ids.last()?.clone());
+        Some(CmdResult { sel: Sel::Block { ids: ids.to_vec(), anchor: a, focus: f }, zoom: None })
+    })
+}
+
+/// "Move to…" in this document: items `ids` go last (or first, with `move_item_sent_to_position` on top) under
+/// `parent`; nothing is selected after.
+pub fn move_into(ids: &[NodeId], parent: &str, bottom: bool) -> bool {
+    let parent = parent.to_owned();
+    run_on(ids, move |tx, _, ids, _| {
+        let kids = tx.tree.get(&parent)?.children.clone();
+        let mut after = if bottom { kids.last().cloned() } else { None };
+        for i in ids {
+            tx.move_to(i, Some(&parent), after.as_deref());
+            after = Some(i.clone());
+        }
+        Some(CmdResult { sel: Sel::None, zoom: None })
+    })
+}
+
+/// Shift+press on a row (`onMouseDown` with Shift): the items from the selection's anchor (or the item being
+/// edited) to `id` selected.
+pub fn select_to(id: &str) {
+    store::edit(|s| {
+        let from = match (&s.block, &s.editing) {
+            (Some(b), _) => b.anchor.clone(),
+            (None, Some(c)) => c.id.clone(),
+            _ => return,
+        };
+        if from == s.view.zoom || id == s.view.zoom {
+            return;
+        }
+        let ids = view::select_between(s.tree(), &from, id, &s.view);
+        place(s, Some(Mark::Block(Block { ids, anchor: from, focus: id.to_owned() })));
+    });
+}
+
+/// A drag from item `from`'s text onto `to` (`startDragSelect`): the items between selected.
+pub fn drag_select(from: &str, to: &str) {
+    store::edit(|s| {
+        if from == s.view.zoom || to == s.view.zoom || (from == to && s.block.is_none()) {
+            return;
+        }
+        let ids = view::select_between(s.tree(), from, to, &s.view);
+        let mark = Block { ids, anchor: from.to_owned(), focus: to.to_owned() };
+        if s.block.as_ref() != Some(&mark) {
+            place(s, Some(Mark::Block(mark)));
+        }
+    });
+}
+
+/// "Insert template…": a copy of `item` after `target` (the title's: last under it), the empty `target` gone,
+/// the copy edited at its start.
+pub fn insert_template(target: &str, item: core::Portable) -> bool {
+    let target = target.to_owned();
+    run(move |tx, v, _, _| {
+        let zoom = v.zoom.clone();
+        let t = &*tx.tree;
+        let empty = target != zoom && item::content(t.get(&target)).is_empty() && t.get(&target)?.children.is_empty();
+        let (parent, after) = if target == zoom {
+            (zoom.clone(), t.get(&zoom)?.children.last().cloned())
+        } else {
+            (t.get(&target)?.parent.clone()?, Some(target.clone()))
+        };
+        let nid = core::insert_portable(tx, &parent, after.as_deref(), &[item]).first()?.clone();
+        if empty {
+            tx.move_to(&target, None, None);
+        }
+        Some(CmdResult { sel: core::caret(&nid, 0), zoom: None })
     })
 }

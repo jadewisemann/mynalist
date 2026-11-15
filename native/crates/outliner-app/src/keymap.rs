@@ -173,6 +173,23 @@ impl Keymap {
                 }
             }
         }
+        // the WorkFlowy keys win over the defaults of later commands on the same keys (Alt+Left/Right are also
+        // Back/Forward), but not over a key the user gave a command
+        if workflowy_keys {
+            for c in COMMANDS.iter().filter(|c| !overrides.contains_key(c.id)) {
+                for k in workflowy(c.id, apple).unwrap_or_default() {
+                    match map.iter_mut().find(|(x, _)| *x == k) {
+                        Some(e) => {
+                            let owned = overrides.get(e.1).is_some_and(|o| o.contains(&k));
+                            if !owned {
+                                e.1 = c.id;
+                            }
+                        }
+                        None => map.push((k, c.id)),
+                    }
+                }
+            }
+        }
         Keymap { map }
     }
 
@@ -288,21 +305,34 @@ pub enum Scope {
 pub type Action = (fn(), &'static [Scope]);
 
 /// What command `id` does in the native app, where its keys act; `None` for a command the app does not have yet.
+/// The editor's commands run through `commands::exec` (the web's `Editor.exec`), the app's here.
 pub fn action(id: &str) -> Option<Action> {
     use crate::commands as cmd;
     use outliner_core::commands::Dir;
     use Scope::{App, Block, Editing};
     const BOTH: &[Scope] = &[Editing, Block];
+    const EDIT: &[Scope] = &[Editing];
+    // a command of the editor (`Editor.exec`), by its id: a closure taking nothing is a plain `fn()`
+    macro_rules! exec {
+        ($id:literal, $scopes:expr) => {
+            (
+                || {
+                    cmd::exec($id);
+                },
+                $scopes,
+            )
+        };
+    }
     let a: Action = match id {
         "indent" => (cmd::indent, &[Block]),
         "unindent" => (cmd::outdent, BOTH),
         "collapse" => (|| cmd::toggle_collapse(false), BOTH),
         "collapse-all" => (|| cmd::toggle_collapse(true), BOTH),
         "zoom-in" => (cmd::zoom_in, BOTH),
-        "zoom-out" => (cmd::zoom_out, &[Editing]),
+        "zoom-out" => (cmd::zoom_out, EDIT),
         "delete-left" => (|| cmd::delete_items(Dir::Left), BOTH),
         "delete-right" => (|| cmd::delete_items(Dir::Right), &[Block]),
-        "goto-note" => (cmd::goto_note, &[Editing]),
+        "goto-note" => (cmd::goto_note, EDIT),
         "toggle-checked" => (|| cmd::toggle_checked(false), BOTH),
         "toggle-checkbox" => (cmd::toggle_checkbox, BOTH),
         "swap-up" => (cmd::move_up, BOTH),
@@ -310,15 +340,72 @@ pub fn action(id: &str) -> Option<Action> {
         "select-all" => (cmd::select_all, BOTH),
         "undo" => (|| cmd::undo(false), BOTH),
         "redo" => (|| cmd::undo(true), BOTH),
+        "uncheck-children" => exec!("uncheck-children", BOTH),
+        "toggle-siblings" => exec!("toggle-siblings", BOTH),
+        "toggle-children-checkbox" => exec!("toggle-children-checkbox", BOTH),
+        "toggle-numbered" => exec!("toggle-numbered", BOTH),
+        "duplicate" => exec!("duplicate", BOTH),
+        "delete-checked" => exec!("delete-checked", BOTH),
+        "sort-asc" => exec!("sort-asc", BOTH),
+        "sort-desc" => exec!("sort-desc", BOTH),
+        "sort-date-new" => exec!("sort-date-new", BOTH),
+        "sort-date-old" => exec!("sort-date-old", BOTH),
+        "expand-1" => exec!("expand-1", BOTH),
+        "expand-2" => exec!("expand-2", BOTH),
+        "expand-3" => exec!("expand-3", BOTH),
+        "expand-4" => exec!("expand-4", BOTH),
+        "zoom-prev-sibling" => exec!("zoom-prev-sibling", BOTH),
+        "zoom-next-sibling" => exec!("zoom-next-sibling", BOTH),
+        "goto-parent" => exec!("goto-parent", BOTH),
+        "goto-prev-sibling" => exec!("goto-prev-sibling", BOTH),
+        "goto-next-sibling" => exec!("goto-next-sibling", BOTH),
+        "goto-item-start" => exec!("goto-item-start", EDIT),
+        "goto-item-end" => exec!("goto-item-end", EDIT),
+        "goto-first" => exec!("goto-first", BOTH),
+        "goto-last" => exec!("goto-last", BOTH),
+        "bold" => exec!("bold", BOTH),
+        "italic" => exec!("italic", BOTH),
+        "code" => exec!("code", BOTH),
+        "code-block" => exec!("code-block", BOTH),
+        "strike" => exec!("strike", BOTH),
+        "highlight" => exec!("highlight", BOTH),
+        "latex" => exec!("latex", BOTH),
+        "link" => exec!("link", EDIT),
+        "newline" => exec!("newline", EDIT),
+        "insert-date" => exec!("insert-date", EDIT),
+        "insert-time" => exec!("insert-time", EDIT),
+        "cycle-heading" => exec!("cycle-heading", BOTH),
+        "heading-1" => exec!("heading-1", BOTH),
+        "heading-2" => exec!("heading-2", BOTH),
+        "heading-3" => exec!("heading-3", BOTH),
+        "heading-0" => exec!("heading-0", BOTH),
+        "cycle-color" => exec!("cycle-color", BOTH),
+        "color-1" => exec!("color-1", BOTH),
+        "color-2" => exec!("color-2", BOTH),
+        "color-3" => exec!("color-3", BOTH),
+        "color-4" => exec!("color-4", BOTH),
+        "color-5" => exec!("color-5", BOTH),
+        "color-6" => exec!("color-6", BOTH),
+        "color-0" => exec!("color-0", BOTH),
+        // the app's commands (`App.appCommand`): whatever has the focus
+        "move-to" => (crate::finder::move_to, BOTH),
+        "insert-template" => (crate::finder::insert_template, BOTH),
+        "copy-link" => (crate::itemmenu::copy_link_here, BOTH),
+        "get-link" => (crate::itemmenu::get_link_here, &[App]),
+        "show-references" => (crate::itemmenu::references_here, &[App]),
+        "go-anywhere" => (crate::finder::go_anywhere, &[App]),
+        "goto-item" => (crate::finder::goto_item, &[App]),
+        "search-replace" => (crate::find::replace_dialog, &[App]),
+        "bookmark" => (crate::sidebar::bookmark_current, &[App]),
         "settings" => (|| crate::settings::open(crate::settings::Tab::Prefs), &[App]),
-        "toggle-file-pane" => (|| crate::sidebar::toggle(None), &[App]),
+        "toggle-file-pane" => (|| crate::sidebar::toggle_tab(crate::sidebar::Tab::Files), &[App]),
+        "toggle-bookmark-pane" => (|| crate::sidebar::toggle_tab(crate::sidebar::Tab::Bookmarks), &[App]),
+        "toggle-tag-pane" => (|| crate::sidebar::toggle_tab(crate::sidebar::Tab::Tags), &[App]),
         "help" => (|| crate::help::toggle(None), &[App]),
         "back" => (|| crate::store::travel(false), &[App]),
         "forward" => (|| crate::store::travel(true), &[App]),
         "inbox-capture" => (crate::inbox::capture, &[App]),
         "goto-inbox" => (crate::inbox::goto, &[App]),
-        "go-anywhere" => (crate::finder::go_anywhere, &[App]),
-        "move-to" => (crate::finder::move_to, BOTH),
         "toggle-show-checked" => (
             || {
                 crate::settings::change(|p| {
@@ -418,9 +505,15 @@ mod tests {
         let wf = Keymap::new(&none, true, true);
         assert_eq!(wf.keys_for("collapse"), ["Ctrl+Up"]);
         assert_eq!(wf.resolve("Alt+Shift+Up"), Some("swap-up"));
-        // Alt+Left is also "back", later in the list: it keeps the key (a JS Map, as on the web)
-        assert_eq!(wf.resolve("Alt+Left"), Some("back"));
-        assert!(wf.keys_for("zoom-out").is_empty());
+        // Alt+Left is also "back": the WorkFlowy key wins it (as on the web), unless the user gave it to Back
+        assert_eq!(wf.resolve("Alt+Left"), Some("zoom-out"));
+        assert_eq!(wf.resolve("Alt+Right"), Some("zoom-in"));
+        assert!(wf.keys_for("back").is_empty());
+        let mut b = BTreeMap::new();
+        b.insert("back".to_owned(), vec!["Alt+Left".to_owned()]);
+        let wb = Keymap::new(&b, true, true);
+        assert_eq!(wb.resolve("Alt+Left"), Some("back"));
+        assert_eq!(wb.resolve("Alt+Right"), Some("zoom-in"));
         let mut o = BTreeMap::new();
         o.insert("collapse".to_owned(), vec!["Mod+Shift+K".to_owned()]);
         let km = Keymap::new(&o, true, false);

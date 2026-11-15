@@ -154,6 +154,18 @@ export class Keymap {
       const keys = opts.overrides?.[c.id] ?? (opts.workflowy ? WORKFLOWY[c.id] : undefined) ?? c.keys;
       for (const k of keys) this.map.set(k, c.id);
     }
+    // the WorkFlowy keys win over the defaults of later commands on the same keys (Alt+Left/Right are also
+    // Back/Forward), but not over a key the user gave a command
+    if (opts.workflowy) {
+      for (const [id, keys] of Object.entries(WORKFLOWY)) {
+        if (opts.overrides?.[id]) continue;
+        for (const k of keys) {
+          const owner = this.map.get(k);
+          if (owner && owner !== id && opts.overrides?.[owner]?.includes(k)) continue;
+          this.map.set(k, id);
+        }
+      }
+    }
   }
 
   resolve(combo: string): string | undefined {

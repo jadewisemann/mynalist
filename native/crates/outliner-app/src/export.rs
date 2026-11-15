@@ -52,11 +52,16 @@ fn state() -> Signal<Export> {
 
 /// The menu's "Export…": the selected items, or the zoomed item (the document at the top).
 pub fn open() {
+    let ids = store::peek(|s| match &s.block {
+        Some(b) => b.ids.clone(),
+        None => vec![s.view.zoom.clone()],
+    });
+    open_items(ids);
+}
+
+/// Export items `ids` (the item menu's "Export…", `exportItems`).
+pub fn open_items(ids: Vec<NodeId>) {
     let (ids, title) = store::peek(|s| {
-        let ids = match &s.block {
-            Some(b) => b.ids.clone(),
-            None => vec![s.view.zoom.clone()],
-        };
         let title = match ids.as_slice() {
             [one] if one != ROOT => {
                 let t = inline_to_plain(item::content(s.tree().get(one)), None);

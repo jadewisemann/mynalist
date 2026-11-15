@@ -110,6 +110,7 @@ pub const FLAGS: &[Flag] = &[
     flag("show_backlinks", "Show backlinks", false),
     flag("show_search_tips", "Show search tip popup", true),
     flag("export_visible_only", "Export visible items only (default)", false),
+    flag("item_toolbar_hover", "Show item toolbar on hover (desktop)", false),
 ];
 
 /// The settings with choices the native app honors.
@@ -133,6 +134,12 @@ pub const PICKS: &[Pick] = &[
         label: "Move to position",
         default: "bottom",
         options: &[("bottom", "End of inbox"), ("top", "Start of inbox")],
+    },
+    Pick {
+        key: "move_item_sent_to_position",
+        label: "Move item to",
+        default: "bottom",
+        options: &[("bottom", "End of destination"), ("top", "Start of destination")],
     },
     Pick {
         key: "dyslexia_font",
@@ -917,6 +924,7 @@ fn prefs_pane() -> impl IntoElement {
         .child(section("Control"))
         .child(flag_field("use_bullet_to_zoom"))
         .child(flag_field("unindent_in_place"))
+        .child(flag_field("item_toolbar_hover"))
         .child(
             nsh_base::button()
                 .accessibility_label(Some(if advanced { "Hide advanced settings" } else { "Show advanced settings" }.into()))
@@ -931,6 +939,8 @@ fn prefs_pane() -> impl IntoElement {
             .child(flag_field("auto_focus_first_item"))
             .child(flag_field("show_search_tips"))
             .child(pick_field("dyslexia_font"))
+            .child(pick_field("move_item_sent_to_position"))
+            .child(hint("Also used when dropping onto a collapsed item.").mb(px(num("space.field_bottom"))))
             .child(flag_field("export_visible_only"));
     }
     pane
@@ -1601,6 +1611,7 @@ pub fn menu() -> impl IntoElement {
                                 .child(item("Search and replace", crate::find::replace_dialog))
                                 .child(item("Export…", crate::export::open))
                                 .child(item("Download backup", download_backup))
+                                .child(item("Import OPML / text…", || import_files(None)))
                                 .child(item("Tutorial", crate::help::tutorial))
                                 .child(item("What's new", crate::help::whats_new)),
                         ),

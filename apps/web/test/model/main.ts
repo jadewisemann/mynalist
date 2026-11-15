@@ -13,6 +13,7 @@ import { DocSession, ROOT, Tx, compileQuery, extractTags, searchTree, type Tree 
 import { Editor, type EditorHost } from '../../src/editor/editor.ts';
 import { setRenderOptions } from '../../src/editor/render.ts';
 import { Sidebar, type PaneName, type SidebarHost } from '../../src/ui/sidebar.ts';
+import { itemMenu } from '../../src/ui/itemmenu.ts';
 import { Workspace } from '../../src/store/workspace.ts';
 import type { SyncClient } from '../../src/store/sync.ts';
 import { applyAppearance, parseAppearance } from '../../src/design/appearance.ts';
@@ -328,7 +329,12 @@ function sidebarModel(out: string[]) {
     const sr = scrim.getBoundingClientRect();
     out.push(`scrim width=${len(sr.width)} height=${len(sr.height)} bg=${bgOf(scrim)}`);
   }
-  // a popup menu: its box, its items (`.mi`) and separators (`.sep`) with their texts
+}
+
+/** A popup menu's part of the model (a folder's, an item's): its box, its items (`.mi`) and separators (`.sep`)
+ * with their texts. */
+function menuModel(out: string[]) {
+  const bgOf = (e: Element) => hex(getComputedStyle(e).backgroundColor);
   const menu = document.querySelector('.menu');
   if (menu) {
     const mr = menu.getBoundingClientRect();
@@ -412,6 +418,7 @@ function model(): string {
     for (const p of thread) if (p.top >= rr.top - 0.25 && p.top < rr.bottom - 0.25) writePiece(out, p);
   }
   sidebarModel(out);
+  menuModel(out);
   return out.join('\n') + '\n';
 }
 
@@ -420,7 +427,7 @@ function model(): string {
  * the settings of the native fixture's "prefs" state with 'prefs'; with 'search', `editing` is a query searched for,
  * as the native fixture's states), the sidebar on pane `side` (or as the device starts it: shown on
  * desktops, closed on phones); its model. */
-(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: SideState | 'note' | 'select' | 'prefs' | 'search' = '') => {
+(window as unknown as Record<string, unknown>).__model = async (doc: string, modes: Record<string, string>, toml: string, editing?: string, side: SideState | 'note' | 'select' | 'prefs' | 'search' | 'itemmenu' = '') => {
   const root = document.documentElement;
   for (const k of ['theme', 'size', 'density', 'font', 'eafont']) delete root.dataset[k];
   Object.assign(root.dataset, modes);
@@ -430,7 +437,12 @@ function model(): string {
   const state = side === 'note' || side === 'select' || side === 'prefs' || side === 'search' ? side : '';
   // 'prefs': the settings of the native fixture's "prefs" state (native `fixture::PREFS`)
   setRenderOptions(state === 'prefs' ? { hour12: false } : {});
-  showSidebar(show(doc), state ? '' : (side as SideState));
+  showSidebar(show(doc), state || side === 'itemmenu' ? '' : (side as SideState));
+  // 'itemmenu': the item menu of the native fixture's selected item (`fixture::selected_item`), at `MENU_AT`
+  if (side === 'itemmenu' && editing) {
+    const nop = () => {};
+    itemMenu(ed!, editing, MENU_AT[0]!, MENU_AT[1]!, { bookmark: nop, exportItem: nop, setInbox: nop, getLink: nop, showReferences: nop, share: nop });
+  }
   if (state === 'prefs') ed!.applyPrefs({ showChecked: false, showNotes: 'teaser', bulletThreading: false, highlightCurrent: true });
   if (editing && state === 'note') ed!.startEdit(editing, 'n', Number.MAX_SAFE_INTEGER);
   else if (editing && state === 'select') ed!.applySel({ k: 'block', ids: [editing], anchor: editing, focus: editing });
@@ -441,7 +453,7 @@ function model(): string {
     ed!.setFilter(res.visible, { terms: m.terms, ids: new Set(res.matches) });
     ed!.refreshText();
   }
-  else if (editing) ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);
+  else if (editing && side !== 'itemmenu') ed!.startEdit(editing, 'c', Number.MAX_SAFE_INTEGER);
   await document.fonts.ready;
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   return model();

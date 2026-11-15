@@ -43,6 +43,8 @@ pub struct Look {
     pub src: String,
     /// Links and tags take presses (the outline's rows; not the results' rows, which open their item).
     pub pressable: bool,
+    /// The item and field (its note with `true`) the text is: a press on a date chip opens the date picker on it.
+    pub dates_of: Option<(String, bool)>,
 }
 
 impl Look {
@@ -62,12 +64,18 @@ impl Look {
             marks: Vec::new(),
             src: String::new(),
             pressable: false,
+            dates_of: None,
         }
     }
 
     /// The same look marking `terms` in text parsed from `src`.
     pub fn marking(self, terms: &[String], src: &str) -> Self {
         Look { marks: terms.iter().filter(|t| !t.is_empty()).cloned().collect(), src: src.to_owned(), ..self }
+    }
+
+    /// The same look whose date chips open the date picker on item `id`'s content (or note).
+    pub fn dates_of(self, id: &str, note: bool) -> Self {
+        Look { dates_of: Some((id.to_owned(), note)), ..self }
     }
 
     /// The same look with links and tags that take presses.
@@ -225,7 +233,25 @@ fn span(t: &Token, look: &Look) -> AnyElement {
                 span.into_element()
             }
         }
-        Kind::Date { date, .. } => date_chip(date, look).into_element(),
+        Kind::Date { date, .. } => {
+            let chip = date_chip(date, look);
+            match look.dates_of.clone() {
+                // a press opens the date picker on that date, under the chip (`openDateChip`)
+                Some((id, note)) => {
+                    let (s, e) = (t.start as u32, t.end as u32);
+                    // the chip's height: its label's line and its border
+                    let h = look.size * num("type.date") * num("type.line") + 2.0 * num("space.border");
+                    chip.test_id("date-chip")
+                        .on_press(move |p: &PressEvent| {
+                            let x = p.page_position.x.0 - p.position.x.0;
+                            let top = p.page_position.y.0 - p.position.y.0;
+                            crate::datepicker::open_chip(&id, note, s, e, (x, top, top + h));
+                        })
+                        .into_element()
+                }
+                None => chip.into_element(),
+            }
+        }
         // not inline: `blocks` takes code blocks out first; shown as their text if one gets here
         Kind::Codeblock { text: s, .. } => text(s.clone()).font_family(style::mono()).into_element(),
     }
@@ -262,7 +288,7 @@ pub fn date_label(spec: &DateSpec, look: &Look) -> (String, bool) {
 
 /// `.o-date`: the label at 8/9 of the text, after a calendar icon, in a gray box with a border; reddish when
 /// overdue. An inline view: its bottom at the bottom of the text's font, as the web's inline box sits.
-fn date_chip(spec: &DateSpec, look: &Look) -> impl IntoElement {
+fn date_chip(spec: &DateSpec, look: &Look) -> View {
     let (label, overdue) = date_label(spec, look);
     let size = look.size * num("type.date");
     let (bg, border) =

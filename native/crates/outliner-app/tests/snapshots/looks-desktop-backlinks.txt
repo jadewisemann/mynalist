@@ -107,7 +107,7 @@ view 0,0 1100x800
         scroll#outline 263,45 837x755 bg=#ffffff scroll 837x331
           view 263,45 837x66
             view#title 263,45 837x66
-              view 313,65 747x34
+              view#title-text 313,65 747x34
                 text 313,65 747x34
                   "Levels"
                     "Levels" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
@@ -131,9 +131,10 @@ view 0,0 1100x800
                         "Second" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 16/24 w400 #222222 underline
           view 263,111 837x30
             view#row 263,111 837x30
-              view 315,115 18x22
-                view 321,123 6x6
-                  view#bullet 321,123 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,115 18x22
+                view 315,115 18x22
+                  view 321,123 6x6
+                    view#bullet 321,123 6x6 bg=#8b8f97 r=3
               view 333,115 727x22
                 text#row-text 339,115 148.5x22
                   "A sibling above"
@@ -141,8 +142,9 @@ view 0,0 1100x800
           view 263,141 837x30
             view#row 263,141 837x30
               view#guide 324,141 1x30 bg=#e3e5e8
-              view 345,145 18x22
-                view#bullet 351,153 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,145 18x22
+                view 345,145 18x22
+                  view#bullet 351,153 6x6 bg=#8b8f97 r=3
               view 363,145 697x22
                 text#row-text 369,145 89.5x22
                   "Its child"
@@ -154,9 +156,10 @@ view 0,0 1100x800
                   text 281,178 6.5x16
                     "1"
                       "1" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 11/16 w400 #8b8f97
-              view 315,175 18x22
-                view 321,183 6x6
-                  view#bullet 321,183 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,175 18x22
+                view 315,175 18x22
+                  view 321,183 6x6
+                    view#bullet 321,183 6x6 bg=#8b8f97 r=3
               view 333,175 727x22
                 text#row-text 339,175 119x22
                   "Second level"
@@ -164,9 +167,10 @@ view 0,0 1100x800
           view 263,201 837x30
             view#row 263,201 837x30
               view#guide 324,201 1x30 bg=#e3e5e8
-              view 345,205 18x22
-                view 351,213 6x6
-                  view#bullet 351,213 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,205 18x22
+                view 345,205 18x22
+                  view 351,213 6x6
+                    view#bullet 351,213 6x6 bg=#8b8f97 r=3
               view 363,205 697x22
                 text#row-text 369,205 277.5x22
                   "Third level with a bold word"
@@ -177,8 +181,9 @@ view 0,0 1100x800
             view#row 263,231 837x30
               view#guide 324,231 1x30 bg=#e3e5e8
               view#guide 354,231 1x30 bg=#e3e5e8
-              view 375,235 18x22
-                view#bullet 381,243 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,235 18x22
+                view 375,235 18x22
+                  view#bullet 381,243 6x6 bg=#8b8f97 r=3
               view 393,235 667x22
                 text#row-text 399,235 119x22
                   "Fourth level"

@@ -54,7 +54,7 @@ view 0,0 390x844
         scroll#outline 0,83 390x761 bg=#ffffff scroll 390x210
           view 0,83 390x60
             view#title 0,83 390x60
-              view 10,97 366x34
+              view#title-text 10,97 366x34
                 text 10,97 366x34
                   "Looks"
                     "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
@@ -63,8 +63,9 @@ view 0,0 390x844
               view#doc-end 0,263 390x30
           view 0,143 390x30
             view#row 0,143 390x30
-              view 12,147 18x22
-                view#bullet 18,155 6x6 bg=#8b8f97 r=3
+              view#bullet-box 12,147 18x22
+                view 12,147 18x22
+                  view#bullet 18,155 6x6 bg=#8b8f97 r=3
               view 30,147 346x22
                 text#row-text 36,147 59.5x22
                   "Levels"
@@ -73,8 +74,9 @@ view 0,0 390x844
           view 0,173 390x30
             view#row 0,173 390x30
               view#guide 21,173 1x30 bg=#e3e5e8
-              view 33,177 18x22
-                view#bullet 39,185 6x6 bg=#8b8f97 r=3
+              view#bullet-box 33,177 18x22
+                view 33,177 18x22
+                  view#bullet 39,185 6x6 bg=#8b8f97 r=3
               view 51,177 325x22
                 text#row-text 57,177 119x22
                   "Second level"
@@ -84,8 +86,9 @@ view 0,0 390x844
             view#row 0,203 390x30
               view#guide 21,203 1x30 bg=#e3e5e8
               view#guide 42,203 1x30 bg=#e3e5e8
-              view 54,207 18x22
-                view#bullet 60,215 6x6 bg=#8b8f97 r=3
+              view#bullet-box 54,207 18x22
+                view 54,207 18x22
+                  view#bullet 60,215 6x6 bg=#8b8f97 r=3
               view 72,207 304x22
                 text#row-text 78,207 277.5x22
                   "Third level with a bold word"
@@ -99,8 +102,9 @@ view 0,0 390x844
               view#guide 21,233 1x30 bg=#e3e5e8
               view#guide 42,233 1x30 bg=#e3e5e8
               view#guide 63,233 1x30 bg=#e3e5e8
-              view 75,237 18x22
-                view#bullet 81,245 6x6 bg=#8b8f97 r=3
+              view#bullet-box 75,237 18x22
+                view 75,237 18x22
+                  view#bullet 81,245 6x6 bg=#8b8f97 r=3
               view 93,237 283x22
                 text#row-text 99,237 119x22
                   "Fourth level"

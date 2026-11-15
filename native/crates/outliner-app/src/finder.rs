@@ -1,7 +1,8 @@
 //! The web's fuzzy finder (`finder` in `apps/web/src/ui/overlay.ts`, `.modal.finder`): an input over a list of
 //! choices ranked by the fuzzy search of the core (`fuzzy_filter`), the first 50; Up and Down move the active one,
 //! Return or a press takes it, Escape or a press outside closes it. The file finder (Mod+O, the Files pane's
-//! search button), "Move item to…" and the inbox picker of the settings use it.
+//! search button), the item finder (Mod+Shift+O), "Move item to…", "Insert template…" and the inbox picker of the
+//! settings use it.
 
 use std::rc::Rc;
 
@@ -150,13 +151,10 @@ pub fn go_anywhere() {
 }
 
 /// "Move item to…" (`moveToDialog`): the item edited or the selected items, moved under a document or an item
-/// chosen in the finder (not under themselves), at the end of its children (`move_item_sent_to_position`'s
-/// default); into another document they are copied there and deleted here, as on the web.
+/// chosen in the finder (not under themselves), at the end of its children (or the start: `move_item_sent_to_position`);
+/// into another document they are copied there and deleted here, as on the web.
 pub fn move_to() {
     let picked = store::peek(|s| {
-        if crate::docview::is_locked(&s.doc) {
-            return None;
-        }
         let ids = match (&s.block, &s.editing) {
             (Some(b), _) => b.ids.clone(),
             (None, Some(c)) if c.id != s.view.zoom => vec![c.id.clone()],
@@ -165,6 +163,15 @@ pub fn move_to() {
         (!ids.is_empty()).then(|| (s.doc.clone(), ids))
     });
     let Some((src, ids)) = picked else { return };
+    move_items_to(ids, src);
+}
+
+/// "Move to…" of items `ids` of document `src` (the item menu's, the keymap's).
+pub fn move_items_to(ids: Vec<NodeId>, src: String) {
+    if ids.is_empty() || store::peek(|s| crate::docview::is_locked(&s.doc)) {
+        return;
+    }
+    let bottom = crate::settings::get().pick("move_item_sent_to_position") != "top";
     let ids = Rc::new(ids);
     let mut all = Vec::new();
     store::peek(|s| {
@@ -173,7 +180,7 @@ pub fn move_to() {
             let title = s.title(d);
             let to = |id: &str, label: String| {
                 let (src, ids, doc, id) = (src.clone(), ids.clone(), d.clone(), id.to_owned());
-                move || move_into(&src, &ids, &doc, &id, &label)
+                move || move_into(&src, &ids, &doc, &id, &label, bottom)
             };
             all.push(Choice::new(title.clone(), "Document", to(ROOT, title.clone())));
             let mut stack: Vec<NodeId> = t.get(ROOT).map(|n| n.children.iter().rev().cloned().collect()).unwrap_or_default();
@@ -192,8 +199,9 @@ pub fn move_to() {
     open("Move to…", all);
 }
 
-/// Moves `ids` of document `src` under `target` of document `doc`, last among its children.
-fn move_into(src: &str, ids: &[NodeId], doc: &str, target: &str, label: &str) {
+/// Moves `ids` of document `src` under `target` of document `doc`, last among its children (first unless
+/// `bottom`).
+fn move_into(src: &str, ids: &[NodeId], doc: &str, target: &str, label: &str, bottom: bool) {
     store::edit(|s| {
         let before = match (&s.block, &s.editing) {
             (Some(b), _) => Some(Mark::Block(b.clone())),
@@ -203,7 +211,7 @@ fn move_into(src: &str, ids: &[NodeId], doc: &str, target: &str, label: &str) {
         let view = s.view.clone();
         if src == doc {
             let Some(session) = s.session_mut(doc) else { return };
-            let mut after = session.live.get(target).and_then(|n| n.children.last().cloned());
+            let mut after = if bottom { session.live.get(target).and_then(|n| n.children.last().cloned()) } else { None };
             let (ops, inverse) = {
                 let mut tx = Tx::new(&mut session.live, store::now());
                 for id in ids {
@@ -219,7 +227,7 @@ fn move_into(src: &str, ids: &[NodeId], doc: &str, target: &str, label: &str) {
                 return;
             };
             if let Some(dest) = s.session_mut(doc) {
-                let after = dest.live.get(target).and_then(|n| n.children.last().cloned());
+                let after = if bottom { dest.live.get(target).and_then(|n| n.children.last().cloned()) } else { None };
                 let (ops, inverse) = {
                     let mut tx = Tx::new(&mut dest.live, store::now());
                     commands::insert_portable(&mut tx, target, after.as_deref(), &items);
@@ -243,4 +251,67 @@ fn move_into(src: &str, ids: &[NodeId], doc: &str, target: &str, label: &str) {
     });
     crate::workspace::changed(doc);
     crate::toast::show(format!("Moved to {label}"));
+}
+
+/// An item of a document with some text, for the item finders: its document, id, text and the line under it.
+#[derive(Clone)]
+struct ItemAt {
+    doc: String,
+    id: NodeId,
+    text: String,
+    sub: String,
+}
+
+/// The items with some text in the documents (`allItems`), each document's in document order.
+fn all_items() -> Vec<ItemAt> {
+    store::peek(|s| {
+        let mut out = Vec::new();
+        for d in &s.files {
+            let Some(t) = s.tree_of(d) else { continue };
+            let title = s.title(d);
+            let mut stack: Vec<NodeId> = t.get(ROOT).map(|n| n.children.iter().rev().cloned().collect()).unwrap_or_default();
+            while let Some(id) = stack.pop() {
+                let Some(n) = t.get(&id) else { continue };
+                let text = item::content(Some(n));
+                if !text.is_empty() {
+                    let sub = format!("{title} › {}", crate::find::breadcrumb(t, &id, ROOT));
+                    out.push(ItemAt { doc: d.clone(), id: id.clone(), text: text.to_owned(), sub });
+                }
+                stack.extend(n.children.iter().rev().cloned());
+            }
+        }
+        out
+    })
+}
+
+/// The finder's choices for items `all`, each doing `then` with the item.
+fn item_choices(all: Vec<ItemAt>, then: impl Fn(&ItemAt) + 'static) -> Vec<Choice> {
+    let then = Rc::new(then);
+    all.into_iter()
+        .map(|x| {
+            let then = then.clone();
+            let (label, sub) = (x.text.clone(), x.sub.clone());
+            Choice::new(label, sub, move || then(&x))
+        })
+        .collect()
+}
+
+/// The item finder (`itemFinder`): an item of any document, shown where it is.
+pub fn goto_item() {
+    open("Jump to any item…", item_choices(all_items(), |x| crate::find::reveal(&x.doc, &x.id)));
+}
+
+/// "Insert template…" (`templateDialog`): a copy of the chosen item (with what is under it) goes after the item
+/// acted on (in its place when it is empty; under the title, last), edited at its start.
+pub fn insert_template() {
+    let Some(target) = crate::commands::exec_targets().into_iter().next() else { return };
+    open(
+        "Insert template: pick an item to copy here…",
+        item_choices(all_items(), move |x| {
+            let item = store::peek(|s| s.tree_of(&x.doc).filter(|t| t.contains(&x.id)).map(|t| commands::to_portable(t, &x.id, None)));
+            if let Some(item) = item {
+                crate::commands::insert_template(&target, item);
+            }
+        }),
+    );
 }

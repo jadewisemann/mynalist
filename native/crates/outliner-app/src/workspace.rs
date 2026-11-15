@@ -266,6 +266,16 @@ pub fn rename(id: &str, title: &str) {
     }
 }
 
+/// The open document's title was edited in place (`syncTitleFromDoc`): its entry takes the new name.
+pub fn sync_title(id: &str, title: &str) {
+    let title = if title.is_empty() { "Untitled" } else { title };
+    if get(id).is_some_and(|e| e.title != title) {
+        run(|tx| {
+            tx.set(id, props(&[("title", Value::String(title.into()))]));
+        });
+    }
+}
+
 /// Move an entry into `parent` (the top level for `None`) at `index` among the others there (`move`).
 pub fn move_to(id: &str, parent: Option<&str>, index: usize) {
     let p = parent.unwrap_or(FILES).to_owned();

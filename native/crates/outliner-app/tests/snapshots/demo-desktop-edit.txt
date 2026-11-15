@@ -359,7 +359,7 @@ view 0,0 1100x800
         scroll#outline 263,45 837x755 bg=#ffffff scroll 837x3696
           view 263,45 837x66
             view#title 263,45 837x66
-              view 313,65 747x34
+              view#title-text 313,65 747x34
                 text 313,65 747x34
                   "Demo"
                     "Demo" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
@@ -369,9 +369,10 @@ view 0,0 1100x800
           view 263,111 837x30
             view#row 263,111 837x30
               view#thread 323.5,126 2x15 bg=#2f8cf0
-              view 315,115 18x22
-                view 321,123 6x6
-                  view#bullet 321,123 6x6 bg=#2f8cf0 r=3
+              view#bullet-box 315,115 18x22
+                view 315,115 18x22
+                  view 321,123 6x6
+                    view#bullet 321,123 6x6 bg=#2f8cf0 r=3
               view 333,115 727x22
                 text#row-text 339,115 119x22
                   "Plain item 1"
@@ -380,17 +381,19 @@ view 0,0 1100x800
             view#row 263,141 837x30
               view#guide 324,141 1x30 bg=#e3e5e8
               view#elbow 323.5,141 26.5x16 r-bl=8 border-b=2 #2f8cf0 border-l=2 #2f8cf0
-              view 345,145 18x22
-                view#bullet 351,153 6x6 bg=#2f8cf0 r=3
+              view#bullet-box 345,145 18x22
+                view 345,145 18x22
+                  view#bullet 351,153 6x6 bg=#2f8cf0 r=3
               view 363,145 697x22
                 input#row-input 369,145 691x22
                   "**Bold** and __italic__ and `code` 2"
           view 263,171 837x30
             view#row 263,171 837x30
               view#guide 324,171 1x30 bg=#e3e5e8
-              view 345,175 18x22
-                view 351,183 6x6
-                  view#bullet 351,183 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,175 18x22
+                view 345,175 18x22
+                  view 351,183 6x6
+                    view#bullet 351,183 6x6 bg=#8b8f97 r=3
               view 363,175 697x22
                 text#row-text 369,175 188.5x22
                   "A link and a #tag 3"
@@ -403,8 +406,9 @@ view 0,0 1100x800
             view#row 263,201 837x30
               view#guide 324,201 1x30 bg=#e3e5e8
               view#guide 354,201 1x30 bg=#e3e5e8
-              view 375,205 18x22
-                view#bullet 381,213 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,205 18x22
+                view 375,205 18x22
+                  view#bullet 381,213 6x6 bg=#8b8f97 r=3
               view 393,205 667x22
                 text#row-text 399,205 148.5x22
                   "한글 항목: 입력 테스트 4"
@@ -412,8 +416,9 @@ view 0,0 1100x800
           view 263,231 837x30
             view#row 263,231 837x30
               view#guide 324,231 1x30 bg=#e3e5e8
-              view 345,235 18x22
-                view#bullet 351,243 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,235 18x22
+                view 345,235 18x22
+                  view#bullet 351,243 6x6 bg=#8b8f97 r=3
               view 363,235 697x22
                 text#row-text 369,235 178.5x22
                   "Mixed 굵게 코드 text 5"
@@ -425,8 +430,9 @@ view 0,0 1100x800
           view 263,261 837x30
             view#row 263,261 837x30
               view#guide 324,261 1x30 bg=#e3e5e8
-              view 345,265 18x22
-                view#bullet 351,273 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,265 18x22
+                view 345,265 18x22
+                  view#bullet 351,273 6x6 bg=#8b8f97 r=3
               view 363,265 697x22
                 text#row-text 369,265 119x22
                   "Plain item 6"
@@ -434,8 +440,9 @@ view 0,0 1100x800
           view 263,291 837x30
             view#row 263,291 837x30
               view#guide 324,291 1x30 bg=#e3e5e8
-              view 345,295 18x22
-                view#bullet 351,303 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,295 18x22
+                view 345,295 18x22
+                  view#bullet 351,303 6x6 bg=#8b8f97 r=3
               view 363,295 697x22
                 text#row-text 369,295 257.5x22
                   "Bold and italic and code 7"
@@ -447,9 +454,10 @@ view 0,0 1100x800
                     " 7" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,321 837x30
             view#row 263,321 837x30
-              view 315,325 18x22
-                view 321,333 6x6
-                  view#bullet 321,333 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,325 18x22
+                view 315,325 18x22
+                  view 321,333 6x6
+                    view#bullet 321,333 6x6 bg=#8b8f97 r=3
               view 333,325 727x22
                 text#row-text 339,325 188.5x22
                   "A link and a #tag 8"
@@ -461,8 +469,9 @@ view 0,0 1100x800
           view 263,351 837x30
             view#row 263,351 837x30
               view#guide 324,351 1x30 bg=#e3e5e8
-              view 345,355 18x22
-                view#bullet 351,363 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,355 18x22
+                view 345,355 18x22
+                  view#bullet 351,363 6x6 bg=#8b8f97 r=3
               view 363,355 697x22
                 text#row-text 369,355 148.5x22
                   "한글 항목: 입력 테스트 9"
@@ -470,9 +479,10 @@ view 0,0 1100x800
           view 263,381 837x30
             view#row 263,381 837x30
               view#guide 324,381 1x30 bg=#e3e5e8
-              view 345,385 18x22
-                view 351,393 6x6
-                  view#bullet 351,393 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,385 18x22
+                view 345,385 18x22
+                  view 351,393 6x6
+                    view#bullet 351,393 6x6 bg=#8b8f97 r=3
               view 363,385 697x22
                 text#row-text 369,385 188.5x22
                   "Mixed 굵게 코드 text 10"
@@ -485,8 +495,9 @@ view 0,0 1100x800
             view#row 263,411 837x30
               view#guide 324,411 1x30 bg=#e3e5e8
               view#guide 354,411 1x30 bg=#e3e5e8
-              view 375,415 18x22
-                view#bullet 381,423 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,415 18x22
+                view 375,415 18x22
+                  view#bullet 381,423 6x6 bg=#8b8f97 r=3
               view 393,415 667x22
                 text#row-text 399,415 129x22
                   "Plain item 11"
@@ -494,8 +505,9 @@ view 0,0 1100x800
           view 263,441 837x30
             view#row 263,441 837x30
               view#guide 324,441 1x30 bg=#e3e5e8
-              view 345,445 18x22
-                view#bullet 351,453 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,445 18x22
+                view 345,445 18x22
+                  view#bullet 351,453 6x6 bg=#8b8f97 r=3
               view 363,445 697x22
                 text#row-text 369,445 267.5x22
                   "Bold and italic and code 12"
@@ -508,8 +520,9 @@ view 0,0 1100x800
           view 263,471 837x30
             view#row 263,471 837x30
               view#guide 324,471 1x30 bg=#e3e5e8
-              view 345,475 18x22
-                view#bullet 351,483 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,475 18x22
+                view 345,475 18x22
+                  view#bullet 351,483 6x6 bg=#8b8f97 r=3
               view#checkbox 365,478 16x16
                 view 365,478 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
               view 381,475 679x22
@@ -523,17 +536,19 @@ view 0,0 1100x800
           view 263,501 837x30
             view#row 263,501 837x30
               view#guide 324,501 1x30 bg=#e3e5e8
-              view 345,505 18x22
-                view#bullet 351,513 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,505 18x22
+                view 345,505 18x22
+                  view#bullet 351,513 6x6 bg=#8b8f97 r=3
               view 363,505 697x22
                 text#row-text 369,505 158.5x22
                   "한글 항목: 입력 테스트 14"
                     "한글 항목: 입력 테스트 14" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,531 837x30
             view#row 263,531 837x30
-              view 315,535 18x22
-                view 321,543 6x6
-                  view#bullet 321,543 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,535 18x22
+                view 315,535 18x22
+                  view 321,543 6x6
+                    view#bullet 321,543 6x6 bg=#8b8f97 r=3
               view 333,535 727x22
                 text#row-text 339,535 188.5x22
                   "Mixed 굵게 코드 text 15"
@@ -545,8 +560,9 @@ view 0,0 1100x800
           view 263,561 837x30
             view#row 263,561 837x30
               view#guide 324,561 1x30 bg=#e3e5e8
-              view 345,565 18x22
-                view#bullet 351,573 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,565 18x22
+                view 345,565 18x22
+                  view#bullet 351,573 6x6 bg=#8b8f97 r=3
               view 363,565 697x22
                 text#row-text 369,565 129x22 bg=#c8e3c0 r=3
                   "Plain item 16"
@@ -554,9 +570,10 @@ view 0,0 1100x800
           view 263,591 837x30
             view#row 263,591 837x30
               view#guide 324,591 1x30 bg=#e3e5e8
-              view 345,595 18x22
-                view 351,603 6x6
-                  view#bullet 351,603 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,595 18x22
+                view 345,595 18x22
+                  view 351,603 6x6
+                    view#bullet 351,603 6x6 bg=#8b8f97 r=3
               view 363,595 697x22
                 text#row-text 369,595 267.5x22
                   "Bold and italic and code 17"
@@ -570,8 +587,9 @@ view 0,0 1100x800
             view#row 263,621 837x30
               view#guide 324,621 1x30 bg=#e3e5e8
               view#guide 354,621 1x30 bg=#e3e5e8
-              view 375,625 18x22
-                view#bullet 381,633 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,625 18x22
+                view 375,625 18x22
+                  view#bullet 381,633 6x6 bg=#8b8f97 r=3
               view 393,625 667x22
                 text#row-text 399,625 198x22
                   "A link and a #tag 18"
@@ -583,8 +601,9 @@ view 0,0 1100x800
           view 263,651 837x30
             view#row 263,651 837x30
               view#guide 324,651 1x30 bg=#e3e5e8
-              view 345,655 18x22
-                view#bullet 351,663 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,655 18x22
+                view 345,655 18x22
+                  view#bullet 351,663 6x6 bg=#8b8f97 r=3
               view 363,655 697x22
                 text#row-text 369,655 158.5x22
                   "한글 항목: 입력 테스트 19"
@@ -592,8 +611,9 @@ view 0,0 1100x800
           view 263,681 837x30
             view#row 263,681 837x30
               view#guide 324,681 1x30 bg=#e3e5e8
-              view 345,685 18x22
-                view#bullet 351,693 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,685 18x22
+                view 345,685 18x22
+                  view#bullet 351,693 6x6 bg=#8b8f97 r=3
               view 363,685 697x22
                 text#row-text 369,685 188.5x22
                   "Mixed 굵게 코드 text 20"
@@ -605,17 +625,19 @@ view 0,0 1100x800
           view 263,711 837x30
             view#row 263,711 837x30
               view#guide 324,711 1x30 bg=#e3e5e8
-              view 345,715 18x22
-                view#bullet 351,723 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,715 18x22
+                view 345,715 18x22
+                  view#bullet 351,723 6x6 bg=#8b8f97 r=3
               view 363,715 697x22
                 text#row-text 369,715 129x22
                   "Plain item 21"
                     "Plain item 21" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,741 837x30
             view#row 263,741 837x30
-              view 315,745 18x22
-                view 321,753 6x6
-                  view#bullet 321,753 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,745 18x22
+                view 315,745 18x22
+                  view 321,753 6x6
+                    view#bullet 321,753 6x6 bg=#8b8f97 r=3
               view 333,745 727x22
                 text#row-text 339,745 267.5x22
                   "Bold and italic and code 22"
@@ -628,8 +650,9 @@ view 0,0 1100x800
           view 263,771 837x30
             view#row 263,771 837x30
               view#guide 324,771 1x30 bg=#e3e5e8
-              view 345,775 18x22
-                view#bullet 351,783 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,775 18x22
+                view 345,775 18x22
+                  view#bullet 351,783 6x6 bg=#8b8f97 r=3
               view 363,775 697x22
                 text#row-text 369,775 198x22
                   "A link and a #tag 23"
@@ -641,9 +664,10 @@ view 0,0 1100x800
           view 263,801 837x30
             view#row 263,801 837x30
               view#guide 324,801 1x30 bg=#e3e5e8
-              view 345,805 18x22
-                view 351,813 6x6
-                  view#bullet 351,813 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,805 18x22
+                view 345,805 18x22
+                  view 351,813 6x6
+                    view#bullet 351,813 6x6 bg=#8b8f97 r=3
               view 363,805 697x22
                 text#row-text 369,805 158.5x22
                   "한글 항목: 입력 테스트 24"
@@ -652,8 +676,9 @@ view 0,0 1100x800
             view#row 263,831 837x30
               view#guide 324,831 1x30 bg=#e3e5e8
               view#guide 354,831 1x30 bg=#e3e5e8
-              view 375,835 18x22
-                view#bullet 381,843 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,835 18x22
+                view 375,835 18x22
+                  view#bullet 381,843 6x6 bg=#8b8f97 r=3
               view 393,835 667x22
                 text#row-text 399,835 188.5x22
                   "Mixed 굵게 코드 text 25"
@@ -665,8 +690,9 @@ view 0,0 1100x800
           view 263,861 837x30
             view#row 263,861 837x30
               view#guide 324,861 1x30 bg=#e3e5e8
-              view 345,865 18x22
-                view#bullet 351,873 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,865 18x22
+                view 345,865 18x22
+                  view#bullet 351,873 6x6 bg=#8b8f97 r=3
               view 363,865 697x22
                 text#row-text 369,865 129x22
                   "Plain item 26"
@@ -674,8 +700,9 @@ view 0,0 1100x800
           view 263,891 837x30
             view#row 263,891 837x30
               view#guide 324,891 1x30 bg=#e3e5e8
-              view 345,895 18x22
-                view#bullet 351,903 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,895 18x22
+                view 345,895 18x22
+                  view#bullet 351,903 6x6 bg=#8b8f97 r=3
               view 363,895 697x22
                 text#row-text 369,895 267.5x22
                   "Bold and italic and code 27"
@@ -688,8 +715,9 @@ view 0,0 1100x800
           view 263,921 837x30
             view#row 263,921 837x30
               view#guide 324,921 1x30 bg=#e3e5e8
-              view 345,925 18x22
-                view#bullet 351,933 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,925 18x22
+                view 345,925 18x22
+                  view#bullet 351,933 6x6 bg=#8b8f97 r=3
               view 363,925 697x22
                 text#row-text 369,925 198x22
                   "A link and a #tag 28"
@@ -700,9 +728,10 @@ view 0,0 1100x800
                     " 28" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,951 837x30
             view#row 263,951 837x30
-              view 315,955 18x22
-                view 321,963 6x6
-                  view#bullet 321,963 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,955 18x22
+                view 315,955 18x22
+                  view 321,963 6x6
+                    view#bullet 321,963 6x6 bg=#8b8f97 r=3
               view 333,955 727x22
                 text#row-text 339,955 158.5x22
                   "한글 항목: 입력 테스트 29"
@@ -710,8 +739,9 @@ view 0,0 1100x800
           view 263,981 837x30
             view#row 263,981 837x30
               view#guide 324,981 1x30 bg=#e3e5e8
-              view 345,985 18x22
-                view#bullet 351,993 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,985 18x22
+                view 345,985 18x22
+                  view#bullet 351,993 6x6 bg=#8b8f97 r=3
               view 363,985 697x22
                 text#row-text 369,985 188.5x22
                   "Mixed 굵게 코드 text 30"
@@ -723,9 +753,10 @@ view 0,0 1100x800
           view 263,1011 837x30
             view#row 263,1011 837x30
               view#guide 324,1011 1x30 bg=#e3e5e8
-              view 345,1015 18x22
-                view 351,1023 6x6
-                  view#bullet 351,1023 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1015 18x22
+                view 345,1015 18x22
+                  view 351,1023 6x6
+                    view#bullet 351,1023 6x6 bg=#8b8f97 r=3
               view 363,1015 697x22
                 text#row-text 369,1015 129x22
                   "Plain item 31"
@@ -734,8 +765,9 @@ view 0,0 1100x800
             view#row 263,1041 837x30
               view#guide 324,1041 1x30 bg=#e3e5e8
               view#guide 354,1041 1x30 bg=#e3e5e8
-              view 375,1045 18x22
-                view#bullet 381,1053 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,1045 18x22
+                view 375,1045 18x22
+                  view#bullet 381,1053 6x6 bg=#8b8f97 r=3
               view#checkbox 395,1048 16x16
                 view 395,1048 16x16 bg=#ffffff r=3 border=1.5 #a7a7a7
               view 411,1045 649x22
@@ -750,8 +782,9 @@ view 0,0 1100x800
           view 263,1071 837x30
             view#row 263,1071 837x30
               view#guide 324,1071 1x30 bg=#e3e5e8
-              view 345,1075 18x22
-                view#bullet 351,1083 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1075 18x22
+                view 345,1075 18x22
+                  view#bullet 351,1083 6x6 bg=#8b8f97 r=3
               view 363,1075 697x22
                 text#row-text 369,1075 198x22
                   "A link and a #tag 33"
@@ -763,8 +796,9 @@ view 0,0 1100x800
           view 263,1101 837x30
             view#row 263,1101 837x30
               view#guide 324,1101 1x30 bg=#e3e5e8
-              view 345,1105 18x22
-                view#bullet 351,1113 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1105 18x22
+                view 345,1105 18x22
+                  view#bullet 351,1113 6x6 bg=#8b8f97 r=3
               view 363,1105 697x22
                 text#row-text 369,1105 158.5x22
                   "한글 항목: 입력 테스트 34"
@@ -772,8 +806,9 @@ view 0,0 1100x800
           view 263,1131 837x30
             view#row 263,1131 837x30
               view#guide 324,1131 1x30 bg=#e3e5e8
-              view 345,1135 18x22
-                view#bullet 351,1143 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1135 18x22
+                view 345,1135 18x22
+                  view#bullet 351,1143 6x6 bg=#8b8f97 r=3
               view 363,1135 697x22
                 text#row-text 369,1135 188.5x22
                   "Mixed 굵게 코드 text 35"
@@ -784,9 +819,10 @@ view 0,0 1100x800
                     " text 35" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,1161 837x30
             view#row 263,1161 837x30
-              view 315,1165 18x22
-                view 321,1173 6x6
-                  view#bullet 321,1173 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,1165 18x22
+                view 315,1165 18x22
+                  view 321,1173 6x6
+                    view#bullet 321,1173 6x6 bg=#8b8f97 r=3
               view 333,1165 727x22
                 text#row-text 339,1165 129x22
                   "Plain item 36"
@@ -794,8 +830,9 @@ view 0,0 1100x800
           view 263,1191 837x30
             view#row 263,1191 837x30
               view#guide 324,1191 1x30 bg=#e3e5e8
-              view 345,1195 18x22
-                view#bullet 351,1203 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1195 18x22
+                view 345,1195 18x22
+                  view#bullet 351,1203 6x6 bg=#8b8f97 r=3
               view 363,1195 697x22
                 text#row-text 369,1195 267.5x22
                   "Bold and italic and code 37"
@@ -808,9 +845,10 @@ view 0,0 1100x800
           view 263,1221 837x30
             view#row 263,1221 837x30
               view#guide 324,1221 1x30 bg=#e3e5e8
-              view 345,1225 18x22
-                view 351,1233 6x6
-                  view#bullet 351,1233 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1225 18x22
+                view 345,1225 18x22
+                  view 351,1233 6x6
+                    view#bullet 351,1233 6x6 bg=#8b8f97 r=3
               view 363,1225 697x22
                 text#row-text 369,1225 198x22
                   "A link and a #tag 38"
@@ -823,8 +861,9 @@ view 0,0 1100x800
             view#row 263,1251 837x30
               view#guide 324,1251 1x30 bg=#e3e5e8
               view#guide 354,1251 1x30 bg=#e3e5e8
-              view 375,1255 18x22
-                view#bullet 381,1263 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,1255 18x22
+                view 375,1255 18x22
+                  view#bullet 381,1263 6x6 bg=#8b8f97 r=3
               view 393,1255 667x22
                 text#row-text 399,1255 158.5x22 bg=#c8e3c0 r=3
                   "한글 항목: 입력 테스트 39"
@@ -832,8 +871,9 @@ view 0,0 1100x800
           view 263,1281 837x30
             view#row 263,1281 837x30
               view#guide 324,1281 1x30 bg=#e3e5e8
-              view 345,1285 18x22
-                view#bullet 351,1293 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1285 18x22
+                view 345,1285 18x22
+                  view#bullet 351,1293 6x6 bg=#8b8f97 r=3
               view 363,1285 697x22
                 text#row-text 369,1285 188.5x22
                   "Mixed 굵게 코드 text 40"
@@ -845,8 +885,9 @@ view 0,0 1100x800
           view 263,1311 837x30
             view#row 263,1311 837x30
               view#guide 324,1311 1x30 bg=#e3e5e8
-              view 345,1315 18x22
-                view#bullet 351,1323 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1315 18x22
+                view 345,1315 18x22
+                  view#bullet 351,1323 6x6 bg=#8b8f97 r=3
               view 363,1315 697x22
                 text#row-text 369,1315 129x22
                   "Plain item 41"
@@ -854,8 +895,9 @@ view 0,0 1100x800
           view 263,1341 837x30
             view#row 263,1341 837x30
               view#guide 324,1341 1x30 bg=#e3e5e8
-              view 345,1345 18x22
-                view#bullet 351,1353 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1345 18x22
+                view 345,1345 18x22
+                  view#bullet 351,1353 6x6 bg=#8b8f97 r=3
               view 363,1345 697x22
                 text#row-text 369,1345 267.5x22
                   "Bold and italic and code 42"
@@ -867,9 +909,10 @@ view 0,0 1100x800
                     " 42" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 18/22 w400 #222222
           view 263,1371 837x30
             view#row 263,1371 837x30
-              view 315,1375 18x22
-                view 321,1383 6x6
-                  view#bullet 321,1383 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,1375 18x22
+                view 315,1375 18x22
+                  view 321,1383 6x6
+                    view#bullet 321,1383 6x6 bg=#8b8f97 r=3
               view 333,1375 727x22
                 text#row-text 339,1375 198x22
                   "A link and a #tag 43"
@@ -881,8 +924,9 @@ view 0,0 1100x800
           view 263,1401 837x30
             view#row 263,1401 837x30
               view#guide 324,1401 1x30 bg=#e3e5e8
-              view 345,1405 18x22
-                view#bullet 351,1413 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1405 18x22
+                view 345,1405 18x22
+                  view#bullet 351,1413 6x6 bg=#8b8f97 r=3
               view 363,1405 697x22
                 text#row-text 369,1405 158.5x22
                   "한글 항목: 입력 테스트 44"
@@ -890,9 +934,10 @@ view 0,0 1100x800
           view 263,1431 837x30
             view#row 263,1431 837x30
               view#guide 324,1431 1x30 bg=#e3e5e8
-              view 345,1435 18x22
-                view 351,1443 6x6
-                  view#bullet 351,1443 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1435 18x22
+                view 345,1435 18x22
+                  view 351,1443 6x6
+                    view#bullet 351,1443 6x6 bg=#8b8f97 r=3
               view 363,1435 697x22
                 text#row-text 369,1435 188.5x22
                   "Mixed 굵게 코드 text 45"
@@ -905,8 +950,9 @@ view 0,0 1100x800
             view#row 263,1461 837x30
               view#guide 324,1461 1x30 bg=#e3e5e8
               view#guide 354,1461 1x30 bg=#e3e5e8
-              view 375,1465 18x22
-                view#bullet 381,1473 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,1465 18x22
+                view 375,1465 18x22
+                  view#bullet 381,1473 6x6 bg=#8b8f97 r=3
               view 393,1465 667x22
                 text#row-text 399,1465 129x22
                   "Plain item 46"
@@ -914,8 +960,9 @@ view 0,0 1100x800
           view 263,1491 837x30
             view#row 263,1491 837x30
               view#guide 324,1491 1x30 bg=#e3e5e8
-              view 345,1495 18x22
-                view#bullet 351,1503 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1495 18x22
+                view 345,1495 18x22
+                  view#bullet 351,1503 6x6 bg=#8b8f97 r=3
               view 363,1495 697x22
                 text#row-text 369,1495 267.5x22
                   "Bold and italic and code 47"
@@ -928,8 +975,9 @@ view 0,0 1100x800
           view 263,1521 837x30
             view#row 263,1521 837x30
               view#guide 324,1521 1x30 bg=#e3e5e8
-              view 345,1525 18x22
-                view#bullet 351,1533 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1525 18x22
+                view 345,1525 18x22
+                  view#bullet 351,1533 6x6 bg=#8b8f97 r=3
               view 363,1525 697x22
                 text#row-text 369,1525 198x22
                   "A link and a #tag 48"
@@ -941,8 +989,9 @@ view 0,0 1100x800
           view 263,1551 837x30
             view#row 263,1551 837x30
               view#guide 324,1551 1x30 bg=#e3e5e8
-              view 345,1555 18x22
-                view#bullet 351,1563 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,1555 18x22
+                view 345,1555 18x22
+                  view#bullet 351,1563 6x6 bg=#8b8f97 r=3
               view 363,1555 697x22
                 text#row-text 369,1555 158.5x22
                   "한글 항목: 입력 테스트 49"

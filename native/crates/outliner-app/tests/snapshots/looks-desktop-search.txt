@@ -119,7 +119,7 @@ view 0,0 1100x800
         scroll#outline 263,81 837x719 bg=#ffffff scroll 837x216
           view 263,81 837x66
             view#title 263,81 837x66
-              view 313,101 747x34
+              view#title-text 313,101 747x34
                 text 313,101 747x34
                   "Looks"
                     "Looks" 'Fira Sans', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif 28/34 w400 #222222
@@ -128,9 +128,10 @@ view 0,0 1100x800
               view#doc-end 263,267 837x30
           view 263,147 837x30
             view#row 263,147 837x30
-              view 315,151 18x22
-                view 321,159 6x6
-                  view#bullet 321,159 6x6 bg=#8b8f97 r=3
+              view#bullet-box 315,151 18x22
+                view 315,151 18x22
+                  view 321,159 6x6
+                    view#bullet 321,159 6x6 bg=#8b8f97 r=3
               view 333,151 727x22
                 text#row-text 339,151 59.5x22
                   "Levels"
@@ -139,9 +140,10 @@ view 0,0 1100x800
           view 263,177 837x30
             view#row 263,177 837x30
               view#guide 324,177 1x30 bg=#e3e5e8
-              view 345,181 18x22
-                view 351,189 6x6
-                  view#bullet 351,189 6x6 bg=#8b8f97 r=3
+              view#bullet-box 345,181 18x22
+                view 345,181 18x22
+                  view 351,189 6x6
+                    view#bullet 351,189 6x6 bg=#8b8f97 r=3
               view 363,181 697x22
                 text#row-text 369,181 119x22
                   "Second level"
@@ -151,9 +153,10 @@ view 0,0 1100x800
             view#row 263,207 837x30
               view#guide 324,207 1x30 bg=#e3e5e8
               view#guide 354,207 1x30 bg=#e3e5e8
-              view 375,211 18x22
-                view 381,219 6x6
-                  view#bullet 381,219 6x6 bg=#8b8f97 r=3
+              view#bullet-box 375,211 18x22
+                view 375,211 18x22
+                  view 381,219 6x6
+                    view#bullet 381,219 6x6 bg=#8b8f97 r=3
               view 393,211 667x22
                 text#row-text 399,211 277.5x22
                   "Third level with a bold word"
@@ -167,8 +170,9 @@ view 0,0 1100x800
               view#guide 324,237 1x30 bg=#e3e5e8
               view#guide 354,237 1x30 bg=#e3e5e8
               view#guide 384,237 1x30 bg=#e3e5e8
-              view 405,241 18x22
-                view#bullet 411,249 6x6 bg=#8b8f97 r=3
+              view#bullet-box 405,241 18x22
+                view 405,241 18x22
+                  view#bullet 411,249 6x6 bg=#8b8f97 r=3
               view 423,241 637x22
                 text#row-text 429,241 119x22
                   "Fourth level"

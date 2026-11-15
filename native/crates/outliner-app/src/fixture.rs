@@ -109,7 +109,8 @@ pub struct FixtureProps {
     /// settings of [`PREFS`] ("prefs"); or a state of the outline: the note of [`noted_item`] edited ("note"),
     /// [`selected_item`] selected ("select"); searching for [`search_query`] ("search"); `[[` typed at the end of
     /// [`edited_item`] ("links"); an item linking to `looks`' "Levels", zoomed in on it with backlinks shown
-    /// ("backlinks"); the help panel ("help"), the mind map ("mindmap"), the tutorial ("tour").
+    /// ("backlinks"); the help panel ("help"), the mind map ("mindmap"), the tutorial ("tour"); the item menu of
+    /// [`selected_item`] ("itemmenu"), the hover toolbar over it ("hoverbar"), an item dragged before it ("drop").
     #[prop(default)]
     pub side: Prop<String>,
 }
@@ -195,6 +196,15 @@ pub fn Fixture(props: FixtureProps) -> impl IntoElement {
             commands::extend(true);
         }
         "search" => crate::find::open(Some(search_query(&doc))),
+        // the item menu of the selected item (area 13), the hover toolbar over it, a drop mark on it
+        "itemmenu" => crate::itemmenu::open(selected_item(&doc), MENU_AT.0, MENU_AT.1),
+        "hoverbar" => {
+            let mut p = settings::get();
+            p.set_flag("item_toolbar_hover", true);
+            settings::use_prefs(p);
+            crate::itemmenu::entered(selected_item(&doc));
+        }
+        "drop" => crate::outline::show_drop(selected_item(&doc), MENU_AT),
         "links" => {
             // `[[` typed at the end of the edited item: the items suggested
             let id = edited_item(&doc);

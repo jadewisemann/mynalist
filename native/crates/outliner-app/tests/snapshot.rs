@@ -540,6 +540,13 @@ fn snapshot_in(doc: &str, editing: bool, device: Device, modes: &str, appearance
         state = format!("editing the note of {}", outliner_app::fixture::noted_item(doc));
     } else if side == "select" {
         state = format!("{} selected", outliner_app::fixture::selected_item(doc));
+    } else if let Some(what) = match side {
+        "itemmenu" => Some("its item menu open"),
+        "hoverbar" => Some("the hover toolbar over it"),
+        "drop" => Some("an item dragged before it"),
+        _ => None,
+    } {
+        state = format!("{}: {what}", outliner_app::fixture::selected_item(doc));
     } else if !side.is_empty() {
         let _ = write!(state, ", the sidebar on {side}");
     }
@@ -755,11 +762,14 @@ fn structural_snapshots() {
         for (doc, side) in [("looks", "search"), ("inline", "search"), ("looks", "links"), ("looks", "backlinks")] {
             more.push((format!("{doc}-{}-{side}.txt", device.name), snapshot(doc, false, device, "", side)));
         }
-        // the help panel, the mind map, the tutorial (area 14)
-        for side in ["help", "mindmap", "tour"] {
+        // the help panel, the mind map, the tutorial (area 14); the item menu with its swatches, a drop mark with
+        // the drag's label (area 13)
+        for side in ["help", "mindmap", "tour", "itemmenu", "drop"] {
             more.push((format!("looks-{}-{side}.txt", device.name), snapshot("looks", false, device, "", side)));
         }
     }
+    // the hover toolbar (desktops only)
+    more.push(("looks-desktop-hoverbar.txt".into(), snapshot("looks", false, DESKTOP, "", "hoverbar")));
     for (name, got) in more {
         let path = dir.join(&name);
         if update {
