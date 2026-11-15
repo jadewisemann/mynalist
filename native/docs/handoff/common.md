@@ -13,8 +13,8 @@ Read this first. Area notes in this folder say what each piece of work is.
   `tags_in`), `commands.rs` (app commands over core commands), `outline.rs` (virtual list, rows, row input, key
   bindings), `toolbar.rs` (top bar, phone toolbar), `sidebar.rs` (tabs, files, tags; desktop panel, phone drawer;
   its open/tab/width state is a global signal, not in the store), `style.rs`
-  (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (inline
-  temporary subset parser, to be replaced by the core port).
+  (the look's values, from `design/*.toml` via `design.rs` and `appearance.rs`), `icons.rs` (web icons as inline SVG), `inline.rs` (the core's
+  inline tokens drawn as NSH text spans), `settings*` (settings screen), `datepicker.rs`.
 - `crates/outliner-mac`: macOS binary, NSH's GPUI backend. Builds on Linux too (GPUI dev libs).
 - CI: `.github/workflows/ci.yml` job `native-core` (fixtures + tests + clippy); `.github/workflows/native.yml` builds
   the macOS .app and the Android APK as artifacts on every push touching `native/`.
