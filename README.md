@@ -10,7 +10,8 @@ packages/core   shared logic: tree + ops, undo, sync client, editor commands, in
 apps/server     Node 24 + node:sqlite + ws — op-log sync server (single user)
 apps/web        Vite + vanilla TS editor
 apps/android    Capacitor shell around apps/web
-deploy/         systemd user service + install script
+deploy/         systemd user service + install script; deploy/homebrew: CLI for the Homebrew formula
+Formula/        Homebrew formula (this repo is its own tap)
 ```
 
 ## Run locally
@@ -22,6 +23,20 @@ npm run dev -w apps/web          # http://localhost:5173 (proxies /api → :8787
 ```
 Open Settings → Sync server → URL `http://localhost:5173`, password → Connect. Without a server the app
 works fully offline ("Local only").
+
+## Install with Homebrew (macOS, Linux)
+
+```sh
+brew tap jadewisemann/mynalist https://github.com/jadewisemann/mynalist
+brew install --HEAD mynalist        # builds main; plain `brew install` once a release is tagged
+mynalist init                       # writes ~/.config/outliner/env (token, password, 127.0.0.1:8080)
+brew services start mynalist        # launchd (macOS) / systemd (Linux), restarts on failure
+```
+Open http://127.0.0.1:8080 and log in with `mynalist password`. The server backs itself up every 24 hours
+(`OUTLINER_BACKUP_HOURS`), and `mynalist backup` runs one now. Config and data use the same paths as
+`deploy/install.sh` below, so switching between the two keeps your data; don't run both at once.
+Update with `brew upgrade --fetch-HEAD mynalist && brew services restart mynalist`. Log:
+`$(brew --prefix)/var/log/mynalist.log`. Releasing: push a tag, then `deploy/homebrew/bump.sh <tag>` and commit.
 
 ## Deploy (this machine, public HTTPS via Tailscale Funnel)
 
