@@ -60,11 +60,13 @@ Client (`DocSession`): `beginSync()` → send → `endSync({version, remote})` (
 
 `GET /api/doc/:id` → `{version, tree}` (initial load). `GET /api/docs` → `[{doc, version}]`.
 
-`WS /api/ws?token=…` → server pushes `{"doc": id, "version": n}` after every accepted batch. Clients sync
+`WS /api/ws` (token as subprotocol `bearer.<base64url>`, never in the URL) → server pushes `{"doc": id, "version": n}` after every accepted batch. Clients sync
 that doc if `n > local version`. Client sends `{"ping":1}` every 30 s.
 
-Auth: single user. Server env `OUTLINER_TOKEN` (required); clients store it after a login screen.
-`POST /api/login {password}` → `{token}` where password is `OUTLINER_PASSWORD`.
+Auth: single user, one token per device. `POST /api/login {password}` (`OUTLINER_PASSWORD`) or
+`{code}` (one-time pairing code shown on a signed-in device) → `{token, device}`; each device can be
+listed and revoked, and changing the password signs out every device. `OUTLINER_TOKEN` is a master
+token for scripts/admin and is never handed out. Details: `apps/server/README.md#authentication`.
 
 Client scheduling: persist locally (IndexedDB) debounced 300 ms; sync debounced 1 s after edits, every
 20 s idle poll as fallback, exponential backoff (2 s → 5 min) on failure.

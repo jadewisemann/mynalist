@@ -15,8 +15,9 @@ OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=<your-password> npm sta
 
 | var | default | |
 |---|---|---|
-| `OUTLINER_TOKEN` | — (required) | bearer token for every API call and the WebSocket |
-| `OUTLINER_PASSWORD` | unset | password for `POST /api/login` (returns the token); login disabled if unset |
+| `OUTLINER_TOKEN` | — (required) | master bearer token for scripts / admin; never returned by login (devices get their own) |
+| `OUTLINER_PASSWORD` | unset | password for `POST /api/login`; unset = only pairing codes. Changing it signs out every device |
+| `OUTLINER_TRUST_PROXY` | on | take the client IP from `X-Forwarded-For` when the TCP peer is loopback (Tailscale Funnel/serve, Caddy on the same host); `0` to disable |
 | `SERVER_PORT` / `PORT` / `OUTLINER_PORT` | `8080` | listen port |
 | `OUTLINER_HOST` | `0.0.0.0` | listen address |
 | `OUTLINER_DB` | `outliner.db` | sqlite file (WAL mode; back up the `-wal` file too, or use `sqlite3 .backup`) |
@@ -32,12 +33,16 @@ OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=<your-password> npm sta
 
 All under `/api`, JSON, `Authorization: Bearer <token>` except login/health.
 
-- `POST /api/login {password}` → `{token}` (10 failures / 15 min per IP → 429)
+- `POST /api/login {password, name?}` or `{code, name?}` → `{token, device}` (see [Authentication](#authentication))
+- `POST /api/pair` → `{code, expires}`: one-time pairing code, valid 5 minutes
+- `GET /api/devices` → `{current, devices:[{id, name, created, lastSeen, lastIp}]}`
+- `DELETE /api/devices/:id` revokes one device; `DELETE /api/devices` revokes all but the caller; `POST /api/logout` revokes the caller
+- `POST /api/devices {name?}` (master token only) → `{token, device}`
 - `POST /api/sync {docs:[{doc, baseVersion, ops}]}` → `{docs:[{doc, version, remote} | {doc, reset:{version, tree}}]}`
 - `GET /api/doc/:id` → `{version, tree}` (unknown doc → `{version: 0, tree: <empty>}`)
 - `GET /api/docs` → `[{doc, version}]`
 - `GET /api/health` → `{ok: true}` (no auth)
-- `WS /api/ws?token=…` (or `Authorization` header) → server pushes `{doc, version}`; `{"ping":1}` → `{"pong":1}`
+- `WS /api/ws` with subprotocols `mynalist, bearer.<base64url(token)>` (or an `Authorization` header) → server pushes `{doc, version}`; `{"ping":1}` → `{"pong":1}`
 
 Notes on semantics:
 - A whole `/api/sync` request is one sqlite transaction. Ops are validated strictly (malformed → 400,
@@ -47,6 +52,27 @@ Notes on semantics:
   in-flight batch back to pending) and re-sends against the new base. `reset` is returned when
   `baseVersion` predates the retained log, is ahead of the server, or names an unknown doc with
   `baseVersion > 0`.
+
+## Authentication
+
+- **One token per device.** Login returns a fresh random token (only its SHA-256 is stored, table
+  `devices`). Settings → Sync & data lists the devices with their last use and IP; any of them can be
+  signed out, which also closes its live WebSocket.
+- **Pairing.** A signed-in device can show a one-time code + QR code (Settings → Sync & data → Add a
+  device). The new device enters the code instead of the password; the QR code is a
+  `<server>/?pair=<code>` link that signs in the web app served by this server. Codes are 50-bit,
+  single use, valid 5 minutes, kept in memory only.
+- **Password change.** A scrypt hash of `OUTLINER_PASSWORD` is kept in `auth_meta`; when the server
+  starts with a different password, every device token is revoked.
+- **WebSocket.** The token is sent as a subprotocol, never in the URL (query strings end up in proxy
+  logs). The old `?token=` form is no longer accepted.
+- **Rate limit.** Wrong passwords / codes: 10 per 15 min per client IP, and 100 per 15 min in total
+  as a backstop. It only blocks *login*: signed-in devices keep working. Behind a proxy on the same
+  host the client IP is the last `X-Forwarded-For` entry (see `OUTLINER_TRUST_PROXY`).
+- **Master token.** `OUTLINER_TOKEN` still works for scripts. Clients that stored it before per-device
+  tokens swap it for a device token on their next start; after updating every device, change
+  `OUTLINER_TOKEN` once so old copies stop working (this also changes the calendar feed URL).
+- The server URL in a build (`VITE_SYNC_SERVER`) is not a secret; the token is.
 
 ## Storage
 

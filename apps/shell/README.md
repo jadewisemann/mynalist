@@ -457,3 +457,5 @@ web code. Flagged in `task.md` rather than fixed here.
 | `'.so' has unexpected e_machine` / fails to load on a phone | Wrong ABI, or 4 KB alignment; run `scripts/android-verify.sh`. |
 | Menu item does nothing | Combo string drifted from the web keymap; run `scripts/smoke-menu.sh`. |
 | Android app shows no data after switching from Capacitor | Different WebView storage directory; import a backup. |
+
+Preconfigured sync server: build with `VITE_SYNC_SERVER=https://…` (or put it in `apps/web/.env.local`); the connect form starts with that URL.

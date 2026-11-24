@@ -42,7 +42,10 @@ describe('auth', () => {
     expect((await api(srv, '/api/login', { method: 'POST', token: null, json: {} })).status).toBe(400);
     const ok = await api(srv, '/api/login', { method: 'POST', token: null, json: { password: PASSWORD } });
     expect(ok.status).toBe(200);
-    expect(ok.data).toEqual({ token: TOKEN });
+    // a fresh per-device token, never the shared master token
+    expect(ok.data.token).toMatch(/^[\w-]{43}$/);
+    expect(ok.data.token).not.toBe(TOKEN);
+    expect((await api(srv, '/api/docs', { token: ok.data.token })).status).toBe(200);
   });
 
   it('rate-limits repeated login failures', async () => {
@@ -337,7 +340,7 @@ describe('history', () => {
 describe('websocket', () => {
   it('pushes {doc, version} after every accepted batch and answers pings', async () => {
     const srv = await start();
-    const ws = new WebSocket(`${srv.url.replace('http', 'ws')}/api/ws?token=${TOKEN}`);
+    const ws = new WebSocket(`${srv.url.replace('http', 'ws')}/api/ws`, ['mynalist', `bearer.${Buffer.from(TOKEN).toString('base64url')}`]);
     const messages: unknown[] = [];
     let wake: (() => void) | null = null;
     ws.on('message', (m) => {

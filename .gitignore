@@ -9,3 +9,5 @@ qa/out
 *.keystore
 android-signing.properties
 .claude/
+.env.local
+.env.*.local
