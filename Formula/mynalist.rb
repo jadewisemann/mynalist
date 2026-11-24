@@ -63,13 +63,11 @@ class Mynalist < Formula
 
     pid = spawn bin/"mynalist", "serve"
     begin
-      health = nil
       30.times do
         sleep 1
-        health = shell_output("curl -fsS http://127.0.0.1:#{port}/api/health 2>/dev/null", nil)
-        break if health.include?("ok")
+        break if quiet_system "curl", "-fsS", "http://127.0.0.1:#{port}/api/health"
       end
-      assert_match "\"ok\":true", health
+      assert_match "\"ok\":true", shell_output("curl -fsS http://127.0.0.1:#{port}/api/health")
       assert_match "<title>", shell_output("curl -fsS http://127.0.0.1:#{port}/")
     ensure
       Process.kill("TERM", pid)
