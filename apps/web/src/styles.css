@@ -682,6 +682,9 @@ body.o-dragging, body.o-dragging * { cursor: grabbing !important; user-select: n
 .share-list { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }
 .share-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .share-row input { flex: 1; min-width: 200px; }
+.pair-code { font: 600 28px/1.2 var(--mono, monospace); letter-spacing: 0.08em; text-align: center; margin: 12px 0; user-select: all; }
+.pair-qr { width: 200px; margin: 0 auto 8px; background: #fff; border-radius: 6px; }
+.pair-qr svg { display: block; width: 100%; height: auto; }
 .share-row a { flex: 1; min-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn.danger { color: #c0392b; }
 

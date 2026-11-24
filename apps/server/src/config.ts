@@ -32,6 +32,7 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
     config: {
       token,
       password: env.OUTLINER_PASSWORD || undefined,
+      trustProxy: !/^(0|false|off|no)$/i.test(env.OUTLINER_TRUST_PROXY ?? ''),
       corsOrigins: origins === '*' || origins === '' ? '*' : origins.split(',').map((s) => s.trim()).filter(Boolean),
       staticDir: env.OUTLINER_STATIC || undefined,
       maxBody: num(env, 'OUTLINER_MAX_BODY_MB', 20) * 1024 * 1024,

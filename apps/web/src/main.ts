@@ -7,7 +7,7 @@ import { Editor } from './editor/editor.ts';
 import { comboOf, Keymap } from './editor/keymap.ts';
 import { renderText, setRenderOptions } from './editor/render.ts';
 import { exportDialog, importOpmlFile } from './ui/exporter.ts';
-import { SyncClient, type SyncState } from './store/sync.ts';
+import { BUILD_SERVER, SyncClient, type SyncState } from './store/sync.ts';
 import { Workspace, type Bookmark } from './store/workspace.ts';
 import { h, icon, toast } from './ui/dom.ts';
 import { finder, modal, showMenu, type MenuItem } from './ui/overlay.ts';
@@ -84,6 +84,7 @@ class App {
 
   async start() {
     await this.sync.init();
+    await this.pairFromUrl();
     this.ws = new Workspace(this.sync);
     this.ws.ensureStructure();
     this.sync.paused = (doc) => doc !== this.route.doc && !!this.ws.get(doc)?.archived;
@@ -1336,19 +1337,24 @@ class App {
     const c = this.sync.config;
     if (c) {
       return h('div', {}, h('div.field', {}, `Connected to ${c.server}`),
-        h('button.btn', { onclick: () => void this.sync.disconnect().then(() => toast('Disconnected')) }, 'Disconnect'));
+        h('button.btn', { onclick: () => void this.sync.disconnect().then(() => toast('Disconnected')) }, 'Disconnect'),
+        h('button.btn', { onclick: () => void this.addDeviceDialog() }, 'Add a device…'),
+        this.deviceList());
     }
-    const url = h('input', { placeholder: 'https://my-server.example', value: location.protocol.startsWith('http') && location.hostname !== 'localhost' && location.port !== '5173' ? location.origin : '' });
+    const served = location.protocol.startsWith('http') && location.hostname !== 'localhost' && location.port !== '5173' ? location.origin : '';
+    const url = h('input', { placeholder: 'https://my-server.example', value: BUILD_SERVER || served });
     const pw = h('input', { type: 'password', placeholder: 'Password' });
+    const code = h('input', { placeholder: 'e.g. 7K3QD-M9XWA', autocapitalize: 'characters', autocomplete: 'off' });
     const status = h('div', { style: 'font-size:13px;color:var(--muted)' });
     return h('div', {},
       h('label.field', {}, 'Sync server URL', url),
-      h('label.field', {}, 'Password', pw),
+      h('label.field', {}, 'Pairing code (Settings → Sync & data → Add a device, on a signed-in device)', code),
+      h('label.field', {}, 'or Password', pw),
       h('button.btn.primary', {
         onclick: () => {
           status.textContent = 'Connecting…';
           this.dropUntouchedWelcome();
-          this.sync.connect(url.value.trim(), pw.value).then(
+          this.sync.connect(url.value.trim(), code.value.trim() ? { code: code.value } : { password: pw.value }).then(
             () => {
               status.textContent = 'Connected.';
               this.sidebar.render();
@@ -1359,6 +1365,80 @@ class App {
       }, 'Connect'),
       status,
     );
+  }
+
+  /** `?pair=CODE` (from the QR code of "Add a device"): sign this browser in to the server it was served from. */
+  private async pairFromUrl() {
+    const q = new URLSearchParams(location.search);
+    const code = q.get('pair');
+    if (!code) return;
+    q.delete('pair');
+    history.replaceState(history.state, '', location.pathname + (q.size ? `?${q}` : '') + location.hash);
+    if (this.sync.config) return;
+    try {
+      await this.sync.connect(BUILD_SERVER || location.origin, { code });
+      toast('This device is now signed in to your sync server');
+    } catch (e) {
+      toast(`Pairing failed: ${(e as Error).message}`);
+    }
+  }
+
+  /** Show a one-time pairing code (and a QR code with a sign-in link) for a new device. */
+  private async addDeviceDialog() {
+    let p: { code: string; expires: number };
+    try {
+      p = await this.sync.pairCode();
+    } catch (e) {
+      toast(`Could not create a pairing code: ${(e as Error).message}`);
+      return;
+    }
+    const pretty = `${p.code.slice(0, 5)}-${p.code.slice(5)}`;
+    const link = `${this.sync.config!.server}/?pair=${p.code}`;
+    const { default: qrcode } = await import('qrcode-generator');
+    const qr = qrcode(0, 'M');
+    qr.addData(link);
+    qr.make();
+    const img = h('div.pair-qr', {});
+    img.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 4, scalable: true });
+    const until = new Date(p.expires).toLocaleTimeString();
+    modal('Add a device', h('div.pair', {},
+      h('p', {}, 'On the new device, open Settings → Sync & data and enter this code (or scan the QR code with its camera to sign in in the browser). It works once, until ' + until + '.'),
+      h('div.pair-code', {}, pretty),
+      img,
+      h('p.hint', {}, 'Anyone who sees this code before it is used can sign in. Close this dialog once the device is connected.')),
+    [{ label: 'Done', primary: true }]);
+  }
+
+  /** Devices signed in to the sync server, each revocable. */
+  private deviceList(): HTMLElement {
+    const box = h('div.share-list');
+    const paint = async () => {
+      let r;
+      try {
+        r = await this.sync.devices();
+      } catch (e) {
+        box.replaceChildren(h('p.hint', {}, `Could not list devices: ${(e as Error).message}`));
+        return;
+      }
+      const when = (ms: number) => new Date(ms).toLocaleString();
+      box.replaceChildren(...[
+        ...r.devices.map((d) => h('div.share-row', {},
+          h('span', {}, d.name + (d.id === r.current ? ' (this device)' : '')),
+          h('span.hint', {}, `last used ${when(d.lastSeen)}${d.lastIp ? ` from ${d.lastIp}` : ''}`),
+          d.id === r.current ? null : h('button.btn.danger', { onclick: async () => {
+            await this.sync.api(`devices/${encodeURIComponent(d.id)}`, undefined, 'DELETE');
+            toast('Device signed out');
+            void paint();
+          } }, 'Sign out'))),
+        r.devices.length > 1 ? h('button.btn', { onclick: async () => {
+          const { revoked } = await this.sync.api<{ revoked: number }>('devices', undefined, 'DELETE');
+          toast(`Signed out ${revoked} other device(s)`);
+          void paint();
+        } }, 'Sign out all other devices') : null,
+      ].filter((n) => n !== null));
+    };
+    void paint();
+    return h('div', {}, h('h4', {}, 'Signed-in devices'), box);
   }
 
   private syncDialog() {

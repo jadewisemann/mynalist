@@ -15,6 +15,11 @@ npm run build -w @outliner/android   # web build + cap sync + ./gradlew assemble
 
 Output: `apps/android/android/app/build/outputs/apk/debug/app-debug.apk` (debug-signed).
 
+Preconfigured sync server: set `VITE_SYNC_SERVER` for the web build (shell env, or a line in
+`apps/web/.env.local`), e.g. `VITE_SYNC_SERVER=https://myhost.tailnet.ts.net npm run build -w @outliner/android`.
+The connect form then starts with that URL; sign in with the password or a pairing code. The same
+variable works for `apps/shell` and the plain web build. The URL is not a secret.
+
 Release build: `scripts/make-keystore.sh` once (keystore + `android-signing.properties` with random passwords in
 `~/.config/outliner`, never in the repo; back them up, updates need the same key), then
 `npm run build:release -w @outliner/android` → `app/build/outputs/apk/release/app-release.apk`.

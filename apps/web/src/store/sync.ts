@@ -7,8 +7,41 @@ export type SyncState = 'synced' | 'saving' | 'saved-locally' | 'offline' | 'err
 
 interface Config {
   server: string;
+  /** this device's own token (from POST /api/login) */
   token: string;
+  /** device id on the server; missing for configs saved before per-device tokens */
+  device?: string;
 }
+
+export interface DeviceRow {
+  id: string;
+  name: string;
+  created: number;
+  lastSeen: number;
+  lastIp: string;
+}
+
+/** Sync server baked into this build (VITE_SYNC_SERVER), used as the default in the connect form. */
+export const BUILD_SERVER = String(import.meta.env.VITE_SYNC_SERVER ?? '').trim().replace(/\/+$/, '');
+
+/** A readable name for this device in the server's device list. */
+export function deviceLabel(): string {
+  const ua = navigator.userAgent;
+  const os = /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS'
+    : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'unknown OS';
+  const w = window as unknown as Record<string, unknown>;
+  const app = '__TAURI_INTERNALS__' in w ? 'Desktop app'
+    : (w.Capacitor as { isNativePlatform?: () => boolean } | undefined)?.isNativePlatform?.() ? 'App'
+    : /Edg\//.test(ua) ? 'Edge' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+  return `${app} on ${os}`;
+}
+
+/** WebSocket subprotocols carrying the token (never put it in the URL: it would end up in proxy logs). */
+const wsProtocols = (token: string) => {
+  const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(token)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return ['mynalist', `bearer.${b64}`];
+};
 
 interface SyncDocResult {
   doc: string;
@@ -48,6 +81,7 @@ export class SyncClient {
       if (snap) this.attach(k.slice(4), new DocSession(snap));
     }
     this.setState(this.config ? 'saved-locally' : 'local-only');
+    if (this.config && !this.config.device) await this.migrateToken();
     if (this.config) {
       this.connectPush();
       this.scheduleSync(0);
@@ -60,23 +94,58 @@ export class SyncClient {
     });
   }
 
-  async connect(server: string, password: string): Promise<void> {
+  /** Sign in with the server password or a one-time pairing code shown on a signed-in device. */
+  async connect(server: string, cred: { password: string } | { code: string }): Promise<void> {
     const base = server.replace(/\/+$/, '');
     const res = await fetch(`${base}/api/login`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ ...cred, name: deviceLabel() }),
     });
-    if (!res.ok) throw new Error(res.status === 401 ? 'Wrong password' : `Login failed (${res.status})`);
-    const { token } = (await res.json()) as { token: string };
-    this.config = { server: base, token };
+    if (!res.ok) {
+      const wrong = 'code' in cred ? 'Invalid or expired pairing code' : 'Wrong password';
+      throw new Error(res.status === 401 ? wrong : res.status === 429 ? 'Too many attempts, try again later' : `Login failed (${res.status})`);
+    }
+    const { token, device } = (await res.json()) as { token: string; device: string };
+    this.config = { server: base, token, device };
     await kvSet(CONFIG_KEY, this.config);
     this.connectPush();
     await this.pullDocList();
     this.scheduleSync(0);
   }
 
+  /** Configs saved before per-device tokens hold the shared master token: swap it for a device token. */
+  private async migrateToken() {
+    const c = this.config!;
+    try {
+      const res = await fetch(`${c.server}/api/devices`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${c.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ name: deviceLabel() }),
+      });
+      if (!res.ok) return; // offline, old server, or already a device token: try again next start
+      const { token, device } = (await res.json()) as { token: string; device: string };
+      this.config = { ...c, token, device };
+      await kvSet(CONFIG_KEY, this.config);
+    } catch {
+      /* offline */
+    }
+  }
+
+  /** A one-time code (valid 5 minutes) another device can sign in with. */
+  async pairCode(): Promise<{ code: string; expires: number }> {
+    return this.api('pair', {});
+  }
+
+  /** Devices signed in to the server (Settings → Sync & data). */
+  async devices(): Promise<{ current: string | null; devices: DeviceRow[] }> {
+    return this.api('devices');
+  }
+
   async disconnect() {
+    const c = this.config;
+    // revoke this device's token on the server (best effort; it may be offline or already revoked)
+    if (c?.device) void fetch(`${c.server}/api/logout`, { method: 'POST', headers: { authorization: `Bearer ${c.token}` } }).catch(() => {});
     this.config = null;
     await kvSet(CONFIG_KEY, null);
     this.ws?.close();
@@ -151,7 +220,7 @@ export class SyncClient {
     });
     if (res.status === 401) {
       this.setState('error');
-      throw new Error('unauthorized');
+      throw new Error('signed out: this device was removed or the server password changed. Reconnect in Settings → Sync & data');
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()) as T;
@@ -248,10 +317,10 @@ export class SyncClient {
   private connectPush() {
     if (!this.config) return;
     this.ws?.close();
-    const url = this.config.server.replace(/^http/, 'ws') + `/api/ws?token=${encodeURIComponent(this.config.token)}`;
+    const url = this.config.server.replace(/^http/, 'ws') + '/api/ws';
     let ws: WebSocket;
     try {
-      ws = new WebSocket(url);
+      ws = new WebSocket(url, wsProtocols(this.config.token));
     } catch {
       return;
     }
@@ -275,8 +344,9 @@ export class SyncClient {
       this.wsPing = window.setInterval(() => ws.readyState === 1 && ws.send('{"ping":1}'), 30_000);
       this.scheduleSync(0);
     };
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       clearInterval(this.wsPing);
+      if (ev.code === 4401) return; // device revoked: the next sync reports it
       if (this.ws === ws && this.config) setTimeout(() => this.ws === ws && this.connectPush(), 5000);
     };
   }

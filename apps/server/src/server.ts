@@ -2,7 +2,6 @@
 
 import http from 'node:http';
 import type { AddressInfo, Socket } from 'node:net';
-import { createHash, timingSafeEqual } from 'node:crypto';
 import { createReadStream, statSync } from 'node:fs';
 import { extname, join, resolve, sep } from 'node:path';
 import { promisify } from 'node:util';
@@ -11,14 +10,19 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { Store, type DocVersion, type StoreOptions } from './store.ts';
 import { BadRequest, isDocId, parseSyncBody } from './validate.ts';
 import { Extras, calendarFeed, calendarKey, isKey, sharePage } from './extras.ts';
+import { Auth, LoginLimiter, clientIp, safeEqual, type Principal } from './auth.ts';
+
+export { safeEqual };
 
 const gzip = promisify(gzipCb);
 
 export interface ServerConfig {
-  /** bearer token every API call / WS connection must present */
+  /** master bearer token (scripts / admin); devices get their own tokens from POST /api/login */
   token: string;
-  /** password accepted by POST /api/login; login disabled when unset */
+  /** password accepted by POST /api/login; login disabled when unset. Changing it signs out every device. */
   password?: string;
+  /** use X-Forwarded-For from a reverse proxy on loopback as the client IP (default true) */
+  trustProxy?: boolean;
   /** allowed CORS origins, or '*' */
   corsOrigins: '*' | string[];
   /** directory with the web build to serve at / (optional) */
@@ -53,12 +57,8 @@ class HttpError extends Error {
   }
 }
 
-const sha = (s: string) => createHash('sha256').update(s, 'utf8').digest();
-
-/** Constant-time string comparison (hashing equalizes lengths). */
-export function safeEqual(a: string, b: string): boolean {
-  return timingSafeEqual(sha(a), sha(b));
-}
+/** WebSocket subprotocol; the token travels as a second `bearer.<base64url(token)>` subprotocol. */
+export const WS_PROTOCOL = 'mynalist';
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -90,19 +90,30 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
 
   // ---- auth ---------------------------------------------------------------
 
-  const authorized = (req: http.IncomingMessage, url: URL, allowQuery: boolean): boolean => {
+  const auth = new Auth(store.db, { token: cfg.token, password: cfg.password });
+  const limiter = new LoginLimiter();
+  const ipOf = (req: http.IncomingMessage) => clientIp(req, cfg.trustProxy !== false);
+
+  const bearer = (req: http.IncomingMessage): string => {
     const h = req.headers.authorization;
-    if (h?.startsWith('Bearer ')) return safeEqual(h.slice(7).trim(), cfg.token);
-    if (allowQuery) {
-      const t = url.searchParams.get('token');
-      if (t) return safeEqual(t, cfg.token);
-    }
-    return false;
+    return h?.startsWith('Bearer ') ? h.slice(7).trim() : '';
   };
 
-  const failures = new Map<string, { n: number; until: number }>();
-  const LOGIN_WINDOW = 15 * 60 * 1000;
-  const LOGIN_MAX_FAILS = 10;
+  /** Token from a WebSocket handshake: Authorization header (non-browser clients) or subprotocol. */
+  const wsToken = (req: http.IncomingMessage): string => {
+    const b = bearer(req);
+    if (b) return b;
+    for (const p of String(req.headers['sec-websocket-protocol'] ?? '').split(',')) {
+      const v = p.trim();
+      if (v.startsWith('bearer.')) return Buffer.from(v.slice(7), 'base64url').toString('utf8');
+    }
+    return '';
+  };
+
+  const deviceName = (req: http.IncomingMessage, given: unknown): string => {
+    if (typeof given === 'string' && given.trim()) return given.trim().replace(/[\x00-\x1f]/g, '');
+    return String(req.headers['user-agent'] ?? 'device').replace(/[\x00-\x1f]/g, '');
+  };
 
   // ---- helpers ------------------------------------------------------------
 
@@ -168,8 +179,17 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
 
   // ---- websocket ----------------------------------------------------------
 
-  const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
+  const wss = new WebSocketServer({
+    noServer: true,
+    maxPayload: 64 * 1024,
+    // never echo the bearer.* subprotocol back
+    handleProtocols: (protocols) => (protocols.has(WS_PROTOCOL) ? WS_PROTOCOL : false),
+  });
   const alive = new WeakMap<WebSocket, boolean>();
+  const wsDevice = new WeakMap<WebSocket, string>();
+  auth.onRevoke = (id) => {
+    for (const ws of wss.clients) if (wsDevice.get(ws) === id) ws.close(4401, 'revoked');
+  };
 
   wss.on('connection', (ws) => {
     alive.set(ws, true);
@@ -314,28 +334,65 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
 
     if (path === '/api/login') {
       if (req.method !== 'POST') throw new HttpError(405, 'method not allowed');
-      if (!cfg.password) throw new HttpError(403, 'login disabled (OUTLINER_PASSWORD not set)');
-      const ip = req.socket.remoteAddress ?? '?';
-      const now = Date.now();
-      const f = failures.get(ip);
-      if (f && f.until < now) failures.delete(ip);
-      if (f && f.until >= now && f.n >= LOGIN_MAX_FAILS) throw new HttpError(429, 'too many attempts');
-      const body = await readJson(req);
-      const pw = (body as { password?: unknown } | null)?.password;
-      if (typeof pw !== 'string') throw new HttpError(400, 'expected {password}');
-      if (!safeEqual(pw, cfg.password)) {
-        const cur = failures.get(ip) ?? { n: 0, until: now + LOGIN_WINDOW };
-        cur.n++;
-        failures.set(ip, cur);
-        throw new HttpError(401, 'wrong password');
+      const ip = ipOf(req);
+      if (limiter.blocked(ip)) throw new HttpError(429, 'too many attempts');
+      const body = (await readJson(req)) as { password?: unknown; code?: unknown; name?: unknown } | null;
+      if (typeof body?.code === 'string') {
+        // pairing code shown on an already signed-in device
+        if (!auth.redeemPairCode(body.code)) {
+          limiter.fail(ip);
+          throw new HttpError(401, 'invalid or expired code');
+        }
+      } else {
+        if (!cfg.password) throw new HttpError(403, 'password login disabled (OUTLINER_PASSWORD not set); pair from a signed-in device');
+        const pw = body?.password;
+        if (typeof pw !== 'string') throw new HttpError(400, 'expected {password} or {code}');
+        if (!safeEqual(pw, cfg.password)) {
+          limiter.fail(ip);
+          throw new HttpError(401, 'wrong password');
+        }
       }
-      failures.delete(ip);
-      return sendJson(req, res, 200, { token: cfg.token });
+      limiter.succeed(ip);
+      const d = auth.issue(deviceName(req, body?.name), ip);
+      return sendJson(req, res, 200, { token: d.token, device: d.id });
     }
 
-    if (!authorized(req, url, false)) {
+    const who: Principal | null = auth.verify(bearer(req), ipOf(req));
+    if (!who) {
       res.setHeader('WWW-Authenticate', 'Bearer');
       throw new HttpError(401, 'unauthorized');
+    }
+    const current = who.kind === 'device' ? who.id : null;
+
+    if (path === '/api/logout') {
+      if (req.method !== 'POST') throw new HttpError(405, 'method not allowed');
+      if (current) auth.revoke(current);
+      return sendJson(req, res, 200, { ok: true });
+    }
+
+    if (path === '/api/devices') {
+      if (req.method === 'GET') return sendJson(req, res, 200, { current, devices: auth.list() });
+      if (req.method === 'POST') {
+        // the master token can mint device tokens (e.g. to move an old client off the shared token)
+        if (who.kind !== 'master') throw new HttpError(403, 'master token required');
+        const body = (await readJson(req)) as { name?: unknown } | null;
+        const d = auth.issue(deviceName(req, body?.name), ipOf(req));
+        return sendJson(req, res, 200, { token: d.token, device: d.id });
+      }
+      if (req.method === 'DELETE') return sendJson(req, res, 200, { revoked: auth.revokeAll(current ?? undefined) });
+      throw new HttpError(405, 'method not allowed');
+    }
+
+    if (path === '/api/pair') {
+      if (req.method !== 'POST') throw new HttpError(405, 'method not allowed');
+      return sendJson(req, res, 200, auth.createPairCode());
+    }
+
+    const dev = /^\/api\/devices\/([\w-]{1,32})$/.exec(path);
+    if (dev) {
+      if (req.method !== 'DELETE') throw new HttpError(405, 'method not allowed');
+      if (!auth.revoke(dev[1]!)) throw new HttpError(404, 'not found');
+      return sendJson(req, res, 200, { ok: true });
     }
 
     if (path === '/api/sync') {
@@ -465,8 +522,13 @@ export async function startServer(cfg: ServerConfig, port = 0, host = '127.0.0.1
       socket.end(`HTTP/1.1 ${status}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`);
     };
     if (url.pathname !== '/api/ws') return reject('404 Not Found');
-    if (!authorized(req, url, true)) return reject('401 Unauthorized');
-    wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
+    // the token is never accepted in the URL: query strings end up in proxy and access logs
+    const who = auth.verify(wsToken(req), ipOf(req));
+    if (!who) return reject('401 Unauthorized');
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      if (who.kind === 'device') wsDevice.set(ws, who.id);
+      wss.emit('connection', ws, req);
+    });
   });
 
   // ---- op log retention ---------------------------------------------------
