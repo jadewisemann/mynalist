@@ -55,7 +55,7 @@ jobs:
           git branch -f ci-head HEAD
           brew tap-new --no-git local/mynalist
           tap=$(brew --repo local/mynalist)
-          sed "s|head \"https://github.com/jadewisemann/mynalist.git\", branch: \"main\"|head \"file://$GITHUB_WORKSPACE\", branch: \"ci-head\"|" \
+          sed "s|head \"https://github.com/jadewisemann/mynalist.git\", branch: \"main\"|head \"file://$GITHUB_WORKSPACE\", branch: \"ci-head\", using: :git|" \
             Formula/mynalist.rb > "$tap/Formula/mynalist.rb"
           grep -q 'branch: "ci-head"' "$tap/Formula/mynalist.rb"
 
