@@ -28,7 +28,7 @@ class Mynalist < Formula
 
     (libexec/"bin").install "deploy/homebrew/mynalist"
     (bin/"mynalist").write_env_script libexec/"bin/mynalist",
-                                      MYNALIST_NODE: Formula["node"].opt_bin/"node",
+                                      MYNALIST_NODE: formula_opt_bin("node")/"node",
                                       MYNALIST_APP:  libexec
   end
 
