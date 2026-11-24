@@ -1,0 +1,96 @@
+#!/bin/sh
+# mynalist: command-line entry point of the Homebrew install (Formula/mynalist.rb).
+#
+#   mynalist init       create the config file with a fresh token and password (once)
+#   mynalist serve      run the sync server + web app in the foreground (what `brew services` runs)
+#   mynalist backup     back up the database now
+#   mynalist password   print the login password
+#   mynalist config     print the config file path and the settings in it (token and password hidden)
+#
+# The layout matches deploy/install.sh, so an existing systemd install's config and data are reused:
+#   config  ${XDG_CONFIG_HOME:-~/.config}/outliner/env       (override: MYNALIST_CONFIG)
+#   data    ${XDG_DATA_HOME:-~/.local/share}/outliner/       (database, uploads, backups)
+# Every OUTLINER_* variable of apps/server/README.md can be set in the config file or the environment;
+# the environment wins.
+set -eu
+
+# Resolve this script through symlinks (Homebrew links bin/mynalist into the prefix).
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in /*) self=$link ;; *) self=$(dirname "$self")/$link ;; esac
+done
+APP=${MYNALIST_APP:-$(cd "$(dirname "$self")/.." && pwd)}
+NODE=${MYNALIST_NODE:-node}
+CONFIG=${MYNALIST_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/outliner/env}
+DATA=${XDG_DATA_HOME:-$HOME/.local/share}/outliner
+
+die() { echo "mynalist: $*" >&2; exit 1; }
+
+rand() { "$NODE" -e "process.stdout.write(require('node:crypto').randomBytes($1).toString('$2'))"; }
+
+init() {
+  if [ -f "$CONFIG" ]; then
+    echo "Config already exists: $CONFIG"
+    return 0
+  fi
+  mkdir -p "$(dirname "$CONFIG")" "$DATA"
+  pass=${OUTLINER_PASSWORD:-$(rand 12 base64url)}
+  umask 077
+  cat > "$CONFIG" <<ENV
+OUTLINER_TOKEN=$(rand 24 hex)
+OUTLINER_PASSWORD=$pass
+OUTLINER_PORT=${OUTLINER_PORT:-8080}
+OUTLINER_HOST=${OUTLINER_HOST:-127.0.0.1}
+OUTLINER_DB=$DATA/outliner.db
+OUTLINER_BACKUP_HOURS=24
+ENV
+  echo "Created $CONFIG"
+  echo "Password: $pass"
+}
+
+# Load the config without overriding variables already set in the environment.
+load() {
+  [ -f "$CONFIG" ] || die "no config at $CONFIG (run: mynalist init)"
+  while IFS= read -r line || [ -n "$line" ]; do
+    case $line in ''|'#'*) continue ;; esac
+    key=${line%%=*}
+    case $key in *[!A-Za-z0-9_]*|'') continue ;; esac
+    eval "[ -n \"\${$key+x}\" ]" && continue
+    export "$key=${line#*=}"
+  done < "$CONFIG"
+  : "${OUTLINER_DB:=$DATA/outliner.db}"
+  : "${OUTLINER_STATIC:=$APP/apps/web/dist}"
+  export OUTLINER_DB OUTLINER_STATIC
+  mkdir -p "$(dirname "$OUTLINER_DB")"
+}
+
+cmd=${1:-help}
+[ $# -gt 0 ] && shift
+case $cmd in
+  init) init ;;
+  serve)
+    load
+    exec "$NODE" "$APP/apps/server/src/main.ts" "$@"
+    ;;
+  backup)
+    load
+    exec "$NODE" "$APP/apps/server/src/backup.ts" "$@"
+    ;;
+  password)
+    load
+    [ -n "${OUTLINER_PASSWORD:-}" ] || die "OUTLINER_PASSWORD is not set in $CONFIG"
+    echo "$OUTLINER_PASSWORD"
+    ;;
+  config)
+    echo "$CONFIG"
+    if [ -f "$CONFIG" ]; then sed -E 's/^(OUTLINER_TOKEN|OUTLINER_PASSWORD)=.*/\1=(hidden)/' "$CONFIG"; fi
+    ;;
+  -v|--version|version)
+    "$NODE" -e "console.log(require(process.argv[1]).version)" "$APP/apps/server/package.json"
+    ;;
+  help|-h|--help)
+    sed -n '2,14p' "$self" | sed 's/^# \{0,1\}//'
+    ;;
+  *) die "unknown command: $cmd (see: mynalist help)" ;;
+esac

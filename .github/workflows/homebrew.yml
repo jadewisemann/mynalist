@@ -1,0 +1,80 @@
+name: homebrew
+
+# Installs Formula/mynalist.rb from this checkout with real Homebrew (macOS and Linux),
+# runs its `test do` block, and on macOS starts it with `brew services`.
+# The formula's head URL points at main, so CI swaps it for this checkout first.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Formula/**'
+      - 'deploy/homebrew/**'
+      - 'apps/server/**'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/homebrew.yml'
+  pull_request:
+    paths:
+      - 'Formula/**'
+      - 'deploy/homebrew/**'
+      - 'apps/server/**'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/homebrew.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: homebrew-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+      HOMEBREW_NO_ANALYTICS: 1
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Put Homebrew on PATH (Linux)
+        if: runner.os == 'Linux'
+        run: echo /home/linuxbrew/.linuxbrew/bin >> "$GITHUB_PATH"
+
+      - name: Make a local tap whose head is this checkout
+        run: |
+          git branch -f ci-head HEAD
+          brew tap-new --no-git local/mynalist
+          tap=$(brew --repo local/mynalist)
+          sed "s|head \"https://github.com/jadewisemann/mynalist.git\", branch: \"main\"|head \"file://$GITHUB_WORKSPACE\", branch: \"ci-head\", using: :git|" \
+            Formula/mynalist.rb > "$tap/Formula/mynalist.rb"
+          grep -q 'branch: "ci-head"' "$tap/Formula/mynalist.rb"
+
+      - run: brew style local/mynalist/mynalist
+      - run: brew install --HEAD --verbose local/mynalist/mynalist
+      - run: brew test --verbose local/mynalist/mynalist
+
+      - name: brew services (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mynalist init
+          brew services start local/mynalist/mynalist
+          for i in $(seq 30); do
+            curl -fsS http://127.0.0.1:8080/api/health && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8080/api/health | grep -q '"ok":true'
+          brew services stop local/mynalist/mynalist
+
+      - name: Service log
+        if: failure() && runner.os == 'macOS'
+        run: cat "$(brew --prefix)/var/log/mynalist.log" || true

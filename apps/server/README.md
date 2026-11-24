@@ -27,6 +27,8 @@ OUTLINER_TOKEN=$(openssl rand -hex 24) OUTLINER_PASSWORD=<your-password> npm sta
 | `OUTLINER_RETAIN_DAYS` / `OUTLINER_RETAIN_VERSIONS` | `30` / `10000` | op log is pruned only past *both* limits (and only up to the latest snapshot); older `baseVersion` gets a `reset` |
 | `OUTLINER_PURGE_DETACHED_DAYS` | `30` | deleted subtrees untouched this long are dropped when snapshotting (`0` = never) |
 | `OUTLINER_CACHE_DOCS` | `64` | loaded Trees kept in memory (LRU) |
+| `OUTLINER_BACKUP_HOURS` | `0` (off) | back up the database from inside the server every N hours (the Homebrew install sets 24; systemd installs use `outliner-backup.timer`) |
+| `OUTLINER_BACKUP_DIR` / `OUTLINER_BACKUP_KEEP` | `backups/` next to the db / `14` | where backups go and how many are kept (also used by `backup.ts`) |
 
 ## API
 
